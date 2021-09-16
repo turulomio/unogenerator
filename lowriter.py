@@ -5,6 +5,7 @@ from os import path
 
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
+from com.sun.star.awt import Size
 
 
 localContext = uno.getComponentContext()
@@ -34,10 +35,38 @@ document.Text.insertString(cursor, "This is another paragraph.", False)
 document.Text.insertString(cursor, "This is another paragraph without inserting a control character.\r as you can see ", False)
 document.Text.insertString(cursor, "\r\t\tThis is an indented paragraph as you can see ", False)
 
-cursor.setPropertyValue("CharHeight", 20)
+# cursor.setPropertyValue("CharHeight", 20)
 document.Text.insertString(cursor, "\rThis is another changing height without styles.", False)
+document.Text.insertControlCharacter(cursor, ControlCharacter.PARAGRAPH_BREAK, False)
 
 
+## IMAGES
+cursor.setPropertyValue("ParaStyleName", "Heading 1")
+document.Text.insertString(cursor, "Images examples", False)
+document.Text.insertControlCharacter(cursor, ControlCharacter.PARAGRAPH_BREAK, False)
+
+cursor.setPropertyValue("ParaStyleName", "Standard")
+document.Text.insertString(cursor, "This is another paragraph.", False)
+
+image=document.createInstance("com.sun.star.text.TextGraphicObject")
+image.AnchorType="AT_PARAGRAPH"
+image.setName("Penguin_paragraph")
+image.GraphicURL=f"file://{path.abspath('./images/vip.png')}"
+image.Size=Size(4000,2000)
+document.Text.insertString(cursor, "This is an image at paragraph.", False)
+document.Text.insertTextContent(cursor,image, False)
+document.Text.insertControlCharacter(cursor, ControlCharacter.PARAGRAPH_BREAK, False)
+
+image=document.createInstance("com.sun.star.text.TextGraphicObject")
+image.AnchorType="AS_CHARACTER"
+image.setName("Penguin_character")
+image.GraphicURL=f"file://{path.abspath('./images/vip.png')}"
+image.Size=Size(4000,2000)
+document.Text.insertString(cursor, "This is an image as character.", False)
+document.Text.insertTextContent(cursor,image, False)
+document.Text.insertControlCharacter(cursor, ControlCharacter.PARAGRAPH_BREAK, False)
+
+## SAVE FILE
 p = PropertyValue()
 fileroot=path.abspath("./examples_lowriter")
 
