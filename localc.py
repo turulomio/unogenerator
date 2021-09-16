@@ -1,5 +1,8 @@
 import uno
 
+from os import path
+
+
 from com.sun.star.beans import PropertyValue
 localContext = uno.getComponentContext()
 resolver = localContext.ServiceManager.createInstanceWithContext('com.sun.star.bridge.UnoUrlResolver',localContext)
@@ -14,10 +17,14 @@ sheet.getCellByPosition(0,0).setString('Idioma')
 sheet.getCellByPosition(1,0).setString('Cadena a traducir')
 sheet.getCellByPosition(1,1).setString("Hola")
 p = PropertyValue()
+fileroot=path.abspath("./localc")
+
 p.Name = "ReadOnly"
 p.Value= "False"
-args=(PropertyValue('FilterName',0,'MS Word 2007 XML',0),)
-print(dir(wb))
-sUrl=uno.systemPathToFileUrl('/home/keko/Proyectos/unogenerator/prueba.ods')
-wb.storeAsURL(sUrl, (p,))
+wb.storeAsURL(f"file://{fileroot}.ods", (p,))
 
+args=(PropertyValue('FilterName',0,'Calc MS Excel 2007 XML',0),)
+wb.storeAsURL(f"file://{fileroot}.xlsx", args)
+
+args=(PropertyValue('FilterName',0,'calc_pdf_Export',0),)
+wb.storeToURL(f"file://{fileroot}.pdf", args)
