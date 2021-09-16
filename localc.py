@@ -17,7 +17,7 @@ sheet.getCellByPosition(0,0).setString('Idioma')
 sheet.getCellByPosition(1,0).setString('Cadena a traducir')
 sheet.getCellByPosition(1,1).setString("Hola")
 p = PropertyValue()
-fileroot=path.abspath("./example_localc")
+fileroot=path.abspath("./examples_localc")
 
 p.Name = "ReadOnly"
 p.Value= "False"
