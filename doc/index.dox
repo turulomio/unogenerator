@@ -1,0 +1,18 @@
+/*! \mainpage OfficeGenerator
+
+Introduction
+============
+
+OfficeGenerator is a python module to read and write LibreOffice and MS Office files.
+
+The main web page is located in <a href="https://github.com/turulomio/officegenerator/">GitHub</a>
+
+Development
+===========
+- Turulomio (Idea y development)
+
+Pypi
+====
+The project uses setuptools distribution system and it's also hosted in <a href="https://pypi.org/project/officegenerator/">https://pypi.org/project/officegenerator/</a>
+
+*/
