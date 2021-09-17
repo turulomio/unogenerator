@@ -50,6 +50,7 @@ def main(arguments=None):
         futures=[]
         with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
             futures.append(executor.submit(demo_ods))
+            futures.append(executor.submit(demo_ods_standard))
             futures.append(executor.submit(demo_odt))
             futures.append(executor.submit(demo_odt_standard))
 
@@ -59,9 +60,9 @@ def main(arguments=None):
 
 
 def demo_ods():
-    doc=ODS("unogenerator.ods", pkg_resources.resource_filename(__name__, 'templates/standard.ods'))
+    doc=ODS("unogenerator.ods")
     doc.createSheet("Hard work", 1)
-    doc.freezeAndSelect("B1")
+    doc.setColumnsWidth([2000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  5000])
     
     doc.addCell("A1", _("Style name"), Colors["Orange"])
     doc.addCell("B1", _("Date and time"), Colors["Orange"])
@@ -86,14 +87,16 @@ def demo_ods():
         doc.addCell(C("I2").addRow(row), pow(-1, row)*-12.121212, Colors[color_key])
         doc.addCell(C("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), Colors[color_key])
         doc.addCell(C("K2").addRow(row), bool(row%2), Colors[color_key])
+    doc.freezeAndSelect("B2")
+    doc.removeSheet(0)
         
         
+    return "demo_ods took {}".format(datetime.now()-doc.init)
         
-    # WITH STYLES. THEY MUST BE CREATED IN TEMPLATE
+def demo_ods_standard():
+    doc=ODS("unogenerator_standard.ods", pkg_resources.resource_filename(__name__, 'templates/standard.ods'))
     doc.createSheet("Styles", 1)
-    doc.setColumnsWidth([2000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  50000])
-#    doc.print_styles()
-    doc.freezeAndSelect("B1")
+    doc.setColumnsWidth([2000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  5000])
     
     doc.addCellWithStyle("A1", _("Style name"), Colors["Orange"], "BoldCenter")
     doc.addCellWithStyle("B1", _("Date and time"), Colors["Orange"], "BoldCenter")
@@ -118,12 +121,13 @@ def demo_ods():
         doc.addCellWithStyle(C("I2").addRow(row), pow(-1, row)*-12.121212, Colors[color_key], "Float2")
         doc.addCellWithStyle(C("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), Colors[color_key], "Time")
         doc.addCellWithStyle(C("K2").addRow(row), bool(row%2), Colors[color_key], "Bool")
+    doc.freezeAndSelect("B2")
     doc.removeSheet(0)
     doc.save()
     doc.export_xlsx()
     doc.close()
 
-    return "demo_ods took {}".format(datetime.now()-doc.init)
+    return "demo_ods_standard took {}".format(datetime.now()-doc.init)
    
 
     

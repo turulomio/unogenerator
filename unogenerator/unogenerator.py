@@ -39,6 +39,9 @@ class ODF:
             styles.sort()
             for style in styles:
                 print ( f"    - {style}")
+                
+    def setMetadata(self):
+        pass
                     
 class ODT(ODF):
     def __init__(self, filename, template=None):
@@ -65,6 +68,12 @@ class ODT(ODF):
             PropertyValue('Overwrite',0,True,0),
         )
         self.document.storeToURL(self.filename[:-4]+".pdf", args)
+        
+    def find_and_remove_and_setcursorposition(self, find):
+        search=self.document.createSearchDescriptor()
+        search.SearchString=find
+        found=self.document.findFirst(search)
+        found.String.replace(find,  "")
         
         
     def export_docx(self):
@@ -191,12 +200,8 @@ class ODS(ODF):
     
     def setColumnsWidth(self, l):
         columns=self.sheet.getColumns()
-        print(columns)
-        print(dir(columns))
         for i, width in enumerate(l):
             column=columns.getByIndex(i)
-            print(column)
-            print(dir(column))
             column.Width=l[i]
             
     def addCell(self, coord, o, color_dict=Colors["White"], outlined=1, alignment="left", decimals=2, bold=False):
@@ -259,12 +264,17 @@ class ODS(ODF):
     def addCellFormula(self):
         pass
         
-    def addMergedCell(self):
+    def addCellMerged(self):
         pass
 
     def freezeAndSelect(self, freeze, current=None, topleft=None):
-        freeze=C.assertCoord(freeze)
-        #self.document.currentController.freezeAtPosition(freeze.letterIndex(), freeze.numberIndex())
+        freeze=C.assertCoord(freeze)       
+        print(self.document)
+        print(self.document.getCurrentController())
+        print(dir(self.document.getCurrentController()))
+        self.document.getCurrentController().setActiveSheet(self.sheet)
+        ##self.document.getCurrentController().Position=self.sheet.getCellByPosition(freeze.letterIndex(), freeze.numberIndex())
+        self.document.getCurrentController().freezeAtPosition(freeze.letterIndex(), freeze.numberIndex())
         
     def getValue(self, coord):
         pass

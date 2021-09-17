@@ -23,10 +23,12 @@ except:
 Colors={}
 Colors["Black"]={"color":0, "contrast":0xFFFFFF}
 Colors["White"]={"color":0xFFFFFF, "contrast":0}
-Colors["Blue"]={"color":0x0000FF, "contrast":0xFFFFFF}
-Colors["Red"]={"color":0xFF0000, "contrast":0xFFFFFF}
-Colors["Green"]={"color":0x00FF00, "contrast":0xFFFFFF}
-Colors["Orange"]={"color":0xffaa7f,   "contrast":0xFFFFFF}
+Colors["Blue"]={"color":0x5555ff, "contrast":0xFFFFFF}
+Colors["Red"]={"color":0xFF5555, "contrast":0xFFFFFF}
+Colors["Green"]={"color":0x55FF55, "contrast":0xFFFFFF}
+Colors["Orange"]={"color":0xffaa00,   "contrast":0xFFFFFF}
+Colors["Yellow"]={"color":0xffff7f,   "contrast":0xFFFFFF}
+Colors["GrayLight"]={"color":0xd2ced4,   "contrast":0xFFFFFF}
 
 ## Function used in argparse_epilog
 ## @return String
