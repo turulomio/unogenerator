@@ -56,6 +56,8 @@ def main(arguments=None):
 
         for future in as_completed(futures):
             print(future.result())
+            
+        print(demo_ods_standard_read())
         print("All process took {}".format(datetime.now()-start))
 
 
@@ -124,12 +126,27 @@ def demo_ods_standard():
         doc.addCellWithStyle(C("I2").addRow(row), pow(-1, row)*-12.121212, Colors[color_key], "Float2")
         doc.addCellWithStyle(C("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), Colors[color_key], "Time")
         doc.addCellWithStyle(C("K2").addRow(row), bool(row%2), Colors[color_key], "Bool")
+        
+    doc.addCellWithStyle("E10","=sum(E2:E8)", Colors["GrayLight"], "EUR" )
+    doc.addCellMerged("E12:K12", "Prueba de merge", Colors["Yellow"], style="BoldCenter")
+    doc.setComment("B11", "This is nice comment")
+    
     doc.freezeAndSelect("B2")
     doc.removeSheet(0)
+#    doc.calculateAll()
     doc.save()
     doc.export_xlsx()
     doc.close()
 
+    return "demo_ods_standard took {}".format(datetime.now()-doc.init)
+    
+    
+def demo_ods_standard_read():
+    doc=ODS("donotsaveme.ods", "./unogenerator_standard.ods")
+    doc.setActiveSheet(0)
+    print(doc.getValue("E9"))
+    print(doc.getValue("E10"))
+    doc.close()
     return "demo_ods_standard took {}".format(datetime.now()-doc.init)
    
 

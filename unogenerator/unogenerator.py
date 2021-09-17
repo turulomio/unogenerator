@@ -10,7 +10,7 @@ from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.style.BreakType import PAGE_AFTER
 #from unogenerator.reusing.casts import object2value
-from unogenerator.commons import Coord as C, Colors
+from unogenerator.commons import Coord as C, Colors,  Range as R
 
 class ODF:
     def __init__(self, filename,  template=None, loserver_port=2002):
@@ -204,28 +204,19 @@ class ODS(ODF):
             column=columns.getByIndex(i)
             column.Width=l[i]
             
+    def setComment(self, coord, comment):
+        coord=C.assertCoord(coord)
+#        print(cell.supportsService("com.sun.star.sheet.XSheetAnnotation"))
+        celladdress= createUnoStruct("com.sun.star.table.CellAddress")
+        celladdress.Sheet=self.sheet_index
+        celladdress.Column=coord.letterIndex()
+        celladdress.Row=coord.numberIndex()
+        self.sheet.Annotations.insertNew(celladdress, comment)
+            
     def addCell(self, coord, o, color_dict=Colors["White"], outlined=1, alignment="left", decimals=2, bold=False):
         coord=C.assertCoord(coord)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
-        if o.__class__.__name__  == "datetime":
-            cell.setString(str(o))
-        elif o.__class__.__name__ in ("date", "timedelta" , "time"):
-            cell.setString(str(o))
-        elif o.__class__.__name__ in ("Percentage", "Money"):
-            cell.setValue(float(o.value))
-        elif o.__class__.__name__ in ("Currency", "Money"):
-            cell.setValue(float(o.amount))
-        elif o.__class__.__name__ in ("Decimal",  "float"):
-            cell.setValue(float(o))
-        elif o.__class__.__name__ in ("int", ):
-            cell.setValue(int(o))
-        elif o.__class__.__name__ in ("str", ):
-            cell.setString(str(o))
-        elif o.__class__.__name__ in ("bool", ):
-            cell.setValue(int(o))
-        else:
-            cell.setString(str(o))
-            print("MISSING", o.__class__.__name__)
+        self.__set_value_to_cell(cell, o)
             
         border_prop = createUnoStruct("com.sun.star.table.BorderLine2")
         border_prop.LineWidth = outlined
@@ -238,6 +229,11 @@ class ODS(ODF):
     def addCellWithStyle(self, coord, o, color_dict=Colors["White"], style=None):
         coord=C.assertCoord(coord)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
+        self.__set_value_to_cell(cell, o)
+        cell.setPropertyValue("CellStyle", style)
+        cell.setPropertyValue("CellBackColor", color_dict["color"])
+        
+    def __set_value_to_cell(self, cell, o):
         if o.__class__.__name__  == "datetime":
             cell.setString(str(o))
         elif o.__class__.__name__ in ("date", "timedelta" , "time"):
@@ -251,21 +247,24 @@ class ODS(ODF):
         elif o.__class__.__name__ in ("int", ):
             cell.setValue(int(o))
         elif o.__class__.__name__ in ("str", ):
-            cell.setString(str(o))
+            if o.startswith("=") or o.startswith("+"):
+                cell.setFormula(o)
+            else:
+                cell.setString(o)
         elif o.__class__.__name__ in ("bool", ):
             cell.setValue(int(o))
         else:
             cell.setString(str(o))
             print("MISSING", o.__class__.__name__)
-            
+        
+    def addCellMerged(self, range, o, color_dict=Colors["White"], style=None):
+        range=R.assertRange(range)
+        cell=self.sheet.getCellByPosition(range.start.letterIndex(), range.start.numberIndex())
+        cellrange=self.sheet.getCellRangeByName(range.string())
+        cellrange.merge(True)
+        self.__set_value_to_cell(cell, o)
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color_dict["color"])
-        
-    def addCellFormula(self):
-        pass
-        
-    def addCellMerged(self):
-        pass
 
     def freezeAndSelect(self, freeze, current=None, topleft=None):
         freeze=C.assertCoord(freeze) 
@@ -283,7 +282,9 @@ class ODS(ODF):
             self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
         
     def getValue(self, coord):
-        pass
+        coord=C.assertCoord(coord)
+        cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
+        return cell.getValue()
 
     def save(self):
         ## SAVE FILE
