@@ -3,13 +3,14 @@
 
 from datetime import datetime
 from os import path
-from uno import getComponentContext
+from uno import getComponentContext, createUnoStruct
 
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.style.BreakType import PAGE_AFTER
 #from unogenerator.reusing.casts import object2value
+from unogenerator.commons import Coord as C
 
 class ODF:
     def __init__(self, filename,  template=None, loserver_port=2002):
@@ -21,6 +22,9 @@ class ODF:
         resolver = localContext.ServiceManager.createInstanceWithContext('com.sun.star.bridge.UnoUrlResolver',localContext)
         ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
         self.desktop = ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
+
+    def calculateAll(self):
+        self.document.calculateAll()
 
     def close(self):
         self.document.dispose()
@@ -168,6 +172,54 @@ class ODS(ODF):
             self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',0,())
         else:
             self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,())
+        self.sheet_index=0
+        self.sheet=self.setActiveSheet(self.sheet_index)
+            
+    def createSheet(self, name, index):
+        self.document.getSheets().insertNewByName(name, index)
+        self.setActiveSheet(index)
+        
+    def removeSheet(self, index):
+        current=self.sheet.Name
+        self.setActiveSheet(index)
+        self.document.getSheets().removeByName(self.sheet.Name)
+        self.document.getSheets().getByName(current)
+
+    def setActiveSheet(self,  index):
+        self.sheet_index=index
+        self.sheet=self.document.getSheets().getByIndex(index)
+            
+    def addCell(self, coord, o, color=None, outlined=1, alignment="left", decimals=2):
+        coord=C.assertCoord(coord)
+        cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
+        if o.__class__.__name__  == "datetime":
+            cell.setString(str(o))
+#                s=Span(text=dtnaive2string(o, "%Y-%m-%d %H:%M:%S"))
+        if o.__class__.__name__ in ("str", "date" ):
+            cell.setString(str(o))
+        elif o.__class__.__name__ in ("Currency", "Percentage", "Money"):
+            cell.setValue(o.value)
+        elif o.__class__.__name__ in ("int", "Decimal",  "float"):
+            cell.setValue(o)
+        else:
+            print("MISSING")
+            
+        border_prop = createUnoStruct("com.sun.star.table.BorderLine2")
+        border_prop.LineWidth = outlined
+        cell.setPropertyValue("TopBorder", border_prop)
+        
+    def addCellFormula(self):
+        pass
+        
+    def addMergedCell(self):
+        pass
+
+    def freezeAndSelect(self, freeze, current=None, topleft=None):
+        freeze=C.assertCoord(freeze)
+        #self.document.currentController.freezeAtPosition(freeze.letterIndex(), freeze.numberIndex())
+        
+    def getValue(self, coord):
+        pass
 
     def save(self):
         ## SAVE FILE

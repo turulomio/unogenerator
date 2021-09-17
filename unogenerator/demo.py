@@ -58,6 +58,13 @@ def main(arguments=None):
 
 def demo_ods():
     doc=ODS("unogenerator.ods")
+    doc.createSheet("Example", 1)
+    doc.addCell("A1", "Name")
+    doc.addCell("B1", "Value")
+    doc.addCell("A2",  "Float")
+    doc.addCell("B2", float(12.121))
+    doc.freezeAndSelect("B1")
+    doc.removeSheet(0)
     doc.save()
     doc.export_xlsx()
     doc.close()

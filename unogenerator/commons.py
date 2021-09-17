@@ -10,8 +10,8 @@ from shutil import copyfile
 from subprocess import run, PIPE
 from tempfile import TemporaryDirectory
 
-__version__ = '1.28.0'
-__versiondatetime__=datetime(2021, 2, 27, 16, 11)
+__version__ = '0.1.0'
+__versiondatetime__=datetime(2021, 9, 17, 14, 11)
 __versiondate__=__versiondatetime__.date()
 
 try:
@@ -23,7 +23,7 @@ except:
 ## Function used in argparse_epilog
 ## @return String
 def argparse_epilog():
-    return _("Developed by Mariano Muñoz 2015-{}").format(__versiondate__.year)
+    return _("Developed by Mariano Muñoz 2020-{}").format(__versiondate__.year)
 
 
 ## Allows to operate with columns letter names
