@@ -67,15 +67,33 @@ document.Text.insertString(cursor, "This is an image as character.", False)
 document.Text.insertTextContent(cursor,image, False)
 document.Text.insertControlCharacter(cursor, ControlCharacter.PARAGRAPH_BREAK, False)
 
+
+## Table by cellname
+cursor.setPropertyValue("ParaStyleName", "Heading 1")
+document.Text.insertString(cursor, "Table examples by cell name", False)
+document.Text.insertControlCharacter(cursor, ControlCharacter.PARAGRAPH_BREAK, False)
+table=document.createInstance("com.sun.star.text.TextTable")
+table.initialize(6,2)
+table.LeftMargin = 10000
+table.RightMargin = 10000
+document.Text.insertTextContent(cursor,table,False)
+table.getCellByName("A1").setString("Id")
+table.getCellByName("B1").setString("Name")
+table.getCellByName("A2").setString("1")
+table.getCellByName("B2").setString("Paco")
+table.getCellByName("A3").setString("2")
+table.getCellByName("B3").setString("Pepe")
+
+
 ## SAVE FILE
 p = PropertyValue()
-fileroot=path.abspath("./examples_lowriter")
+fileroot=path.abspath("./examples_lowriter_standard")
 
 args=(
     PropertyValue('FilterName',0,'writer8',0),
     PropertyValue('Overwrite',0,True,0),
 )
-document.storeAsURL(f"file://{fileroot}.odt", args)
+document.storeToURL(f"file://{fileroot}.odt", args)
 print(document.URL)
 args=(PropertyValue('FilterName',0,'MS Word 2007 XML',0),
     PropertyValue('Overwrite',0,True,0),)
