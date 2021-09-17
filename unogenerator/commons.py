@@ -20,6 +20,14 @@ try:
 except:
     _=str
 
+Colors={}
+Colors["Black"]={"color":0, "contrast":0xFFFFFF}
+Colors["White"]={"color":0xFFFFFF, "contrast":0}
+Colors["Blue"]={"color":0x0000FF, "contrast":0xFFFFFF}
+Colors["Red"]={"color":0xFF0000, "contrast":0xFFFFFF}
+Colors["Green"]={"color":0x00FF00, "contrast":0xFFFFFF}
+Colors["Orange"]={"color":0xffaa7f,   "contrast":0xFFFFFF}
+
 ## Function used in argparse_epilog
 ## @return String
 def argparse_epilog():

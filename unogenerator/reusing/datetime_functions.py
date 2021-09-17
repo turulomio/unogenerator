@@ -29,6 +29,11 @@ def dtaware(date, hour, tz_name):
     a=z.localize(a)
     return a
 
+def dtnaive2dtaware(dtnaive, tz_name):
+    z=timezone(tz_name)
+    return z.localize(dtnaive)
+
+
 def dtaware_now(tzname='UTC'):
     return timezone(tzname).localize(dtnaive_now())
 
@@ -251,7 +256,7 @@ def string2dtnaive(s, format):
         if format=="%Y-%m-%d %H:%M:%S.":#2017-11-20 23:00:00.000000  ==>  microsecond. Notice the point in format
             arrPunto=s.split(".")
             s=arrPunto[0]
-            micro=int(arrPunto[1])
+            micro=int(arrPunto[1]) if len(arrPunto)==2 else 0
             dt=datetime.strptime( s, "%Y-%m-%d %H:%M:%S" )
             dt=dt+timedelta(microseconds=micro)
             return dt
@@ -263,7 +268,7 @@ def string2dtnaive(s, format):
         error("I can't convert this format '{}'. I only support this {}".format(format, allowed))
 
 def string2dtaware(s, format, tz_name='UTC'):
-    allowed=["%Y-%m-%d %H:%M:%S%z","%Y-%m-%d %H:%M:%S.%z"]
+    allowed=["%Y-%m-%d %H:%M:%S%z","%Y-%m-%d %H:%M:%S.%z", "JsUtcIso"]
     if format in allowed:
         if format=="%Y-%m-%d %H:%M:%S%z":#2017-11-20 23:00:00+00:00
             s=s[:-3]+s[-2:]
@@ -277,6 +282,12 @@ def string2dtaware(s, format, tz_name='UTC'):
             dt=datetime.strptime( s, "%Y-%m-%d %H:%M:%S%z" )
             dt=dt+timedelta(microseconds=micro)
             return dtaware_changes_tz(dt, tz_name)
+        if format=="JsUtcIso": #2021-08-21T06:27:38.294Z
+            s=s.replace("T"," ").replace("Z","")
+            dtnaive=string2dtnaive(s,"%Y-%m-%d %H:%M:%S.")
+            dtaware_utc=dtnaive2dtaware(dtnaive, 'UTC')
+            return dtaware_changes_tz(dtaware_utc, tz_name)
+
     else:
         return timezone(tz_name).localize(string2dtnaive(s,format))
 
@@ -413,3 +424,9 @@ if __name__ == "__main__":
     a="2019-10-03 2:22:09.267"
     format="%Y-%m-%d %H:%M:%S."
     print("  - {}: {} and {}".format(a,string2dtnaive(a,format),string2dtaware(a,format)))
+    
+    print("Js UTC ISO 2 DTAWARE")
+    a="2021-08-21T06:27:38.294Z"
+    print(f"  - {a}: {string2dtaware(a,'JsUtcIso','Europe/Madrid')}")
+
+

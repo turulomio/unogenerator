@@ -1,6 +1,6 @@
 include LICENSE.txt  *.py
 recursive-include locale *.po 
-recursive-include unogenerator *.py *.mo *.odt
+recursive-include unogenerator *.py *.mo *.odt *.ods
 recursive-include unogenerator/images *.png
 recursive-include unogenerator/reusing *.py
 prune __pycache__

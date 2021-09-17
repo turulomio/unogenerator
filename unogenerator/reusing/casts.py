@@ -2,9 +2,10 @@
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 
 from decimal import Decimal
+from json import dumps
 from logging import warning
-from .objects.currency import Currency
-from .objects.percentage import Percentage
+from currency import Currency
+from percentage import Percentage
 
 def valueORempty(v):
     return "" if v is None else v
@@ -261,6 +262,26 @@ def value2object(value, stringtypes):
         return Percentage(value, 1)
     return value
 
+    
+def var2json(var):
+    if var.__class__.__name__=="Decimal":
+        return float(var)
+    elif var.__class__.__name__=="datetime":
+        return var.isoformat()[:-6]+"Z"
+    elif var.__class__.__name__=="date":
+        return str(var)
+    elif var.__class__.__name__=="bool":
+        return dumps(var)
+    elif var.__class__.__name__=="Percentage":
+        return dumps(var2json(var.value))
+    elif var.__class__.__name__=="Currency":
+        return dumps(var2json(var.amount))
+    elif var is None:
+        return dumps(var)
+    return var
+
+
+
 if __name__ == "__main__":
     def print_lor(lor):
         print("")
@@ -286,3 +307,13 @@ if __name__ == "__main__":
 
     c=lor_transposed(b)
     print_lor(c)
+
+    d=Decimal("12.3")
+    json_d=var2json(d)
+    print (d, json_d, json_d.__class__)
+    d=None
+    json_d=var2json(d)
+    print (d, json_d, json_d.__class__)
+    d=True
+    json_d=var2json(d)
+    print (d, json_d, json_d.__class__)

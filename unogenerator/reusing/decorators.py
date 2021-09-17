@@ -8,6 +8,23 @@ from platform import system as platform_system
 from sys import exit
 
 ## allows you to measure the execution time of the method/function by just adding the @timeit decorator on the method.
+## Difference with timeit it's that output is a print command
+## @param method
+def ptimeit(method):
+    def timed(*args, **kw):
+        ts = time()
+        result = method(*args, **kw)
+        te = time()
+
+        if 'log_time' in kw:
+            name = kw.get('log_name', method.__name__.upper())
+            kw['log_time'][name] = int((te - ts) * 1000)
+        else:
+            print('%r took  %2.2f ms' % (method.__name__, (te - ts) * 1000))
+        return result
+    return timed
+
+## allows you to measure the execution time of the method/function by just adding the @timeit decorator on the method.
 ## @param method
 def timeit(method):
     def timed(*args, **kw):
@@ -21,7 +38,6 @@ def timeit(method):
         else:
             debug('%r took  %2.2f ms' % (method.__name__, (te - ts) * 1000))
         return result
-
     return timed
 
 ## Checks if there is internet

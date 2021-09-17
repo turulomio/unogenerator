@@ -10,7 +10,7 @@ from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.style.BreakType import PAGE_AFTER
 #from unogenerator.reusing.casts import object2value
-from unogenerator.commons import Coord as C
+from unogenerator.commons import Coord as C, Colors
 
 class ODF:
     def __init__(self, filename,  template=None, loserver_port=2002):
@@ -188,25 +188,73 @@ class ODS(ODF):
     def setActiveSheet(self,  index):
         self.sheet_index=index
         self.sheet=self.document.getSheets().getByIndex(index)
+    
+    def setColumnsWidth(self, l):
+        columns=self.sheet.getColumns()
+        print(columns)
+        print(dir(columns))
+        for i, width in enumerate(l):
+            column=columns.getByIndex(i)
+            print(column)
+            print(dir(column))
+            column.Width=l[i]
             
-    def addCell(self, coord, o, color=None, outlined=1, alignment="left", decimals=2):
+    def addCell(self, coord, o, color_dict=Colors["White"], outlined=1, alignment="left", decimals=2, bold=False):
         coord=C.assertCoord(coord)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         if o.__class__.__name__  == "datetime":
             cell.setString(str(o))
-#                s=Span(text=dtnaive2string(o, "%Y-%m-%d %H:%M:%S"))
-        if o.__class__.__name__ in ("str", "date" ):
+        elif o.__class__.__name__ in ("date", "timedelta" , "time"):
             cell.setString(str(o))
-        elif o.__class__.__name__ in ("Currency", "Percentage", "Money"):
-            cell.setValue(o.value)
-        elif o.__class__.__name__ in ("int", "Decimal",  "float"):
-            cell.setValue(o)
+        elif o.__class__.__name__ in ("Percentage", "Money"):
+            cell.setValue(float(o.value))
+        elif o.__class__.__name__ in ("Currency", "Money"):
+            cell.setValue(float(o.amount))
+        elif o.__class__.__name__ in ("Decimal",  "float"):
+            cell.setValue(float(o))
+        elif o.__class__.__name__ in ("int", ):
+            cell.setValue(int(o))
+        elif o.__class__.__name__ in ("str", ):
+            cell.setString(str(o))
+        elif o.__class__.__name__ in ("bool", ):
+            cell.setValue(int(o))
         else:
-            print("MISSING")
+            cell.setString(str(o))
+            print("MISSING", o.__class__.__name__)
             
         border_prop = createUnoStruct("com.sun.star.table.BorderLine2")
         border_prop.LineWidth = outlined
         cell.setPropertyValue("TopBorder", border_prop)
+        cell.setPropertyValue("LeftBorder", border_prop)
+        cell.setPropertyValue("RightBorder", border_prop)
+        cell.setPropertyValue("BottomBorder", border_prop)
+        cell.setPropertyValue("CellBackColor", color_dict["color"])
+
+    def addCellWithStyle(self, coord, o, color_dict=Colors["White"], style=None):
+        coord=C.assertCoord(coord)
+        cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
+        if o.__class__.__name__  == "datetime":
+            cell.setString(str(o))
+        elif o.__class__.__name__ in ("date", "timedelta" , "time"):
+            cell.setString(str(o))
+        elif o.__class__.__name__ in ("Percentage", "Money"):
+            cell.setValue(float(o.value))
+        elif o.__class__.__name__ in ("Currency", "Money"):
+            cell.setValue(float(o.amount))
+        elif o.__class__.__name__ in ("Decimal",  "float"):
+            cell.setValue(float(o))
+        elif o.__class__.__name__ in ("int", ):
+            cell.setValue(int(o))
+        elif o.__class__.__name__ in ("str", ):
+            cell.setString(str(o))
+        elif o.__class__.__name__ in ("bool", ):
+            cell.setValue(int(o))
+        else:
+            cell.setString(str(o))
+            print("MISSING", o.__class__.__name__)
+            
+        cell.setPropertyValue("CellStyle", style)
+        cell.setPropertyValue("CellBackColor", color_dict["color"])
         
     def addCellFormula(self):
         pass

@@ -15,15 +15,15 @@ class Reusing(Command):
 
     def run(self):
         from sys import path
-        path.append("unogenerator")
+        path.append("unogenerator/reusing")
         from github import download_from_github
-        download_from_github('turulomio','reusingcode','python/github.py', 'unogenerator')
-        download_from_github('turulomio','reusingcode','python/casts.py', 'unogenerator')
-        download_from_github('turulomio','reusingcode','python/datetime_functions.py', 'unogenerator')
-        download_from_github('turulomio','reusingcode','python/decorators.py', 'unogenerator')
-        download_from_github('turulomio','reusingcode','python/libmanagers.py', 'unogenerator')
-        download_from_github('turulomio','reusingcode','python/objects/percentage.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/objects/currency.py', 'unogenerator/reusing/')
+        download_from_github('turulomio','reusingcode','python/github.py', 'unogenerator/reusing/')
+        download_from_github('turulomio','reusingcode','python/casts.py', 'unogenerator/reusing/')
+        download_from_github('turulomio','reusingcode','python/datetime_functions.py', 'unogenerator/reusing/')
+        download_from_github('turulomio','reusingcode','python/decorators.py', 'unogenerator/reusing/')
+        download_from_github('turulomio','reusingcode','python/libmanagers.py', 'unogenerator/reusing/')
+        download_from_github('turulomio','reusingcode','python/percentage.py', 'unogenerator/reusing/')
+        download_from_github('turulomio','reusingcode','python/currency.py', 'unogenerator/reusing/')
 
 ## Class to define doc command
 class Doc(Command):
