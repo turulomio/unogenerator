@@ -85,6 +85,17 @@ table.getCellByName("A3").setString("2")
 table.getCellByName("B3").setString("Pepe")
 
 
+cell=table.getCellByName("B4")
+
+image=document.createInstance("com.sun.star.text.TextGraphicObject")
+image.AnchorType="AT_PARAGRAPH"
+image.setName("Penguin_paragraph")
+image.GraphicURL=f"file://{path.abspath('./images/vip.png')}"
+image.Size=Size(800,800)
+print(dir(cell))
+
+cell.insertTextContent(cell,image,False)
+
 ## SAVE FILE
 p = PropertyValue()
 fileroot=path.abspath("./examples_lowriter_standard")
