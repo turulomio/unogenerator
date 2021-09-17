@@ -268,13 +268,19 @@ class ODS(ODF):
         pass
 
     def freezeAndSelect(self, freeze, current=None, topleft=None):
-        freeze=C.assertCoord(freeze)       
-        print(self.document)
-        print(self.document.getCurrentController())
-        print(dir(self.document.getCurrentController()))
+        freeze=C.assertCoord(freeze) 
+        current=None if current is None else C.assertCoord(current)
+        topleft=None if topleft is None else C.assertCoord(topleft)
         self.document.getCurrentController().setActiveSheet(self.sheet)
-        ##self.document.getCurrentController().Position=self.sheet.getCellByPosition(freeze.letterIndex(), freeze.numberIndex())
         self.document.getCurrentController().freezeAtPosition(freeze.letterIndex(), freeze.numberIndex())
+
+        if current is not None:
+            currentcell=self.sheet.getCellByPosition(current.letterIndex(), current.numberIndex())
+            self.document.getCurrentController().select(currentcell)
+        
+        if topleft is not None:
+            self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
+            self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
         
     def getValue(self, coord):
         pass

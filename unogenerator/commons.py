@@ -21,12 +21,12 @@ except:
     _=str
 
 Colors={}
-Colors["Black"]={"color":0, "contrast":0xFFFFFF}
+Colors["Black"]={"color":0x111111, "contrast":0xFFFFFF}
 Colors["White"]={"color":0xFFFFFF, "contrast":0}
-Colors["Blue"]={"color":0x5555ff, "contrast":0xFFFFFF}
-Colors["Red"]={"color":0xFF5555, "contrast":0xFFFFFF}
-Colors["Green"]={"color":0x55FF55, "contrast":0xFFFFFF}
-Colors["Orange"]={"color":0xffaa00,   "contrast":0xFFFFFF}
+Colors["Blue"]={"color":0x9999ff, "contrast":0xFFFFFF}
+Colors["Red"]={"color":0xFF9999, "contrast":0xFFFFFF}
+Colors["Green"]={"color":0x99FF99, "contrast":0xFFFFFF}
+Colors["Orange"]={"color":0xffd573,   "contrast":0xFFFFFF}
 Colors["Yellow"]={"color":0xffff7f,   "contrast":0xFFFFFF}
 Colors["GrayLight"]={"color":0xd2ced4,   "contrast":0xFFFFFF}
 

@@ -87,8 +87,11 @@ def demo_ods():
         doc.addCell(C("I2").addRow(row), pow(-1, row)*-12.121212, Colors[color_key])
         doc.addCell(C("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), Colors[color_key])
         doc.addCell(C("K2").addRow(row), bool(row%2), Colors[color_key])
-    doc.freezeAndSelect("B2")
+    doc.freezeAndSelect("B2", "K9", "E4")
     doc.removeSheet(0)
+    doc.save()
+    doc.export_xlsx()
+    doc.close()
         
         
     return "demo_ods took {}".format(datetime.now()-doc.init)
