@@ -283,6 +283,34 @@ class Range:
     def addColumnBefore(self, num=1):
         self.start=self.start.addColumn(-num)
         return self
+        
+    ## Returns a list of tuples(column_index, row_index)
+    def indexes_list(self, plain=False):
+        r=[]
+        if plain is True:
+            for letter_index in range(self.start.letterIndex(), self.end.letterIndex()+1):
+                for number_index in range(self.start.numberIndex(), self.end.numberIndex()+1):
+                    r.append((letter_index, number_index))
+        else:
+            for number_index in range(self.start.numberIndex(), self.end.numberIndex()+1):
+                row=[]
+                for letter_index in range(self.start.letterIndex(), self.end.letterIndex()+1 ):
+                    row.append((letter_index, number_index))
+                r.append(row)
+        return r
+
+    def coords_list(self, plain=False):
+        r=[]
+        if plain is True:
+            for letter_index, number_index in self.indexes_list():
+                r.append(Coord_from_index(letter_index, number_index))
+        else:
+            for row  in self.indexes_list():
+                r2=[]
+                for  letter_index , number_index  in row:
+                    r2.append(Coord_from_index(letter_index, number_index))
+                r.append(r2)
+        return r
 
 ## Sets debug sustem, needs
 ## @param args It's the result of a argparse     args=parser.parse_args()        

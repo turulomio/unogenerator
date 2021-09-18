@@ -10,7 +10,10 @@ from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.style.BreakType import PAGE_AFTER
 #from unogenerator.reusing.casts import object2value
-from unogenerator.commons import Coord as C, Colors,  Range as R, datetime2uno
+from unogenerator.commons import Coord as C, Colors,  Range as R, datetime2uno, row2index, column2index
+from unogenerator.reusing.currency import Currency
+from unogenerator.reusing.datetime_functions import string2dtnaive, string2date
+from unogenerator.reusing.percentage import Percentage
 
 class ODF:
     def __init__(self, filename,  template=None, loserver_port=2002):
@@ -39,6 +42,11 @@ class ODF:
             styles.sort()
             for style in styles:
                 print ( f"    - {style}")
+
+    def setLanguage(self, language, country):
+        print("FALTA")
+        self.language="es"
+        self.country="ES"
 
     def setMetadata(self, title="",  subject="", creator="", description="", keywords=[], creationdate=datetime.now()):
         self.document.DocumentProperties.Author=creator
@@ -288,11 +296,97 @@ class ODS(ODF):
             self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
             self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
         
-    def getValue(self, coord):
+    def getValue(self, coord, standard=True):
         coord=C.assertCoord(coord)
-        cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
-        return cell.getValue()
+        return self.getValueByPosition(coord.letterIndex(), coord.numberIndex(), standard)
+        
+    def getValueByPosition(self, letter_index, number_index, standard=True):
+        return self.__cell_to_object(self.sheet.getCellByPosition(letter_index, number_index), standard)
 
+
+    ## Returns a list of rows with the values of the sheet
+    ## @param sheet_index Integer index of the sheet
+    ## @param skip_up int. Number of rows to skip at the begining of the list of rows (lor)
+    ## @param skip_down int. Number of rows to skip at the end of the list of rows (lor)
+    ## @return Returns a list of rows of object values
+    def getValues(self, skip_up=0, skip_down=0, standard=True):
+        if skip_up>0 or skip_down>0:
+            print("FALTA, REMOVE FROM RANGE")
+        return self.getValuesByRange(self.getSheetRange(), standard)
+
+    ## @param sheet_index Integer index of the sheet
+    ## @param range_ Range object to get values. If None returns all values from sheet
+    ## @return Returns a list of rows of object values
+    def getValuesByRange(self, range_, standard=True):
+        r=[]
+        for row_indexes in range_.indexes_list():
+            rrow=[]
+            for column_index,  row_index in row_indexes:
+                rrow.append(self.getValueByPosition(column_index, row_index, standard))
+            r.append(rrow)
+        return r
+    
+    ## @param sheet_index Integer index of the sheet
+    ## @param column_letter Letter of the column to get values
+    ## @param skip Integer Number of top rows to skip in the result
+    ## @return List of values
+    def getValuesByColumn(self, column_letter, skip_up=0, skip_down=0, standard=True):
+        r=[]
+        for row in range(skip_up, self.rowNumber()-skip_down):
+            r.append(self.getValueByPosition(column2index(column_letter), row, standard))
+        return r    
+
+    ## @param sheet_index Integer index of the sheet
+    ## @param row_number String Number of the row to get values
+    ## @param skip Integer Number of top rows to skip in the result
+    ## @return List of values
+    def getValuesByRow(self, row_number, skip_left=0, skip_right=0, standard=True):
+        r=[]
+        for column in range(skip_left, self.columnNumber()-skip_right):
+            r.append(self.getValueByPosition(column, row2index(row_number), standard))
+        return r    
+
+
+    ## @standard Bool Uses standard templates styles if true
+    def __cell_to_object(self, cell, standard=True):
+        if standard is True:
+            if cell.CellStyle=="Bool":
+                return bool(cell.getValue())
+            elif cell.CellStyle in ["Datetime"]:
+                return string2dtnaive(cell.getString(),"%Y-%m-%d %H:%M:%S.")
+            elif cell.CellStyle in ["Date"]:
+                return string2date(cell.getString())
+            elif cell.CellStyle in ["Float2", "Float6"]:
+                return cell.getValue()
+            elif cell.CellStyle in ["Integer"]:
+                return int(cell.getValue())
+            elif cell.CellStyle in ["EUR", "USD"]:
+                return Currency(cell.getValue(), cell.CellStyle)
+            elif cell.CellStyle in ["Percentage"]:
+                return Percentage(cell.getValue(), 1)
+#            else:
+                #print("Missing", cell.CellStyle)
+            return cell.getString()
+        else: #standad is false
+            return cell.getString()
+
+    ## Return a Range object with the limits of the index sheet
+    def getSheetRange(self):
+        endcoord=C("A1").addRow(self.rowNumber()-1).addColumn(self.columnNumber()-1)
+        return R("A1:"+endcoord.string())
+        
+        
+    ## Esta función puede que sea costosa
+    def rowNumber(self):
+        return len(self.sheet.getData())
+        
+    ## Esta función puede que sea costosa
+    def columnNumber(self):
+        if len(self.sheet.getData())==0:
+            return 0
+        else:
+            return len(self.sheet.getData()[0])
+            
     def save(self):
         ## SAVE FILE
         args=(

@@ -158,8 +158,8 @@ def demo_ods_standard():
 def demo_ods_standard_read():
     doc=ODS("donotsaveme.ods", "./unogenerator_standard.ods")
     doc.setActiveSheet(0)
-    print(doc.getValue("E9"))
-    print(doc.getValue("E10"))
+    print(doc.getValuesByRow("4", standard=True))
+    print(doc.getValuesByRow("4", standard=False))
     doc.close()
     return "demo_ods_standard took {}".format(datetime.now()-doc.init)
    
