@@ -10,7 +10,7 @@ from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.style.BreakType import PAGE_AFTER
 #from unogenerator.reusing.casts import object2value
-from unogenerator.commons import Coord as C, Colors,  Range as R
+from unogenerator.commons import Coord as C, Colors,  Range as R, datetime2uno
 
 class ODF:
     def __init__(self, filename,  template=None, loserver_port=2002):
@@ -39,9 +39,16 @@ class ODF:
             styles.sort()
             for style in styles:
                 print ( f"    - {style}")
-                
-    def setMetadata(self):
-        pass
+
+    def setMetadata(self, title="",  subject="", creator="", description="", keywords=[], creationdate=datetime.now()):
+        self.document.DocumentProperties.Author=creator
+        self.document.DocumentProperties.Generator=creator
+        self.document.DocumentProperties.Description=description
+        self.document.DocumentProperties.Subject=subject
+        self.document.DocumentProperties.Keywords=keywords
+        self.document.DocumentProperties.CreationDate=datetime2uno(creationdate)
+        self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
+        self.document.DocumentProperties.Title=title
                     
 class ODT(ODF):
     def __init__(self, filename, template=None):

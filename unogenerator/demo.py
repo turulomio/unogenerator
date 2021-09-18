@@ -63,6 +63,13 @@ def main(arguments=None):
 
 def demo_ods():
     doc=ODS("unogenerator.ods")
+    doc.setMetadata(
+        _("UnoGenerator ODS example"),  
+        _("Demo with ODS class"), 
+        "Turulomio", 
+        _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
+        ["unogenerator", "demo", "files"]
+    )
     doc.createSheet("Hard work", 1)
     doc.setColumnsWidth([2000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  5000])
     
@@ -100,6 +107,13 @@ def demo_ods():
         
 def demo_ods_standard():
     doc=ODS("unogenerator_standard.ods", pkg_resources.resource_filename(__name__, 'templates/standard.ods'))
+    doc.setMetadata(
+        _("UnoGenerator ODS example"),  
+        _("Demo with ODS class"), 
+        "Turulomio", 
+        _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
+        ["unogenerator", "demo", "files"]
+    )
     doc.createSheet("Styles", 1)
     doc.setColumnsWidth([2000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  5000])
     
@@ -153,6 +167,13 @@ def demo_ods_standard_read():
     
 def demo_odt():
     doc=ODT("unogenerator.odt")
+    doc.setMetadata(
+        _("UnoGenerator ODT example"),  
+        _("Demo with ODT class"), 
+        "Turulomio", 
+        _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
+        ["unogenerator", "demo", "files"]
+    )
     doc.save()
     doc.export_docx()
     doc.export_pdf()
@@ -161,6 +182,13 @@ def demo_odt():
     
 def demo_odt_standard():
     doc=ODT("unogenerator_standard.odt", pkg_resources.resource_filename(__name__, 'templates/standard.odt'))
+    doc.setMetadata(
+        _("UnoGenerator ODT example"),  
+        _("Demo with ODT class"), 
+        "Turulomio", 
+        _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
+        ["unogenerator", "demo", "files"]
+    )
     doc.addParagraph(_("Manual of UnoGenerator"), "Title")
     doc.addParagraph(_(f"Version: {__version__}"), "Subtitle")
     

@@ -9,6 +9,7 @@ from os import path
 from shutil import copyfile
 from subprocess import run, PIPE
 from tempfile import TemporaryDirectory
+from uno import createUnoStruct
 
 __version__ = '0.1.0'
 __versiondatetime__=datetime(2021, 9, 17, 14, 11)
@@ -29,7 +30,21 @@ Colors["Green"]={"color":0x99FF99, "contrast":0xFFFFFF}
 Colors["Orange"]={"color":0xffd573,   "contrast":0xFFFFFF}
 Colors["Yellow"]={"color":0xffff7f,   "contrast":0xFFFFFF}
 Colors["GrayLight"]={"color":0xd2ced4,   "contrast":0xFFFFFF}
-
+def datetime2uno( dt):
+    r=createUnoStruct("com.sun.star.util.DateTime")
+    r.Year=dt.year
+    r.Month=dt.month
+    r.Day=dt.day
+    r.Hours=dt.hour
+    r.Minutes=dt.minute
+    r.Seconds=dt.second
+    return r
+def date2uno( dt):
+    r=createUnoStruct("com.sun.star.util.Date")
+    r.Year=dt.year
+    r.Month=dt.month
+    r.Day=dt.day
+    return r
 ## Function used in argparse_epilog
 ## @return String
 def argparse_epilog():
