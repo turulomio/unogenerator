@@ -12,7 +12,7 @@ from multiprocessing import cpu_count
 from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, Colors, Coord as C
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
-from unogenerator.unogenerator import ODT, ODS
+from unogenerator.unogenerator import ODT_Standard, ODS_Standard
 from os import remove
 
 try:
@@ -49,64 +49,23 @@ def main(arguments=None):
         start=datetime.now()
         futures=[]
         with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
-            futures.append(executor.submit(demo_ods))
-            futures.append(executor.submit(demo_ods_standard))
-            futures.append(executor.submit(demo_odt))
-            futures.append(executor.submit(demo_odt_standard))
+            for language in ['es', 'en']:
+                futures.append(executor.submit(demo_ods_standard, language))
+                futures.append(executor.submit(demo_odt_standard, language))
 
         for future in as_completed(futures):
             print(future.result())
-            
-        print(demo_ods_standard_read())
         print("All process took {}".format(datetime.now()-start))
 
-
-def demo_ods():
-    doc=ODS("unogenerator.ods")
-    doc.setMetadata(
-        _("UnoGenerator ODS example"),  
-        _("Demo with ODS class"), 
-        "Turulomio", 
-        _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
-        ["unogenerator", "demo", "files"]
-    )
-    doc.createSheet("Hard work", 1)
-    doc.setColumnsWidth([2000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  5000])
+       
+def demo_ods_standard(language):
+    if language=="en":
+        lang1=gettext.install('unogenerator', 'badlocale')
+    else:
+        lang1=gettext.translation('unogenerator', 'unogenerator/locale', languages=[language])
+        lang1.install()
     
-    doc.addCell("A1", _("Style name"), Colors["Orange"])
-    doc.addCell("B1", _("Date and time"), Colors["Orange"])
-    doc.addCell("C1", _("Date"), Colors["Orange"])
-    doc.addCell("D1", _("Integer"), Colors["Orange"])
-    doc.addCell("E1", _("Euros"), Colors["Orange"])
-    doc.addCell("F1", _("Dollars"), Colors["Orange"])
-    doc.addCell("G1", _("Percentage"), Colors["Orange"])
-    doc.addCell("H1", _("Number with 2 decimals"), Colors["Orange"])
-    doc.addCell("I1", _("Number with 6 decimals"), Colors["Orange"])
-    doc.addCell("J1", _("Time"), Colors["Orange"])
-    doc.addCell("K1", _("Boolean"), Colors["Orange"])
-    for row, color_key in enumerate(Colors.keys()):
-        doc.addCell(C("A2").addRow(row), color_key, Colors[color_key])
-        doc.addCell(C("B2").addRow(row), datetime.now(), Colors[color_key])
-        doc.addCell(C("C2").addRow(row), date.today(), Colors[color_key])
-        doc.addCell(C("D2").addRow(row), pow(-1, row)*-10000000, Colors[color_key])
-        doc.addCell(C("E2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), Colors[color_key])
-        doc.addCell(C("F2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), Colors[color_key])
-        doc.addCell(C("G2").addRow(row), Percentage(pow(-1, row)*1, 3), Colors[color_key])
-        doc.addCell(C("H2").addRow(row), pow(-1, row)*123456789.121212, Colors[color_key])
-        doc.addCell(C("I2").addRow(row), pow(-1, row)*-12.121212, Colors[color_key])
-        doc.addCell(C("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), Colors[color_key])
-        doc.addCell(C("K2").addRow(row), bool(row%2), Colors[color_key])
-    doc.freezeAndSelect("B2", "K9", "E4")
-    doc.removeSheet(0)
-    doc.save()
-    doc.export_xlsx()
-    doc.close()
-        
-        
-    return "demo_ods took {}".format(datetime.now()-doc.init)
-        
-def demo_ods_standard():
-    doc=ODS("unogenerator_standard.ods", pkg_resources.resource_filename(__name__, 'templates/standard.ods'))
+    doc=ODS_Standard()
     doc.setMetadata(
         _("UnoGenerator ODS example"),  
         _("Demo with ODS class"), 
@@ -147,75 +106,115 @@ def demo_ods_standard():
     
     doc.freezeAndSelect("B2")
     doc.removeSheet(0)
-#    doc.calculateAll()
-    doc.save()
-    doc.export_xlsx()
+    doc.save(f"unogenerator_example_{language}.ods")
+    doc.export_xlsx(f"unogenerator_example_{language}.xlsx")
+    doc.export_pdf(f"unogenerator_example_{language}.pdf")
     doc.close()
 
-    return "demo_ods_standard took {}".format(datetime.now()-doc.init)
+    return f"unogenerator_example_{language}.ods took {datetime.now()-doc.init}"
     
     
-def demo_ods_standard_read():
-    doc=ODS("donotsaveme.ods", "./unogenerator_standard.ods")
-    doc.setActiveSheet(0)
-    print(doc.getValuesByRow("4", standard=True))
-    print(doc.getValuesByRow("4", standard=False))
-    doc.close()
-    return "demo_ods_standard took {}".format(datetime.now()-doc.init)
-   
+def demo_odt_standard(language):
+    if language=="en":
+        lang1=gettext.install('unogenerator', 'badlocale')
+    else:
+        lang1=gettext.translation('unogenerator', 'unogenerator/locale', languages=[language])
+        lang1.install()
 
-    
-def demo_odt():
-    doc=ODT("unogenerator.odt")
+    doc=ODT_Standard()
     doc.setMetadata(
-        _("UnoGenerator ODT example"),  
-        _("Demo with ODT class"), 
+        _("UnoGenerator documentation"),  
+        _("Unogenerator python module documentation"), 
         "Turulomio", 
         _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
         ["unogenerator", "demo", "files"]
     )
-    doc.save()
-    doc.export_docx()
-    doc.export_pdf()
-    doc.close()
-    return "demo_odt took {}".format(datetime.now()-doc.init)    
-    
-def demo_odt_standard():
-    doc=ODT("unogenerator_standard.odt", pkg_resources.resource_filename(__name__, 'templates/standard.odt'))
-    doc.setMetadata(
-        _("UnoGenerator ODT example"),  
-        _("Demo with ODT class"), 
-        "Turulomio", 
-        _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
-        ["unogenerator", "demo", "files"]
-    )
-    doc.addParagraph(_("Manual of UnoGenerator"), "Title")
+    doc.addParagraph(_("UnoGenerator documentation"), "Title")
     doc.addParagraph(_(f"Version: {__version__}"), "Subtitle")
     
-    doc.addParagraph(_("ODT"), "Heading 1")
-#    doc.print_styles()
-    doc.addParagraph(
-        _("ODT files can be quickly generated with OfficeGenerator.") + " " + 
-        _("It create predefined styles that allows to create nice documents without worry about styles."),  "Standard"
-    )
-    doc.addParagraph(_("OfficeGenerator predefined paragraph styles"), "Heading 2")
-    doc.addParagraph(
-        _("OfficeGenerator has headers and titles as you can see in the document structure.") + " " + 
-        _("Morever, it has the following predefined styles:"), "Standard"
-    )
+    doc.addParagraph(_("Introduction"),  "Heading 1")
     
-    doc.addParagraph(_("This is the 'Standard' style"), "Standard")
-    doc.addParagraph(_("This is the 'StandardCenter' style"), 'Standard')
-    doc.addParagraph(_("This is the 'StandardRight' style"), 'Standard')
-    doc.addParagraph(_("This is the 'Illustration' style"), 'Illustration')
-    doc.addParagraph(_("This is the 'Bold18Center' style"), 'Standard')
-    doc.addParagraph(_("This is the 'Bold16Center' style"), 'Standard')
-    doc.addParagraph(_("This is the 'Bold14Center' style"), 'Standard')
-    doc.addParagraph(_("This is the 'Bold12Center' style"), 'Standard')
-    doc.addParagraph(_("This is the 'Bold12Underline' style"), 'Standard')
+    doc.addParagraph(
+        _("UnoGenerator uses Libreoffice UNO API python bindings to generate documents.") +" " +
+        _("So in order to use, you need to launch a --headless libreoffice instance.") + " "+
+        _("You can easily launch server.sh script with bash."), 
+        "Standard"
+    )
+
+    doc.addParagraph(
+        _("UnoGenerator has standard templates to help you with edition, although you can use your own templates.") +" " + 
+        _("You can edit this one or create your own.")  +" " +
+        _("This document has been created with 'standard.odt' files that you can find inside this python module."), 
+        "Standard"
+    )
+        
+    doc.addParagraph(_("Installation"), "Heading 2")
+    doc.addParagraph(_("You can use pip to install this python package:") ,  "Standard")
+    doc.addParagraph("""pip install unogenerator"""    , "Code")
+    doc.addParagraph(_("Hello World example"), "Heading 2")
+    doc.addParagraph(_("This is a Hello World example. You get the example in odt, docx and pdf formats:") ,  "Standard")
+    doc.addParagraph("""from unogenerator import ODT_Standard
+doc=ODT_Standard()
+doc.addParagraph("Hello World", "Heading 1")
+doc.addParagraph("Easy, isn't it","Standard")
+doc.save("hello_world.odt")
+doc.export_docx("hello_world.docx")
+doc.export_pdf("hello_world.pdf")
+doc.close()"""    , "Code")
     doc.pageBreak()
     
-    doc.addParagraph(_("Tables"), "Heading 1")
+    doc.addParagraph(_("ODT"), "Heading 1")
+    doc.addParagraph(
+        _("ODT files can be quickly generated with UnoGenerator.") + " " + 
+        _("There is a predefined template in code called 'standard.odt' to help you with edition."),  
+        "Standard"
+    )
+    
+    
+    doc.addParagraph(_("Calling the ODT constructor"), "Heading 2")
+    doc.addParagraph(_("You can call ODT constructor in this ways:") , "Standard")
+        
+    doc.addParagraph(
+        _("ODT with standard template (Recomended).") + " " + 
+        _("There is a predefined template in code called 'standard.odt', inside this python module, to help you with edition, although you can use your own ones.") +" "+
+        _("With this mode you can create new documents"), 
+        "Puntitos"
+    )
+    
+    doc.addParagraph("""from unogenerator import ODT_Standard
+doc=ODT_Standard()"""    , "Code")
+
+        
+    doc.addParagraph(
+        _("ODT with template or file (Recomended).") + " " + 
+        _("With this mode you can read your files to overwrite them or use your file as a new template to create new documents"), 
+        "Puntitos"
+    )
+    
+    doc.addParagraph("""from unogenerator import ODT
+doc=ODT('yourdocument.odt')"""    , "Code")
+    
+    doc.addParagraph(
+        _("ODT without template.") + " " + 
+        _("With this mode you can write your files with Libreoffice default styles.") +" " +
+        _("If you want to create new ones, you should write them using Libreoffice API code"), 
+        "Puntitos"
+    )
+    
+    
+    doc.addParagraph("""from unogenerator import ODT
+doc=ODT()"""    , "Code")
+    
+    doc.addParagraph(_("Styles"), "Heading 2")
+    doc.addParagraph(
+        _("To call default Libreoffice paragraph styles you must use their english name.") + " " + 
+        _("You can see their names with this method:"), "Standard"
+    )
+    doc.addParagraph("""doc.print_styles()"""    , "Code")
+
+    
+
+    doc.addParagraph(_("Tables"), "Heading 2")
     doc.addParagraph(_("We can create tables too, for example with size 11pt:"), "Standard")
     table_data=[
         [_("Concept"), _("Value") ], 
@@ -241,7 +240,7 @@ def demo_odt_standard():
 
 
     doc.pageBreak()
-    doc.addParagraph(_("Images"), "Heading 1")
+    doc.addParagraph(_("Images"), "Heading 2")
     
     l=[]
     l.append( _("Este es un ejemplo de imagen as char: "))
@@ -259,12 +258,22 @@ def demo_odt_standard():
     doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
     doc.addImageParagraph([pkg_resources.resource_filename(__name__, 'images/crown.png')]*5, 2500, 1500, "Illustration")
 
-    
-    doc.save()
-    doc.export_docx()
-    doc.export_pdf()
+    doc.pageBreak()
+    doc.addParagraph(_("ODS"), "Heading 1")
+    doc.addParagraph("""    TTO READ
+def demo_ods_standard_read():
+    doc=ODS("unogenerator_ods_standard.ods")
+    doc.setActiveSheet(0)
+    print(doc.getValuesByRow("4", standard=True))
+    print(doc.getValuesByRow("4", standard=False))
     doc.close()
-    return "demo_odt_standard took {}".format(datetime.now()-doc.init)
+    return "demo_ods_standard took {}".format(datetime.now()-doc.init)""",  "Standard")
+    
+    doc.save(f"unogenerator_documentation_{language}.odt")
+    doc.export_docx(f"unogenerator_documentation_{language}.docx")
+    doc.export_pdf(f"unogenerator_documentation_{language}.pdf")
+    doc.close()
+    return f"unogenerator_documentation_{language}.ods took {datetime.now()-doc.init}"
     
 
 if __name__ == "__main__":

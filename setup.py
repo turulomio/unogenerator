@@ -38,7 +38,7 @@ class Doc(Command):
 
     def run(self):
         #es
-        os.system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o locale/unogenerator.pot *.py unogenerator/*.py")
+        os.system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o locale/unogenerator.pot *.py unogenerator/*.py unogenerator/reusing/*.py setup.py")
         os.system("msgmerge -N --no-wrap -U locale/es.po locale/unogenerator.pot")
         os.system("msgfmt -cv -o unogenerator/locale/es/LC_MESSAGES/unogenerator.mo locale/es.po")
 

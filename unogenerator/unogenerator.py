@@ -9,15 +9,14 @@ from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.style.BreakType import PAGE_AFTER
-#from unogenerator.reusing.casts import object2value
+from pkg_resources import resource_filename
 from unogenerator.commons import Coord as C, Colors,  Range as R, datetime2uno, row2index, column2index
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date
 from unogenerator.reusing.percentage import Percentage
 
 class ODF:
-    def __init__(self, filename,  template=None, loserver_port=2002):
-        self.filename=f"file://{path.abspath(filename)}"
+    def __init__(self, template=None, loserver_port=2002):
         self.template=None if template is None else f"file://{path.abspath(template)}"
         self.init=datetime.now()
         
@@ -59,8 +58,8 @@ class ODF:
         self.document.DocumentProperties.Title=title
                     
 class ODT(ODF):
-    def __init__(self, filename, template=None):
-        ODF.__init__(self, filename, template)
+    def __init__(self, template=None, loserver_port=2002):
+        ODF.__init__(self, template, loserver_port)
         if self.template is None:
             self.document=self.desktop.loadComponentFromURL('private:factory/swriter','_blank',0,())
         else:
@@ -68,35 +67,37 @@ class ODT(ODF):
         self.cursor=self.document.Text.createTextCursor()
 
         
-    def save(self):
+    def save(self, filename):
+        filename=f"file://{path.abspath(filename)}"
         ## SAVE FILE
         args=(
             PropertyValue('FilterName',0,'writer8',0),
             PropertyValue('Overwrite',0,True,0),
         )
-        self.document.storeAsURL(self.filename, args)
+        self.document.storeAsURL(filename, args)
         
                 
-    def export_pdf(self):
+    def export_pdf(self, filename):
+        filename=f"file://{path.abspath(filename)}"
         args=(
             PropertyValue('FilterName',0,'writer_pdf_Export',0),
             PropertyValue('Overwrite',0,True,0),
         )
-        self.document.storeToURL(self.filename[:-4]+".pdf", args)
+        self.document.storeToURL(filename, args)
         
     def find_and_remove_and_setcursorposition(self, find):
         search=self.document.createSearchDescriptor()
         search.SearchString=find
         found=self.document.findFirst(search)
         found.String.replace(find,  "")
-        
-        
-    def export_docx(self):
+
+    def export_docx(self, filename):
+        filename=f"file://{path.abspath(filename)}"
         args=(
             PropertyValue('FilterName',0,'MS Word 2007 XML',0),
             PropertyValue('Overwrite',0,True,0),
         )
-        self.document.storeToURL(self.filename[:-4]+".docx", args)
+        self.document.storeToURL(filename, args)
         
     def addParagraph(self,  text,  style):
         self.cursor.setPropertyValue("ParaStyleName", style)
@@ -189,8 +190,8 @@ class ODT(ODF):
         self.document.Text.insertControlCharacter(self.cursor.End, ControlCharacter.PARAGRAPH_BREAK, False)
 
 class ODS(ODF):
-    def __init__(self, filename, template=None):
-        ODF.__init__(self, filename, template)
+    def __init__(self, template=None, loserver_port=2002):
+        ODF.__init__(self, template, loserver_port)
         
         if self.template is None:
             self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',0,())
@@ -387,24 +388,36 @@ class ODS(ODF):
         else:
             return len(self.sheet.getData()[0])
             
-    def save(self):
+    def save(self, filename):
+        filename=f"file://{path.abspath(filename)}"
         ## SAVE FILE
         args=(
             PropertyValue('FilterName',0,'calc8',0),
             PropertyValue('Overwrite',0,True,0),
         )
-        self.document.storeAsURL(self.filename, args)
+        self.document.storeAsURL(filename, args)
 
-    def export_pdf(self):
+    def export_pdf(self, filename):
+        filename=f"file://{path.abspath(filename)}"
         args=(
             PropertyValue('FilterName',0,'calc_pdf_Export',0),
             PropertyValue('Overwrite',0,True,0),
         )
-        self.document.storeToURL(self.filename[:-4]+".pdf", args)
+        self.document.storeToURL(filename, args)
 
-    def export_xlsx(self):
+    def export_xlsx(self, filename):
+        filename=f"file://{path.abspath(filename)}"
         args=(
             PropertyValue('FilterName',0,'Calc MS Excel 2007 XML',0),
             PropertyValue('Overwrite',0,True,0),
         )
-        self.document.storeToURL(self.filename[:-4]+".xlsx", args)
+        self.document.storeToURL(filename, args)
+
+
+class ODS_Standard(ODS):
+    def __init__(self, loserver_port=2002):
+        ODS.__init__(self, resource_filename(__name__, 'templates/standard.ods'), loserver_port)
+
+class ODT_Standard(ODT):
+    def __init__(self, loserver_port=2002):
+        ODT.__init__(self, resource_filename(__name__, 'templates/standard.odt'), loserver_port)
