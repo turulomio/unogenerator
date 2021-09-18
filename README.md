@@ -1,8 +1,10 @@
 # UnoGenerator
 ## Description
-Python module to generate Libreoffice documents programatically
+Python module to generate Libreoffice documents (ODT and ODS) programatically.
 
-It uses uno module, so you need Libreoffice to be installed in your system
+Morever, you can export them to (.xlsx, .docx, .pdf) easyly.
+
+It uses Libreoffice uno module, so you need Libreoffice to be installed in your system.
 
 ## Installation
 You can use pip to install this python package:
