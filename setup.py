@@ -26,7 +26,7 @@ class Reusing(Command):
         download_from_github('turulomio','reusingcode','python/currency.py', 'unogenerator/reusing/')
 
 ## Class to define doc command
-class Doc(Command):
+class Translate(Command):
     description = "Update translations"
     user_options = []
 
@@ -42,6 +42,30 @@ class Doc(Command):
         os.system("msgmerge -N --no-wrap -U locale/es.po locale/unogenerator.pot")
         os.system("msgfmt -cv -o unogenerator/locale/es/LC_MESSAGES/unogenerator.mo locale/es.po")
 
+    
+## Class to define doc command
+class Documentation(Command):
+    description = "Generate documentation for distribution"
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        os.system("unogenerator_demo --create")
+        os.system("cp -f unogenerator_documentation_en.odt doc/")
+        os.system("cp -f unogenerator_documentation_en.pdf doc/")
+        os.system("cp -f unogenerator_documentation_es.odt doc/")
+        os.system("cp -f unogenerator_documentation_es.pdf doc/")
+        os.system("cp -f unogenerator_example_en.ods doc/")
+        os.system("cp -f unogenerator_example_en.pdf doc/")
+        os.system("cp -f unogenerator_example_es.ods doc/")
+        os.system("cp -f unogenerator_example_es.pdf doc/")
+        os.system("unogenerator_demo --remove")
+
 class Procedure(Command):
     description = "Show release procedure"
     user_options = []
@@ -56,10 +80,11 @@ class Procedure(Command):
         print("""Nueva versión:
   * Cambiar la versión y la fecha en commons.py
   * Modificar el Changelog en README
-  * python setup.py doc
+  * python setup.py translate
   * linguist
-  * python setup.py doc
-  * python setup.py install
+  * python setup.py translate
+  * python setup.py uninstall; python setup.py install
+  * python setup.py documentation
   * python setup.py doxygen
   * git commit -a -m 'unogenerator-{}'
   * git push
@@ -142,7 +167,8 @@ setup(name='unogenerator',
                     },
      cmdclass={'doxygen': Doxygen,
                'uninstall':Uninstall, 
-               'doc': Doc,
+               'translate': Translate,
+               'documentation': Documentation,
                'procedure': Procedure,
                'reusing': Reusing,
               },

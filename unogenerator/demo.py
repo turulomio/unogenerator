@@ -42,8 +42,13 @@ def main(arguments=None):
     addDebugSystem(args.debug)
 
     if args.remove==True:
-        remove_without_errors("unogenerator.ods")
-        remove_without_errors("unogenerator.odt")
+            for language in ['es', 'en']:
+                remove_without_errors(f"unogenerator_documentation_{language}.odt")
+                remove_without_errors(f"unogenerator_documentation_{language}.docx")
+                remove_without_errors(f"unogenerator_documentation_{language}.pdf")
+                remove_without_errors(f"unogenerator_example_{language}.ods")
+                remove_without_errors(f"unogenerator_example_{language}.xlsx")
+                remove_without_errors(f"unogenerator_example_{language}.pdf")
 
     if args.create==True:
         start=datetime.now()

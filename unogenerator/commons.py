@@ -12,7 +12,7 @@ from tempfile import TemporaryDirectory
 from uno import createUnoStruct
 
 __version__ = '0.1.0'
-__versiondatetime__=datetime(2021, 9, 17, 14, 11)
+__versiondatetime__=datetime(2021, 9, 18, 19, 31)
 __versiondate__=__versiondatetime__.date()
 
 try:

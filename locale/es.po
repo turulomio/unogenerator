@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-18 18:07+0200\n"
+"POT-Creation-Date: 2021-09-18 19:29+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "X-Generator: Lokalize 19.12.3\n"
 
 msgid "Developed by Mariano Muñoz 2020-{}"
-msgstr ""
+msgstr "Desarrollado por Mariano Muñoz 2021-{}"
 
 msgid "Error deleting: {} -> {}"
 msgstr "Error al borrar: {} -> {}"
@@ -72,7 +72,7 @@ msgid "Boolean"
 msgstr "Booleano"
 
 msgid "UnoGenerator documentation"
-msgstr ""
+msgstr "Documentación de UnoGenerator"
 
 msgid "Unogenerator python module documentation"
 msgstr ""
@@ -82,7 +82,7 @@ msgid "Version: {__version__}"
 msgstr ""
 
 msgid "Introduction"
-msgstr ""
+msgstr "Introducción"
 
 msgid "UnoGenerator uses Libreoffice UNO API python bindings to generate documents."
 msgstr ""
@@ -102,6 +102,18 @@ msgstr ""
 msgid "This document has been created with 'standard.odt' files that you can find inside this python module."
 msgstr ""
 
+msgid "Installation"
+msgstr ""
+
+msgid "You can use pip to install this python package:"
+msgstr ""
+
+msgid "Hello World example"
+msgstr ""
+
+msgid "This is a Hello World example. You get the example in odt, docx and pdf formats:"
+msgstr ""
+
 msgid "ODT"
 msgstr "ODT"
 
@@ -117,44 +129,38 @@ msgstr ""
 msgid "You can call ODT constructor in this ways:"
 msgstr ""
 
-msgid "Readonly mode"
+msgid "ODT with standard template (Recomended)."
 msgstr ""
 
-msgid "OfficeGenerator predefined paragraph styles"
-msgstr "Estilos predefenidos de párrafo en OfficeGenerator"
+msgid "There is a predefined template in code called 'standard.odt', inside this python module, to help you with edition, although you can use your own ones."
+msgstr ""
 
-msgid "OfficeGenerator has headers and titles as you can see in the document structure."
-msgstr "OfficeGenerator tiene encabezados y titulos como puedes ver en la estructura del documento."
+msgid "With this mode you can create new documents"
+msgstr ""
 
-msgid "Morever, it has the following predefined styles:"
-msgstr "Además, tiene los siguientes estilos predefinidos"
+msgid "ODT with template or file (Recomended)."
+msgstr ""
 
-msgid "This is the 'Standard' style"
-msgstr "Este es el estilo 'Standard'"
+msgid "With this mode you can read your files to overwrite them or use your file as a new template to create new documents"
+msgstr ""
 
-msgid "This is the 'StandardCenter' style"
-msgstr "Este es el estilo 'StandardCenter'"
+msgid "ODT without template."
+msgstr ""
 
-msgid "This is the 'StandardRight' style"
-msgstr "Este es el estilo 'StandardRight'"
+msgid "With this mode you can write your files with Libreoffice default styles."
+msgstr ""
 
-msgid "This is the 'Illustration' style"
-msgstr "Este es el estilo 'Ilustración'"
+msgid "If you want to create new ones, you should write them using Libreoffice API code"
+msgstr ""
 
-msgid "This is the 'Bold18Center' style"
-msgstr "Este es el estilo 'Bold18Center'"
+msgid "Styles"
+msgstr "Estilos"
 
-msgid "This is the 'Bold16Center' style"
-msgstr "Este es el estilo 'Bold16Center'"
+msgid "To call default Libreoffice paragraph styles you must use their english name."
+msgstr ""
 
-msgid "This is the 'Bold14Center' style"
-msgstr "Este es el estilo 'Bold14Center'"
-
-msgid "This is the 'Bold12Center' style"
-msgstr "Este es el estilo 'Bold12Center'"
-
-msgid "This is the 'Bold12Underline' style"
-msgstr "Este es el estilo 'Bold12Underline'"
+msgid "You can see their names with this method:"
+msgstr ""
 
 msgid "Tables"
 msgstr "Tablas"
@@ -194,6 +200,42 @@ msgstr "El siguiente párrafo es generado con el método illustration"
 
 msgid "ODS"
 msgstr ""
+
+#~ msgid "OfficeGenerator predefined paragraph styles"
+#~ msgstr "Estilos predefenidos de párrafo en OfficeGenerator"
+
+#~ msgid "OfficeGenerator has headers and titles as you can see in the document structure."
+#~ msgstr "OfficeGenerator tiene encabezados y titulos como puedes ver en la estructura del documento."
+
+#~ msgid "Morever, it has the following predefined styles:"
+#~ msgstr "Además, tiene los siguientes estilos predefinidos"
+
+#~ msgid "This is the 'Standard' style"
+#~ msgstr "Este es el estilo 'Standard'"
+
+#~ msgid "This is the 'StandardCenter' style"
+#~ msgstr "Este es el estilo 'StandardCenter'"
+
+#~ msgid "This is the 'StandardRight' style"
+#~ msgstr "Este es el estilo 'StandardRight'"
+
+#~ msgid "This is the 'Illustration' style"
+#~ msgstr "Este es el estilo 'Ilustración'"
+
+#~ msgid "This is the 'Bold18Center' style"
+#~ msgstr "Este es el estilo 'Bold18Center'"
+
+#~ msgid "This is the 'Bold16Center' style"
+#~ msgstr "Este es el estilo 'Bold16Center'"
+
+#~ msgid "This is the 'Bold14Center' style"
+#~ msgstr "Este es el estilo 'Bold14Center'"
+
+#~ msgid "This is the 'Bold12Center' style"
+#~ msgstr "Este es el estilo 'Bold12Center'"
+
+#~ msgid "This is the 'Bold12Underline' style"
+#~ msgstr "Este es el estilo 'Bold12Underline'"
 
 #~ msgid "Developed by Mariano Muñoz 2015-{}"
 #~ msgstr "Desarrollado por Mariano Muñoz 2015-{}"
@@ -281,9 +323,6 @@ msgstr ""
 
 #~ msgid "Morever, you can set a predefined A4 horizontal page, as you can see."
 #~ msgstr "Ademas, puedes añadir páginas horizontales A4 predefinidas, como puedes ver."
-
-#~ msgid "Styles"
-#~ msgstr "Estilos"
 
 #~ msgid "This is a custom cell"
 #~ msgstr "Esto es una celda modificada"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-18 18:07+0200\n"
+"POT-Creation-Date: 2021-09-18 19:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -100,6 +100,18 @@ msgstr ""
 msgid "This document has been created with 'standard.odt' files that you can find inside this python module."
 msgstr ""
 
+msgid "Installation"
+msgstr ""
+
+msgid "You can use pip to install this python package:"
+msgstr ""
+
+msgid "Hello World example"
+msgstr ""
+
+msgid "This is a Hello World example. You get the example in odt, docx and pdf formats:"
+msgstr ""
+
 msgid "ODT"
 msgstr ""
 
@@ -115,43 +127,37 @@ msgstr ""
 msgid "You can call ODT constructor in this ways:"
 msgstr ""
 
-msgid "Readonly mode"
+msgid "ODT with standard template (Recomended)."
 msgstr ""
 
-msgid "OfficeGenerator predefined paragraph styles"
+msgid "There is a predefined template in code called 'standard.odt', inside this python module, to help you with edition, although you can use your own ones."
 msgstr ""
 
-msgid "OfficeGenerator has headers and titles as you can see in the document structure."
+msgid "With this mode you can create new documents"
 msgstr ""
 
-msgid "Morever, it has the following predefined styles:"
+msgid "ODT with template or file (Recomended)."
 msgstr ""
 
-msgid "This is the 'Standard' style"
+msgid "With this mode you can read your files to overwrite them or use your file as a new template to create new documents"
 msgstr ""
 
-msgid "This is the 'StandardCenter' style"
+msgid "ODT without template."
 msgstr ""
 
-msgid "This is the 'StandardRight' style"
+msgid "With this mode you can write your files with Libreoffice default styles."
 msgstr ""
 
-msgid "This is the 'Illustration' style"
+msgid "If you want to create new ones, you should write them using Libreoffice API code"
 msgstr ""
 
-msgid "This is the 'Bold18Center' style"
+msgid "Styles"
 msgstr ""
 
-msgid "This is the 'Bold16Center' style"
+msgid "To call default Libreoffice paragraph styles you must use their english name."
 msgstr ""
 
-msgid "This is the 'Bold14Center' style"
-msgstr ""
-
-msgid "This is the 'Bold12Center' style"
-msgstr ""
-
-msgid "This is the 'Bold12Underline' style"
+msgid "You can see their names with this method:"
 msgstr ""
 
 msgid "Tables"
