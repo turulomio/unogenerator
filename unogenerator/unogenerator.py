@@ -8,6 +8,7 @@ from uno import getComponentContext, createUnoStruct
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
+from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
 from com.sun.star.style.BreakType import PAGE_AFTER
 from pkg_resources import resource_filename
 from unogenerator.commons import Coord as C, Colors,  Range as R, datetime2uno, row2index, column2index
@@ -151,7 +152,7 @@ class ODT(ODF):
         width_percentage=80, 
         alignment="center",  
         paragraph_style="Standard", 
-        table_style="3D", 
+        style=None, 
         name=None
     ):        
         #Tabla definition
@@ -163,9 +164,6 @@ class ODT(ODF):
         table.initialize(num_rows, num_columns)
         if name is not None:
             table.TableName=name
-        cursor = table.createTextCursor()
-        cursor.setPropertyValue( "CharColor", 0x121212 )
-        print("TABLE",  dir(table))
 
         #Párrafo de la table
         self.cursor.setPropertyValue("ParaStyleName", paragraph_style)
@@ -173,17 +171,27 @@ class ODT(ODF):
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
         #Table data, must be all strings (Not a spreadsheet)
+        if style is not None:
+            table.TableTemplateName=style #MUST BE BEFORE TO OVERRIDE SOME PROPERTIES
         for row, row_data in enumerate(data):
             for column, cell_data in enumerate(row_data):
-                cell=table.getCellByPosition(row, column)
-                cell.setString(str(cell_data))
+                cell=table.getCellByPosition( column, row)
+                cursor = cell.createTextCursor()
+                cursor.CharHeight=size
+                if str(cell_data).startswith("-"):
+                    cursor.setPropertyValue( "CharColor", 0xDD0000 )
+                if cell_data.__class__.__name__ in ["str"]:
+                    cursor.ParaAdjust=LEFT
+                else:
+                    cursor.ParaAdjust=RIGHT
+                    cursor.ParaRightMargin=100
+                cell.insertString(cursor, str(cell_data), False)
         
         #TAble width and style
         table.HoriOrient=2 #Centered
         table.TopMargin=margins_top_bottom
         table.BottomMargin=margins_top_bottom
         table.RelativeWidth=width_percentage #PARECE QUE ES SOLO DESCRIPTIVO
-        table.TableTemplateName="3D"
         
         #Columns width
         if columnssize_percentages is not None:

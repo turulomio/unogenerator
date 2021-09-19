@@ -220,20 +220,22 @@ doc=ODT()"""    , "Code")
     
 
     doc.addParagraph(_("Tables"), "Heading 2")
-    doc.addParagraph(_("We can create tables too, for example with size 11pt:"), "Standard")
     table_data=[
         [_("Concept"), _("Value") ], 
         [_("Text"), _("This is a text")], 
-#        [_("Datetime"), datetime.now()], 
-#        [_("Date"), date.today()], 
-#        [_("Decimal"), Decimal("12.121")], 
-#        [_("Currency"), Currency(12.12, "EUR")], 
-#        [_("Percentage"), Percentage(1, 3)], 
+        [_("Datetime"), datetime.now()], 
+        [_("Date"), date.today()], 
+        [_("Float"),  12.121], 
+        [_("Currency"), Currency(-12.12, "EUR")], 
+        [_("Percentage"), Percentage(1, 3)], 
     ]
     
     
+    doc.addParagraph(_("We can create tables with diferent font sizes and formats:"), "Standard")
     doc.addTableParagraph(table_data, columnssize_percentages=[30, ])
-    doc.pageBreak()
+    
+    doc.addTableParagraph(table_data, columnssize_percentages=[30, ],  size=6, style="3D")
+    
 
     doc.addParagraph(_("Lists and numbered lists"), "Heading 2") 
     doc.addParagraph(_("Simple list"), "Standard")
