@@ -131,14 +131,6 @@ class ODT(ODF):
         for filename in filename_list:
             self.document.Text.insertTextContent(self.cursor,self.textcontentImage(filename, width, height, "AS_CHARACTER"), False)
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
-        
-##    table.setPropertyValue( "BackTransparent", uno.Bool(0) )
-##    table.setPropertyValue( "BackColor", 13421823 )
-##    row = rows.getByIndex(0)
-##    row.setPropertyValue( "BackTransparent", uno.Bool(0) )
-##    row.setPropertyValue( "BackColor", 6710932 )
-##    table.getCellByName("C4").setValue(415.7)
-##    table.getCellByName("D4").setFormula("sum <A4:C4>")
  
 ##def insertTextIntoCell( table, cellName, text, color ):
 ##    tableText = table.getCellByName( cellName )
@@ -146,6 +138,7 @@ class ODT(ODF):
 ##    cursor.setPropertyValue( "CharColor", color )
 ##    tableText.setString( text )
 
+    ## Table data, must be all strings (Not a spreadsheet)
     ## @params magings TRBL
     ## @params columnssize_percentage Por ejemplo para table 30,70, solo debo poner [30,]
     ##   para table [10,10,80], solo debo poner [10,10]
@@ -170,6 +163,8 @@ class ODT(ODF):
         table.initialize(num_rows, num_columns)
         if name is not None:
             table.TableName=name
+        cursor = table.createTextCursor()
+        cursor.setPropertyValue( "CharColor", 0x121212 )
         print("TABLE",  dir(table))
 
         #Párrafo de la table
@@ -177,7 +172,7 @@ class ODT(ODF):
         self.document.Text.insertTextContent(self.cursor,table,False)
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
-        #Table data
+        #Table data, must be all strings (Not a spreadsheet)
         for row, row_data in enumerate(data):
             for column, cell_data in enumerate(row_data):
                 cell=table.getCellByPosition(row, column)
