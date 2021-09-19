@@ -232,7 +232,7 @@ doc=ODT()"""    , "Code")
     ]
     
     
-    doc.addTableParagraph(table_data)
+    doc.addTableParagraph(table_data, columnssize_percentages=[30, ])
     doc.pageBreak()
 
     doc.addParagraph(_("Lists and numbered lists"), "Heading 2") 

@@ -34,7 +34,7 @@ class ODF:
     def print_styles(self):
         stylefam=self.document.StyleFamilies
         
-        print(f"Document '{self.filename}' styles")
+        print("Document styles")
         for sf_index,  sf in enumerate(stylefam):
             print (f"  * Family '{stylefam.getElementNames()[sf_index]}'")
             styles=list(sf.getElementNames())
@@ -145,23 +145,61 @@ class ODT(ODF):
 ##    cursor = tableText.createTextCursor()
 ##    cursor.setPropertyValue( "CharColor", color )
 ##    tableText.setString( text )
-    def addTableParagraph(self, data, paragraph_style="Standard", table_style="Elegant"):
-        ## Table by cellname
+
+    ## @params magings TRBL
+    ## @params columnssize_percentage Por ejemplo para table 30,70, solo debo poner [30,]
+    ##   para table [10,10,80], solo debo poner [10,10]
+    ## if none , rangos iguales
+    def addTableParagraph(self, 
+        data,  
+        columnssize_percentages=None, 
+        margins_top_bottom=500,  
+        size=10,  
+        width_percentage=80, 
+        alignment="center",  
+        paragraph_style="Standard", 
+        table_style="3D", 
+        name=None
+    ):        
+        #Tabla definition
+        table=self.document.createInstance("com.sun.star.text.TextTable")
         num_rows=len(data)
         if num_rows==0:
             return
         num_columns=len(data[0])
-        self.cursor.setPropertyValue("ParaStyleName", paragraph_style)
-        table=self.document.createInstance("com.sun.star.text.TextTable")
-#        table.setPropertyValue("TableStyleName", table_style)
         table.initialize(num_rows, num_columns)
+        if name is not None:
+            table.TableName=name
+        print("TABLE",  dir(table))
+
+        #Párrafo de la table
+        self.cursor.setPropertyValue("ParaStyleName", paragraph_style)
         self.document.Text.insertTextContent(self.cursor,table,False)
+        self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
+        
+        #Table data
         for row, row_data in enumerate(data):
             for column, cell_data in enumerate(row_data):
                 cell=table.getCellByPosition(row, column)
                 cell.setString(str(cell_data))
-        #cell.insertTextContent(cell,image,False)
-        self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
+        
+        #TAble width and style
+        table.HoriOrient=2 #Centered
+        table.TopMargin=margins_top_bottom
+        table.BottomMargin=margins_top_bottom
+        table.RelativeWidth=width_percentage #PARECE QUE ES SOLO DESCRIPTIVO
+        table.TableTemplateName="3D"
+        
+        #Columns width
+        if columnssize_percentages is not None:
+            separators=[]
+            for sep in columnssize_percentages:
+                separator= createUnoStruct("com.sun.star.text.TableColumnSeparator")
+                separator.Position=sep*100
+                separator.IsVisible=True
+                separators.append(separator)
+            #        print(table.TableColumnRelativeSum)
+            table.TableColumnSeparators=separators
         
     def addListPlain(self, arr, list_style="List_2", paragraph_style="Puntitos"):
 #        def get_items(list_o, list_style, paragraph_style):
