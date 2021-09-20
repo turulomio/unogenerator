@@ -10,12 +10,21 @@ from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
 from com.sun.star.style.BreakType import PAGE_AFTER
+from gettext import translation
 from logging import warning
 from pkg_resources import resource_filename
 from unogenerator.commons import Coord as C, Colors,  Range as R, datetime2uno, row2index, column2index
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date
 from unogenerator.reusing.percentage import Percentage
+
+
+try:
+    t=translation('unogenerator', resource_filename("unogenerator","locale"))
+    _=t.gettext
+except:
+    _=str
+
 
 class ODF:
     def __init__(self, template=None, loserver_port=2002):
@@ -69,8 +78,13 @@ class ODT(ODF):
         self.cursor=self.document.Text.createTextCursor()
 
         
-    def save(self, filename):
+    def save(self, filename, overwrite_template=False):
         filename=f"file://{path.abspath(filename)}"
+        if filename==self.template and overwrite_template is False:
+            print(_("You can't use the same filename as your template or you will overwrite it."))
+            print(_("You can force it, setting overwrite_template paramter to True"))
+            print(_("Document hasn't been saved."))
+            return
         ## SAVE FILE
         args=(
             PropertyValue('FilterName',0,'writer8',0),
@@ -422,9 +436,8 @@ class ODS(ODF):
     ## Return a Range object with the limits of the index sheet
     def getSheetRange(self):
         endcoord=C("A1").addRow(self.rowNumber()-1).addColumn(self.columnNumber()-1)
-        return R("A1:"+endcoord.string())
-        
-        
+        return R("A1:" + endcoord.string())
+
     ## Esta función puede que sea costosa
     def rowNumber(self):
         return len(self.sheet.getData())
@@ -436,12 +449,17 @@ class ODS(ODF):
         else:
             return len(self.sheet.getData()[0])
             
-    def save(self, filename):
+    def save(self, filename, overwrite_template=False):
         filename=f"file://{path.abspath(filename)}"
+        if filename==self.template and overwrite_template is False:
+            print(_("You can't use the same filename as your template or you will overwrite it."))
+            print(_("You can force it, setting overwrite_template paramter to True"))
+            print(_("Document hasn't been saved."))
+            return
         ## SAVE FILE
         args=(
-            PropertyValue('FilterName',0,'calc8',0),
-            PropertyValue('Overwrite',0,True,0),
+            PropertyValue('FilterName', 0, 'calc8', 0),
+            PropertyValue('Overwrite', 0, True, 0),
         )
         self.document.storeAsURL(filename, args)
 
@@ -460,7 +478,6 @@ class ODS(ODF):
             PropertyValue('Overwrite',0,True,0),
         )
         self.document.storeToURL(filename, args)
-
 
 class ODS_Standard(ODS):
     def __init__(self, loserver_port=2002):

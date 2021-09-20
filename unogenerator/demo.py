@@ -3,10 +3,10 @@
 from uno import getComponentContext
 getComponentContext()
 import argparse
-import gettext
 import pkg_resources
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, date, timedelta
+from gettext import translation, install
 from multiprocessing import cpu_count
 
 from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, Colors, Coord as C
@@ -16,7 +16,7 @@ from unogenerator.unogenerator import ODT_Standard, ODS_Standard
 from os import remove
 
 try:
-    t=gettext.translation('unogenerator',pkg_resources.resource_filename("unogenerator","locale"))
+    t=translation('unogenerator', pkg_resources.resource_filename("unogenerator","locale"))
     _=t.gettext
 except:
     _=str
@@ -54,7 +54,7 @@ def main(arguments=None):
         start=datetime.now()
         futures=[]
         with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
-            for language in ['es']:#, 'en']:
+            for language in ['es', 'en']:
                 futures.append(executor.submit(demo_ods_standard, language))
                 futures.append(executor.submit(demo_odt_standard, language))
 
@@ -65,9 +65,9 @@ def main(arguments=None):
        
 def demo_ods_standard(language):
     if language=="en":
-        lang1=gettext.install('unogenerator', 'badlocale')
+        lang1=install('unogenerator', 'badlocale')
     else:
-        lang1=gettext.translation('unogenerator', 'unogenerator/locale', languages=[language])
+        lang1=translation('unogenerator', 'unogenerator/locale', languages=[language])
         lang1.install()
     
     doc=ODS_Standard()
@@ -121,9 +121,9 @@ def demo_ods_standard(language):
     
 def demo_odt_standard(language):
     if language=="en":
-        lang1=gettext.install('unogenerator', 'badlocale')
+        lang1=install('unogenerator', 'badlocale')
     else:
-        lang1=gettext.translation('unogenerator', 'unogenerator/locale', languages=[language])
+        lang1=translation('unogenerator', 'unogenerator/locale', languages=[language])
         lang1.install()
 
     doc=ODT_Standard()
