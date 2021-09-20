@@ -85,6 +85,10 @@ class ODT(ODF):
             print(_("You can force it, setting overwrite_template paramter to True"))
             print(_("Document hasn't been saved."))
             return
+        if filename.endswith(".odt") is False:
+            print(_("Filename extension must be 'odt'."))
+            print(_("Document hasn't been saved."))
+            return
         ## SAVE FILE
         args=(
             PropertyValue('FilterName',0,'writer8',0),
@@ -95,6 +99,10 @@ class ODT(ODF):
                 
     def export_pdf(self, filename):
         filename=f"file://{path.abspath(filename)}"
+        if filename.endswith(".pdf") is False:
+            print(_("Filename extension must be 'pdf'."))
+            print(_("Document hasn't been saved."))
+            return
         args=(
             PropertyValue('FilterName',0,'writer_pdf_Export',0),
             PropertyValue('Overwrite',0,True,0),
@@ -116,10 +124,12 @@ class ODT(ODF):
         else:
             warning(f"'{find}' was not found in the document'")
 
-
-
     def export_docx(self, filename):
         filename=f"file://{path.abspath(filename)}"
+        if filename.endswith(".docx") is False:
+            print(_("Filename extension must be 'docx'."))
+            print(_("Document hasn't been saved."))
+            return
         args=(
             PropertyValue('FilterName',0,'MS Word 2007 XML',0),
             PropertyValue('Overwrite',0,True,0),
@@ -456,6 +466,10 @@ class ODS(ODF):
             print(_("You can force it, setting overwrite_template paramter to True"))
             print(_("Document hasn't been saved."))
             return
+        if filename.endswith(".ods") is False:
+            print(_("Filename extension must be 'ods'."))
+            print(_("Document hasn't been saved."))
+            return
         ## SAVE FILE
         args=(
             PropertyValue('FilterName', 0, 'calc8', 0),
@@ -465,6 +479,10 @@ class ODS(ODF):
 
     def export_pdf(self, filename):
         filename=f"file://{path.abspath(filename)}"
+        if filename.endswith(".pdf") is False:
+            print(_("Filename extension must be 'pdf'."))
+            print(_("Document hasn't been saved."))
+            return
         args=(
             PropertyValue('FilterName',0,'calc_pdf_Export',0),
             PropertyValue('Overwrite',0,True,0),
@@ -473,6 +491,10 @@ class ODS(ODF):
 
     def export_xlsx(self, filename):
         filename=f"file://{path.abspath(filename)}"
+        if filename.endswith(".xlsx") is False:
+            print(_("Filename extension must be 'xlsx'."))
+            print(_("Document hasn't been saved."))
+            return
         args=(
             PropertyValue('FilterName',0,'Calc MS Excel 2007 XML',0),
             PropertyValue('Overwrite',0,True,0),
