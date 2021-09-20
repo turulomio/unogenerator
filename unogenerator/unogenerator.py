@@ -10,6 +10,7 @@ from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
 from com.sun.star.style.BreakType import PAGE_AFTER
+from logging import warning
 from pkg_resources import resource_filename
 from unogenerator.commons import Coord as C, Colors,  Range as R, datetime2uno, row2index, column2index
 from unogenerator.reusing.currency import Currency
@@ -85,12 +86,23 @@ class ODT(ODF):
             PropertyValue('Overwrite',0,True,0),
         )
         self.document.storeToURL(filename, args)
-        
-    def find_and_remove_and_setcursorposition(self, find):
+         
+##def insertTextIntoCell( table, cellName, text, color ):
+##    tableText = table.getCellByName( cellName )
+##    cursor = tableText.createTextCursor()
+##    cursor.setPropertyValue( "CharColor", color )
+##    tableText.setString( text )
+    def find_and_replace_and_setcursorposition(self, find, replace=""):
         search=self.document.createSearchDescriptor()
         search.SearchString=find
         found=self.document.findFirst(search)
-        found.String.replace(find,  "")
+        if found is not None:
+            found.setString(replace)
+            self.cursor=found
+        else:
+            warning(f"'{find}' was not found in the document'")
+
+
 
     def export_docx(self, filename):
         filename=f"file://{path.abspath(filename)}"
@@ -132,12 +144,7 @@ class ODT(ODF):
         for filename in filename_list:
             self.document.Text.insertTextContent(self.cursor,self.textcontentImage(filename, width, height, "AS_CHARACTER"), False)
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
- 
-##def insertTextIntoCell( table, cellName, text, color ):
-##    tableText = table.getCellByName( cellName )
-##    cursor = tableText.createTextCursor()
-##    cursor.setPropertyValue( "CharColor", color )
-##    tableText.setString( text )
+
 
     ## Table data, must be all strings (Not a spreadsheet)
     ## @params magings TRBL

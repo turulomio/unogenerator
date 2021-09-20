@@ -54,7 +54,7 @@ def main(arguments=None):
         start=datetime.now()
         futures=[]
         with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
-            for language in ['es', 'en']:
+            for language in ['es']:#, 'en']:
                 futures.append(executor.submit(demo_ods_standard, language))
                 futures.append(executor.submit(demo_odt_standard, language))
 
@@ -265,6 +265,11 @@ doc=ODT()"""    , "Code")
     doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
     doc.addImageParagraph([pkg_resources.resource_filename(__name__, 'images/crown.png')]*5, 2500, 1500, "Illustration")
 
+
+    doc.addParagraph(_("Search and Replace"), "Heading 2")
+    doc.addParagraph(_("Below this paragraph is a paragraph with a % REPLACEME % (Without white spaces) text and it's going to be replaced after all document is been generated"), "Standard")
+    doc.addParagraph("%REPLACEME%", "Standard")
+
     doc.pageBreak()
     doc.addParagraph(_("ODS"), "Heading 1")
     doc.addParagraph("""    TTO READ
@@ -275,6 +280,11 @@ def demo_ods_standard_read():
     print(doc.getValuesByRow("4", standard=False))
     doc.close()
     return "demo_ods_standard took {}".format(datetime.now()-doc.init)""",  "Standard")
+    
+    doc.find_and_replace_and_setcursorposition("%REPLACEME%")
+    doc.addParagraph(_("This paragraph was set at the end of the code after a find and replace command."), "Standard")
+    
+    
     
     doc.save(f"unogenerator_documentation_{language}.odt")
     doc.export_docx(f"unogenerator_documentation_{language}.docx")
