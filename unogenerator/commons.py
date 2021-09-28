@@ -21,15 +21,16 @@ try:
 except:
     _=str
 
-Colors={}
-Colors["Black"]={"color":0x111111, "contrast":0xFFFFFF}
-Colors["White"]={"color":0xFFFFFF, "contrast":0}
-Colors["Blue"]={"color":0x9999ff, "contrast":0xFFFFFF}
-Colors["Red"]={"color":0xFF9999, "contrast":0xFFFFFF}
-Colors["Green"]={"color":0x99FF99, "contrast":0xFFFFFF}
-Colors["Orange"]={"color":0xffd573,   "contrast":0xFFFFFF}
-Colors["Yellow"]={"color":0xffff7f,   "contrast":0xFFFFFF}
-Colors["GrayLight"]={"color":0xd2ced4,   "contrast":0xFFFFFF}
+class ColorsNamed:
+    Black=0x111111
+    White=0xFFFFFF
+    Blue=0x9999ff
+    Red=0xFF9999
+    Green=0x99FF99
+    Orange=0xffd573
+    Yellow=0xffff7f
+    GrayLight=0xd2ced4
+
 def datetime2uno( dt):
     r=createUnoStruct("com.sun.star.util.DateTime")
     r.Year=dt.year
@@ -39,12 +40,14 @@ def datetime2uno( dt):
     r.Minutes=dt.minute
     r.Seconds=dt.second
     return r
+
 def date2uno( dt):
     r=createUnoStruct("com.sun.star.util.Date")
     r.Year=dt.year
     r.Month=dt.month
     r.Day=dt.day
     return r
+
 ## Function used in argparse_epilog
 ## @return String
 def argparse_epilog():
@@ -105,9 +108,6 @@ def index2row(index):
 ## Convierte el indice de la columna a la cadena de letras de la columna de la hoja de datos
 def index2column(index):
     return number2column(index+1)
-
-def ODFPYversion():
-    return __odfpy_version__.split("/")[1]
 
 ## Class that manage spreadsheet coordinates (letter + number)
 class Coord:
@@ -354,32 +354,6 @@ def Coord_from_letters(column, letter):
 def Coord_from_index(column_index, row_index):
     return Coord(index2column(column_index)+index2row(row_index))
 
-
-### This command has problems with concurrency seems that three is a hidden lock. Do not use with concurrency
-#def convert_command(filename, ouput_dir, to_format):
-#    command="loffice --nolockcheck --headless --convert-to {} --outdir '{}' '{}'".format(to_format, ouput_dir, filename)
-#    r=run(command, shell=True, stdout=PIPE)
-#    if r.returncode!=0:
-#        print ("Error with command: {}".format(command))
-#        return None
-        
-        
-        
-## This command has problems with concurrency seems that three is a hidden lock. Do not use with concurrency
-def convert_command(filename_from, filename_to):
-    filename_from_name, filename_from_extension = path.splitext(path.basename(filename_from))    
-    filename_to_name, filename_to_extension = path.splitext(path.basename(filename_to))    
-    with TemporaryDirectory(prefix="unogenerator_") as tmp_name:
-        command="loffice --nolockcheck --headless --convert-to {} --outdir '{}' '{}'".format(filename_to_extension[1:], tmp_name, filename_from)
-        r=run(command, shell=True, stdout=PIPE)
-        if r.returncode!=0:
-            error("Error with command: {}".format(command))
-            return None            
-        tmp_converted_filename="{}/{}{}".format(tmp_name, filename_from_name, filename_to_extension)
-        debug("Libreoffice conversion from '{}' to '{}'".format(filename_from, filename_to))
-        copyfile(tmp_converted_filename, filename_to)
-    return filename_to
-
 def generate_formula_total_string(key, coord_from, coord_to):
     if key == "#SUM":
         s="=SUM({}:{})".format(coord_from.string(), coord_to.string())
@@ -390,3 +364,38 @@ def generate_formula_total_string(key, coord_from, coord_to):
     else:
         s=key
     return s
+
+def guess_object_style(o):
+    if o.__class__.__name__=="datetime":
+        return "Datetime"
+    elif o.__class__.__name__=="int":
+        return "Integer"
+    print("Not guessed")
+    return "Bold"
+
+
+    # def guess_ods_style(color_or_style, object):
+    # if color_or_style in ["Green", "GrayDark", "GrayLight", "Orange", "Yellow", "White", "Blue", "Red", "Normal"]:
+    #     if object.__class__.__name__=="str":
+    #         return color_or_style + "Left"
+    #     elif object.__class__.__name__=="int":
+    #         return color_or_style + "Integer"
+    #     elif object.__class__.__name__ in ["Currency", "Money" ]:
+    #         return color_or_style + object.currency
+    #     elif object.__class__.__name__=="Percentage":
+    #         return color_or_style + "Percentage"
+    #     elif object.__class__.__name__ in ("Decimal", "float"):
+    #         return color_or_style +  "Decimal2"
+    #     elif object.__class__.__name__=="datetime":
+    #         return color_or_style + "Datetime"
+    #     elif object.__class__.__name__=="date":
+    #         return color_or_style + "Date"
+    #     elif object.__class__.__name__=="time":
+    #         return color_or_style + "Time"
+    #     elif object.__class__.__name__=="bool":
+    #         return color_or_style + "Boolean"
+    #     else:
+    #         info("guess_ods_style not guessed {}".format( object.__class__))
+    #         return "NormalLeft"
+    # else:
+    #     return color_or_style

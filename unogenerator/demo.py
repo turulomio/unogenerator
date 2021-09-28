@@ -9,10 +9,11 @@ from datetime import datetime, date, timedelta
 from gettext import translation, install
 from multiprocessing import cpu_count
 
-from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, Colors, Coord as C
+from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
+from unogenerator.helpers import helper_values_with_total
 from os import remove
 
 try:
@@ -81,40 +82,54 @@ def demo_ods_standard(language):
     doc.createSheet("Styles", 1)
     doc.setColumnsWidth([2000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  5000])
     
-    doc.addCellWithStyle("A1", _("Style name"), Colors["Orange"], "BoldCenter")
-    doc.addCellWithStyle("B1", _("Date and time"), Colors["Orange"], "BoldCenter")
-    doc.addCellWithStyle("C1", _("Date"), Colors["Orange"], "BoldCenter")
-    doc.addCellWithStyle("D1", _("Integer"), Colors["Orange"], "BoldCenter")
-    doc.addCellWithStyle("E1", _("Euros"), Colors["Orange"], "BoldCenter")
-    doc.addCellWithStyle("F1", _("Dollars"), Colors["Orange"], "BoldCenter")
-    doc.addCellWithStyle("G1", _("Percentage"), Colors["Orange"], "BoldCenter")
-    doc.addCellWithStyle("H1", _("Number with 2 decimals"), Colors["Orange"], "BoldCenter")
-    doc.addCellWithStyle("I1", _("Number with 6 decimals"), Colors["Orange"], "BoldCenter")
-    doc.addCellWithStyle("J1", _("Time"), Colors["Orange"], "BoldCenter")
-    doc.addCellWithStyle("K1", _("Boolean"), Colors["Orange"], "BoldCenter")
-    for row, color_key in enumerate(Colors.keys()):
-        doc.addCellWithStyle(C("A2").addRow(row), color_key, Colors[color_key], "Bold")
-        doc.addCellWithStyle(C("B2").addRow(row), datetime.now(), Colors[color_key], "Datetime")
-        doc.addCellWithStyle(C("C2").addRow(row), date.today(), Colors[color_key], "Date")
-        doc.addCellWithStyle(C("D2").addRow(row), pow(-1, row)*-10000000, Colors[color_key], "Integer")
-        doc.addCellWithStyle(C("E2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), Colors[color_key], "EUR")
-        doc.addCellWithStyle(C("F2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), Colors[color_key], "USD")
-        doc.addCellWithStyle(C("G2").addRow(row), Percentage(pow(-1, row)*1, 3), Colors[color_key],  "Percentage")
-        doc.addCellWithStyle(C("H2").addRow(row), pow(-1, row)*123456789.121212, Colors[color_key], "Float6")
-        doc.addCellWithStyle(C("I2").addRow(row), pow(-1, row)*-12.121212, Colors[color_key], "Float2")
-        doc.addCellWithStyle(C("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), Colors[color_key], "Time")
-        doc.addCellWithStyle(C("K2").addRow(row), bool(row%2), Colors[color_key], "Bool")
+    doc.addCellWithStyle("A1", _("Style name"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("B1", _("Date and time"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("C1", _("Date"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("D1", _("Integer"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("E1", _("Euros"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("F1", _("Dollars"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("G1", _("Percentage"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("H1", _("Number with 2 decimals"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("I1", _("Number with 6 decimals"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("J1", _("Time"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("K1", _("Boolean"), ColorsNamed.Orange, "BoldCenter")
+    colors_list=([a for a in dir(ColorsNamed()) if not a.startswith('__')])
+    print(colors_list)
+    for row, color_str in enumerate(colors_list):
+        color_key=getattr(ColorsNamed(), color_str)
+        doc.addCellWithStyle(C("A2").addRow(row), color_str, color_key, "Bold")
+        doc.addCellWithStyle(C("B2").addRow(row), datetime.now(), color_key, "Datetime")
+        doc.addCellWithStyle(C("C2").addRow(row), date.today(), color_key, "Date")
+        doc.addCellWithStyle(C("D2").addRow(row), pow(-1, row)*-10000000, color_key, "Integer")
+        doc.addCellWithStyle(C("E2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), color_key, "EUR")
+        doc.addCellWithStyle(C("F2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), color_key, "USD")
+        doc.addCellWithStyle(C("G2").addRow(row), Percentage(pow(-1, row)*1, 3), color_key,  "Percentage")
+        doc.addCellWithStyle(C("H2").addRow(row), pow(-1, row)*123456789.121212, color_key, "Float6")
+        doc.addCellWithStyle(C("I2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
+        doc.addCellWithStyle(C("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
+        doc.addCellWithStyle(C("K2").addRow(row), bool(row%2), color_key, "Bool")
         
-    doc.addCellWithStyle("E10","=sum(E2:E8)", Colors["GrayLight"], "EUR" )
-    doc.addCellMerged("E12:K12", "Prueba de merge", Colors["Yellow"], style="BoldCenter")
+    doc.addCellWithStyle("E10","=sum(E2:E8)", ColorsNamed.GrayLight, "EUR" )
+    doc.addCellMerged("E12:K12", "Prueba de merge", ColorsNamed.Yellow, style="BoldCenter")
     doc.setComment("B11", "This is nice comment")
     
     doc.freezeAndSelect("B2")
+
+    ## HELPERS
+    doc.createSheet("Helpers", 2)
+    doc.addCellMerged("A1:E1","Helper values with total (horizontal)")
+    helper_values_with_total(doc,"A1", "Suma 3 celdas", [1,2,3],  horizontal=True)
+
+
+
     doc.removeSheet(0)
     doc.save(f"unogenerator_example_{language}.ods")
     doc.export_xlsx(f"unogenerator_example_{language}.xlsx")
     doc.export_pdf(f"unogenerator_example_{language}.pdf")
     doc.close()
+
+
+
 
     return f"unogenerator_example_{language}.ods took {datetime.now()-doc.init}"
     

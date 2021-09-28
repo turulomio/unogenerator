@@ -13,7 +13,7 @@ from com.sun.star.style.BreakType import PAGE_AFTER
 from gettext import translation
 from logging import warning
 from pkg_resources import resource_filename
-from unogenerator.commons import Coord as C, Colors,  Range as R, datetime2uno, row2index, column2index
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date
 from unogenerator.reusing.percentage import Percentage
@@ -294,14 +294,13 @@ class ODS(ODF):
             
     def setComment(self, coord, comment):
         coord=C.assertCoord(coord)
-#        print(cell.supportsService("com.sun.star.sheet.XSheetAnnotation"))
         celladdress= createUnoStruct("com.sun.star.table.CellAddress")
         celladdress.Sheet=self.sheet_index
         celladdress.Column=coord.letterIndex()
         celladdress.Row=coord.numberIndex()
         self.sheet.Annotations.insertNew(celladdress, comment)
             
-    def addCell(self, coord, o, color_dict=Colors["White"], outlined=1, alignment="left", decimals=2, bold=False):
+    def addCell(self, coord, o, color_dict=ColorsNamed.White, outlined=1, alignment="left", decimals=2, bold=False):
         coord=C.assertCoord(coord)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__set_value_to_cell(cell, o)
@@ -314,12 +313,30 @@ class ODS(ODF):
         cell.setPropertyValue("BottomBorder", border_prop)
         cell.setPropertyValue("CellBackColor", color_dict["color"])
 
-    def addCellWithStyle(self, coord, o, color_dict=Colors["White"], style=None):
+    ## @param colors If None uses Wh
+    ## @param styles If None uses guest style. Else an array of styles
+    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+        if styles is None:
+            styles=[]
+            for o in list_o:
+                styles.append(guess_object_style(o))
+
+        if colors.__class__.__name__!="list":
+            colors=[colors]*len(list_o)
+
+        for i,o in enumerate(list_o):
+            self.addCellWithStyle(coord_start.addRowCopy(i),o,colors[i],styles[i])
+
+
+    ## @param style If None tries to guess it
+    def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
         coord=C.assertCoord(coord)
+        if style is None:
+            style=guess_object_style(o)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__set_value_to_cell(cell, o)
         cell.setPropertyValue("CellStyle", style)
-        cell.setPropertyValue("CellBackColor", color_dict["color"])
+        cell.setPropertyValue("CellBackColor", color)
         
     def __set_value_to_cell(self, cell, o):
         if o.__class__.__name__  == "datetime":
@@ -345,14 +362,14 @@ class ODS(ODF):
             cell.setString(str(o))
             print("MISSING", o.__class__.__name__)
         
-    def addCellMerged(self, range, o, color_dict=Colors["White"], style=None):
+    def addCellMerged(self, range, o, color=ColorsNamed.White, style=None):
         range=R.assertRange(range)
         cell=self.sheet.getCellByPosition(range.start.letterIndex(), range.start.numberIndex())
         cellrange=self.sheet.getCellRangeByName(range.string())
         cellrange.merge(True)
         self.__set_value_to_cell(cell, o)
         cell.setPropertyValue("CellStyle", style)
-        cell.setPropertyValue("CellBackColor", color_dict["color"])
+        cell.setPropertyValue("CellBackColor", color)
 
     def freezeAndSelect(self, freeze, current=None, topleft=None):
         freeze=C.assertCoord(freeze) 
