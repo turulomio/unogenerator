@@ -80,7 +80,7 @@ def demo_ods_standard(language):
         ["unogenerator", "demo", "files"]
     )
     doc.createSheet("Styles", 1)
-    doc.setColumnsWidth([2000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  5000])
+    doc.setColumnsWidth([5000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  5000])
     
     doc.addCellWithStyle("A1", _("Style name"), ColorsNamed.Orange, "BoldCenter")
     doc.addCellWithStyle("B1", _("Date and time"), ColorsNamed.Orange, "BoldCenter")
@@ -94,7 +94,6 @@ def demo_ods_standard(language):
     doc.addCellWithStyle("J1", _("Time"), ColorsNamed.Orange, "BoldCenter")
     doc.addCellWithStyle("K1", _("Boolean"), ColorsNamed.Orange, "BoldCenter")
     colors_list=([a for a in dir(ColorsNamed()) if not a.startswith('__')])
-    print(colors_list)
     for row, color_str in enumerate(colors_list):
         color_key=getattr(ColorsNamed(), color_str)
         doc.addCellWithStyle(C("A2").addRow(row), color_str, color_key, "Bold")
@@ -108,10 +107,10 @@ def demo_ods_standard(language):
         doc.addCellWithStyle(C("I2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
         doc.addCellWithStyle(C("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
         doc.addCellWithStyle(C("K2").addRow(row), bool(row%2), color_key, "Bool")
-        
-    doc.addCellWithStyle("E10","=sum(E2:E8)", ColorsNamed.GrayLight, "EUR" )
-    doc.addCellMergedWithStyle("E12:K12", "Prueba de merge", ColorsNamed.Yellow, style="BoldCenter")
-    doc.setComment("B11", "This is nice comment")
+
+    doc.addCellWithStyle(C("E2").addRow(row+1),f"=sum(E2:{C('E2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR" )
+    doc.addCellMergedWithStyle("E15:K15", "Prueba de merge", ColorsNamed.Yellow, style="BoldCenter")
+    doc.setComment("B14", "This is nice comment")
     
     doc.freezeAndSelect("B2")
 

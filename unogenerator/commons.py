@@ -30,6 +30,8 @@ class ColorsNamed:
     Orange=0xffd573
     Yellow=0xffff7f
     GrayLight=0xd2ced4
+    GrayDark=0xa29ea4
+    GrayVeryDark=0x726e74
 
 def datetime2uno( dt):
     r=createUnoStruct("com.sun.star.util.DateTime")
