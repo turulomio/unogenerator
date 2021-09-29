@@ -12,5 +12,8 @@ depend() {
 }
 
 stop() {
+	ebegin "Stopping unogenerator"
 	pkill -f "2002;urp;StarOffice.ServiceManager"
+	eend $?
+
 }
