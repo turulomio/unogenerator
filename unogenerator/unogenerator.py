@@ -316,6 +316,22 @@ class ODS(ODF):
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
     def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+        coord_start=C.assertCoord(coord_start)
+        if styles is None:
+            styles=[]
+            for o in list_o:
+                styles.append(guess_object_style(o))
+
+        if colors.__class__.__name__!="list":
+            colors=[colors]*len(list_o)
+
+        for i,o in enumerate(list_o):
+            self.addCellWithStyle(coord_start.addColumnCopy(i),o,colors[i],styles[i])
+
+    ## @param colors If None uses Wh
+    ## @param styles If None uses guest style. Else an array of styles
+    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+        coord_start=C.assertCoord(coord_start)
         if styles is None:
             styles=[]
             for o in list_o:
@@ -327,6 +343,17 @@ class ODS(ODF):
         for i,o in enumerate(list_o):
             self.addCellWithStyle(coord_start.addRowCopy(i),o,colors[i],styles[i])
 
+    ## @param style If None tries to guess it
+    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None):
+        coord_start=C.assertCoord(coord_start)
+        for i, row in enumerate(list_rows):
+            self.addRowWithStyle(coord_start.addRowCopy(i), row, colors=colors,styles=styles)
+
+    ## @param style If None tries to guess it
+    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None):
+        coord_start=C.assertCoord(coord_start)
+        for i, column in enumerate(list_columns):
+            self.addColumnWithStyle(coord_start.addColumnCopy(i), column, colors=colors,styles=styles)
 
     ## @param style If None tries to guess it
     def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
@@ -362,7 +389,7 @@ class ODS(ODF):
             cell.setString(str(o))
             print("MISSING", o.__class__.__name__)
         
-    def addCellMerged(self, range, o, color=ColorsNamed.White, style=None):
+    def addCellMergedWithStyle(self, range, o, color=ColorsNamed.White, style=None):
         range=R.assertRange(range)
         cell=self.sheet.getCellByPosition(range.start.letterIndex(), range.start.numberIndex())
         cellrange=self.sheet.getCellRangeByName(range.string())

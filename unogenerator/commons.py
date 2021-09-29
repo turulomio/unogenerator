@@ -370,32 +370,22 @@ def guess_object_style(o):
         return "Datetime"
     elif o.__class__.__name__=="int":
         return "Integer"
-    print("Not guessed")
-    return "Bold"
-
-
-    # def guess_ods_style(color_or_style, object):
-    # if color_or_style in ["Green", "GrayDark", "GrayLight", "Orange", "Yellow", "White", "Blue", "Red", "Normal"]:
-    #     if object.__class__.__name__=="str":
-    #         return color_or_style + "Left"
-    #     elif object.__class__.__name__=="int":
-    #         return color_or_style + "Integer"
-    #     elif object.__class__.__name__ in ["Currency", "Money" ]:
-    #         return color_or_style + object.currency
-    #     elif object.__class__.__name__=="Percentage":
-    #         return color_or_style + "Percentage"
-    #     elif object.__class__.__name__ in ("Decimal", "float"):
-    #         return color_or_style +  "Decimal2"
-    #     elif object.__class__.__name__=="datetime":
-    #         return color_or_style + "Datetime"
-    #     elif object.__class__.__name__=="date":
-    #         return color_or_style + "Date"
-    #     elif object.__class__.__name__=="time":
-    #         return color_or_style + "Time"
-    #     elif object.__class__.__name__=="bool":
-    #         return color_or_style + "Boolean"
-    #     else:
-    #         info("guess_ods_style not guessed {}".format( object.__class__))
-    #         return "NormalLeft"
-    # else:
-    #     return color_or_style
+    elif o.__class__.__name__=="str":
+        return "Left"
+    elif o.__class__.__name__ in ["Currency", "Money" ]:
+        return o.currency
+    elif o.__class__.__name__=="Percentage":
+        return "Percentage"
+    elif o.__class__.__name__ in ("Decimal", "float"):
+        return  "Float2"
+    elif o.__class__.__name__=="datetime":
+        return "Datetime"
+    elif o.__class__.__name__=="date":
+        return "Date"
+    elif o.__class__.__name__=="time":
+        return "Time"
+    elif o.__class__.__name__=="bool":
+        return "Bool"
+    else:
+        info("guess_object_style not guessed {}".format( o.__class__))
+        return "Bold"

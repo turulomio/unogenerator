@@ -13,7 +13,7 @@ from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, C
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
-from unogenerator.helpers import helper_values_with_total
+from unogenerator.helpers import helper_values_with_total, helper_totals_row, helper_totals_column
 from os import remove
 
 try:
@@ -110,17 +110,24 @@ def demo_ods_standard(language):
         doc.addCellWithStyle(C("K2").addRow(row), bool(row%2), color_key, "Bool")
         
     doc.addCellWithStyle("E10","=sum(E2:E8)", ColorsNamed.GrayLight, "EUR" )
-    doc.addCellMerged("E12:K12", "Prueba de merge", ColorsNamed.Yellow, style="BoldCenter")
+    doc.addCellMergedWithStyle("E12:K12", "Prueba de merge", ColorsNamed.Yellow, style="BoldCenter")
     doc.setComment("B11", "This is nice comment")
     
     doc.freezeAndSelect("B2")
 
     ## HELPERS
     doc.createSheet("Helpers", 2)
-    doc.addCellMerged("A1:E1","Helper values with total (horizontal)")
-    helper_values_with_total(doc,"A1", "Suma 3 celdas", [1,2,3],  horizontal=True)
+    doc.addCellMergedWithStyle("A1:E1","Helper values with total (horizontal)", ColorsNamed.Orange, "BoldCenter")
+    helper_values_with_total(doc,"A2", "Suma 3", [1,2,3],  horizontal=True)
+    doc.addCellMergedWithStyle("A4:E4","Helper values with total (vertical)", ColorsNamed.Orange, "BoldCenter")
+    helper_values_with_total(doc,"A5", "Suma 3", [1,2,3],  horizontal=False)
+    doc.addCellMergedWithStyle("A11:C11","List of rows", ColorsNamed.Orange, "BoldCenter")
+    doc.addListOfRowsWithStyle("A12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+    doc.addCellMergedWithStyle("E11:G11","List of columns", ColorsNamed.Orange, "BoldCenter")
+    doc.addListOfColumnsWithStyle("E12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
 
-
+    helper_totals_row(doc, "A17", ["#SUM"]*3, list_of_styles=None, row_from="12", row_to="15")
+    helper_totals_column(doc, "I12", ["#SUM"]*3, list_of_styles=None, column_from="E", column_to="G")
 
     doc.removeSheet(0)
     doc.save(f"unogenerator_example_{language}.ods")
