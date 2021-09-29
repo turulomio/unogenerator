@@ -31,5 +31,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.2.0 (2021-09-29)
+- Added init.d daemon to launch server
+- Improving helpers and ods methods
+
 ### 0.1.0 (2021-09-18)
 - Added basic features
