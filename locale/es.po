@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-18 19:29+0200\n"
+"POT-Creation-Date: 2021-09-29 12:44+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -103,13 +103,13 @@ msgid "This document has been created with 'standard.odt' files that you can fin
 msgstr ""
 
 msgid "Installation"
-msgstr ""
+msgstr "Instalación"
 
 msgid "You can use pip to install this python package:"
-msgstr ""
+msgstr "Puedes usar pip para instalar este paquete python:"
 
 msgid "Hello World example"
-msgstr ""
+msgstr "Ejemplo Hola Mundo"
 
 msgid "This is a Hello World example. You get the example in odt, docx and pdf formats:"
 msgstr ""
@@ -165,9 +165,6 @@ msgstr ""
 msgid "Tables"
 msgstr "Tablas"
 
-msgid "We can create tables too, for example with size 11pt:"
-msgstr "También podemos crear tablas, por ejemplo con tamaño 11pt:"
-
 msgid "Concept"
 msgstr "Concepto"
 
@@ -179,6 +176,18 @@ msgstr "Texto"
 
 msgid "This is a text"
 msgstr "Esto es un texto"
+
+msgid "Datetime"
+msgstr "Fecha y hora"
+
+msgid "Float"
+msgstr ""
+
+msgid "Currency"
+msgstr "Divisa"
+
+msgid "We can create tables with diferent font sizes and formats:"
+msgstr ""
 
 msgid "Lists and numbered lists"
 msgstr "Listas y listas numeradas"
@@ -198,8 +207,44 @@ msgstr "Como puedes ver, puedo reutilizar la imagen cien veces. El tamaño del f
 msgid "The next paragraph is generated with the illustration method"
 msgstr "El siguiente párrafo es generado con el método illustration"
 
+msgid "Search and Replace"
+msgstr ""
+
+msgid "Below this paragraph is a paragraph with a % REPLACEME % (Without white spaces) text and it's going to be replaced after all document is been generated"
+msgstr ""
+
 msgid "ODS"
 msgstr ""
+
+msgid "This paragraph was set at the end of the code after a find and replace command."
+msgstr ""
+
+msgid "You can't use the same filename as your template or you will overwrite it."
+msgstr ""
+
+msgid "You can force it, setting overwrite_template paramter to True"
+msgstr ""
+
+msgid "Document hasn't been saved."
+msgstr ""
+
+msgid "Filename extension must be 'odt'."
+msgstr ""
+
+msgid "Filename extension must be 'pdf'."
+msgstr ""
+
+msgid "Filename extension must be 'docx'."
+msgstr ""
+
+msgid "Filename extension must be 'ods'."
+msgstr ""
+
+msgid "Filename extension must be 'xlsx'."
+msgstr ""
+
+#~ msgid "We can create tables too, for example with size 11pt:"
+#~ msgstr "También podemos crear tablas, por ejemplo con tamaño 11pt:"
 
 #~ msgid "OfficeGenerator predefined paragraph styles"
 #~ msgstr "Estilos predefenidos de párrafo en OfficeGenerator"
@@ -288,14 +333,8 @@ msgstr ""
 #~ msgid "It create predefined styles that allows to create nice documents without worry about styles."
 #~ msgstr "Crea estilos predefinidos que te permiten crear documentos vistosos sin preocuparte de los estilos."
 
-#~ msgid "Datetime"
-#~ msgstr "Fecha y hora"
-
 #~ msgid "Decimal"
 #~ msgstr "Decimal"
-
-#~ msgid "Currency"
-#~ msgstr "Divisa"
 
 #~ msgid "First"
 #~ msgstr "Primero"

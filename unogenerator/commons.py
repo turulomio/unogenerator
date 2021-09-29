@@ -11,8 +11,8 @@ from subprocess import run, PIPE
 from tempfile import TemporaryDirectory
 from uno import createUnoStruct
 
-__version__ = '0.1.0'
-__versiondatetime__=datetime(2021, 9, 18, 19, 31)
+__version__ = '0.2.0'
+__versiondatetime__=datetime(2021, 9, 29, 12, 44)
 __versiondate__=__versiondatetime__.date()
 
 try:

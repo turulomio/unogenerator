@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-18 19:36+0200\n"
+"POT-Creation-Date: 2021-09-29 12:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -163,9 +163,6 @@ msgstr ""
 msgid "Tables"
 msgstr ""
 
-msgid "We can create tables too, for example with size 11pt:"
-msgstr ""
-
 msgid "Concept"
 msgstr ""
 
@@ -176,6 +173,18 @@ msgid "Text"
 msgstr ""
 
 msgid "This is a text"
+msgstr ""
+
+msgid "Datetime"
+msgstr ""
+
+msgid "Float"
+msgstr ""
+
+msgid "Currency"
+msgstr ""
+
+msgid "We can create tables with diferent font sizes and formats:"
 msgstr ""
 
 msgid "Lists and numbered lists"
@@ -196,5 +205,38 @@ msgstr ""
 msgid "The next paragraph is generated with the illustration method"
 msgstr ""
 
+msgid "Search and Replace"
+msgstr ""
+
+msgid "Below this paragraph is a paragraph with a % REPLACEME % (Without white spaces) text and it's going to be replaced after all document is been generated"
+msgstr ""
+
 msgid "ODS"
+msgstr ""
+
+msgid "This paragraph was set at the end of the code after a find and replace command."
+msgstr ""
+
+msgid "You can't use the same filename as your template or you will overwrite it."
+msgstr ""
+
+msgid "You can force it, setting overwrite_template paramter to True"
+msgstr ""
+
+msgid "Document hasn't been saved."
+msgstr ""
+
+msgid "Filename extension must be 'odt'."
+msgstr ""
+
+msgid "Filename extension must be 'pdf'."
+msgstr ""
+
+msgid "Filename extension must be 'docx'."
+msgstr ""
+
+msgid "Filename extension must be 'ods'."
+msgstr ""
+
+msgid "Filename extension must be 'xlsx'."
 msgstr ""
