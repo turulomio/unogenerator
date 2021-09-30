@@ -4,7 +4,6 @@
 from datetime import datetime
 from os import path
 from uno import getComponentContext, createUnoStruct
-
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
@@ -13,9 +12,9 @@ from com.sun.star.style.BreakType import PAGE_AFTER
 from gettext import translation
 from logging import warning
 from pkg_resources import resource_filename
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989
 from unogenerator.reusing.currency import Currency
-from unogenerator.reusing.datetime_functions import string2dtnaive, string2date
+from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.percentage import Percentage
 
 
@@ -310,7 +309,7 @@ class ODS(ODF):
     def addCell(self, coord, o, color_dict=ColorsNamed.White, outlined=1, alignment="left", decimals=2, bold=False):
         coord=C.assertCoord(coord)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
-        self.__set_value_to_cell(cell, o)
+        self.__object_to_cell(cell, o)
             
         border_prop = createUnoStruct("com.sun.star.table.BorderLine2")
         border_prop.LineWidth = outlined
@@ -372,15 +371,17 @@ class ODS(ODF):
         if style is None:
             style=guess_object_style(o)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
-        self.__set_value_to_cell(cell, o)
+        self.__object_to_cell(cell, o)
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
         
-    def __set_value_to_cell(self, cell, o):
+    def __object_to_cell(self, cell, o):
         if o.__class__.__name__  == "datetime":
-            cell.setString(str(o))
-        elif o.__class__.__name__ in ("date", "timedelta" , "time"):
-            cell.setString(str(o))
+            cell.setValue(datetime2localc1989(o))
+        elif o.__class__.__name__  == "date":
+            cell.setValue(date2localc1989(o))
+        elif o.__class__.__name__  == "time":
+            cell.setValue(time2localc1989(o))
         elif o.__class__.__name__ in ("Percentage", "Money"):
             cell.setValue(float(o.value))
         elif o.__class__.__name__ in ("Currency", "Money"):
@@ -405,7 +406,7 @@ class ODS(ODF):
         cell=self.sheet.getCellByPosition(range.start.letterIndex(), range.start.numberIndex())
         cellrange=self.sheet.getCellRangeByName(range.string())
         cellrange.merge(True)
-        self.__set_value_to_cell(cell, o)
+        self.__object_to_cell(cell, o)
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
 
@@ -484,6 +485,8 @@ class ODS(ODF):
                 return string2dtnaive(cell.getString(),"%Y-%m-%d %H:%M:%S.")
             elif cell.CellStyle in ["Date"]:
                 return string2date(cell.getString())
+            elif cell.CellStyle in ["Time"]:
+                return string2time(cell.getString(), "HH:MM:SS")
             elif cell.CellStyle in ["Float2", "Float6"]:
                 return cell.getValue()
             elif cell.CellStyle in ["Integer"]:

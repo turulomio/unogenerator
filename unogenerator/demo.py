@@ -113,6 +113,11 @@ def demo_ods_standard(language):
     doc.setComment("B14", "This is nice comment")
     
     doc.freezeAndSelect("B2")
+    
+##    # Un comment to see objjects from cell
+##    for i in range(10):
+##        o=doc.getValue(Coord_from_index(i, 3))
+##        print(o, o.__class__)    
 
     ## HELPERS
     doc.createSheet("Helpers")
@@ -142,10 +147,6 @@ def demo_ods_standard(language):
     doc.export_xlsx(f"unogenerator_example_{language}.xlsx")
     doc.export_pdf(f"unogenerator_example_{language}.pdf")
     doc.close()
-
-
-
-
     return f"unogenerator_example_{language}.ods took {datetime.now()-doc.init}"
     
     

@@ -1,14 +1,9 @@
 ## @namespace unogenerator.commons
 ## @brief Common code to odfpy and openpyxl wrappers
-from datetime import datetime
+from datetime import datetime, date
 from gettext import translation
 from pkg_resources import resource_filename
-from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error, debug
-from odf.opendocument import  __version__ as __odfpy_version__
-from os import path
-from shutil import copyfile
-from subprocess import run, PIPE
-from tempfile import TemporaryDirectory
+from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error
 from uno import createUnoStruct
 
 __version__ = '0.2.9999'
@@ -392,3 +387,15 @@ def guess_object_style(o):
     else:
         info("guess_object_style not guessed {}".format( o.__class__))
         return "Bold"
+        
+def datetime2localc1989(o):
+    delta = o -  datetime(1899, 12, 30)
+    return float(delta.days) + float(delta.seconds) / 86400
+    
+def date2localc1989(o):
+    delta = o -  date(1899, 12, 30)
+    return float(delta.days) 
+
+def time2localc1989(o):
+    seconds=o.hour*3600+o.minute*60+o.second
+    return float(seconds) / 86400
