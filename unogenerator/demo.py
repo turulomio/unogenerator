@@ -79,7 +79,7 @@ def demo_ods_standard(language):
         _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
         ["unogenerator", "demo", "files"]
     )
-    doc.createSheet("Styles", 1)
+    doc.createSheet("Styles")
     doc.setColumnsWidth([5000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  5000])
     
     doc.addCellWithStyle("A1", _("Style name"), ColorsNamed.Orange, "BoldCenter")
@@ -115,7 +115,7 @@ def demo_ods_standard(language):
     doc.freezeAndSelect("B2")
 
     ## HELPERS
-    doc.createSheet("Helpers", 2)
+    doc.createSheet("Helpers")
     doc.addCellMergedWithStyle("A1:E1","Helper values with total (horizontal)", ColorsNamed.Orange, "BoldCenter")
     helper_title_values_total_row(doc, "A2", "Suma 3", [1,2,3])
 

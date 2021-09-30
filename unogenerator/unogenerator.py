@@ -272,8 +272,13 @@ class ODS(ODF):
         self.sheet_index=0
         self.sheet=self.setActiveSheet(self.sheet_index)
             
-    def createSheet(self, name, index):
-        self.document.getSheets().insertNewByName(name, index)
+    ## Creates a new sheet at the end of the sheets
+    ## @param if index is None it creates sheet at the end of the existing sheets
+    def createSheet(self, name, index=None):
+        sheets=self.document.getSheets()
+        if index is None:
+            index=len(sheets)
+        sheets.insertNewByName(name, index)
         self.setActiveSheet(index)
         
     def removeSheet(self, index):
