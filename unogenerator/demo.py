@@ -80,7 +80,7 @@ def demo_ods_standard(language):
         ["unogenerator", "demo", "files"]
     )
     doc.createSheet("Styles")
-    doc.setColumnsWidth([5000, 5000, 2000,  2000,  2000,  2000,  5000,  5000,  5000,  5000,  5000,  5000])
+    doc.setColumnsWidth([3.5, 5, 2, 2, 2, 2, 2, 5, 5, 3, 3])
     
     doc.addCellWithStyle("A1", _("Style name"), ColorsNamed.Orange, "BoldCenter")
     doc.addCellWithStyle("B1", _("Date and time"), ColorsNamed.Orange, "BoldCenter")
@@ -128,8 +128,8 @@ def demo_ods_standard(language):
     doc.addCellMergedWithStyle("E11:G11","List of columns", ColorsNamed.Orange, "BoldCenter")
     doc.addListOfColumnsWithStyle("E12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
 
-    helper_totals_row(doc, "A17", ["#SUM"]*3, list_of_styles=None, row_from="12", row_to="15")
-    helper_totals_column(doc, "I12", ["#SUM"]*3, list_of_styles=None, column_from="E", column_to="G")
+    helper_totals_row(doc, "A17", ["#SUM"]*3, styles=None, row_from="12", row_to="15")
+    helper_totals_column(doc, "I12", ["#SUM"]*3, styles=None, column_from="E", column_to="G")
 
 
     doc.addCellMergedWithStyle("A19:D19","List of rows with totals", ColorsNamed.Orange, "BoldCenter")

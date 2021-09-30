@@ -291,11 +291,13 @@ class ODS(ODF):
         self.sheet_index=index
         self.sheet=self.document.getSheets().getByIndex(index)
     
+    ## l measures are in cm can be float
     def setColumnsWidth(self, l):
         columns=self.sheet.getColumns()
         for i, width in enumerate(l):
             column=columns.getByIndex(i)
-            column.Width=l[i]
+            width=width*1000
+            column.Width=width ## Are in 1/100th of mm
             
     def setComment(self, coord, comment):
         coord=C.assertCoord(coord)
