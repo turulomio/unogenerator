@@ -13,7 +13,7 @@ from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, C
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
-from unogenerator.helpers import helper_values_with_total, helper_totals_row, helper_totals_column
+from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range
 from os import remove
 
 try:
@@ -117,16 +117,25 @@ def demo_ods_standard(language):
     ## HELPERS
     doc.createSheet("Helpers", 2)
     doc.addCellMergedWithStyle("A1:E1","Helper values with total (horizontal)", ColorsNamed.Orange, "BoldCenter")
-    helper_values_with_total(doc,"A2", "Suma 3", [1,2,3],  horizontal=True)
+    helper_title_values_total_row(doc, "A2", "Suma 3", [1,2,3])
+
     doc.addCellMergedWithStyle("A4:E4","Helper values with total (vertical)", ColorsNamed.Orange, "BoldCenter")
-    helper_values_with_total(doc,"A5", "Suma 3", [1,2,3],  horizontal=False)
+    helper_title_values_total_column(doc, "A5", "Suma 3", [1,2,3])
+    
     doc.addCellMergedWithStyle("A11:C11","List of rows", ColorsNamed.Orange, "BoldCenter")
     doc.addListOfRowsWithStyle("A12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+    
     doc.addCellMergedWithStyle("E11:G11","List of columns", ColorsNamed.Orange, "BoldCenter")
     doc.addListOfColumnsWithStyle("E12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
 
     helper_totals_row(doc, "A17", ["#SUM"]*3, list_of_styles=None, row_from="12", row_to="15")
     helper_totals_column(doc, "I12", ["#SUM"]*3, list_of_styles=None, column_from="E", column_to="G")
+
+
+    doc.addCellMergedWithStyle("A19:D19","List of rows with totals", ColorsNamed.Orange, "BoldCenter")
+    doc.addListOfRowsWithStyle("A20", [["A",1,2,3],["B",4,5,6],["C",7,8,9]], ColorsNamed.White)
+    helper_totals_from_range(doc, "B20:D22")
+
 
     doc.removeSheet(0)
     doc.save(f"unogenerator_example_{language}.ods")

@@ -373,7 +373,7 @@ def guess_object_style(o):
     elif o.__class__.__name__=="int":
         return "Integer"
     elif o.__class__.__name__=="str":
-        return "Left"
+        return "Normal"
     elif o.__class__.__name__ in ["Currency", "Money" ]:
         return o.currency
     elif o.__class__.__name__=="Percentage":
