@@ -1,12 +1,12 @@
 ## @param cood Coord from we are going to add totals
 ## @param list_of_totals List with strings or keys. Example: ["Total", "#SUM", "#AVG"]...
-## @param list_of_styles List with string styles or None. If none tries to guest from top column object. List example: ["GrayLightPercentage", "GrayLightInteger"]
+## @param styles List with string styles or None. If none tries to guest from top column object. List example: ["GrayLightPercentage", "GrayLightInteger"]
 ## @param string with the row where th3e total begins
 ## @param string with the rew where the formula ends. If None it's a coord.row -1
 from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string
 
 
-def helper_totals_row(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, list_of_styles=None, row_from="2", row_to=None):
+def helper_totals_row(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, row_from="2", row_to=None):
     coord=C.assertCoord(coord)
     for letter, total in enumerate(list_of_totals):
         coord_total=coord.addColumnCopy(letter)
@@ -16,15 +16,17 @@ def helper_totals_row(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, l
         else:
             coord_total_to=C(coord_total.letter+row_to)
 
-        if list_of_styles is None:
+        if styles is None:
             style=guess_object_style(doc.getValue(coord_total_from))
+        elif styles.__class__.__name__ != "list":
+            style=styles
         else:
-            style=list_of_styles[letter]
+            style=styles[letter]
 
         doc.addCellWithStyle(coord_total, generate_formula_total_string(total, coord_total_from, coord_total_to), color, style)
 
 
-def helper_totals_column(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, list_of_styles=None, column_from="B", column_to=None):
+def helper_totals_column(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, column_from="B", column_to=None):
     coord=C.assertCoord(coord)
     for number, total in enumerate(list_of_totals):
         coord_total=coord.addRowCopy(number)
@@ -34,10 +36,12 @@ def helper_totals_column(doc, coord, list_of_totals, color=ColorsNamed.GrayLight
         else:
             coord_total_to=C(column_to + coord_total.number)
 
-        if list_of_styles is None:
+        if styles is None:
             style=guess_object_style(doc.getValue(coord_total_from))
+        elif styles.__class__.__name__ != "list":
+            style=styles
         else:
-            style=list_of_styles[number]
+            style=styles[number]
 
         doc.addCellWithStyle(coord_total, generate_formula_total_string(total, coord_total_from, coord_total_to), color, style)
         
@@ -100,10 +104,10 @@ def helper_totals_from_range(doc, range_of_data, key="#SUM", totalcolumns=True, 
     vertical_start=coord_start.addRowCopy(-1).addColumnCopy(-1)
     vertical_start=coord_start.addRowCopy(-1).addColumnCopy(-1)
     if totalcolumns==True and totalrows==True:
-        helper_totals_row(doc, horizontal_start.addRowCopy(data_rows),["Total"]+[key]*(data_columns+1),list_of_styles=None, row_from=coord_start.number)
-        helper_totals_column(doc, vertical_start.addColumnCopy(data_columns+1),["Total"]+[key]*(data_rows+1), list_of_styles=None, column_from=coord_start.letter)
+        helper_totals_row(doc, horizontal_start.addRowCopy(data_rows),["Total"]+[key]*(data_columns+1),styles=None, row_from=coord_start.number)
+        helper_totals_column(doc, vertical_start.addColumnCopy(data_columns+1),["Total"]+[key]*(data_rows+1), styles=None, column_from=coord_start.letter)
     elif totalcolumns==True:
-        helper_totals_column(doc, vertical_start.addColumnCopy(data_columns+1),["Total"]+[key]*(data_rows+1), list_of_styles=None, column_from=coord_start.letter)
+        helper_totals_column(doc, vertical_start.addColumnCopy(data_columns+1),["Total"]+[key]*(data_rows+1), styles=None, column_from=coord_start.letter)
     elif totalrows==True:
-        helper_totals_row(doc, horizontal_start.addRowCopy(data_rows),["Total"]+[key]*(data_columns+0), list_of_styles=None, row_from=coord_start.number) #1 menos por la esquina
+        helper_totals_row(doc, horizontal_start.addRowCopy(data_rows),["Total"]+[key]*(data_columns+0), styles=None, row_from=coord_start.number) #1 menos por la esquina
  

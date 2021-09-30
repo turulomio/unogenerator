@@ -11,7 +11,7 @@ from subprocess import run, PIPE
 from tempfile import TemporaryDirectory
 from uno import createUnoStruct
 
-__version__ = '0.2.0'
+__version__ = '0.2.9999'
 __versiondatetime__=datetime(2021, 9, 29, 12, 44)
 __versiondate__=__versiondatetime__.date()
 
@@ -26,9 +26,9 @@ class ColorsNamed:
     White=0xFFFFFF
     Blue=0x9999ff
     Red=0xFF9999
-    Green=0x99FF99
-    Orange=0xffd573
-    Yellow=0xffff7f
+    Green=0xc0FFc0
+    Orange=0xffdca8
+    Yellow=0xffffc0
     GrayLight=0xd2ced4
     GrayDark=0xa29ea4
     GrayVeryDark=0x726e74
@@ -115,8 +115,9 @@ def index2column(index):
 class Coord:
     def __init__(self, strcoord):
         self.letter, self.number=self.__extract(strcoord)
+
     def __repr__(self):
-        return "Coord <{}>".format(self.string())
+        return self.string()
 
     def __eq__(self, b):
         b=Coord.assertCoord(b)
@@ -216,7 +217,7 @@ class Range:
         self.start, self.end=self.__extract(strrange)
         
     def __repr__(self):
-        return "Range <{}>".format(self.string())
+        return self.string()
 
     ##Return the outcome of the test b in a. Note the reversed operands.
     def __contains__(self, b):

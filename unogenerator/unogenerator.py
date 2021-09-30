@@ -326,6 +326,8 @@ class ODS(ODF):
             styles=[]
             for o in list_o:
                 styles.append(guess_object_style(o))
+        elif styles.__class__.__name__!="list":
+            styles=[styles]*len(list_o)
 
         if colors.__class__.__name__!="list":
             colors=[colors]*len(list_o)
@@ -341,6 +343,8 @@ class ODS(ODF):
             styles=[]
             for o in list_o:
                 styles.append(guess_object_style(o))
+        elif styles.__class__.__name__!="list":
+            styles=[styles]*len(list_o)
 
         if colors.__class__.__name__!="list":
             colors=[colors]*len(list_o)
