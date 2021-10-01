@@ -89,15 +89,15 @@ def main_concurrent(arguments=None):
         futures=[]
         port=2002
         workers=8
-        with ProcessPoolExecutor(max_workers=workers ) as executor:
+        with ProcessPoolExecutor(max_workers=workers) as executor:
             for i in range(30):
                 port=next_port(port, 2002, workers)
                 futures.append(executor.submit(demo_ods_standard, 'en', port, f".{i}"))
 #                port=next_port(port, 2002, 8)
 #                futures.append(executor.submit(demo_odt_standard, 'en', port, f".{i}"))
 
-            for future in as_completed(futures):
-                future.result()
+        for future in as_completed(futures):
+            future.result()
         print("All process took {}".format(datetime.now()-start))
 
        

@@ -36,6 +36,7 @@ class ODF:
         ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
         self.desktop = ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
 
+
     def calculateAll(self):
         self.document.calculateAll()
 
@@ -265,21 +266,21 @@ class ODS(ODF):
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
         
+        args=(
+            PropertyValue('AsTemplate',0,True,0),
+        )
         self.document=None
         if self.template is None:
-            self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',0,())
+            self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',8,())
         else:
-            self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,())
-        for i in range(1000):
-            sleep(0.1)
-            if i%100==0:
-                print("Document is none, retrying", i,  loserver_port)
-            if self.document is not None:
-                break
-#                
-#        if self.document is None:
-#            print(f"Document failed, on port {loserver_port} and template {self.template}")
-                
+            self.document=self.desktop.loadComponentFromURL(self.template,'_blank',8   , args)
+#        for i in range(1000):
+#            sleep(0.1)
+#            if i%100==0:
+#                print("Document is none, retrying", i,  loserver_port,  self.desktop.Frames.Count)
+#            if self.document is not None:
+#                break
+
         self.sheet_index=0
         self.sheet=self.setActiveSheet(self.sheet_index)
             
