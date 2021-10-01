@@ -3,7 +3,6 @@
 
 from datetime import datetime
 from os import path
-from time import sleep
 from uno import getComponentContext, createUnoStruct
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
@@ -72,10 +71,14 @@ class ODF:
 class ODT(ODF):
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
+        
+        args=(
+            PropertyValue('AsTemplate',0,True,0),
+        )
         if self.template is None:
             self.document=self.desktop.loadComponentFromURL('private:factory/swriter','_blank',0,())
         else:
-            self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,())
+            self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,args)
         self.cursor=self.document.Text.createTextCursor()
 
         

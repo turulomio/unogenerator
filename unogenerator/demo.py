@@ -54,7 +54,7 @@ def main(arguments=None):
     if args.create==True:
         start=datetime.now()
         futures=[]
-        with ProcessPoolExecutor(max_workers=cpu_count()) as executor:
+        with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
             for language in ['es', 'en']:
                 futures.append(executor.submit(demo_ods_standard, language))
                 futures.append(executor.submit(demo_odt_standard, language))
@@ -71,12 +71,15 @@ def main_concurrent(arguments=None):
     group= parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
+    parser.add_argument('--workers', help="Workers max 8", action="store", default=8,  type=int)
     args=parser.parse_args(arguments)
 
+
+    print("You need to launch 8 instances from port 2002 to run this concurrent demo. You can use bash server.sh")
     addDebugSystem(args.debug)
 
     if args.remove==True:
-            for i in range(30):
+            for i in range(10):
                 remove_without_errors(f"unogenerator_documentation_en.{i}.odt")
                 remove_without_errors(f"unogenerator_documentation_en.{i}.docx")
                 remove_without_errors(f"unogenerator_documentation_en.{i}.pdf")
@@ -88,13 +91,12 @@ def main_concurrent(arguments=None):
         start=datetime.now()
         futures=[]
         port=2002
-        workers=8
-        with ProcessPoolExecutor(max_workers=workers) as executor:
-            for i in range(30):
-                port=next_port(port, 2002, workers)
+        with ProcessPoolExecutor(max_workers=args.workers) as executor:
+            for i in range(10):
+                port=next_port(port, 2002, 8)
                 futures.append(executor.submit(demo_ods_standard, 'en', port, f".{i}"))
-#                port=next_port(port, 2002, 8)
-#                futures.append(executor.submit(demo_odt_standard, 'en', port, f".{i}"))
+                port=next_port(port, 2002, 8)
+                futures.append(executor.submit(demo_odt_standard, 'en', port, f".{i}"))
 
         for future in as_completed(futures):
             future.result()
@@ -361,7 +363,7 @@ def demo_ods_standard_read():
     doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
     doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
     doc.close()
-    r=f"unogenerator_documentation_{language}{suffix}.ods took {datetime.now()-doc.init}"
+    r=f"unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
     print(r)
     return r
 
