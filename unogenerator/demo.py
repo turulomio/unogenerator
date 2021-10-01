@@ -15,6 +15,7 @@ from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
 from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range
 from os import remove
+from tqdm import tqdm
 
 try:
     t=translation('unogenerator', pkg_resources.resource_filename("unogenerator","locale"))
@@ -60,7 +61,7 @@ def main(arguments=None):
                 futures.append(executor.submit(demo_odt_standard, language))
 
         for future in as_completed(futures):
-            print(future.result())
+            future.result()
         print("All process took {}".format(datetime.now()-start))
 
 
@@ -92,14 +93,26 @@ def main_concurrent(arguments=None):
         futures=[]
         port=2002
         with ProcessPoolExecutor(max_workers=args.workers) as executor:
-            for i in range(10):
-                port=next_port(port, 2002, 8)
-                futures.append(executor.submit(demo_ods_standard, 'en', port, f".{i}"))
-                port=next_port(port, 2002, 8)
-                futures.append(executor.submit(demo_odt_standard, 'en', port, f".{i}"))
+            with tqdm(total=20) as progress:
+                for i in range(10):
+                    port=next_port(port, 2002, 8)
+                    future=executor.submit(demo_ods_standard, 'en', port, f".{i}")
+                    future.add_done_callback(lambda p: progress.update())
+                    futures.append(future)
+                    port=next_port(port, 2002, 8)
+                    future=executor.submit(demo_odt_standard, 'en', port, f".{i}")
+                    future.add_done_callback(lambda p: progress.update())
+                    futures.append(future)
 
-        for future in as_completed(futures):
-            future.result()
+                for future in as_completed(futures):
+                    future.result()
+            
+
+
+        results = []
+        for future in futures:
+            result = future.result()
+            results.append(result)
         print("All process took {}".format(datetime.now()-start))
 
        
