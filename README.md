@@ -33,6 +33,13 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.3.0 (2021-10-1)
+- server.sh now launches n instances
+- Code works with concurrency. Added method to change to next_port
+- Added .conf and init.d for Gentoo
+- Date and times formats are showed correctly in Calc
+- Helpers added
+
 ### 0.2.0 (2021-09-29)
 - Added init.d daemon to launch server
 - Improving helpers and ods methods

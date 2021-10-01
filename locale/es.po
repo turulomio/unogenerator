@@ -97,7 +97,7 @@ msgid "UnoGenerator has standard templates to help you with edition, although yo
 msgstr ""
 
 msgid "You can edit this one or create your own."
-msgstr ""
+msgstr "Puedes editar éste o crear el tuyo."
 
 msgid "This document has been created with 'standard.odt' files that you can find inside this python module."
 msgstr ""
@@ -124,7 +124,7 @@ msgid "There is a predefined template in code called 'standard.odt' to help you 
 msgstr ""
 
 msgid "Calling the ODT constructor"
-msgstr ""
+msgstr "Llamando al constructor ODT"
 
 msgid "You can call ODT constructor in this ways:"
 msgstr ""
@@ -208,7 +208,7 @@ msgid "The next paragraph is generated with the illustration method"
 msgstr "El siguiente párrafo es generado con el método illustration"
 
 msgid "Search and Replace"
-msgstr ""
+msgstr "Buscar y reemplazar"
 
 msgid "Below this paragraph is a paragraph with a % REPLACEME % (Without white spaces) text and it's going to be replaced after all document is been generated"
 msgstr ""
