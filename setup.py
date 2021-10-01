@@ -167,6 +167,7 @@ setup(name='unogenerator',
      install_requires=[],
      entry_points = {'console_scripts': [
                             'unogenerator_demo=unogenerator.demo:main',
+                            'unogenerator_demo_concurrent=unogenerator.demo:main_concurrent',
                             'unogenerator_daemon_start=unogenerator.daemon:daemon_start',
                             'unogenerator_daemon_stop=unogenerator.daemon:daemon_stop',
                         ],

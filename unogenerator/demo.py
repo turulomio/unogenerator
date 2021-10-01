@@ -9,7 +9,7 @@ from datetime import datetime, date, timedelta
 from gettext import translation, install
 from multiprocessing import cpu_count
 
-from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C
+from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
@@ -54,7 +54,7 @@ def main(arguments=None):
     if args.create==True:
         start=datetime.now()
         futures=[]
-        with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
+        with ProcessPoolExecutor(max_workers=cpu_count()) as executor:
             for language in ['es', 'en']:
                 futures.append(executor.submit(demo_ods_standard, language))
                 futures.append(executor.submit(demo_odt_standard, language))
@@ -63,15 +63,52 @@ def main(arguments=None):
             print(future.result())
         print("All process took {}".format(datetime.now()-start))
 
+
+def main_concurrent(arguments=None):
+    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
+    group= parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--create', help="Create demo files", action="store_true",default=False)
+    group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
+    args=parser.parse_args(arguments)
+
+    addDebugSystem(args.debug)
+
+    if args.remove==True:
+            for i in range(30):
+                remove_without_errors(f"unogenerator_documentation_en.{i}.odt")
+                remove_without_errors(f"unogenerator_documentation_en.{i}.docx")
+                remove_without_errors(f"unogenerator_documentation_en.{i}.pdf")
+                remove_without_errors(f"unogenerator_example_en.{i}.ods")
+                remove_without_errors(f"unogenerator_example_en.{i}.xlsx")
+                remove_without_errors(f"unogenerator_example_en.{i}.pdf")
+
+    if args.create==True:
+        start=datetime.now()
+        futures=[]
+        port=2002
+        workers=8
+        with ProcessPoolExecutor(max_workers=workers ) as executor:
+            for i in range(30):
+                port=next_port(port, 2002, workers)
+                futures.append(executor.submit(demo_ods_standard, 'en', port, f".{i}"))
+#                port=next_port(port, 2002, 8)
+#                futures.append(executor.submit(demo_odt_standard, 'en', port, f".{i}"))
+
+            for future in as_completed(futures):
+                future.result()
+        print("All process took {}".format(datetime.now()-start))
+
        
-def demo_ods_standard(language):
+def demo_ods_standard(language, port=2002, suffix="",):
     if language=="en":
         lang1=install('unogenerator', 'badlocale')
     else:
         lang1=translation('unogenerator', 'unogenerator/locale', languages=[language])
         lang1.install()
     
-    doc=ODS_Standard()
+    doc=ODS_Standard(port)
     doc.setMetadata(
         _("UnoGenerator ODS example"),  
         _("Demo with ODS class"), 
@@ -143,21 +180,24 @@ def demo_ods_standard(language):
 
 
     doc.removeSheet(0)
-    doc.save(f"unogenerator_example_{language}.ods")
-    doc.export_xlsx(f"unogenerator_example_{language}.xlsx")
-    doc.export_pdf(f"unogenerator_example_{language}.pdf")
+    doc.save(f"unogenerator_example_{language}{suffix}.ods")
+    doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
+    doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
     doc.close()
-    return f"unogenerator_example_{language}.ods took {datetime.now()-doc.init}"
+    
+    r= f"unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}"
+    print(r)
+    return r
     
     
-def demo_odt_standard(language):
+def demo_odt_standard(language, port=2002, suffix=""):
     if language=="en":
         lang1=install('unogenerator', 'badlocale')
     else:
         lang1=translation('unogenerator', 'unogenerator/locale', languages=[language])
         lang1.install()
 
-    doc=ODT_Standard()
+    doc=ODT_Standard(port)
     doc.setMetadata(
         _("UnoGenerator documentation"),  
         _("Unogenerator python module documentation"), 
@@ -317,12 +357,13 @@ def demo_ods_standard_read():
     
     
     
-    doc.save(f"unogenerator_documentation_{language}.odt")
-    doc.export_docx(f"unogenerator_documentation_{language}.docx")
-    doc.export_pdf(f"unogenerator_documentation_{language}.pdf")
+    doc.save(f"unogenerator_documentation_{language}{suffix}.odt")
+    doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
+    doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
     doc.close()
-    return f"unogenerator_documentation_{language}.ods took {datetime.now()-doc.init}"
-    
+    r=f"unogenerator_documentation_{language}{suffix}.ods took {datetime.now()-doc.init}"
+    print(r)
+    return r
 
 if __name__ == "__main__":
     main()

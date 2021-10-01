@@ -15,7 +15,7 @@ start() {
 	do
 		PORT=$((FIRST_PORT+i-1))
 		echo "   Launching libreoffice service in port $PORT"
-		/usr/bin/loffice --accept="socket,host=localhost,port=$PORT;urp;StarOffice.ServiceManager"  -env:UserInstallation=file:///tmp/l$PORT --headless &
+		/usr/bin/loffice --accept="socket,host=localhost,port=$PORT;urp;StarOffice.ServiceManager"  -env:UserInstallation=file:///tmp/l$PORT --headless --nologo --nolockcheck &
 	done
 	eend $?
 

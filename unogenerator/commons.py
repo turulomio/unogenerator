@@ -399,3 +399,10 @@ def date2localc1989(o):
 def time2localc1989(o):
     seconds=o.hour*3600+o.minute*60+o.second
     return float(seconds) / 86400
+    
+## Used to change port when there are multiple sockets of libreoffice accepting
+def next_port(last,  first_port,  instances):
+    if last==first_port+instances -1:
+        return first_port
+    else:
+        return last+1

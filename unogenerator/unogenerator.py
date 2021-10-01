@@ -3,6 +3,7 @@
 
 from datetime import datetime
 from os import path
+from time import sleep
 from uno import getComponentContext, createUnoStruct
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
@@ -31,7 +32,7 @@ class ODF:
         self.init=datetime.now()
         
         localContext = getComponentContext()
-        resolver = localContext.ServiceManager.createInstanceWithContext('com.sun.star.bridge.UnoUrlResolver',localContext)
+        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
         ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
         self.desktop = ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
 
@@ -264,10 +265,21 @@ class ODS(ODF):
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
         
+        self.document=None
         if self.template is None:
             self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',0,())
         else:
             self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,())
+        for i in range(1000):
+            sleep(0.1)
+            if i%100==0:
+                print("Document is none, retrying", i,  loserver_port)
+            if self.document is not None:
+                break
+#                
+#        if self.document is None:
+#            print(f"Document failed, on port {loserver_port} and template {self.template}")
+                
         self.sheet_index=0
         self.sheet=self.setActiveSheet(self.sheet_index)
             
