@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project unogenerator",
     "copyright": "Copyright (C) 2021 , ",
-    "saved": "2021-10-02, 07:05:26"
+    "saved": "2021-10-02, 07:53:06"
   },
   "project": {
     "AUTHOR": "",
@@ -81,8 +81,6 @@
       "unogenerator/reusing/libmanagers.py",
       "unogenerator/helpers.py",
       "unogenerator/__init__.py",
-      "unogenerator/daemon.py",
-      "server.sh",
       "unogenerator/server.py"
     ],
     "SPELLEXCLUDES": "",
