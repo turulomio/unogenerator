@@ -15,7 +15,7 @@ You can use pip to install this python package:
 
 This is a Hello World example. You get the example in odt, docx and pdf formats:
 
-First you have to launch libreoffice as a service. You can use `server.sh` or copy `init.d/unogenerator` to your `/etc/init.d/` directory and run `/etc/init.d/unogenerator start`
+First you have to launch libreoffice as a service. You can use `unogenerator_start` or copy `init.d/unogenerator` to your `/etc/init.d/` directory and run `/etc/init.d/unogenerator start`
 
 ```python
 from unogenerator import ODT_Standard
