@@ -3,22 +3,23 @@
 from uno import getComponentContext
 getComponentContext()
 import argparse
-import pkg_resources
+from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, date, timedelta
 from gettext import translation, install
 from multiprocessing import cpu_count
+from pkg_resources import resource_filename
 
 from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
-from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range
+from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range, helper_list_of_ordereddicts
 from os import remove
 from tqdm import tqdm
 
 try:
-    t=translation('unogenerator', pkg_resources.resource_filename("unogenerator","locale"))
+    t=translation('unogenerator', resource_filename("unogenerator","locale"))
     _=t.gettext
 except:
     _=str
@@ -76,7 +77,7 @@ def main_concurrent(arguments=None):
     args=parser.parse_args(arguments)
 
 
-    print("You need to launch 8 instances from port 2002 to run this concurrent demo. You can use bash server.sh")
+    print("You need to launch 8 instances from port 2002 to run this concurrent demo. You can use bash unogenerator_start")
     addDebugSystem(args.debug)
 
     if args.remove==True:
@@ -193,6 +194,15 @@ def demo_ods_standard(language, port=2002, suffix="",):
     doc.addListOfRowsWithStyle("A20", [["A",1,2,3],["B",4,5,6],["C",7,8,9]], ColorsNamed.White)
     helper_totals_from_range(doc, "B20:D22")
 
+    
+    doc.addCellMergedWithStyle("A25:B25","List of ordered dictionaries", ColorsNamed.Orange, "BoldCenter")
+    lod=[]
+    lod.append(OrderedDict({"Singer": "Elvis",  "Song": "Fever" }))
+    lod.append(OrderedDict({"Singer": "Roy Orbison",  "Song": "Blue angel" }))
+    helper_list_of_ordereddicts(doc, "A26",  lod, columns_header=1)
+    
+    doc.addCellMergedWithStyle("A30:B30","List of dictionaries", ColorsNamed.Orange, "BoldCenter")
+    helper_list_of_ordereddicts(doc, "A31",  lod, keys=["Song",  "Singer"])
 
     doc.removeSheet(0)
     doc.save(f"unogenerator_example_{language}{suffix}.ods")
@@ -228,7 +238,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
     doc.addParagraph(
         _("UnoGenerator uses Libreoffice UNO API python bindings to generate documents.") +" " +
         _("So in order to use, you need to launch a --headless libreoffice instance.") + " "+
-        _("You can easily launch server.sh script with bash."), 
+        _("You can easily launch unogenerator_start script with bash."), 
         "Standard"
     )
 
@@ -337,19 +347,19 @@ doc=ODT()"""    , "Code")
     
     l=[]
     l.append( _("Este es un ejemplo de imagen as char: "))
-    l.append(doc.textcontentImage(pkg_resources.resource_filename(__name__, 'images/crown.png'), 1000, 1000, "AS_CHARACTER"))
+    l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 1000, 1000, "AS_CHARACTER"))
     l.append(". Ahora sigo escribiendo sin problemas.")
     doc.addParagraphComplex(l, "Standard")
 
     l=[]
     l.append( _("As you can see, I can reuse it one hundred times. File size will not be increased because I used reference names."))
     for i in range(100):
-        l.append(doc.textcontentImage(pkg_resources.resource_filename(__name__, 'images/crown.png'), 500, 500, "AS_CHARACTER"))
+        l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 500, 500, "AS_CHARACTER"))
     doc.addParagraphComplex(l, "Standard")
 
 
     doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
-    doc.addImageParagraph([pkg_resources.resource_filename(__name__, 'images/crown.png')]*5, 2500, 1500, "Illustration")
+    doc.addImageParagraph([resource_filename(__name__, 'images/crown.png')]*5, 2500, 1500, "Illustration")
 
 
     doc.addParagraph(_("Search and Replace"), "Heading 2")
