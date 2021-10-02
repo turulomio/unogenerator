@@ -413,6 +413,8 @@ class ODS(ODF):
                 cell.setString(o)
         elif o.__class__.__name__ in ("bool", ):
             cell.setValue(int(o))
+        elif o is None:
+            cell.setString("")
         else:
             cell.setString(str(o))
             print("MISSING", o.__class__.__name__)
