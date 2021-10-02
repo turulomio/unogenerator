@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-01 21:59+0200\n"
+"POT-Creation-Date: 2021-10-02 15:14+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,7 +88,7 @@ msgstr ""
 msgid "So in order to use, you need to launch a --headless libreoffice instance."
 msgstr ""
 
-msgid "You can easily launch server.sh script with bash."
+msgid "You can easily launch unogenerator_start script with bash."
 msgstr ""
 
 msgid "UnoGenerator has standard templates to help you with edition, although you can use your own templates."
@@ -215,6 +215,26 @@ msgid "ODS"
 msgstr ""
 
 msgid "This paragraph was set at the end of the code after a find and replace command."
+msgstr ""
+
+msgid "No data to show"
+msgstr ""
+
+msgid "Launches libreoffice server to run unogenerator code"
+msgstr ""
+
+#, python-brace-format
+msgid "Preparing {args.instances} libreoffice server instances from port {args.first_port}:"
+msgstr ""
+
+#, python-brace-format
+msgid "  - Launched instance in port {port}"
+msgstr ""
+
+msgid "Stops libreoffice server to finish using unogenerator code"
+msgstr ""
+
+msgid "  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} processes"
 msgstr ""
 
 msgid "You can't use the same filename as your template or you will overwrite it."

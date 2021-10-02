@@ -93,8 +93,6 @@ class Procedure(Command):
   * python setup.py uninstall
   * Crea un nuevo ebuild de UNOGENERATOR Gentoo con la nueva versión
   * Subelo al repositorio del portage
-  * Crea un nuevo ebuild de UNOGENERATOR_DAEMON Gentoo con la nueva versión
-  * Subelo al repositorio del portage
 
 """.format(__version__))
 

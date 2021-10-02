@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-29 12:44+0200\n"
+"POT-Creation-Date: 2021-10-02 15:13+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -90,7 +90,7 @@ msgstr ""
 msgid "So in order to use, you need to launch a --headless libreoffice instance."
 msgstr ""
 
-msgid "You can easily launch server.sh script with bash."
+msgid "You can easily launch unogenerator_start script with bash."
 msgstr ""
 
 msgid "UnoGenerator has standard templates to help you with edition, although you can use your own templates."
@@ -127,7 +127,7 @@ msgid "Calling the ODT constructor"
 msgstr "Llamando al constructor ODT"
 
 msgid "You can call ODT constructor in this ways:"
-msgstr ""
+msgstr "Puedes llamar al constructor ODT de estas maneras:"
 
 msgid "ODT with standard template (Recomended)."
 msgstr ""
@@ -160,7 +160,7 @@ msgid "To call default Libreoffice paragraph styles you must use their english n
 msgstr ""
 
 msgid "You can see their names with this method:"
-msgstr ""
+msgstr "Puedes ver sus nombres con este método:"
 
 msgid "Tables"
 msgstr "Tablas"
@@ -214,9 +214,29 @@ msgid "Below this paragraph is a paragraph with a % REPLACEME % (Without white s
 msgstr ""
 
 msgid "ODS"
-msgstr ""
+msgstr "ODS"
 
 msgid "This paragraph was set at the end of the code after a find and replace command."
+msgstr ""
+
+msgid "No data to show"
+msgstr "No hay datos para mostrar"
+
+msgid "Launches libreoffice server to run unogenerator code"
+msgstr ""
+
+#, python-brace-format
+msgid "Preparing {args.instances} libreoffice server instances from port {args.first_port}:"
+msgstr ""
+
+#, python-brace-format
+msgid "  - Launched instance in port {port}"
+msgstr ""
+
+msgid "Stops libreoffice server to finish using unogenerator code"
+msgstr ""
+
+msgid "  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} processes"
 msgstr ""
 
 msgid "You can't use the same filename as your template or you will overwrite it."

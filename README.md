@@ -33,6 +33,12 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.4.0 (2021-10-2)
+- Replaced server.sh by `unogenerator_start` and `unogenerator_stop`
+- Added helper_list_of_dict and helper_list_of_ordereddict methods
+- Changed vertical alignment to center in all personal styles
+- Removed Gentoo confd initd files. Moved to unogenerator_daemon in myportage
+
 ### 0.3.0 (2021-10-1)
 - server.sh now launches n instances
 - Code works with concurrency. Added method to change to next_port
