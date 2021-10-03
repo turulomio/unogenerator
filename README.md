@@ -35,7 +35,7 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 - [LibreOffice code](https://github.com/LibreOffice/core)
 - [LibreOffice API](https://api.libreoffice.org/docs/idl/ref/index.html)
-- [LibreOffice Forms](https://forum.openoffice.org/en/forum/viewforum.php?f=20)
+- [LibreOffice Forums](https://forum.openoffice.org/en/forum/viewforum.php?f=20)
 - [UnoGenerator API](http://turulomio.users.sourceforge.net/doxygen/unogenerator/)
 
 
