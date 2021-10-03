@@ -11,7 +11,7 @@ You can use pip to install this python package:
 
 `pip install unogenerator`
 
-## Hello World example
+## ODT 'Hello World' example
 
 This is a Hello World example. You get the example in odt, docx and pdf formats:
 
@@ -24,6 +24,22 @@ doc.addParagraph("Hello World", "Heading 1")
 doc.addParagraph("Easy, isn't it","Standard")
 doc.save("hello_world.odt")
 doc.export_docx("hello_world.docx")
+doc.export_pdf("hello_world.pdf")
+doc.close()
+```
+
+## ODS 'Hello World' example
+
+This is a Hello World example. You'll get example files in ods, xlsx and pdf formats:
+
+You don't have to relaunch `unogenerator_star` if you did before
+
+```python
+from unogenerator import ODS_Standard
+doc=ODS_Standard()
+doc.addCellMergedWithStyle("A1:E1", "Hello world", style="BoldCenter")
+doc.save("hello_world.ods")
+doc.export_xlsx("hello_world.xlsx")
 doc.export_pdf("hello_world.pdf")
 doc.close()
 ```

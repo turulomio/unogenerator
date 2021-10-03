@@ -258,7 +258,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
     doc.addParagraph(_("Installation"), "Heading 2")
     doc.addParagraph(_("You can use pip to install this python package:") ,  "Standard")
     doc.addParagraph("""pip install unogenerator"""    , "Code")
-    doc.addParagraph(_("Hello World example"), "Heading 2")
+    doc.addParagraph(_("ODT 'Hello World' example"), "Heading 2")
     doc.addParagraph(_("This is a Hello World example. You get the example in odt, docx and pdf formats:") ,  "Standard")
     doc.addParagraph("""from unogenerator import ODT_Standard
 doc=ODT_Standard()
@@ -374,14 +374,17 @@ doc=ODT()"""    , "Code")
 
     doc.pageBreak()
     doc.addParagraph(_("ODS"), "Heading 1")
-    doc.addParagraph("""    TTO READ
-def demo_ods_standard_read():
-    doc=ODS("unogenerator_ods_standard.ods")
-    doc.setActiveSheet(0)
-    print(doc.getValuesByRow("4", standard=True))
-    print(doc.getValuesByRow("4", standard=False))
-    doc.close()
-    return "demo_ods_standard took {}".format(datetime.now()-doc.init)""",  "Standard")
+
+    doc.addParagraph(_("ODS 'Hello World' example"), "Heading 2")
+    doc.addParagraph(_("This is a Hello World example. You'll get the example in ods, xlsx and pdf formats:") ,  "Standard")
+    doc.addParagraph("""from unogenerator import ODS_Standard
+doc=ODS_Standard()
+doc.addCellMergedWithStyle("A1:E1", "Hello world", style="BoldCenter")
+doc.save("hello_world.ods")
+doc.export_xlsx("hello_world.xlsx")
+doc.export_pdf("hello_world.pdf")
+doc.close()"""    , "Code")
+    doc.pageBreak()
     
     doc.find_and_replace_and_setcursorposition("%REPLACEME%")
     doc.addParagraph(_("This paragraph was set at the end of the code after a find and replace command."), "Standard")

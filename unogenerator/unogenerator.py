@@ -298,17 +298,9 @@ class ODS(ODF):
         if self.template is None:
             self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',8,())
         else:
-            self.document=self.desktop.loadComponentFromURL(self.template,'_blank',8   , args)
-#        for i in range(1000):
-#            sleep(0.1)
-#            if i%100==0:
-#                print("Document is none, retrying", i,  loserver_port,  self.desktop.Frames.Count)
-#            if self.document is not None:
-#                break
-
-        self.sheet_index=0
-        self.sheet=self.setActiveSheet(self.sheet_index)
-            
+            self.document=self.desktop.loadComponentFromURL(self.template,'_blank', 8, args)
+        self.sheet=self.setActiveSheet(0)
+        
     ## Creates a new sheet at the end of the sheets
     ## @param if index is None it creates sheet at the end of the existing sheets
     def createSheet(self, name, index=None):
@@ -327,6 +319,7 @@ class ODS(ODF):
     def setActiveSheet(self,  index):
         self.sheet_index=index
         self.sheet=self.document.getSheets().getByIndex(index)
+        return self.sheet
     
     ## l measures are in cm can be float
     def setColumnsWidth(self, l):
