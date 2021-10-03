@@ -39,6 +39,14 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.5.0 (2021-10-3)
+- Added dispatcher and create service methods.
+- Added posibility to link images to document.
+- Image width and height are now in cm units.
+- Added method addCellNames() for ranged names.
+- Improving freezeAndSelect with None values.
+- Added range column and number copy additions.
+
 ### 0.4.0 (2021-10-2)
 - Replaced server.sh by `unogenerator_start` and `unogenerator_stop`
 - Added helper_list_of_dict and helper_list_of_ordereddict methods

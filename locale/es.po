@@ -112,13 +112,13 @@ msgid "Hello World example"
 msgstr "Ejemplo Hola Mundo"
 
 msgid "This is a Hello World example. You get the example in odt, docx and pdf formats:"
-msgstr ""
+msgstr "Este un ejemplo 'Hello World'. Has generado el ejemplo en los formatos odt, docx y pdf"
 
 msgid "ODT"
 msgstr "ODT"
 
 msgid "ODT files can be quickly generated with UnoGenerator."
-msgstr ""
+msgstr "Los ficheros ODT son generados rápidamente con UnoGenerator."
 
 msgid "There is a predefined template in code called 'standard.odt' to help you with edition."
 msgstr ""
