@@ -12,7 +12,7 @@ from com.sun.star.style.BreakType import PAGE_AFTER
 from gettext import translation
 from logging import warning
 from pkg_resources import resource_filename
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, Coord_from_letters, Coord_from_index
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.percentage import Percentage
@@ -456,20 +456,32 @@ class ODS(ODF):
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
 
-    def freezeAndSelect(self, freeze, current=None, topleft=None):
+    def freezeAndSelect(self, freeze, selected=None, topleft=None):
         freeze=C.assertCoord(freeze) 
-        current=None if current is None else C.assertCoord(current)
+        selected=None if selected is None else C.assertCoord(selected)
         topleft=None if topleft is None else C.assertCoord(topleft)
         self.document.getCurrentController().setActiveSheet(self.sheet)
         self.document.getCurrentController().freezeAtPosition(freeze.letterIndex(), freeze.numberIndex())
 
-        if current is not None:
-            currentcell=self.sheet.getCellByPosition(current.letterIndex(), current.numberIndex())
-            self.document.getCurrentController().select(currentcell)
+        if selected is None:
+            selected=Coord_from_index(self.columnNumber()-1, self.rowNumber()-1)
+        selectedcell=self.sheet.getCellByPosition(selected.letterIndex(), selected.numberIndex())
+        self.document.getCurrentController().select(selectedcell)
         
-        if topleft is not None:
-            self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
-            self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
+        if topleft is None:
+            #Get the select coord - 20 rows and - 10 columns
+            minus_coord=selected.addRowCopy(-20).addColumnCopy(-10)
+            if minus_coord.letterIndex()<=freeze.letterIndex():#letter
+                letter=freeze.letter
+            else:
+                letter=minus_coord.letter
+            if minus_coord.numberIndex()<=freeze.numberIndex():#number
+                number=freeze.number
+            else:
+                number=minus_coord.number
+            topleft=Coord_from_letters(letter, number)
+        self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
+        self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
         
     def getValue(self, coord, standard=True):
         coord=C.assertCoord(coord)
