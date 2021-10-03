@@ -1,11 +1,11 @@
-/*! \mainpage OfficeGenerator
+/*! \mainpage UnoGenerator
 
 Introduction
 ============
 
-OfficeGenerator is a python module to read and write LibreOffice and MS Office files.
+UnoGenerator is a python module to read and write LibreOffice and MS Office files.
 
-The main web page is located in <a href="https://github.com/turulomio/officegenerator/">GitHub</a>
+The main web page is located in <a href="https://github.com/turulomio/unogenerator/">GitHub</a>
 
 Development
 ===========
@@ -13,6 +13,6 @@ Development
 
 Pypi
 ====
-The project uses setuptools distribution system and it's also hosted in <a href="https://pypi.org/project/officegenerator/">https://pypi.org/project/officegenerator/</a>
+The project uses setuptools distribution system and it's also hosted in <a href="https://pypi.org/project/unogenerator/">https://pypi.org/project/unogenerator/</a>
 
 */
