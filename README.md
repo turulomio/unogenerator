@@ -31,6 +31,12 @@ doc.close()
 ## Documentation
 You can read [documentation](https://github.com/turulomio/unogenerator/blob/main/doc/unogenerator_documentation_en.odt?raw=true) in doc directory. It has been created with unogenerator.
 
+## Development links
+
+- [Libreoffice code](https://github.com/LibreOffice/core)
+- [Libreoffice API](https://api.libreoffice.org/docs/idl/ref/index.html)
+
+
 ## Changelog
 
 ### 0.4.0 (2021-10-2)

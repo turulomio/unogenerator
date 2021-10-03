@@ -44,6 +44,7 @@ def main(arguments=None):
 
     addDebugSystem(args.debug)
 
+
     if args.remove==True:
             for language in ['es', 'en']:
                 remove_without_errors(f"unogenerator_documentation_{language}.odt")
@@ -349,19 +350,19 @@ doc=ODT()"""    , "Code")
     
     l=[]
     l.append( _("Este es un ejemplo de imagen as char: "))
-    l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 1000, 1000, "AS_CHARACTER", "PRIMERA", False))
+    l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 1000, 1000, "AS_CHARACTER", "PRIMERA", linked=True))
     l.append(". Ahora sigo escribiendo sin problemas.")
     doc.addParagraphComplex(l, "Standard")
 
-#    l=[]
-#    l.append( _("As you can see, I can reuse it one hundred times. File size will not be increased because I used reference names."))
-#    for i in range(100):
-#        l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 500, 500, "AS_CHARACTER"))
-#    doc.addParagraphComplex(l, "Standard")
-#
-#
-#    doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
-#    doc.addImageParagraph([resource_filename(__name__, 'images/crown.png')]*5, 2500, 1500, "Illustration")
+    l=[]
+    l.append( _("As you can see, I can reuse it one hundred times. File size will not be increased because I used reference names."))
+    for i in range(100):
+        l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 500, 500, "AS_CHARACTER", linked=True))
+    doc.addParagraphComplex(l, "Standard")
+
+
+    doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
+    doc.addImageParagraph([resource_filename(__name__, 'images/crown.png')]*5, 2500, 1500, "Illustration", linked=True)
 
 
     doc.addParagraph(_("Search and Replace"), "Heading 2")

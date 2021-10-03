@@ -3,7 +3,7 @@
 
 from datetime import datetime
 from os import path
-from uno import getComponentContext, createUnoStruct
+from uno import getComponentContext, createUnoStruct, systemPathToFileUrl
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
@@ -18,8 +18,8 @@ from unogenerator.reusing.datetime_functions import string2dtnaive, string2date,
 from unogenerator.reusing.percentage import Percentage
 
 def createUnoService(serviceName):
-  sm = getComponentContext().ServiceManager
-  return sm.createInstanceWithContext(serviceName, getComponentContext())
+#        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
+  return getComponentContext().ServiceManager.createInstance(serviceName)
 
 def executeDispatch(filename, self, linked):
         ## EJEMPLO ADAPTAR CUANDO SE NECESITE
@@ -48,6 +48,7 @@ class ODF:
         resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
         ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
         self.desktop = ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
+        self.graphicsprovider=ctx.ServiceManager.createInstance("com.sun.star.graphic.GraphicProvider")
 
 
     def calculateAll(self):
@@ -173,23 +174,23 @@ class ODT(ODF):
     ## @param anchortype AS_CHARACTER, AT_PARAGRAPH
     ## @param name None if we want to use lo default name
     def textcontentImage(self, filename, width=2000,  height=2000, anchortype="AS_CHARACTER", name=None, linked=False ):
-
-        image=self.document.createInstance("com.sun.star.text.TextGraphicObject")
-        image.AnchorType=anchortype
-#
-#        numberImages=self.document.getGraphicObjects().Count        
-#        image=self.document.getGraphicObjects().getByIndex(numberImages-1)
+        oProps=(
+            PropertyValue('URL',0,systemPathToFileUrl(filename),0),
+            PropertyValue('LoadAsLink',0, linked,0),
+        )        
+        graphic=self.graphicsprovider.queryGraphic(oProps)
+        image = self.document.createInstance("com.sun.star.text.GraphicObject")
+        image.Graphic=graphic
         if name is not None:
             image.setName(name)
-        image.GraphicURL=f"file://{path.abspath(filename)}"
-
+        image.AnchorType=anchortype
         image.Size=Size(width, height)
         return image
         
-    def addImageParagraph(self, filename_list, width=2000,  height=2000, name=None, style="Illustration"):
+    def addImageParagraph(self, filename_list, width=2000,  height=2000, name=None, style="Illustration", linked=False):
         self.cursor.setPropertyValue("ParaStyleName", style)
         for filename in filename_list:
-            self.document.Text.insertTextContent(self.cursor,self.textcontentImage(filename, width, height, "AS_CHARACTER"), False)
+            self.document.Text.insertTextContent(self.cursor,self.textcontentImage(filename, width, height, "AS_CHARACTER", linked=linked), False)
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
 
 
