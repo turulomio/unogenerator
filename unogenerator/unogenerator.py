@@ -173,7 +173,7 @@ class ODT(ODF):
     ## Returns a text content that can be inserted with document.Text.insertTextContent(cursor,image, False)
     ## @param anchortype AS_CHARACTER, AT_PARAGRAPH
     ## @param name None if we want to use lo default name
-    def textcontentImage(self, filename, width=2000,  height=2000, anchortype="AS_CHARACTER", name=None, linked=False ):
+    def textcontentImage(self, filename, width=2,  height=2, anchortype="AS_CHARACTER", name=None, linked=False ):
         oProps=(
             PropertyValue('URL',0,systemPathToFileUrl(filename),0),
             PropertyValue('LoadAsLink',0, linked,0),
@@ -184,10 +184,12 @@ class ODT(ODF):
         if name is not None:
             image.setName(name)
         image.AnchorType=anchortype
-        image.Size=Size(width, height)
+        image.Size=Size(width*1000, height*1000)
         return image
         
-    def addImageParagraph(self, filename_list, width=2000,  height=2000, name=None, style="Illustration", linked=False):
+    ## @param width float in cm
+    ## @param height float in cm
+    def addImageParagraph(self, filename_list, width=2,  height=2, name=None, style="Illustration", linked=False):
         self.cursor.setPropertyValue("ParaStyleName", style)
         for filename in filename_list:
             self.document.Text.insertTextContent(self.cursor,self.textcontentImage(filename, width, height, "AS_CHARACTER", linked=linked), False)
