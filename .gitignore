@@ -6,4 +6,4 @@ dist/
 .eric6project/
 *.po~
 doc/html/
-doc/officegenerator.tag
+doc/unogenerator.tag

@@ -4,4 +4,4 @@ recursive-include unogenerator *.py *.mo *.odt *.ods
 recursive-include unogenerator/images *.png
 recursive-include unogenerator/reusing *.py
 prune __pycache__
-global-exclude *.pyc
+global-exclude *.pyc doc/*.odt doc/*.ods doc/*.pdf
