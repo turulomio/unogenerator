@@ -17,7 +17,21 @@ from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.percentage import Percentage
 
+def createUnoService(serviceName):
+  sm = getComponentContext().ServiceManager
+  return sm.createInstanceWithContext(serviceName, getComponentContext())
 
+def executeDispatch(filename, self, linked):
+        ## EJEMPLO ADAPTAR CUANDO SE NECESITE
+        oDisp = createUnoService("com.sun.star.frame.DispatchHelper")
+        oProps=(
+            PropertyValue('FileName',0,f"file://{path.abspath(filename)}",0),
+            PropertyValue('AsLink',0, linked,0),
+        )
+        oDisp.executeDispatch(self.document.getCurrentController().Frame, ".uno:InsertGraphic", "", 0, oProps)
+        numberImages=self.document.getGraphicObjects().Count        
+        image=self.document.getGraphicObjects().getByIndex(numberImages-1)
+        print(image)
 try:
     t=translation('unogenerator', resource_filename("unogenerator","locale"))
     _=t.gettext
@@ -158,12 +172,17 @@ class ODT(ODF):
     ## Returns a text content that can be inserted with document.Text.insertTextContent(cursor,image, False)
     ## @param anchortype AS_CHARACTER, AT_PARAGRAPH
     ## @param name None if we want to use lo default name
-    def textcontentImage(self, filename, width=2000,  height=2000, anchortype="AS_CHARACTER", name=None, ):
+    def textcontentImage(self, filename, width=2000,  height=2000, anchortype="AS_CHARACTER", name=None, linked=False ):
+
         image=self.document.createInstance("com.sun.star.text.TextGraphicObject")
         image.AnchorType=anchortype
+#
+#        numberImages=self.document.getGraphicObjects().Count        
+#        image=self.document.getGraphicObjects().getByIndex(numberImages-1)
         if name is not None:
             image.setName(name)
         image.GraphicURL=f"file://{path.abspath(filename)}"
+
         image.Size=Size(width, height)
         return image
         

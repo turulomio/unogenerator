@@ -230,6 +230,8 @@ def demo_odt_standard(language, port=2002, suffix=""):
         _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
         ["unogenerator", "demo", "files"]
     )
+    
+    
     doc.addParagraph(_("UnoGenerator documentation"), "Title")
     doc.addParagraph(_(f"Version: {__version__}"), "Subtitle")
     
@@ -347,19 +349,19 @@ doc=ODT()"""    , "Code")
     
     l=[]
     l.append( _("Este es un ejemplo de imagen as char: "))
-    l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 1000, 1000, "AS_CHARACTER"))
+    l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 1000, 1000, "AS_CHARACTER", "PRIMERA", False))
     l.append(". Ahora sigo escribiendo sin problemas.")
     doc.addParagraphComplex(l, "Standard")
 
-    l=[]
-    l.append( _("As you can see, I can reuse it one hundred times. File size will not be increased because I used reference names."))
-    for i in range(100):
-        l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 500, 500, "AS_CHARACTER"))
-    doc.addParagraphComplex(l, "Standard")
-
-
-    doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
-    doc.addImageParagraph([resource_filename(__name__, 'images/crown.png')]*5, 2500, 1500, "Illustration")
+#    l=[]
+#    l.append( _("As you can see, I can reuse it one hundred times. File size will not be increased because I used reference names."))
+#    for i in range(100):
+#        l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 500, 500, "AS_CHARACTER"))
+#    doc.addParagraphComplex(l, "Standard")
+#
+#
+#    doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
+#    doc.addImageParagraph([resource_filename(__name__, 'images/crown.png')]*5, 2500, 1500, "Illustration")
 
 
     doc.addParagraph(_("Search and Replace"), "Heading 2")
