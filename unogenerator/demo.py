@@ -136,6 +136,9 @@ def demo_ods_standard(language, port=2002, suffix="",):
     doc.createSheet("Styles")
     doc.setColumnsWidth([3.5, 5, 2, 2, 2, 2, 2, 5, 5, 3, 3])
     
+    
+    doc.setCellName("A1",  "MYNAME")
+    
     doc.addCellWithStyle("A1", _("Style name"), ColorsNamed.Orange, "BoldCenter")
     doc.addCellWithStyle("B1", _("Date and time"), ColorsNamed.Orange, "BoldCenter")
     doc.addCellWithStyle("C1", _("Date"), ColorsNamed.Orange, "BoldCenter")

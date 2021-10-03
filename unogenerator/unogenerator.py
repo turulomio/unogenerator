@@ -413,6 +413,12 @@ class ODS(ODF):
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
         
+    ## All of this names are document names
+    def setCellName(self, coord, name):
+        coord=C.assertCoord(coord)
+        cell=self.sheet.getCellRangeByName(coord.string()).getCellAddress()
+        self.document.NamedRanges.addNewByName(name, coord.string(), cell, 0)
+        
     def __object_to_cell(self, cell, o):
         if o.__class__.__name__  == "datetime":
             cell.setValue(datetime2localc1989(o))
