@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-02 15:13+0200\n"
+"POT-Creation-Date: 2021-10-04 05:20+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -27,6 +27,15 @@ msgstr "Error al borrar: {} -> {}"
 
 msgid "Create example files using unogenerator module"
 msgstr ""
+
+msgid "Debug program information"
+msgstr ""
+
+msgid "My language is "
+msgstr "Mi idioma es "
+
+msgid "All process took {}"
+msgstr "Todos los procesos tardaron {}"
 
 msgid "UnoGenerator ODS example"
 msgstr ""
@@ -71,6 +80,9 @@ msgstr "Tiempo"
 msgid "Boolean"
 msgstr "Booleano"
 
+msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}"
+msgstr "unogenerator_example_{language}{suffix}.ods tardó {datetime.now()-doc.init} en {port}"
+
 msgid "UnoGenerator documentation"
 msgstr "Documentación de UnoGenerator"
 
@@ -108,8 +120,8 @@ msgstr "Instalación"
 msgid "You can use pip to install this python package:"
 msgstr "Puedes usar pip para instalar este paquete python:"
 
-msgid "Hello World example"
-msgstr "Ejemplo Hola Mundo"
+msgid "ODT 'Hello World' example"
+msgstr ""
 
 msgid "This is a Hello World example. You get the example in odt, docx and pdf formats:"
 msgstr "Este un ejemplo 'Hello World'. Has generado el ejemplo en los formatos odt, docx y pdf"
@@ -216,8 +228,17 @@ msgstr ""
 msgid "ODS"
 msgstr "ODS"
 
+msgid "ODS 'Hello World' example"
+msgstr ""
+
+msgid "This is a Hello World example. You'll get the example in ods, xlsx and pdf formats:"
+msgstr ""
+
 msgid "This paragraph was set at the end of the code after a find and replace command."
 msgstr ""
+
+msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
+msgstr "unogenerator_documentation_{language}{suffix}.odt tardó {datetime.now()-doc.init} en {port}"
 
 msgid "No data to show"
 msgstr "No hay datos para mostrar"
@@ -262,6 +283,9 @@ msgstr ""
 
 msgid "Filename extension must be 'xlsx'."
 msgstr ""
+
+#~ msgid "Hello World example"
+#~ msgstr "Ejemplo Hola Mundo"
 
 #~ msgid "We can create tables too, for example with size 11pt:"
 #~ msgstr "También podemos crear tablas, por ejemplo con tamaño 11pt:"

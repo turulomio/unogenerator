@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-03 16:55+0200\n"
+"POT-Creation-Date: 2021-10-04 05:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,6 +24,15 @@ msgid "Error deleting: {} -> {}"
 msgstr ""
 
 msgid "Create example files using unogenerator module"
+msgstr ""
+
+msgid "Debug program information"
+msgstr ""
+
+msgid "My language is "
+msgstr ""
+
+msgid "All process took {}"
 msgstr ""
 
 msgid "UnoGenerator ODS example"
@@ -69,6 +78,9 @@ msgstr ""
 msgid "Boolean"
 msgstr ""
 
+msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}"
+msgstr ""
+
 msgid "UnoGenerator documentation"
 msgstr ""
 
@@ -106,7 +118,7 @@ msgstr ""
 msgid "You can use pip to install this python package:"
 msgstr ""
 
-msgid "Hello World example"
+msgid "ODT 'Hello World' example"
 msgstr ""
 
 msgid "This is a Hello World example. You get the example in odt, docx and pdf formats:"
@@ -214,7 +226,16 @@ msgstr ""
 msgid "ODS"
 msgstr ""
 
+msgid "ODS 'Hello World' example"
+msgstr ""
+
+msgid "This is a Hello World example. You'll get the example in ods, xlsx and pdf formats:"
+msgstr ""
+
 msgid "This paragraph was set at the end of the code after a find and replace command."
+msgstr ""
+
+msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
 msgstr ""
 
 msgid "No data to show"

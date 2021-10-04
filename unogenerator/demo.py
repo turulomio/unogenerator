@@ -36,7 +36,7 @@ def remove_without_errors(filename):
 def main(arguments=None):
     parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
-    parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
+    parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
     group= parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
@@ -44,6 +44,7 @@ def main(arguments=None):
 
     addDebugSystem(args.debug)
 
+    print(_("My language is "))
 
     if args.remove==True:
             for language in ['es', 'en']:
@@ -64,7 +65,7 @@ def main(arguments=None):
 
         for future in as_completed(futures):
             future.result()
-        print("All process took {}".format(datetime.now()-start))
+        print(_("All process took {}".format(datetime.now()-start)))
 
 
 def main_concurrent(arguments=None):
@@ -115,14 +116,15 @@ def main_concurrent(arguments=None):
         for future in futures:
             result = future.result()
             results.append(result)
-        print("All process took {}".format(datetime.now()-start))
+        print(_("All process took {}".format(datetime.now()-start)))
 
        
 def demo_ods_standard(language, port=2002, suffix="",):
     if language=="en":
-        lang1=install('unogenerator', 'badlocale')
+        lang1=translation('unogenerator' , resource_filename("unogenerator","locale"), languages=[language])
+        lang1.install()
     else:
-        lang1=translation('unogenerator', 'unogenerator/locale', languages=[language])
+        lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
         lang1.install()
     
     doc=ODS_Standard(port)
@@ -214,16 +216,17 @@ def demo_ods_standard(language, port=2002, suffix="",):
     doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
     doc.close()
     
-    r= f"unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}"
+    r= _(f"unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}")
     print(r)
     return r
     
     
 def demo_odt_standard(language, port=2002, suffix=""):
     if language=="en":
-        lang1=install('unogenerator', 'badlocale')
+        lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
+        lang1.install()
     else:
-        lang1=translation('unogenerator', 'unogenerator/locale', languages=[language])
+        lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
         lang1.install()
 
     doc=ODT_Standard(port)
@@ -395,7 +398,7 @@ doc.close()"""    , "Code")
     doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
     doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
     doc.close()
-    r=f"unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
+    r=_(f"unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}")
     print(r)
     return r
 
