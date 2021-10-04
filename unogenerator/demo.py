@@ -3,21 +3,23 @@
 from uno import getComponentContext
 getComponentContext()
 import argparse
-import pkg_resources
+from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, date, timedelta
 from gettext import translation, install
 from multiprocessing import cpu_count
+from pkg_resources import resource_filename
 
-from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C
+from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
-from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range
+from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts
 from os import remove
+from tqdm import tqdm
 
 try:
-    t=translation('unogenerator', pkg_resources.resource_filename("unogenerator","locale"))
+    t=translation('unogenerator', resource_filename("unogenerator","locale"))
     _=t.gettext
 except:
     _=str
@@ -34,13 +36,15 @@ def remove_without_errors(filename):
 def main(arguments=None):
     parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
-    parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
+    parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
     group= parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
     args=parser.parse_args(arguments)
 
     addDebugSystem(args.debug)
+
+    print(_("My language is "))
 
     if args.remove==True:
             for language in ['es', 'en']:
@@ -60,18 +64,70 @@ def main(arguments=None):
                 futures.append(executor.submit(demo_odt_standard, language))
 
         for future in as_completed(futures):
-            print(future.result())
-        print("All process took {}".format(datetime.now()-start))
+            future.result()
+        print(_("All process took {}".format(datetime.now()-start)))
+
+
+def main_concurrent(arguments=None):
+    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
+    group= parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--create', help="Create demo files", action="store_true",default=False)
+    group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
+    parser.add_argument('--workers', help="Workers max 8", action="store", default=8,  type=int)
+    args=parser.parse_args(arguments)
+
+
+    print("You need to launch 8 instances from port 2002 to run this concurrent demo. You can use bash unogenerator_start")
+    addDebugSystem(args.debug)
+
+    if args.remove==True:
+            for i in range(10):
+                remove_without_errors(f"unogenerator_documentation_en.{i}.odt")
+                remove_without_errors(f"unogenerator_documentation_en.{i}.docx")
+                remove_without_errors(f"unogenerator_documentation_en.{i}.pdf")
+                remove_without_errors(f"unogenerator_example_en.{i}.ods")
+                remove_without_errors(f"unogenerator_example_en.{i}.xlsx")
+                remove_without_errors(f"unogenerator_example_en.{i}.pdf")
+
+    if args.create==True:
+        start=datetime.now()
+        futures=[]
+        port=2002
+        with ProcessPoolExecutor(max_workers=args.workers) as executor:
+            with tqdm(total=20) as progress:
+                for i in range(10):
+                    port=next_port(port, 2002, 8)
+                    future=executor.submit(demo_ods_standard, 'en', port, f".{i}")
+                    future.add_done_callback(lambda p: progress.update())
+                    futures.append(future)
+                    port=next_port(port, 2002, 8)
+                    future=executor.submit(demo_odt_standard, 'en', port, f".{i}")
+                    future.add_done_callback(lambda p: progress.update())
+                    futures.append(future)
+
+                for future in as_completed(futures):
+                    future.result()
+            
+
+
+        results = []
+        for future in futures:
+            result = future.result()
+            results.append(result)
+        print(_("All process took {}".format(datetime.now()-start)))
 
        
-def demo_ods_standard(language):
+def demo_ods_standard(language, port=2002, suffix="",):
     if language=="en":
-        lang1=install('unogenerator', 'badlocale')
+        lang1=translation('unogenerator' , resource_filename("unogenerator","locale"), languages=[language])
+        lang1.install()
     else:
-        lang1=translation('unogenerator', 'unogenerator/locale', languages=[language])
+        lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
         lang1.install()
     
-    doc=ODS_Standard()
+    doc=ODS_Standard(port)
     doc.setMetadata(
         _("UnoGenerator ODS example"),  
         _("Demo with ODS class"), 
@@ -81,6 +137,9 @@ def demo_ods_standard(language):
     )
     doc.createSheet("Styles")
     doc.setColumnsWidth([3.5, 5, 2, 2, 2, 2, 2, 5, 5, 3, 3])
+    
+    
+    doc.setCellName("A1",  "MYNAME")
     
     doc.addCellWithStyle("A1", _("Style name"), ColorsNamed.Orange, "BoldCenter")
     doc.addCellWithStyle("B1", _("Date and time"), ColorsNamed.Orange, "BoldCenter")
@@ -141,23 +200,36 @@ def demo_ods_standard(language):
     doc.addListOfRowsWithStyle("A20", [["A",1,2,3],["B",4,5,6],["C",7,8,9]], ColorsNamed.White)
     helper_totals_from_range(doc, "B20:D22")
 
+    
+    doc.addCellMergedWithStyle("A25:B25","List of ordered dictionaries", ColorsNamed.Orange, "BoldCenter")
+    lod=[]
+    lod.append(OrderedDict({"Singer": "Elvis",  "Song": "Fever" }))
+    lod.append(OrderedDict({"Singer": "Roy Orbison",  "Song": "Blue angel" }))
+    helper_list_of_ordereddicts(doc, "A26",  lod, columns_header=1)
+    
+    doc.addCellMergedWithStyle("A30:B30","List of dictionaries", ColorsNamed.Orange, "BoldCenter")
+    helper_list_of_dicts(doc, "A31",  lod, keys=["Song",  "Singer"])
 
     doc.removeSheet(0)
-    doc.save(f"unogenerator_example_{language}.ods")
-    doc.export_xlsx(f"unogenerator_example_{language}.xlsx")
-    doc.export_pdf(f"unogenerator_example_{language}.pdf")
+    doc.save(f"unogenerator_example_{language}{suffix}.ods")
+    doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
+    doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
     doc.close()
-    return f"unogenerator_example_{language}.ods took {datetime.now()-doc.init}"
+    
+    r= _(f"unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}")
+    print(r)
+    return r
     
     
-def demo_odt_standard(language):
+def demo_odt_standard(language, port=2002, suffix=""):
     if language=="en":
-        lang1=install('unogenerator', 'badlocale')
+        lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
+        lang1.install()
     else:
-        lang1=translation('unogenerator', 'unogenerator/locale', languages=[language])
+        lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
         lang1.install()
 
-    doc=ODT_Standard()
+    doc=ODT_Standard(port)
     doc.setMetadata(
         _("UnoGenerator documentation"),  
         _("Unogenerator python module documentation"), 
@@ -165,6 +237,8 @@ def demo_odt_standard(language):
         _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
         ["unogenerator", "demo", "files"]
     )
+    
+    
     doc.addParagraph(_("UnoGenerator documentation"), "Title")
     doc.addParagraph(_(f"Version: {__version__}"), "Subtitle")
     
@@ -173,7 +247,7 @@ def demo_odt_standard(language):
     doc.addParagraph(
         _("UnoGenerator uses Libreoffice UNO API python bindings to generate documents.") +" " +
         _("So in order to use, you need to launch a --headless libreoffice instance.") + " "+
-        _("You can easily launch server.sh script with bash."), 
+        _("You can easily launch unogenerator_start script with bash."), 
         "Standard"
     )
 
@@ -187,7 +261,7 @@ def demo_odt_standard(language):
     doc.addParagraph(_("Installation"), "Heading 2")
     doc.addParagraph(_("You can use pip to install this python package:") ,  "Standard")
     doc.addParagraph("""pip install unogenerator"""    , "Code")
-    doc.addParagraph(_("Hello World example"), "Heading 2")
+    doc.addParagraph(_("ODT 'Hello World' example"), "Heading 2")
     doc.addParagraph(_("This is a Hello World example. You get the example in odt, docx and pdf formats:") ,  "Standard")
     doc.addParagraph("""from unogenerator import ODT_Standard
 doc=ODT_Standard()
@@ -282,19 +356,19 @@ doc=ODT()"""    , "Code")
     
     l=[]
     l.append( _("Este es un ejemplo de imagen as char: "))
-    l.append(doc.textcontentImage(pkg_resources.resource_filename(__name__, 'images/crown.png'), 1000, 1000, "AS_CHARACTER"))
+    l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 1, 1, "AS_CHARACTER", "PRIMERA", linked=True))
     l.append(". Ahora sigo escribiendo sin problemas.")
     doc.addParagraphComplex(l, "Standard")
 
     l=[]
     l.append( _("As you can see, I can reuse it one hundred times. File size will not be increased because I used reference names."))
     for i in range(100):
-        l.append(doc.textcontentImage(pkg_resources.resource_filename(__name__, 'images/crown.png'), 500, 500, "AS_CHARACTER"))
+        l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 0.5,  0.5, "AS_CHARACTER", linked=True))
     doc.addParagraphComplex(l, "Standard")
 
 
     doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
-    doc.addImageParagraph([pkg_resources.resource_filename(__name__, 'images/crown.png')]*5, 2500, 1500, "Illustration")
+    doc.addImageParagraph([resource_filename(__name__, 'images/crown.png')]*5, 2.5, 1.5, "Illustration", linked=True)
 
 
     doc.addParagraph(_("Search and Replace"), "Heading 2")
@@ -303,26 +377,30 @@ doc=ODT()"""    , "Code")
 
     doc.pageBreak()
     doc.addParagraph(_("ODS"), "Heading 1")
-    doc.addParagraph("""    TTO READ
-def demo_ods_standard_read():
-    doc=ODS("unogenerator_ods_standard.ods")
-    doc.setActiveSheet(0)
-    print(doc.getValuesByRow("4", standard=True))
-    print(doc.getValuesByRow("4", standard=False))
-    doc.close()
-    return "demo_ods_standard took {}".format(datetime.now()-doc.init)""",  "Standard")
+
+    doc.addParagraph(_("ODS 'Hello World' example"), "Heading 2")
+    doc.addParagraph(_("This is a Hello World example. You'll get the example in ods, xlsx and pdf formats:") ,  "Standard")
+    doc.addParagraph("""from unogenerator import ODS_Standard
+doc=ODS_Standard()
+doc.addCellMergedWithStyle("A1:E1", "Hello world", style="BoldCenter")
+doc.save("hello_world.ods")
+doc.export_xlsx("hello_world.xlsx")
+doc.export_pdf("hello_world.pdf")
+doc.close()"""    , "Code")
+    doc.pageBreak()
     
     doc.find_and_replace_and_setcursorposition("%REPLACEME%")
     doc.addParagraph(_("This paragraph was set at the end of the code after a find and replace command."), "Standard")
     
     
     
-    doc.save(f"unogenerator_documentation_{language}.odt")
-    doc.export_docx(f"unogenerator_documentation_{language}.docx")
-    doc.export_pdf(f"unogenerator_documentation_{language}.pdf")
+    doc.save(f"unogenerator_documentation_{language}{suffix}.odt")
+    doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
+    doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
     doc.close()
-    return f"unogenerator_documentation_{language}.ods took {datetime.now()-doc.init}"
-    
+    r=_(f"unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}")
+    print(r)
+    return r
 
 if __name__ == "__main__":
     main()

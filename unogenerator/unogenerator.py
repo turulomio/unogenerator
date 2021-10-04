@@ -3,7 +3,7 @@
 
 from datetime import datetime
 from os import path
-from uno import getComponentContext, createUnoStruct
+from uno import getComponentContext, createUnoStruct, systemPathToFileUrl
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
@@ -12,12 +12,26 @@ from com.sun.star.style.BreakType import PAGE_AFTER
 from gettext import translation
 from logging import warning
 from pkg_resources import resource_filename
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, Coord_from_letters, Coord_from_index
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.percentage import Percentage
 
+def createUnoService(serviceName):
+#        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
+  return getComponentContext().ServiceManager.createInstance(serviceName)
 
+def executeDispatch(filename, self, linked):
+        ## EJEMPLO ADAPTAR CUANDO SE NECESITE
+        oDisp = createUnoService("com.sun.star.frame.DispatchHelper")
+        oProps=(
+            PropertyValue('FileName',0,f"file://{path.abspath(filename)}",0),
+            PropertyValue('AsLink',0, linked,0),
+        )
+        oDisp.executeDispatch(self.document.getCurrentController().Frame, ".uno:InsertGraphic", "", 0, oProps)
+        numberImages=self.document.getGraphicObjects().Count        
+        image=self.document.getGraphicObjects().getByIndex(numberImages-1)
+        print(image)
 try:
     t=translation('unogenerator', resource_filename("unogenerator","locale"))
     _=t.gettext
@@ -31,9 +45,11 @@ class ODF:
         self.init=datetime.now()
         
         localContext = getComponentContext()
-        resolver = localContext.ServiceManager.createInstanceWithContext('com.sun.star.bridge.UnoUrlResolver',localContext)
+        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
         ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
         self.desktop = ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
+        self.graphicsprovider=ctx.ServiceManager.createInstance("com.sun.star.graphic.GraphicProvider")
+
 
     def calculateAll(self):
         self.document.calculateAll()
@@ -70,10 +86,14 @@ class ODF:
 class ODT(ODF):
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
+        
+        args=(
+            PropertyValue('AsTemplate',0,True,0),
+        )
         if self.template is None:
             self.document=self.desktop.loadComponentFromURL('private:factory/swriter','_blank',0,())
         else:
-            self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,())
+            self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,args)
         self.cursor=self.document.Text.createTextCursor()
 
         
@@ -153,19 +173,26 @@ class ODT(ODF):
     ## Returns a text content that can be inserted with document.Text.insertTextContent(cursor,image, False)
     ## @param anchortype AS_CHARACTER, AT_PARAGRAPH
     ## @param name None if we want to use lo default name
-    def textcontentImage(self, filename, width=2000,  height=2000, anchortype="AS_CHARACTER", name=None, ):
-        image=self.document.createInstance("com.sun.star.text.TextGraphicObject")
-        image.AnchorType=anchortype
+    def textcontentImage(self, filename, width=2,  height=2, anchortype="AS_CHARACTER", name=None, linked=False ):
+        oProps=(
+            PropertyValue('URL',0,systemPathToFileUrl(filename),0),
+            PropertyValue('LoadAsLink',0, linked,0),
+        )        
+        graphic=self.graphicsprovider.queryGraphic(oProps)
+        image = self.document.createInstance("com.sun.star.text.GraphicObject")
+        image.Graphic=graphic
         if name is not None:
             image.setName(name)
-        image.GraphicURL=f"file://{path.abspath(filename)}"
-        image.Size=Size(width, height)
+        image.AnchorType=anchortype
+        image.Size=Size(width*1000, height*1000)
         return image
         
-    def addImageParagraph(self, filename_list, width=2000,  height=2000, name=None, style="Illustration"):
+    ## @param width float in cm
+    ## @param height float in cm
+    def addImageParagraph(self, filename_list, width=2,  height=2, name=None, style="Illustration", linked=False):
         self.cursor.setPropertyValue("ParaStyleName", style)
         for filename in filename_list:
-            self.document.Text.insertTextContent(self.cursor,self.textcontentImage(filename, width, height, "AS_CHARACTER"), False)
+            self.document.Text.insertTextContent(self.cursor,self.textcontentImage(filename, width, height, "AS_CHARACTER", linked=linked), False)
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
 
 
@@ -264,13 +291,16 @@ class ODS(ODF):
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
         
+        args=(
+            PropertyValue('AsTemplate',0,True,0),
+        )
+        self.document=None
         if self.template is None:
-            self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',0,())
+            self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',8,())
         else:
-            self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,())
-        self.sheet_index=0
-        self.sheet=self.setActiveSheet(self.sheet_index)
-            
+            self.document=self.desktop.loadComponentFromURL(self.template,'_blank', 8, args)
+        self.sheet=self.setActiveSheet(0)
+        
     ## Creates a new sheet at the end of the sheets
     ## @param if index is None it creates sheet at the end of the existing sheets
     def createSheet(self, name, index=None):
@@ -289,6 +319,7 @@ class ODS(ODF):
     def setActiveSheet(self,  index):
         self.sheet_index=index
         self.sheet=self.document.getSheets().getByIndex(index)
+        return self.sheet
     
     ## l measures are in cm can be float
     def setColumnsWidth(self, l):
@@ -375,6 +406,12 @@ class ODS(ODF):
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
         
+    ## All of this names are document names
+    def setCellName(self, coord, name):
+        coord=C.assertCoord(coord)
+        cell=self.sheet.getCellRangeByName(coord.string()).getCellAddress()
+        self.document.NamedRanges.addNewByName(name, coord.string(), cell, 0)
+        
     def __object_to_cell(self, cell, o):
         if o.__class__.__name__  == "datetime":
             cell.setValue(datetime2localc1989(o))
@@ -397,6 +434,8 @@ class ODS(ODF):
                 cell.setString(o)
         elif o.__class__.__name__ in ("bool", ):
             cell.setValue(int(o))
+        elif o is None:
+            cell.setString("")
         else:
             cell.setString(str(o))
             print("MISSING", o.__class__.__name__)
@@ -412,20 +451,32 @@ class ODS(ODF):
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
 
-    def freezeAndSelect(self, freeze, current=None, topleft=None):
+    def freezeAndSelect(self, freeze, selected=None, topleft=None):
         freeze=C.assertCoord(freeze) 
-        current=None if current is None else C.assertCoord(current)
+        selected=None if selected is None else C.assertCoord(selected)
         topleft=None if topleft is None else C.assertCoord(topleft)
         self.document.getCurrentController().setActiveSheet(self.sheet)
         self.document.getCurrentController().freezeAtPosition(freeze.letterIndex(), freeze.numberIndex())
 
-        if current is not None:
-            currentcell=self.sheet.getCellByPosition(current.letterIndex(), current.numberIndex())
-            self.document.getCurrentController().select(currentcell)
+        if selected is None:
+            selected=Coord_from_index(self.columnNumber()-1, self.rowNumber()-1)
+        selectedcell=self.sheet.getCellByPosition(selected.letterIndex(), selected.numberIndex())
+        self.document.getCurrentController().select(selectedcell)
         
-        if topleft is not None:
-            self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
-            self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
+        if topleft is None:
+            #Get the select coord - 20 rows and - 10 columns
+            minus_coord=selected.addRowCopy(-20).addColumnCopy(-10)
+            if minus_coord.letterIndex()<=freeze.letterIndex():#letter
+                letter=freeze.letter
+            else:
+                letter=minus_coord.letter
+            if minus_coord.numberIndex()<=freeze.numberIndex():#number
+                number=freeze.number
+            else:
+                number=minus_coord.number
+            topleft=Coord_from_letters(letter, number)
+        self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
+        self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
         
     def getValue(self, coord, standard=True):
         coord=C.assertCoord(coord)

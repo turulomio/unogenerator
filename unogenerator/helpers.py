@@ -5,7 +5,14 @@
 ## @param string with the rew where the formula ends. If None it's a coord.row -1
 from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string
 
+from gettext import translation
+from pkg_resources import resource_filename
 
+try:
+    t=translation('unogenerator', resource_filename("unogenerator","locale"))
+    _=t.gettext
+except:
+    _=str
 def helper_totals_row(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, row_from="2", row_to=None):
     coord=C.assertCoord(coord)
     for letter, total in enumerate(list_of_totals):
@@ -110,4 +117,46 @@ def helper_totals_from_range(doc, range_of_data, key="#SUM", totalcolumns=True, 
         helper_totals_column(doc, vertical_start.addColumnCopy(data_columns+1),["Total"]+[key]*(data_rows+1), styles=None, column_from=coord_start.letter)
     elif totalrows==True:
         helper_totals_row(doc, horizontal_start.addRowCopy(data_rows),["Total"]+[key]*(data_columns+0), styles=None, row_from=coord_start.number) #1 menos por la esquina
- 
+
+
+## Write cells from a list of ordered dictionaries
+## @param lod List of ordered dictionaries
+## @param keys. If None write all keys, Else must be a list of keys
+## @param columns_header. Integer with the number of columns to apply color_header
+def helper_list_of_ordereddicts(doc, coord_start,  lod, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
+    coord_start=C.assertCoord(coord_start)
+    
+    if len(lod)==0 and keys is None:
+        doc.addCellWithStyle(coord_start, _("No data to show"), ColorsNamed.Red, "BoldCenter")
+        return
+
+        
+    #Header
+    if keys is None:
+        keys=lod[0].keys()
+    
+    for column,  key in enumerate(keys):       
+        doc.addCellWithStyle(coord_start.addColumnCopy(column), key, color_row_header, "BoldCenter")
+    coord_data=coord_start.addRowCopy(1)
+    
+    #Data
+    for row, od in enumerate(lod):
+        for column, key in enumerate(keys):
+            if styles is None:
+                style=guess_object_style(od[key])
+            elif styles.__class__.__name__ != "list":
+                style=styles
+            else:
+                style=styles[column]
+
+            if column+1<=columns_header:
+                color_=color_column_header
+            else:
+                color_=color
+            
+            doc.addCellWithStyle(coord_data.addRowCopy(row).addColumnCopy(column), od[key], color_, style)
+
+
+## It's the same of helper_list_of_ordereddicts but withth mandatory keys
+def helper_list_of_dicts(doc, coord_start,  lod, keys, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
+    helper_list_of_ordereddicts(doc, coord_start,  lod, keys, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None)

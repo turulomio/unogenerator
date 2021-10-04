@@ -41,6 +41,7 @@ class Translate(Command):
         os.system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o locale/unogenerator.pot *.py unogenerator/*.py unogenerator/reusing/*.py setup.py")
         os.system("msgmerge -N --no-wrap -U locale/es.po locale/unogenerator.pot")
         os.system("msgfmt -cv -o unogenerator/locale/es/LC_MESSAGES/unogenerator.mo locale/es.po")
+        os.system("msgfmt -cv -o unogenerator/locale/en/LC_MESSAGES/unogenerator.mo locale/en.po")
 
     
 ## Class to define doc command
@@ -92,8 +93,6 @@ class Procedure(Command):
   * python setup.py sdist upload -r pypi
   * python setup.py uninstall
   * Crea un nuevo ebuild de UNOGENERATOR Gentoo con la nueva versión
-  * Subelo al repositorio del portage
-  * Crea un nuevo ebuild de UNOGENERATOR_DAEMON Gentoo con la nueva versión
   * Subelo al repositorio del portage
 
 """.format(__version__))
@@ -167,8 +166,9 @@ setup(name='unogenerator',
      install_requires=[],
      entry_points = {'console_scripts': [
                             'unogenerator_demo=unogenerator.demo:main',
-                            'unogenerator_daemon_start=unogenerator.daemon:daemon_start',
-                            'unogenerator_daemon_stop=unogenerator.daemon:daemon_stop',
+                            'unogenerator_demo_concurrent=unogenerator.demo:main_concurrent',
+                            'unogenerator_start=unogenerator.server:server_start',
+                            'unogenerator_stop=unogenerator.server:server_stop',
                         ],
                     },
      cmdclass={'doxygen': Doxygen,

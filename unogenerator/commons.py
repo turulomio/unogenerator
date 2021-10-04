@@ -6,8 +6,8 @@ from pkg_resources import resource_filename
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error
 from uno import createUnoStruct
 
-__version__ = '0.2.9999'
-__versiondatetime__=datetime(2021, 9, 29, 12, 44)
+__version__ = '0.5.0'
+__versiondatetime__=datetime(2021, 10, 3, 16, 51)
 __versiondate__=__versiondatetime__.date()
 
 try:
@@ -160,20 +160,14 @@ class Coord:
     ## @param num Integer Can be positive and negative. When num is negative, if Coord.number is less than 1, returns 1
     def addRowCopy(self, num=1):
         r=Coord(self.string())
-        if r.numberIndex()+num<0:
-            r.number="1"
-        else:
-            r.number=rowAdd(r.number, num)
+        r.addRow(num)
         return r
 
     ## Add a number of columns/letters to the Coord and return a copy of the objject
     ## @param num Integer. Can be positive and negative. When num is negative, if Coord.letter is less than A, returns A.
     def addColumnCopy(self, num=1):
         r=Coord(self.string())
-        if r.letterIndex()+num<0:
-            r.letter="A"
-        else:
-            r.letter=columnAdd(r.letter, num)
+        r.addColumn(num)
         return r
 
     ## Reterns the letter/column index (letterPosition()-1)
@@ -267,21 +261,41 @@ class Range:
         self.end=self.end.addRow(num)
         return self
 
+    def addRowAfterCopy(self, num=1):
+        r=Range(self.string())
+        r.addRowAfter(num)
+        return r
+
     ## Adds a column to the end Coord, so it adds a column to the range
     def addColumnAfter(self, num=1):
         self.end=self.end.addColumn(num)
         return self
+
+    def addColumnAfterCopy(self, num=1):
+        r=Range(self.string())
+        r.addColumnAfter(num)
+        return r
 
     ## Adds a row to the top of the start Coord, so it adds a row to the range. If start Coord number is 1 returns the same Coord
     def addRowBefore(self, num=1):
         self.start=self.start.addRow(-num)
         return self
 
+    def addRowBeforeCopy(self, num=1):
+        r=Range(self.string())
+        r.addRowBefore(num)
+        return r
+
     ## Adds a column to the end Coord, so it adds a column to the range. If start Coord letter is A, returns the same Coord
     def addColumnBefore(self, num=1):
         self.start=self.start.addColumn(-num)
         return self
-        
+
+    def addColumnBeforeCopy(self, num=1):
+        r=Range(self.string())
+        r.addColumnBefore(num)
+        return r
+
     ## Returns a list of tuples(column_index, row_index)
     def indexes_list(self, plain=False):
         r=[]
@@ -328,21 +342,7 @@ def addDebugSystem(level):
         basicConfig(level=CRITICAL, format=logFormat, datefmt=dateFormat)
     info("Debug level set to {}".format(level))
 
-## When top left cell is None in freezeAndSelect, both ods and xlsx returns a default topLeftCell
-def topLeftCellNone(freeze_coord, selected_coord):
-        freeze_coord=Coord.assertCoord(freeze_coord)
-        selected_coord=Coord.assertCoord(selected_coord)
-        #Get the select coord - 20 rows and - 10 columns
-        minus_coord=selected_coord.addRowCopy(-20).addColumnCopy(-10)
-        if minus_coord.letterIndex()<=freeze_coord.letterIndex():#letter
-            letter=freeze_coord.letter
-        else:
-            letter=minus_coord.letter
-        if minus_coord.numberIndex()<=freeze_coord.numberIndex():#number
-            number=freeze_coord.number
-        else:
-            number=minus_coord.number
-        return Coord(letter+number)
+
 
 ## Creates a Coord object from spreadsheet letters
 def Coord_from_letters(column, letter):
@@ -399,3 +399,10 @@ def date2localc1989(o):
 def time2localc1989(o):
     seconds=o.hour*3600+o.minute*60+o.second
     return float(seconds) / 86400
+    
+## Used to change port when there are multiple sockets of libreoffice accepting
+def next_port(last,  first_port,  instances):
+    if last==first_port+instances -1:
+        return first_port
+    else:
+        return last+1

@@ -1,0 +1,5 @@
+doc/*.odt export-ignore
+doc/*.ods export-ignore
+doc/*.pdf export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
