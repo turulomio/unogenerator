@@ -407,6 +407,8 @@ class ODS(ODF):
         cellrange=self.sheet.getCellRangeByName(range.string())
         cellrange.merge(True)
         self.__object_to_cell(cell, o)
+        if style is None:
+            style=guess_object_style(o)
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
 
