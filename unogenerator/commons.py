@@ -406,3 +406,18 @@ def next_port(last,  first_port,  instances):
         return first_port
     else:
         return last+1
+
+def get_range_from_iterable_object( coord_start, o):
+    coord_start=Coord.assertCoord(coord_start)
+    r=Range(f"{coord_start.string()}:{coord_start.string()}")
+
+    if len(o)==0:
+        return r
+
+    if o[0].__class__.__name__ in ("list","dict", "OrderedDict"): #Iterables con len
+        len_rows=len(o)-1
+        len_columns=len(o[0])-1
+    else:
+        len_rows=0
+        len_columns=len(o)-1
+    return Range(f"{coord_start.string()}:{coord_start.addRowCopy(len_rows).addColumnCopy(len_columns).string()}")
