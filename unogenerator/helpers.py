@@ -13,6 +13,7 @@ try:
     _=t.gettext
 except:
     _=str
+
 def helper_totals_row(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, row_from="2", row_to=None):
     coord=C.assertCoord(coord)
     for letter, total in enumerate(list_of_totals):
@@ -102,21 +103,35 @@ def helper_title_values_total_column(doc, coord, title, values,
 ## @param s xlsx doc
 ## @param range_of_data. Range with data values
 ## @param keys Key of formula if List, it has all values
-def helper_totals_from_range(doc, range_of_data, key="#SUM", totalcolumns=True, totalrows=True):
+def helper_totals_from_range (
+                                                    doc, 
+                                                    range_of_data, 
+                                                    key="#SUM", 
+                                                    totalcolumns=True, 
+                                                    totalrows=True, 
+                                                    vertical_total_title_style="BoldCenter", 
+                                                    horizontal_total_title_style="BoldCenter"
+                                                ):
     range=R.assertRange(range_of_data)
-    coord_start=range.start
     data_rows=range.numRows()
     data_columns=range.numColumns()
-    horizontal_start=coord_start.addColumnCopy(-1) #Not logical, it's emprical, por eso data_start
-    vertical_start=coord_start.addRowCopy(-1).addColumnCopy(-1)
-    vertical_start=coord_start.addRowCopy(-1).addColumnCopy(-1)
+    coord_horizontal_title=range.start.addColumnCopy(-1).addRowCopy(data_rows) 
+    coord_vertical_title=range.start.addRowCopy(-1).addColumnCopy(data_columns)
+    style_data=guess_object_style(doc.getValue(range.start))
+    
     if totalcolumns==True and totalrows==True:
-        helper_totals_row(doc, horizontal_start.addRowCopy(data_rows),["Total"]+[key]*(data_columns+1),styles=None, row_from=coord_start.number)
-        helper_totals_column(doc, vertical_start.addColumnCopy(data_columns+1),["Total"]+[key]*(data_rows+1), styles=None, column_from=coord_start.letter)
+        doc.addCellWithStyle(coord_horizontal_title, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
+        helper_totals_row(doc, coord_horizontal_title.addColumnCopy(1), [key]*data_columns,styles=style_data, row_from=range.start.number)
+        doc.addCellWithStyle(coord_vertical_title, _("Total"), ColorsNamed.GrayLight, vertical_total_title_style)
+        helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.start.letter)
     elif totalcolumns==True:
-        helper_totals_column(doc, vertical_start.addColumnCopy(data_columns+1),["Total"]+[key]*(data_rows+1), styles=None, column_from=coord_start.letter)
+        doc.addCellWithStyle(coord_vertical_title, _("Total"), ColorsNamed.GrayLight, vertical_total_title_style)
+        helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.start.letter)
+        doc.addCellWithStyle(coord_vertical_title.addRowCopy(data_rows+1), generate_formula_total_string(key, range.start.addColumnCopy(data_columns+1), range.end.addColumnCopy(1)), ColorsNamed.GrayLight, style_data)
     elif totalrows==True:
-        helper_totals_row(doc, horizontal_start.addRowCopy(data_rows),["Total"]+[key]*(data_columns+0), styles=None, row_from=coord_start.number) #1 menos por la esquina
+        doc.addCellWithStyle(coord_horizontal_title, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
+        helper_totals_row(doc, coord_horizontal_title.addColumnCopy(1),[key]*(data_columns+0), styles=style_data, row_from=range.start.number) #1 menos por la esquina
+        doc.addCellWithStyle(coord_horizontal_title.addColumnCopy(data_columns+1), generate_formula_total_string(key, range.start.addRowCopy(data_rows+1), range.end.addRowCopy(1)), ColorsNamed.GrayLight, style_data)
 
 
 ## Write cells from a list of ordered dictionaries

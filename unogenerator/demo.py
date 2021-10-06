@@ -197,8 +197,8 @@ def demo_ods_standard(language, port=2002, suffix="",):
 
 
     doc.addCellMergedWithStyle("A19:D19","List of rows with totals", ColorsNamed.Orange, "BoldCenter")
-    doc.addListOfRowsWithStyle("A20", [["A",1,2,3],["B",4,5,6],["C",7,8,9]], ColorsNamed.White)
-    helper_totals_from_range(doc, "B20:D22")
+    doc.addListOfRowsWithStyle("A20", [["A",12000,2,3],["B",1020,5,6],["C",20404,8,9]], ColorsNamed.White)
+    helper_totals_from_range(doc, "B20:D22", totalcolumns=True, totalrows=True)
 
     
     doc.addCellMergedWithStyle("A25:B25","List of ordered dictionaries", ColorsNamed.Orange, "BoldCenter")
