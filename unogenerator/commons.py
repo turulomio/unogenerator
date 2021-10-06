@@ -112,6 +112,9 @@ class Coord:
         self.letter, self.number=self.__extract(strcoord)
 
     def __repr__(self):
+        return f"Coord <{self}>"
+        
+    def __str__(self):
         return self.string()
 
     def __eq__(self, b):
@@ -204,8 +207,11 @@ class Coord:
 class Range:
     def __init__(self,strrange):
         self.start, self.end=self.__extract(strrange)
-        
+
     def __repr__(self):
+        return f"Range <{self}>"
+        
+    def __str__(self):
         return self.string()
 
     ##Return the outcome of the test b in a. Note the reversed operands.
@@ -351,6 +357,12 @@ def Coord_from_letters(column, letter):
 ## Creates a Coord object from spreadsheet index coords
 def Coord_from_index(column_index, row_index):
     return Coord(index2column(column_index)+index2row(row_index))
+    
+## Creates a Range object from itself stard and end coords
+def Range_from_coords(start, end):
+    start=Coord.assertCoord(start)
+    end=Coord.assertCoord(end)
+    return Range(f"{start}:{end}")
 
 def generate_formula_total_string(key, coord_from, coord_to):
     if key == "#SUM":

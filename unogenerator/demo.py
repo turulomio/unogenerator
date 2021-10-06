@@ -6,7 +6,7 @@ import argparse
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, date, timedelta
-from gettext import translation, install
+from gettext import translation
 from multiprocessing import cpu_count
 from pkg_resources import resource_filename
 
