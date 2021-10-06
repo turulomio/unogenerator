@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-04 05:20+0200\n"
+"POT-Creation-Date: 2021-10-06 05:49+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -38,10 +38,10 @@ msgid "All process took {}"
 msgstr "Todos los procesos tardaron {}"
 
 msgid "UnoGenerator ODS example"
-msgstr ""
+msgstr "Ejemplo ODS con UnoGenerator"
 
 msgid "Demo with ODS class"
-msgstr ""
+msgstr "Demostración de la clase ODS"
 
 #, python-brace-format
 msgid "This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"
@@ -91,7 +91,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Version: {__version__}"
-msgstr ""
+msgstr "Versión: {__version__}"
 
 msgid "Introduction"
 msgstr "Introducción"
@@ -239,6 +239,9 @@ msgstr ""
 
 msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
 msgstr "unogenerator_documentation_{language}{suffix}.odt tardó {datetime.now()-doc.init} en {port}"
+
+msgid "Total"
+msgstr ""
 
 msgid "No data to show"
 msgstr "No hay datos para mostrar"

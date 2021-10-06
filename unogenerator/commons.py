@@ -6,8 +6,8 @@ from pkg_resources import resource_filename
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error
 from uno import createUnoStruct
 
-__version__ = '0.5.0'
-__versiondatetime__=datetime(2021, 10, 3, 16, 51)
+__version__ = '0.6.0'
+__versiondatetime__=datetime(2021, 10, 6, 5, 51)
 __versiondate__=__versiondatetime__.date()
 
 try:

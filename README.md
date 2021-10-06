@@ -57,6 +57,10 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.6.0 (2021-10-6)
+- Added method helper_totals_from_range, 
+- Added __str__ method to Coord and Range to write code faster without .string()
+
 ### 0.5.0 (2021-10-3)
 - Added dispatcher and create service methods.
 - Added posibility to link images to document.
