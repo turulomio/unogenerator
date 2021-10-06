@@ -3,7 +3,7 @@
 ## @param styles List with string styles or None. If none tries to guest from top column object. List example: ["GrayLightPercentage", "GrayLightInteger"]
 ## @param string with the row where th3e total begins
 ## @param string with the rew where the formula ends. If None it's a coord.row -1
-from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string
+from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string, get_range_from_iterable_object
 
 from gettext import translation
 from pkg_resources import resource_filename
@@ -170,6 +170,23 @@ def helper_list_of_ordereddicts(doc, coord_start,  lod, keys=None, columns_heade
                 color_=color
             
             doc.addCellWithStyle(coord_data.addRowCopy(row).addColumnCopy(column), od[key], color_, style)
+
+
+
+
+## Write cells from a list of ordered dictionaries
+## @param lod List of ordered dictionaries
+## @param keys. If None write all keys, Else must be a list of keys
+## @param columns_header. Integer with the number of columns to apply color_header
+def helper_list_of_ordereddicts_with_totals(doc, coord_start,  lod, keys=None, columns_header=1,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, totalcolumns=True, totalrows=True, key="#SUM"):
+    coord_start=C.assertCoord(coord_start)
+    helper_list_of_ordereddicts(doc, coord_start,  lod, keys, columns_header,  color_row_header, color_column_header,  color, styles)
+    range_lod=get_range_from_iterable_object(coord_start.addRow(1), lod)## Adds q to skip top headers
+    range_lod.start.addColumn(columns_header) ## Adds to skip columns headers
+    helper_totals_from_range (doc, range_lod, key, totalcolumns, totalrows)
+    
+
+
 
 
 ## It's the same of helper_list_of_ordereddicts but withth mandatory keys

@@ -14,7 +14,7 @@ from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, C
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
-from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts
+from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals
 from os import remove
 from tqdm import tqdm
 
@@ -209,6 +209,12 @@ def demo_ods_standard(language, port=2002, suffix="",):
     
     doc.addCellMergedWithStyle("A30:B30","List of dictionaries", ColorsNamed.Orange, "BoldCenter")
     helper_list_of_dicts(doc, "A31",  lod, keys=["Song",  "Singer"])
+    
+    doc.addCellMergedWithStyle("A35:D35","List of ordered dictionaries one method with totals", ColorsNamed.Orange, "BoldCenter")
+    lod=[]
+    lod.append(OrderedDict({"Singer": "Elvis",  "Songs": 10000 , "Albums": 100}))
+    lod.append(OrderedDict({"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 }))
+    helper_list_of_ordereddicts_with_totals(doc, "A36",  lod, columns_header=1)
 
     doc.removeSheet(0)
     doc.save(f"unogenerator_example_{language}{suffix}.ods")
