@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-06 05:50+0200\n"
+"POT-Creation-Date: 2021-10-07 09:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -249,6 +249,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Preparing {args.instances} libreoffice server instances from port {args.first_port}:"
+msgstr ""
+
+msgid "You can see instances output in /var/log/unogenerator"
 msgstr ""
 
 #, python-brace-format

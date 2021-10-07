@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-06 05:49+0200\n"
+"POT-Creation-Date: 2021-10-07 09:45+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -133,7 +133,7 @@ msgid "ODT files can be quickly generated with UnoGenerator."
 msgstr "Los ficheros ODT son generados rápidamente con UnoGenerator."
 
 msgid "There is a predefined template in code called 'standard.odt' to help you with edition."
-msgstr ""
+msgstr "Hay una plantilla predefinida en el código llamada 'standard.odt' para ayudar con la edición."
 
 msgid "Calling the ODT constructor"
 msgstr "Llamando al constructor ODT"
@@ -251,6 +251,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Preparing {args.instances} libreoffice server instances from port {args.first_port}:"
+msgstr ""
+
+msgid "You can see instances output in /var/log/unogenerator"
 msgstr ""
 
 #, python-brace-format

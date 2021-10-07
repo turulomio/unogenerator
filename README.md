@@ -57,6 +57,12 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.7.0 (2021-10-7)
+- Added method helper_list_of_ordereddicts_with_totals.
+- Concurrent demo has new parameter loops to increment script load.
+- Added --backtrace in `unogenerator_start` to try to log something (Experimental)
+- Save and export methods use now temporal directories to avoid locks
+
 ### 0.6.0 (2021-10-6)
 - Added method helper_totals_from_range, 
 - Added __str__ method to Coord and Range to write code faster without .string()
