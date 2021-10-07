@@ -28,6 +28,17 @@ File "/usr/lib/python3.9/site-packages/unogenerator-0.6.0-py3.9.egg/unogenerator
 ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
 unogenerator.unogenerator.com.sun.star.connection.NoConnectException: Connector : couldn't connect to socket (Connection refused) /var/tmp/portage/app-office/libreoffice-7.1.6.2/work/libreoffice-7.1.6.2/io/source/connector/connector.cxx:119
 
+## With .lock files gives this error
+Traceback (most recent call last):
+  File "/usr/lib/python3.9/concurrent/futures/process.py", line 243, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/usr/lib/python3.9/site-packages/unogenerator-0.6.0-py3.9.egg/unogenerator/demo.py", line 404, in demo_odt_standard
+    doc.save(f"unogenerator_documentation_{language}{suffix}.odt")
+  File "/usr/lib/python3.9/site-packages/unogenerator-0.6.0-py3.9.egg/unogenerator/unogenerator.py", line 116, in save
+    self.document.storeAsURL(filename, args)
+unogenerator.unogenerator.com.sun.star.task.ErrorCodeIOException: SfxBaseModel::impl_store <file:///home/unogenerator_documentation_en.6.odt> failed: 0x440a(Error Area:Sfx Class:AlreadyExists Code:10) /var/tmp/portage/app-office/libreoffice-7.1.6.2/work/libreoffice-7.1.6.2/sfx2/source/doc/sfxbasemodel.cxx:3153
+
+
 ## Can't resolve
 
 Sometimes it is fixed removing lost .~lock files
