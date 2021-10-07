@@ -27,3 +27,7 @@ ODF.init(self, template, loserver_port)
 File "/usr/lib/python3.9/site-packages/unogenerator-0.6.0-py3.9.egg/unogenerator/unogenerator.py", line 49, in init
 ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
 unogenerator.unogenerator.com.sun.star.connection.NoConnectException: Connector : couldn't connect to socket (Connection refused) /var/tmp/portage/app-office/libreoffice-7.1.6.2/work/libreoffice-7.1.6.2/io/source/connector/connector.cxx:119
+
+## Can't resolve
+
+Sometimes it is fixed removing lost .~lock files
