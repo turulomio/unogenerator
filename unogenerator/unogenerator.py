@@ -10,13 +10,14 @@ from com.sun.star.awt import Size
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
 from com.sun.star.style.BreakType import PAGE_AFTER
 from gettext import translation
-from logging import warning
+from logging import warning, debug
 from pkg_resources import resource_filename
 from shutil import copyfile
 from tempfile import TemporaryDirectory
 from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, Coord_from_letters, Coord_from_index
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
+from unogenerator.reusing.decorators import timeit
 from unogenerator.reusing.percentage import Percentage
 
 def createUnoService(serviceName):
@@ -98,7 +99,7 @@ class ODT(ODF):
             self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,args)
         self.cursor=self.document.Text.createTextCursor()
 
-        
+    @timeit
     def save(self, filename, overwrite_template=False):
         if filename==self.template and overwrite_template is False:
             print(_("You can't use the same filename as your template or you will overwrite it."))
@@ -300,6 +301,7 @@ class ODT(ODF):
         self.document.Text.insertControlCharacter(self.cursor.End, ControlCharacter.PARAGRAPH_BREAK, False)
 
 class ODS(ODF):
+    @timeit
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
         
@@ -312,9 +314,12 @@ class ODS(ODF):
         else:
             self.document=self.desktop.loadComponentFromURL(self.template,'_blank', 8, args)
         self.sheet=self.setActiveSheet(0)
+        self.numcells=0
+        self.numgetvalues=0
         
     ## Creates a new sheet at the end of the sheets
     ## @param if index is None it creates sheet at the end of the existing sheets
+    @timeit
     def createSheet(self, name, index=None):
         sheets=self.document.getSheets()
         if index is None:
@@ -322,6 +327,7 @@ class ODS(ODF):
         sheets.insertNewByName(name, index)
         self.setActiveSheet(index)
         
+    @timeit
     def removeSheet(self, index):
         current=self.sheet.Name
         self.setActiveSheet(index)
@@ -334,6 +340,7 @@ class ODS(ODF):
         return self.sheet
     
     ## l measures are in cm can be float
+    @timeit
     def setColumnsWidth(self, l):
         columns=self.sheet.getColumns()
         for i, width in enumerate(l):
@@ -409,6 +416,7 @@ class ODS(ODF):
             self.addColumnWithStyle(coord_start.addColumnCopy(i), column, colors=colors,styles=styles)
 
     ## @param style If None tries to guess it
+    @timeit
     def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
         coord=C.assertCoord(coord)
         if style is None:
@@ -417,6 +425,7 @@ class ODS(ODF):
         self.__object_to_cell(cell, o)
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
+        self.numcells=self.numcells+1
         
     ## All of this names are document names
     def setCellName(self, coord, name):
@@ -451,7 +460,13 @@ class ODS(ODF):
         else:
             cell.setString(str(o))
             print("MISSING", o.__class__.__name__)
-        
+
+    def showStatistics(self):
+        debug(f"- Number of cells {self.numcells}")
+        debug(f"- Number of get values {self.numgetvalues}")
+        debug(f"- Total time {datetime.now()-self.init}")
+
+    @timeit
     def addCellMergedWithStyle(self, range, o, color=ColorsNamed.White, style=None):
         range=R.assertRange(range)
         cell=self.sheet.getCellByPosition(range.start.letterIndex(), range.start.numberIndex())
@@ -462,16 +477,19 @@ class ODS(ODF):
             style=guess_object_style(o)
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
+        self.numcells=self.numcells+1
 
+    @timeit
     def freezeAndSelect(self, freeze, selected=None, topleft=None):
         freeze=C.assertCoord(freeze) 
-        selected=None if selected is None else C.assertCoord(selected)
-        topleft=None if topleft is None else C.assertCoord(topleft)
+        num_columns, num_rows=self.getSheetSize()
         self.document.getCurrentController().setActiveSheet(self.sheet)
         self.document.getCurrentController().freezeAtPosition(freeze.letterIndex(), freeze.numberIndex())
 
         if selected is None:
-            selected=Coord_from_index(self.columnNumber()-1, self.rowNumber()-1)
+            selected=Coord_from_index(num_columns-1, num_rows-1)
+        else:
+            selected=C.assertCoord(selected)
         selectedcell=self.sheet.getCellByPosition(selected.letterIndex(), selected.numberIndex())
         self.document.getCurrentController().select(selectedcell)
         
@@ -487,13 +505,17 @@ class ODS(ODF):
             else:
                 number=minus_coord.number
             topleft=Coord_from_letters(letter, number)
+        else:
+            topleft=C.assertCoord(topleft)
         self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
         self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
         
     def getValue(self, coord, standard=True):
         coord=C.assertCoord(coord)
+        self.numgetvalues=self.numgetvalues+1
         return self.getValueByPosition(coord.letterIndex(), coord.numberIndex(), standard)
         
+    @timeit
     def getValueByPosition(self, letter_index, number_index, standard=True):
         return self.__cell_to_object(self.sheet.getCellByPosition(letter_index, number_index), standard)
 
@@ -571,16 +593,28 @@ class ODS(ODF):
         endcoord=C("A1").addRow(self.rowNumber()-1).addColumn(self.columnNumber()-1)
         return R("A1:" + endcoord.string())
 
-    ## Esta función puede que sea costosa
-    def rowNumber(self):
-        return len(self.sheet.getData())
-        
-    ## Esta función puede que sea costosa
-    def columnNumber(self):
-        if len(self.sheet.getData())==0:
-            return 0
+#    ## Esta función puede que sea costosa
+#    @timeit
+#    def rowNumber(self):
+#        return len(self.sheet.getData())
+#        
+#    ## Esta función puede que sea costosa
+#    @timeit
+#    def columnNumber(self):
+#        data=self.sheet.getData()
+#        if len(data)==0:
+#            return 0
+#        else:
+#            return len(data[0])
+            
+    ## Returns (columnsNumber, rowsNumber
+    @timeit
+    def getSheetSize(self):
+        data=self.sheet.getData()
+        if len(data)==0:
+            return 0, 0
         else:
-            return len(self.sheet.getData()[0])
+            return len(data[0]), len(data)
             
     def save(self, filename, overwrite_template=False):
         if filename==self.template and overwrite_template is False:
@@ -601,6 +635,7 @@ class ODS(ODF):
                 tempfile=f"{tmpdirname}/{path.basename(filename)}"
                 self.document.storeAsURL(systemPathToFileUrl(tempfile), args)
                 copyfile(tempfile, filename)
+        self.showStatistics()
 
     def export_pdf(self, filename):
         if filename.endswith(".pdf") is False:
