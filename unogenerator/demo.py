@@ -79,8 +79,6 @@ def main_concurrent(arguments=None):
     parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
     args=parser.parse_args(arguments)
 
-
-    print("You need to launch 8 instances from port 2002 to run this concurrent demo. You can use bash unogenerator_start")
     addDebugSystem(args.debug)
 
     if args.remove==True:
@@ -93,6 +91,8 @@ def main_concurrent(arguments=None):
                 remove_without_errors(f"unogenerator_example_en.{i}.pdf")
 
     if args.create==True:
+        print("You need to launch 8 instances from port 2002 to run this concurrent demo. You can use bash unogenerator_start")
+
         start=datetime.now()
         futures=[]
         port=2002
