@@ -12,6 +12,8 @@ from com.sun.star.style.BreakType import PAGE_AFTER
 from gettext import translation
 from logging import warning
 from pkg_resources import resource_filename
+from shutil import copyfile
+from tempfile import TemporaryDirectory
 from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, Coord_from_letters, Coord_from_index
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
@@ -98,7 +100,6 @@ class ODT(ODF):
 
         
     def save(self, filename, overwrite_template=False):
-        filename=f"file://{path.abspath(filename)}"
         if filename==self.template and overwrite_template is False:
             print(_("You can't use the same filename as your template or you will overwrite it."))
             print(_("You can force it, setting overwrite_template paramter to True"))
@@ -113,11 +114,15 @@ class ODT(ODF):
             PropertyValue('FilterName',0,'writer8',0),
             PropertyValue('Overwrite',0,True,0),
         )
-        self.document.storeAsURL(filename, args)
+    
+
+        with TemporaryDirectory() as tmpdirname:
+                tempfile=f"{tmpdirname}/{path.basename(filename)}"
+                self.document.storeAsURL(systemPathToFileUrl(tempfile), args)
+                copyfile(tempfile, filename)
         
                 
     def export_pdf(self, filename):
-        filename=f"file://{path.abspath(filename)}"
         if filename.endswith(".pdf") is False:
             print(_("Filename extension must be 'pdf'."))
             print(_("Document hasn't been saved."))
@@ -126,8 +131,25 @@ class ODT(ODF):
             PropertyValue('FilterName',0,'writer_pdf_Export',0),
             PropertyValue('Overwrite',0,True,0),
         )
-        self.document.storeToURL(filename, args)
+        with TemporaryDirectory() as tmpdirname:
+            tempfile=f"{tmpdirname}/{path.basename(filename)}"
+            self.document.storeToURL(systemPathToFileUrl(tempfile), args)
+            copyfile(tempfile, filename)
          
+    def export_docx(self, filename):
+        if filename.endswith(".docx") is False:
+            print(_("Filename extension must be 'docx'."))
+            print(_("Document hasn't been saved."))
+            return
+        args=(
+            PropertyValue('FilterName',0,'MS Word 2007 XML',0),
+            PropertyValue('Overwrite',0,True,0),
+        )
+
+        with TemporaryDirectory() as tmpdirname:
+            tempfile=f"{tmpdirname}/{path.basename(filename)}"
+            self.document.storeToURL(systemPathToFileUrl(tempfile), args)
+            copyfile(tempfile, filename)
 ##def insertTextIntoCell( table, cellName, text, color ):
 ##    tableText = table.getCellByName( cellName )
 ##    cursor = tableText.createTextCursor()
@@ -143,17 +165,7 @@ class ODT(ODF):
         else:
             warning(f"'{find}' was not found in the document'")
 
-    def export_docx(self, filename):
-        filename=f"file://{path.abspath(filename)}"
-        if filename.endswith(".docx") is False:
-            print(_("Filename extension must be 'docx'."))
-            print(_("Document hasn't been saved."))
-            return
-        args=(
-            PropertyValue('FilterName',0,'MS Word 2007 XML',0),
-            PropertyValue('Overwrite',0,True,0),
-        )
-        self.document.storeToURL(filename, args)
+
         
     def addParagraph(self,  text,  style):
         self.cursor.setPropertyValue("ParaStyleName", style)
@@ -571,7 +583,6 @@ class ODS(ODF):
             return len(self.sheet.getData()[0])
             
     def save(self, filename, overwrite_template=False):
-        filename=f"file://{path.abspath(filename)}"
         if filename==self.template and overwrite_template is False:
             print(_("You can't use the same filename as your template or you will overwrite it."))
             print(_("You can force it, setting overwrite_template paramter to True"))
@@ -586,10 +597,12 @@ class ODS(ODF):
             PropertyValue('FilterName', 0, 'calc8', 0),
             PropertyValue('Overwrite', 0, True, 0),
         )
-        self.document.storeAsURL(filename, args)
+        with TemporaryDirectory() as tmpdirname:
+                tempfile=f"{tmpdirname}/{path.basename(filename)}"
+                self.document.storeAsURL(systemPathToFileUrl(tempfile), args)
+                copyfile(tempfile, filename)
 
     def export_pdf(self, filename):
-        filename=f"file://{path.abspath(filename)}"
         if filename.endswith(".pdf") is False:
             print(_("Filename extension must be 'pdf'."))
             print(_("Document hasn't been saved."))
@@ -598,10 +611,13 @@ class ODS(ODF):
             PropertyValue('FilterName',0,'calc_pdf_Export',0),
             PropertyValue('Overwrite',0,True,0),
         )
-        self.document.storeToURL(filename, args)
+        with TemporaryDirectory() as tmpdirname:
+            tempfile=f"{tmpdirname}/{path.basename(filename)}"
+            self.document.storeToURL(systemPathToFileUrl(tempfile), args)
+            copyfile(tempfile, filename)
+
 
     def export_xlsx(self, filename):
-        filename=f"file://{path.abspath(filename)}"
         if filename.endswith(".xlsx") is False:
             print(_("Filename extension must be 'xlsx'."))
             print(_("Document hasn't been saved."))
@@ -610,7 +626,11 @@ class ODS(ODF):
             PropertyValue('FilterName',0,'Calc MS Excel 2007 XML',0),
             PropertyValue('Overwrite',0,True,0),
         )
-        self.document.storeToURL(filename, args)
+        with TemporaryDirectory() as tmpdirname:
+            tempfile=f"{tmpdirname}/{path.basename(filename)}"
+            self.document.storeToURL(systemPathToFileUrl(tempfile), args)
+            copyfile(tempfile, filename)
+
 
 class ODS_Standard(ODS):
     def __init__(self, loserver_port=2002):
