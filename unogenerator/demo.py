@@ -76,6 +76,7 @@ def main_concurrent(arguments=None):
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
     parser.add_argument('--workers', help="Workers max 8", action="store", default=8,  type=int)
+    parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
     args=parser.parse_args(arguments)
 
 
@@ -83,7 +84,7 @@ def main_concurrent(arguments=None):
     addDebugSystem(args.debug)
 
     if args.remove==True:
-            for i in range(10):
+            for i in range(args.loops):
                 remove_without_errors(f"unogenerator_documentation_en.{i}.odt")
                 remove_without_errors(f"unogenerator_documentation_en.{i}.docx")
                 remove_without_errors(f"unogenerator_documentation_en.{i}.pdf")
@@ -96,8 +97,8 @@ def main_concurrent(arguments=None):
         futures=[]
         port=2002
         with ProcessPoolExecutor(max_workers=args.workers) as executor:
-            with tqdm(total=20) as progress:
-                for i in range(10):
+            with tqdm(total=args.loops*2) as progress:
+                for i in range(args.loops):
                     port=next_port(port, 2002, 8)
                     future=executor.submit(demo_ods_standard, 'en', port, f".{i}")
                     future.add_done_callback(lambda p: progress.update())
