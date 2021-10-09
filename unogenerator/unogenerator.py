@@ -12,9 +12,10 @@ from com.sun.star.style.BreakType import PAGE_AFTER
 from gettext import translation
 from logging import warning, debug
 from pkg_resources import resource_filename
+from psutil import process_iter
 from shutil import copyfile
 from tempfile import TemporaryDirectory
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, Coord_from_letters, Coord_from_index
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, Coord_from_letters, Coord_from_index, next_port
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.decorators import timeit
@@ -45,13 +46,35 @@ except:
 class ODF:
     def __init__(self, template=None, loserver_port=2002):
         self.template=None if template is None else f"file://{path.abspath(template)}"
+        self.loserver_port=loserver_port
         self.init=datetime.now()
-        
-        localContext = getComponentContext()
-        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
-        ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
-        self.desktop = ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
-        self.graphicsprovider=ctx.ServiceManager.createInstance("com.sun.star.graphic.GraphicProvider")
+        self.num_instances, self.first_port=self.get_from_process_numinstances_and_firstport()
+#        print(self.num_instances, self.first_port)
+        for i in range(self.num_instances):
+            try:
+                localContext = getComponentContext()
+                resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
+                ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
+                self.desktop = ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
+                self.graphicsprovider=ctx.ServiceManager.createInstance("com.sun.star.graphic.GraphicProvider")                   
+                args=(
+                    PropertyValue('AsTemplate',0,True,0),
+                )
+                if self.__class__  in (ODS, ODS_Standard):
+                    if self.template is None:
+                        self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',8,())
+                    else:
+                        self.document=self.desktop.loadComponentFromURL(self.template,'_blank', 8, args)
+                else: #ODT
+                    if self.template is None:
+                        self.document=self.desktop.loadComponentFromURL('private:factory/swriter','_blank',0,())
+                    else:
+                        self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,args)
+                break
+            except:
+                old=self.loserver_port
+                self.loserver_port=next_port(self.loserver_port, self.first_port, self.num_instances)
+                print(_(f"Changing port {old} to {self.loserver_port}"))
 
 
     def calculateAll(self):
@@ -85,18 +108,24 @@ class ODF:
         self.document.DocumentProperties.CreationDate=datetime2uno(creationdate)
         self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
         self.document.DocumentProperties.Title=title
-                    
+        
+    def get_from_process_numinstances_and_firstport(self):        
+        instances=0
+        ports=[]
+        for p in process_iter(['name','cmdline', 'pid']): 
+            if p.info['name']=='soffice.bin':
+                if  'file:///tmp/unogenerator'  in ' '.join(p.info['cmdline']):
+                    instances=instances+1
+                    ports.append(p.info['cmdline'][1][-4:])
+        return instances, min(ports)
+        
+    ## Poner el tray en el resover y cambiar el puerto cuando except
+        
+                   
 class ODT(ODF):
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
         
-        args=(
-            PropertyValue('AsTemplate',0,True,0),
-        )
-        if self.template is None:
-            self.document=self.desktop.loadComponentFromURL('private:factory/swriter','_blank',0,())
-        else:
-            self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,args)
         self.cursor=self.document.Text.createTextCursor()
 
     @timeit
@@ -305,14 +334,6 @@ class ODS(ODF):
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
         
-        args=(
-            PropertyValue('AsTemplate',0,True,0),
-        )
-        self.document=None
-        if self.template is None:
-            self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',8,())
-        else:
-            self.document=self.desktop.loadComponentFromURL(self.template,'_blank', 8, args)
         self.sheet=self.setActiveSheet(0)
         self.numcells=0
         self.numgetvalues=0
