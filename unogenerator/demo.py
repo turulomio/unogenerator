@@ -10,7 +10,7 @@ from gettext import translation
 from multiprocessing import cpu_count
 from pkg_resources import resource_filename
 
-from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port
+from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port, get_from_process_numinstances_and_firstport
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
@@ -76,10 +76,11 @@ def main_concurrent(arguments=None):
     group= parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
-    parser.add_argument('--workers', help="Workers max 8", action="store", default=8,  type=int)
+    parser.add_argument('--workers', help=_("Number of workers to process this script. Default 4"), action="store", default=4,  type=int)
     parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
     args=parser.parse_args(arguments)
 
+    num_instances, first_port=get_from_process_numinstances_and_firstport()
     addDebugSystem(args.debug)
 
     if args.remove==True:
@@ -92,19 +93,19 @@ def main_concurrent(arguments=None):
                 remove_without_errors(f"unogenerator_example_en.{i}.pdf")
 
     if args.create==True:
-        print("You need to launch 8 instances from port 2002 to run this concurrent demo. You can use bash unogenerator_start")
+        print(_(f"Launching concurrent demo with {args.workers} workers to a daemon with {num_instances} instances from {first_port} port"))
 
         start=datetime.now()
         futures=[]
-        port=2002
+        port=first_port
         with ProcessPoolExecutor(max_workers=args.workers) as executor:
             with tqdm(total=args.loops*2) as progress:
                 for i in range(args.loops):
-                    port=next_port(port, 2002, 8)
+                    port=next_port(port, first_port, num_instances)
                     future=executor.submit(demo_ods_standard, 'en', port, f".{i}")
                     future.add_done_callback(lambda p: progress.update())
                     futures.append(future)
-                    port=next_port(port, 2002, 8)
+                    port=next_port(port, first_port, num_instances)
                     future=executor.submit(demo_odt_standard, 'en', port, f".{i}")
                     future.add_done_callback(lambda p: progress.update())
                     futures.append(future)

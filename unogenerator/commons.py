@@ -2,8 +2,9 @@
 ## @brief Common code to odfpy and openpyxl wrappers
 from datetime import datetime, date
 from gettext import translation
-from pkg_resources import resource_filename
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error
+from pkg_resources import resource_filename
+from psutil import process_iter
 from uno import createUnoStruct
 
 __version__ = '0.7.0'
@@ -433,3 +434,18 @@ def get_range_from_iterable_object( coord_start, o):
         len_rows=0
         len_columns=len(o)-1
     return Range(f"{coord_start.string()}:{coord_start.addRowCopy(len_rows).addColumnCopy(len_columns).string()}")
+
+def get_from_process_numinstances_and_firstport():        
+    try:
+        instances=0
+        ports=[]
+        for p in process_iter(['name','cmdline', 'pid']): 
+            if p.info['name']=='soffice.bin':
+                if  'file:///tmp/unogenerator'  in ' '.join(p.info['cmdline']):
+                    instances=instances+1
+                    ports.append(int(p.info['cmdline'][1][-4:]))
+        first_port=min(ports)
+        return instances, first_port
+    except:
+        print(_("Have you launched unogenerator instances?. Please run unogenerator_start"))
+        return None, None
