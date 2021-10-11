@@ -8,7 +8,7 @@ from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
-from com.sun.star.style.BreakType import PAGE_AFTER
+from com.sun.star.style.BreakType import PAGE_AFTER, PAGE_BEFORE
 from gettext import translation
 from logging import warning, debug
 from pkg_resources import resource_filename
@@ -179,16 +179,16 @@ class ODT(ODF):
 ##    cursor = tableText.createTextCursor()
 ##    cursor.setPropertyValue( "CharColor", color )
 ##    tableText.setString( text )
-    def find_and_replace_and_setcursorposition(self, find, replace=""):
+    def find_and_replace(self, find, replace=""):
         search=self.document.createSearchDescriptor()
         search.SearchString=find
         found=self.document.findFirst(search)
         if found is not None:
-            found.setString(replace)
+            found.setString("")
             self.cursor=found
+            self.document.Text.insertString(self.cursor, replace, False)
         else:
             warning(f"'{find}' was not found in the document'")
-
 
         
     def addParagraph(self,  text,  style):
@@ -316,13 +316,15 @@ class ODT(ODF):
 #        # #########################
         for s in arr:
             self.addParagraph(s, paragraph_style)
+            
+    def paragraphBreak(self):
+        self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
+    ## Default styles are Landscape
     def pageBreak(self, style="Standard"):
-        self.cursor.setPropertyValue("ParaStyleName", style)
+        self.cursor.BreakType = PAGE_BEFORE
+        self.cursor.setPropertyValue("PageDescName", style)
         self.document.Text.insertString(self.cursor, "", False)
-        self.cursor.BreakType = PAGE_AFTER
-        self.document.Text.insertControlCharacter(self.cursor.End, ControlCharacter.PARAGRAPH_BREAK, False)
-
 class ODS(ODF):
     @timeit
     def __init__(self, template=None, loserver_port=2002):

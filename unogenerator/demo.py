@@ -396,10 +396,14 @@ doc.save("hello_world.ods")
 doc.export_xlsx("hello_world.xlsx")
 doc.export_pdf("hello_world.pdf")
 doc.close()"""    , "Code")
-    doc.pageBreak()
     
-    doc.find_and_replace_and_setcursorposition("%REPLACEME%")
-    doc.addParagraph(_("This paragraph was set at the end of the code after a find and replace command."), "Standard")
+    doc.find_and_replace("%REPLACEME%", _("This paragraph was set at the end of the code after a find and replace command."))
+    doc.paragraphBreak()
+    doc.addParagraph(_("This paragraph was set after replacement."), "Standard")
+    doc.pageBreak()
+    doc.addParagraph(_("This paragraph was set after a page break."), "Standard")
+    doc.pageBreak("Landscape")
+    doc.addParagraph(_("This paragraph was set after a page break with Landscape style."), "Standard")
     
     
     
