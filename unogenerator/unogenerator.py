@@ -8,7 +8,7 @@ from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
-from com.sun.star.style.BreakType import PAGE_AFTER, PAGE_BEFORE
+from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
 from gettext import translation
 from logging import warning, debug
 from pkg_resources import resource_filename
@@ -44,7 +44,7 @@ except:
 
 class ODF:
     def __init__(self, template=None, loserver_port=2002):
-        self.template=None if template is None else systemPathToFileUrl(template)
+        self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
         self.loserver_port=loserver_port
         self.init=datetime.now()
         self.num_instances, self.first_port=get_from_process_numinstances_and_firstport()
@@ -68,9 +68,9 @@ class ODF:
                     self.numgetvalues=0
                 else: #ODT
                     if self.template is None:
-                        self.document=self.desktop.loadComponentFromURL('private:factory/swriter','_blank',0,())
+                        self.document=self.desktop.loadComponentFromURL('private:factory/swriter','_blank', 8, ())
                     else:
-                        self.document=self.desktop.loadComponentFromURL(self.template,'_blank',0,args)
+                        self.document=self.desktop.loadComponentFromURL(self.template,'_blank', 8, args)
                     self.cursor=self.document.Text.createTextCursor()
                 break
             except:
@@ -321,8 +321,12 @@ class ODT(ODF):
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
     ## Default styles are Landscape
-    def pageBreak(self, style="Standard"):
-        self.cursor.BreakType = PAGE_BEFORE
+    def pageBreak(self, style="Standard", page_before=True):
+        if page_before is True:
+            self.cursor.BreakType = PAGE_BEFORE 
+        else:
+            self.cursor.BreakType = PAGE_AFTER
+            
         self.cursor.setPropertyValue("PageDescName", style)
         self.document.Text.insertString(self.cursor, "", False)
 class ODS(ODF):
@@ -606,20 +610,6 @@ class ODS(ODF):
         endcoord=C("A1").addRow(self.rowNumber()-1).addColumn(self.columnNumber()-1)
         return R("A1:" + endcoord.string())
 
-#    ## Esta función puede que sea costosa
-#    @timeit
-#    def rowNumber(self):
-#        return len(self.sheet.getData())
-#        
-#    ## Esta función puede que sea costosa
-#    @timeit
-#    def columnNumber(self):
-#        data=self.sheet.getData()
-#        if len(data)==0:
-#            return 0
-#        else:
-#            return len(data[0])
-            
     ## Returns (columnsNumber, rowsNumber
     @timeit
     def getSheetSize(self):
