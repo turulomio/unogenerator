@@ -234,15 +234,15 @@ class ODT(ODF):
 
     ## Table data, must be all strings (Not a spreadsheet)
     ## @params magings TRBL
-    ## @params columnssize_percentage Por ejemplo para table 30,70, solo debo poner [30,]
+    ## @params columnssize_percentage Por ejemplo para table 30,70, solo debo poner [30,70]
     ##   para table [10,10,80], solo debo poner [10,10]
     ## if none , rangos iguales
     def addTableParagraph(self, 
         data,  
         columnssize_percentages=None, 
-        margins_top_bottom=500,  
+        margins_top_bottom=0.4,  
         size=10,  
-        width_percentage=80, 
+        width_percentage=100, 
         alignment="center",  
         paragraph_style="Standard", 
         style=None, 
@@ -282,19 +282,18 @@ class ODT(ODF):
         
         #TAble width and style
         table.HoriOrient=2 #Centered
-        table.TopMargin=margins_top_bottom
-        table.BottomMargin=margins_top_bottom
+        table.TopMargin=margins_top_bottom*1000
+        table.BottomMargin=margins_top_bottom*1000
         table.RelativeWidth=width_percentage #PARECE QUE ES SOLO DESCRIPTIVO
         
         #Columns width
         if columnssize_percentages is not None:
             separators=[]
-            for sep in columnssize_percentages:
+            for sep in columnssize_percentages[:-1]:
                 separator= createUnoStruct("com.sun.star.text.TableColumnSeparator")
                 separator.Position=sep*100
                 separator.IsVisible=True
                 separators.append(separator)
-            #        print(table.TableColumnRelativeSum)
             table.TableColumnSeparators=separators
         
     def addListPlain(self, arr, list_style="List_2", paragraph_style="Puntitos"):

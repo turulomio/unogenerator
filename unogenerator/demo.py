@@ -45,6 +45,7 @@ def main(arguments=None):
     addDebugSystem(args.debug)
 
     print(_("My language is "))
+    
 
     if args.remove==True:
             for language in ['es', 'en']:
@@ -331,8 +332,6 @@ doc=ODT()"""    , "Code")
     )
     doc.addParagraph("""doc.print_styles()"""    , "Code")
 
-    
-
     doc.addParagraph(_("Tables"), "Heading 2")
     table_data=[
         [_("Concept"), _("Value") ], 
@@ -346,9 +345,9 @@ doc=ODT()"""    , "Code")
     
     
     doc.addParagraph(_("We can create tables with diferent font sizes and formats:"), "Standard")
-    doc.addTableParagraph(table_data, columnssize_percentages=[30, ])
+    doc.addTableParagraph(table_data, columnssize_percentages=[15, 85 ])
     
-    doc.addTableParagraph(table_data, columnssize_percentages=[30, ],  size=6, style="3D")
+    doc.addTableParagraph(table_data, columnssize_percentages=[30, 70],  size=6)
     
 
     doc.addParagraph(_("Lists and numbered lists"), "Heading 2") 
