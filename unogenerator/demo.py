@@ -46,6 +46,9 @@ def main(arguments=None):
 
     print(_("My language is "))
     
+    demo_odt_standard("es")
+    return
+    
 
     if args.remove==True:
             for language in ['es', 'en']:
@@ -334,20 +337,20 @@ doc=ODT()"""    , "Code")
 
     doc.addParagraph(_("Tables"), "Heading 2")
     table_data=[
-        [_("Concept"), _("Value") ], 
-        [_("Text"), _("This is a text")], 
-        [_("Datetime"), datetime.now()], 
-        [_("Date"), date.today()], 
-        [_("Float"),  12.121], 
-        [_("Currency"), Currency(-12.12, "EUR")], 
-        [_("Percentage"), Percentage(1, 3)], 
+        [_("Concept"), _("Value"), _("Commnet") ], 
+        [_("Text"), _("This is a text"), _("Good")], 
+        [_("Datetime"), datetime.now(), _("Good")], 
+        [_("Date"), date.today(), _("Good")], 
+        [_("Float"),  12.121, _("Good")], 
+        [_("Currency"), Currency(-12.12, "EUR"), _("Good")], 
+        [_("Percentage"), Percentage(1, 3), _("Good")], 
     ]
     
+    columnspercentages=[15, 70, 15 ]
+    doc.addParagraph(_("We can create tables with diferent font sizes and formats:") + str(columnspercentages), "Standard")
+    doc.addTableParagraph(table_data, columnssize_percentages=columnspercentages)
     
-    doc.addParagraph(_("We can create tables with diferent font sizes and formats:"), "Standard")
-    doc.addTableParagraph(table_data, columnssize_percentages=[15, 85 ])
-    
-    doc.addTableParagraph(table_data, columnssize_percentages=[30, 70],  size=6)
+    doc.addTableParagraph(table_data, columnssize_percentages=[30, 40,30],  size=6)
     
 
     doc.addParagraph(_("Lists and numbered lists"), "Heading 2") 

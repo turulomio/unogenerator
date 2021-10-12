@@ -240,7 +240,8 @@ class ODT(ODF):
     def addTableParagraph(self, 
         data,  
         columnssize_percentages=None, 
-        margins_top_bottom=0.4,  
+        margins_top=0.2,
+        margins_bottom=0,
         size=10,  
         width_percentage=100, 
         alignment="center",  
@@ -282,19 +283,29 @@ class ODT(ODF):
         
         #TAble width and style
         table.HoriOrient=2 #Centered
-        table.TopMargin=margins_top_bottom*1000
-        table.BottomMargin=margins_top_bottom*1000
+        table.TopMargin=margins_top*1000
+        table.BottomMargin=margins_bottom*1000
         table.RelativeWidth=width_percentage #PARECE QUE ES SOLO DESCRIPTIVO
-        
+        print("RelativeSum", table.TableColumnRelativeSum)
         #Columns width
         if columnssize_percentages is not None:
             separators=[]
-            for sep in columnssize_percentages[:-1]:
+            print("Before", *self.printSeparators(table, table.TableColumnSeparators))
+            for i, sep in enumerate(columnssize_percentages[:-1]):
                 separator= createUnoStruct("com.sun.star.text.TableColumnSeparator")
-                separator.Position=sep*100
+                separator.Position=sum(columnssize_percentages[0:i+1])*100
                 separator.IsVisible=True
                 separators.append(separator)
+            print("Setting",  *self.printSeparators(table, separators))
             table.TableColumnSeparators=separators
+            print("After", *self.printSeparators(table, table.TableColumnSeparators))
+            print()
+            
+    def printSeparators(self, table, separators):
+            r=[]
+            for i in range(len(separators)):
+                r.append(separators[i].Position)
+            return (table.TableColumnRelativeSum, str(r))
         
     def addListPlain(self, arr, list_style="List_2", paragraph_style="Puntitos"):
 #        def get_items(list_o, list_style, paragraph_style):
