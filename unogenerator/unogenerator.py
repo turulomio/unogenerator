@@ -116,6 +116,13 @@ class ODF:
 
         
     ## Poner el tray en el resover y cambiar el puerto cuando except
+    
+    def loadStylesFromFile(self, filename, overwrite=False):
+        styleoptions=list(self.document.StyleFamilies.StyleLoaderOptions)#it's a tuple
+        styleoptions.pop()
+        styleoptions.append(PropertyValue("OverwriteStyles",0,overwrite,0))
+        self.document.StyleFamilies.loadStylesFromURL(systemPathToFileUrl(filename), tuple(styleoptions))
+
         
                    
 class ODT(ODF):
@@ -689,4 +696,3 @@ class ODS_Standard(ODS):
 class ODT_Standard(ODT):
     def __init__(self, loserver_port=2002):
         ODT.__init__(self, resource_filename(__name__, 'templates/standard.odt'), loserver_port)
-        self.document.StyleFamilies.loadStylesFromURL(systemPathToFileUrl(resource_filename(__name__, 'templates/additionalstyles.odt')), self.document.StyleFamilies.StyleLoaderOptions)
