@@ -297,21 +297,21 @@ doc.close()"""    , "Code")
     doc.addParagraph(_("Calling the ODT constructor"), "Heading 2")
     doc.addParagraph(_("You can call ODT constructor in this ways:") , "Standard")
         
+    doc.print_styles()
     doc.addParagraph(
         _("ODT with standard template (Recomended).") + " " + 
         _("There is a predefined template in code called 'standard.odt', inside this python module, to help you with edition, although you can use your own ones.") +" "+
         _("With this mode you can create new documents"), 
-        "Puntitos"
+        "BulletsLevel1"
     )
     
     doc.addParagraph("""from unogenerator import ODT_Standard
 doc=ODT_Standard()"""    , "Code")
 
-        
     doc.addParagraph(
         _("ODT with template or file (Recomended).") + " " + 
         _("With this mode you can read your files to overwrite them or use your file as a new template to create new documents"), 
-        "Puntitos"
+        "BulletsLevel1"
     )
     
     doc.addParagraph("""from unogenerator import ODT
@@ -321,7 +321,7 @@ doc=ODT('yourdocument.odt')"""    , "Code")
         _("ODT without template.") + " " + 
         _("With this mode you can write your files with Libreoffice default styles.") +" " +
         _("If you want to create new ones, you should write them using Libreoffice API code"), 
-        "Puntitos"
+        "BulletsLevel1"
     )
     
     
@@ -354,12 +354,12 @@ doc=ODT()"""    , "Code")
     
 
     doc.addParagraph(_("Lists and numbered lists"), "Heading 2") 
-    doc.addParagraph(_("Simple list"), "Standard")
-    doc.addListPlain([
-        "Prueba hola no. Prueba hola no. Prueba hola no. Prueba hola no. Prueba hola no. Prueba hola no. Prueba hola no. ", 
-        "Adios", 
-        "Bienvenido"
-    ])       
+    doc.addParagraph(_("Simple list"), "BulletsLevel1")
+    doc.addParagraph(_("Simple list"), "BulletsLevel2")
+    doc.addParagraph(_("Simple list"), "BulletsLevel2")
+    doc.addParagraph(_("Simple list"), "BulletsLevel1")
+    doc.addParagraph(_("Simple list"), "BulletsLevel2")
+    doc.addParagraph(_("Simple list"), "BulletsLevel1")
 
 
     doc.pageBreak()
