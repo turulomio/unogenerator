@@ -240,8 +240,8 @@ class ODT(ODF):
     def addTableParagraph(self, 
         data,  
         columnssize_percentages=None, 
-        margins_top=0.2,
-        margins_bottom=0,
+        margins_top=0.3,
+        margins_bottom=0.3,
         size=10,  
         width_percentage=100, 
         alignment="center",  
@@ -262,7 +262,6 @@ class ODT(ODF):
         #Párrafo de la table
         self.cursor.setPropertyValue("ParaStyleName", paragraph_style)
         self.document.Text.insertTextContent(self.cursor,table,False)
-        self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
         #Table data, must be all strings (Not a spreadsheet)
         if style is not None:
@@ -274,11 +273,14 @@ class ODT(ODF):
                 cursor.CharHeight=size
                 if str(cell_data).startswith("-"):
                     cursor.setPropertyValue( "CharColor", 0xDD0000 )
-                if cell_data.__class__.__name__ in ["str"]:
-                    cursor.ParaAdjust=LEFT
+                if style in ["Table0", "Table1", "Table1Total"] and row==0:
+                    pass # Centered text for styles headers
                 else:
-                    cursor.ParaAdjust=RIGHT
-                    cursor.ParaRightMargin=100
+                    if cell_data.__class__.__name__ in ["str"]:
+                        cursor.ParaAdjust=LEFT
+                    else:
+                        cursor.ParaAdjust=RIGHT
+                        cursor.ParaRightMargin=100
                 cell.insertString(cursor, str(cell_data), False)
         
         #TAble width and style
@@ -286,21 +288,21 @@ class ODT(ODF):
         table.TopMargin=margins_top*1000
         table.BottomMargin=margins_bottom*1000
         table.RelativeWidth=width_percentage #PARECE QUE ES SOLO DESCRIPTIVO
-        print("RelativeSum", table.TableColumnRelativeSum)
+        #print("RelativeSum", table.TableColumnRelativeSum)
         #Columns width
         if columnssize_percentages is not None:
             separators=[]
-            print("Before", *self.printSeparators(table, table.TableColumnSeparators))
+            #print("Before", *self.printSeparators(table, table.TableColumnSeparators))
             for i, sep in enumerate(columnssize_percentages[:-1]):
                 separator= createUnoStruct("com.sun.star.text.TableColumnSeparator")
                 separator.Position=sum(columnssize_percentages[0:i+1])*100
                 separator.IsVisible=True
                 separators.append(separator)
-            print("Setting",  *self.printSeparators(table, separators))
+            #print("Setting",  *self.printSeparators(table, separators))
             table.TableColumnSeparators=separators
-            print("After", *self.printSeparators(table, table.TableColumnSeparators))
-            print()
-            
+            #print("After", *self.printSeparators(table, table.TableColumnSeparators))
+            #print()
+
     def printSeparators(self, table, separators):
             r=[]
             for i in range(len(separators)):
@@ -687,3 +689,4 @@ class ODS_Standard(ODS):
 class ODT_Standard(ODT):
     def __init__(self, loserver_port=2002):
         ODT.__init__(self, resource_filename(__name__, 'templates/standard.odt'), loserver_port)
+        self.document.StyleFamilies.loadStylesFromURL(systemPathToFileUrl(resource_filename(__name__, 'templates/additionalstyles.odt')), self.document.StyleFamilies.StyleLoaderOptions)

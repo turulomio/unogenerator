@@ -348,9 +348,9 @@ doc=ODT()"""    , "Code")
     
     columnspercentages=[15, 70, 15 ]
     doc.addParagraph(_("We can create tables with diferent font sizes and formats:") + str(columnspercentages), "Standard")
-    doc.addTableParagraph(table_data, columnssize_percentages=columnspercentages)
+    doc.addTableParagraph(table_data, columnssize_percentages=columnspercentages, style="Table1")
     
-    doc.addTableParagraph(table_data, columnssize_percentages=[30, 40,30],  size=6)
+    doc.addTableParagraph(table_data, columnssize_percentages=[30, 40,30],  size=6, style="Table1")
     
 
     doc.addParagraph(_("Lists and numbered lists"), "Heading 2") 
