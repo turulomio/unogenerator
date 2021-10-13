@@ -24,17 +24,7 @@ def createUnoService(serviceName):
 #        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
   return getComponentContext().ServiceManager.createInstance(serviceName)
 
-def executeDispatch(filename, self, linked):
-        ## EJEMPLO ADAPTAR CUANDO SE NECESITE
-        oDisp = createUnoService("com.sun.star.frame.DispatchHelper")
-        oProps=(
-            PropertyValue('FileName',0,f"file://{path.abspath(filename)}",0),
-            PropertyValue('AsLink',0, linked,0),
-        )
-        oDisp.executeDispatch(self.document.getCurrentController().Frame, ".uno:InsertGraphic", "", 0, oProps)
-        numberImages=self.document.getGraphicObjects().Count        
-        image=self.document.getGraphicObjects().getByIndex(numberImages-1)
-        print(image)
+        
 try:
     t=translation('unogenerator', resource_filename("unogenerator","locale"))
     _=t.gettext
@@ -73,7 +63,8 @@ class ODF:
                         self.document=self.desktop.loadComponentFromURL(self.template,'_blank', 8, args)
                     self.cursor=self.document.Text.createTextCursor()
                 break
-            except:
+            except Exception as e:
+                print(e)
                 old=self.loserver_port
                 self.loserver_port=next_port(self.loserver_port, self.first_port, self.num_instances)
                 print(_(f"Changing port {old} to {self.loserver_port} {i} times"))
@@ -112,12 +103,18 @@ class ODF:
         self.document.DocumentProperties.CreationDate=datetime2uno(creationdate)
         self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
         self.document.DocumentProperties.Title=title
-        
 
+    def deleteAll(self):
+        self.executeDispatch(".uno:SelectAll")
+        self.executeDispatch(".uno:Delete")
+        
+    def executeDispatch(self, command):
+        oDisp = createUnoService("com.sun.star.frame.DispatchHelper")
+        oDisp.executeDispatch(self.document.getCurrentController().Frame, command, "", 0, ())
         
     ## Poner el tray en el resover y cambiar el puerto cuando except
     
-    def loadStylesFromFile(self, filename, overwrite=False):
+    def loadStylesFromFile(self, filename, overwrite=True):
         styleoptions=list(self.document.StyleFamilies.StyleLoaderOptions)#it's a tuple
         styleoptions.pop()
         styleoptions.append(PropertyValue("OverwriteStyles",0,overwrite,0))
@@ -696,3 +693,6 @@ class ODS_Standard(ODS):
 class ODT_Standard(ODT):
     def __init__(self, loserver_port=2002):
         ODT.__init__(self, resource_filename(__name__, 'templates/standard.odt'), loserver_port)
+        self.deleteAll()
+
+
