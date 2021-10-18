@@ -44,11 +44,6 @@ def main(arguments=None):
 
     addDebugSystem(args.debug)
 
-    print(_("My language is "))
-    
-    demo_odt_standard("es")
-    return
-    
 
     if args.remove==True:
             for language in ['es', 'en']:
@@ -133,6 +128,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
     else:
         lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
         lang1.install()
+    ##print(_("My language is "),language,lang1)
     
     doc=ODS_Standard(port)
     doc.setMetadata(
@@ -297,7 +293,6 @@ doc.close()"""    , "Code")
     doc.addParagraph(_("Calling the ODT constructor"), "Heading 2")
     doc.addParagraph(_("You can call ODT constructor in this ways:") , "Standard")
         
-    doc.print_styles()
     doc.addParagraph(
         _("ODT with standard template (Recomended).") + " " + 
         _("There is a predefined template in code called 'standard.odt', inside this python module, to help you with edition, although you can use your own ones.") +" "+

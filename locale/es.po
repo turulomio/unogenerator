@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-07 09:45+0200\n"
+"POT-Creation-Date: 2021-10-18 17:45+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -22,6 +22,9 @@ msgstr ""
 msgid "Developed by Mariano Muñoz 2020-{}"
 msgstr "Desarrollado por Mariano Muñoz 2021-{}"
 
+msgid "Have you launched unogenerator instances?. Please run unogenerator_start"
+msgstr ""
+
 msgid "Error deleting: {} -> {}"
 msgstr "Error al borrar: {} -> {}"
 
@@ -31,11 +34,18 @@ msgstr ""
 msgid "Debug program information"
 msgstr ""
 
-msgid "My language is "
-msgstr "Mi idioma es "
-
 msgid "All process took {}"
 msgstr "Todos los procesos tardaron {}"
+
+msgid "Number of workers to process this script. Default 4"
+msgstr ""
+
+#, python-brace-format
+msgid "Launching concurrent demo with {args.workers} workers to a daemon with {num_instances} instances from {first_port} port"
+msgstr ""
+
+msgid "My language is "
+msgstr "Mi idioma es "
 
 msgid "UnoGenerator ODS example"
 msgstr "Ejemplo ODS con UnoGenerator"
@@ -121,7 +131,7 @@ msgid "You can use pip to install this python package:"
 msgstr "Puedes usar pip para instalar este paquete python:"
 
 msgid "ODT 'Hello World' example"
-msgstr ""
+msgstr "Ejemplo 'Hola Mundo' de ODT"
 
 msgid "This is a Hello World example. You get the example in odt, docx and pdf formats:"
 msgstr "Este un ejemplo 'Hello World'. Has generado el ejemplo en los formatos odt, docx y pdf"
@@ -148,7 +158,7 @@ msgid "There is a predefined template in code called 'standard.odt', inside this
 msgstr ""
 
 msgid "With this mode you can create new documents"
-msgstr ""
+msgstr "Con este modo puedes crear nuevos documentos"
 
 msgid "ODT with template or file (Recomended)."
 msgstr ""
@@ -157,7 +167,7 @@ msgid "With this mode you can read your files to overwrite them or use your file
 msgstr ""
 
 msgid "ODT without template."
-msgstr ""
+msgstr "ODT sin plantilla"
 
 msgid "With this mode you can write your files with Libreoffice default styles."
 msgstr ""
@@ -183,17 +193,23 @@ msgstr "Concepto"
 msgid "Value"
 msgstr "Valor"
 
+msgid "Commnet"
+msgstr ""
+
 msgid "Text"
 msgstr "Texto"
 
 msgid "This is a text"
 msgstr "Esto es un texto"
 
+msgid "Good"
+msgstr "Bueno"
+
 msgid "Datetime"
 msgstr "Fecha y hora"
 
 msgid "Float"
-msgstr ""
+msgstr "Float"
 
 msgid "Currency"
 msgstr "Divisa"
@@ -237,11 +253,20 @@ msgstr ""
 msgid "This paragraph was set at the end of the code after a find and replace command."
 msgstr ""
 
+msgid "This paragraph was set after replacement."
+msgstr ""
+
+msgid "This paragraph was set after a page break."
+msgstr ""
+
+msgid "This paragraph was set after a page break with Landscape style."
+msgstr ""
+
 msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
 msgstr "unogenerator_documentation_{language}{suffix}.odt tardó {datetime.now()-doc.init} en {port}"
 
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 msgid "No data to show"
 msgstr "No hay datos para mostrar"
@@ -264,6 +289,13 @@ msgid "Stops libreoffice server to finish using unogenerator code"
 msgstr ""
 
 msgid "  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} processes"
+msgstr ""
+
+#, python-brace-format
+msgid "Changing port {old} to {self.loserver_port} {i} times"
+msgstr ""
+
+msgid "This process died"
 msgstr ""
 
 msgid "You can't use the same filename as your template or you will overwrite it."

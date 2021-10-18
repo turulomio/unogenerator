@@ -7,8 +7,8 @@ from pkg_resources import resource_filename
 from psutil import process_iter
 from uno import createUnoStruct
 
-__version__ = '0.7.0'
-__versiondatetime__=datetime(2021, 10, 7, 9, 41)
+__version__ = '0.8.0'
+__versiondatetime__=datetime(2021, 10, 18, 17, 41)
 __versiondate__=__versiondatetime__.date()
 
 try:

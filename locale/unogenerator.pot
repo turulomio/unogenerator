@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-07 09:45+0200\n"
+"POT-Creation-Date: 2021-10-18 17:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,6 +20,9 @@ msgstr ""
 msgid "Developed by Mariano Muñoz 2020-{}"
 msgstr ""
 
+msgid "Have you launched unogenerator instances?. Please run unogenerator_start"
+msgstr ""
+
 msgid "Error deleting: {} -> {}"
 msgstr ""
 
@@ -29,10 +32,17 @@ msgstr ""
 msgid "Debug program information"
 msgstr ""
 
-msgid "My language is "
+msgid "All process took {}"
 msgstr ""
 
-msgid "All process took {}"
+msgid "Number of workers to process this script. Default 4"
+msgstr ""
+
+#, python-brace-format
+msgid "Launching concurrent demo with {args.workers} workers to a daemon with {num_instances} instances from {first_port} port"
+msgstr ""
+
+msgid "My language is "
 msgstr ""
 
 msgid "UnoGenerator ODS example"
@@ -181,10 +191,16 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
+msgid "Commnet"
+msgstr ""
+
 msgid "Text"
 msgstr ""
 
 msgid "This is a text"
+msgstr ""
+
+msgid "Good"
 msgstr ""
 
 msgid "Datetime"
@@ -235,6 +251,15 @@ msgstr ""
 msgid "This paragraph was set at the end of the code after a find and replace command."
 msgstr ""
 
+msgid "This paragraph was set after replacement."
+msgstr ""
+
+msgid "This paragraph was set after a page break."
+msgstr ""
+
+msgid "This paragraph was set after a page break with Landscape style."
+msgstr ""
+
 msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
 msgstr ""
 
@@ -262,6 +287,13 @@ msgid "Stops libreoffice server to finish using unogenerator code"
 msgstr ""
 
 msgid "  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} processes"
+msgstr ""
+
+#, python-brace-format
+msgid "Changing port {old} to {self.loserver_port} {i} times"
+msgstr ""
+
+msgid "This process died"
 msgstr ""
 
 msgid "You can't use the same filename as your template or you will overwrite it."

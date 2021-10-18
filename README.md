@@ -57,6 +57,15 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.8.0 (2021-10-18)
+- Added statistics and timing withd --debug DEBUG.
+- Process migrate to other port if there's a problem creating it.
+- Page breaks improved.
+- Tables improved.
+- Added method LoadStylesFromFile.
+- Added deleteAll method to delete all document content.
+
+
 ### 0.7.0 (2021-10-7)
 - Added method helper_list_of_ordereddicts_with_totals.
 - Concurrent demo has new parameter loops to increment script load.
