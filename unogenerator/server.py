@@ -2,6 +2,7 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from gettext import translation
 from os import system, makedirs
 from pkg_resources import resource_filename
+from psutil import process_iter
 from unogenerator.commons import __version__, argparse_epilog, addDebugSystem
 from subprocess import run
 
@@ -58,3 +59,27 @@ def server_stop():
     s=run(command ,shell=True, capture_output=True)
     print(_(f"  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} processes"))
     
+    
+def memory():    
+    parser=ArgumentParser(
+        description=_('Launches libreoffice server to run unogenerator code'), 
+        epilog=argparse_epilog(), 
+        formatter_class=RawTextHelpFormatter
+    )
+    parser.add_argument('--version', action='version', version=__version__)
+    args=parser.parse_args()
+
+    addDebugSystem(args.debug)
+    try:
+        instances=0
+        ports=[]
+        for p in process_iter(['name','cmdline', 'pid']): 
+            if p.info['name']=='soffice.bin':
+                if  'file:///tmp/unogenerator'  in ' '.join(p.info['cmdline']):
+                    instances=instances+1
+                    ports.append(int(p.info['cmdline'][1][-4:]))
+        first_port=min(ports)
+        return instances, first_port
+    except:
+        print(_("Have you launched unogenerator instances?. Please run unogenerator_start"))
+        return None, None
