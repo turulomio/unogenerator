@@ -42,7 +42,6 @@ def server_start():#!/bin/bash
 
         print(_(f"  - Launched instance in port {port}"))
         system(command)
-#        Popen(command, shell=True)
 
 def server_stop():
     parser=ArgumentParser(

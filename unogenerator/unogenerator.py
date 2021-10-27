@@ -178,6 +178,7 @@ class ODT(ODF):
             tempfile=f"{tmpdirname}/{path.basename(filename)}"
             self.document.storeToURL(systemPathToFileUrl(tempfile), args)
             copyfile(tempfile, filename)
+
 ##def insertTextIntoCell( table, cellName, text, color ):
 ##    tableText = table.getCellByName( cellName )
 ##    cursor = tableText.createTextCursor()
@@ -190,7 +191,7 @@ class ODT(ODF):
         if found is not None:
             found.setString("")
             self.cursor=found
-            self.document.Text.insertString(self.cursor, replace, False)
+            found.Text.insertString(self.cursor, replace, False)
         else:
             warning(f"'{find}' was not found in the document'")
 
