@@ -466,3 +466,5 @@ def red(s):
     return Style.BRIGHT + Fore.RED + str(s) + Style.RESET_ALL
 def green(s):
     return Style.BRIGHT + Fore.GREEN + str(s) + Style.RESET_ALL
+def magenta(s):
+    return Style.BRIGHT + Fore.MAGENTA + str(s) + Style.RESET_ALL
