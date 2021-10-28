@@ -1,5 +1,5 @@
 ## @namespace unogenerator.commons
-## @brief Common code to odfpy and openpyxl wrappers
+from colorama import Fore, Style
 from datetime import datetime, date
 from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error
@@ -462,3 +462,7 @@ def get_from_process_numinstances_and_firstport():
     ld=get_from_process_info()
     return len(ld), listdict_min(ld,"port")
    
+def red(s):
+    return Style.BRIGHT + Fore.RED + str(s) + Style.RESET_ALL
+def green(s):
+    return Style.BRIGHT + Fore.GREEN + str(s) + Style.RESET_ALL

@@ -1,9 +1,10 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
+from colorama import init as colorama_init
 from gettext import translation
 from humanize import naturalsize
 from os import system, makedirs
 from pkg_resources import resource_filename
-from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info
+from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info, green, red
 from unogenerator.reusing.casts import list2string
 from unogenerator.reusing.listdict_functions import listdict_sum, listdict_average, listdict2list
 from unogenerator.reusing.percentage import Percentage
@@ -63,7 +64,6 @@ def server_stop():
     
     
 def monitor():    
-    from colorama import init as colorama_init, Fore, Style
     colorama_init()
     parser=ArgumentParser(
         description=_('Monitor unogenerator statistics'), 
@@ -78,16 +78,17 @@ def monitor():
     addDebugSystem(args.debug)
     
     ld=get_from_process_info(cpu_percentage=True)
-    list_ports=listdict2list(ld, 'port', True)
-    cpu_percentage=listdict_average(ld, "cpu_percentage")
-    mem_total=listdict_sum(ld, "mem")
     instances=len(ld)
-    print(_(f"Instances: {instances}"))
-    print(_(f"Ports used: {list2string(list_ports)}"))
-    print(_(f"Memory used: {naturalsize(mem_total)}"))
-    if mem_total>(instances*440010752)*1.50:
-        print(Style.BRIGHT+ Fore.RED+_("Too much memory used, you should restart unogenerator")+ Style.RESET_ALL)
-    print(_(f"CPU percentage: {Percentage(cpu_percentage, 100)}"))
+    list_ports=listdict2list(ld, 'port', True)
+    cpu_percentage=Percentage(listdict_average(ld, "cpu_percentage"), 100)
+    mem_total=listdict_sum(ld, "mem")
+    str_mem_total=green(naturalsize(mem_total)) if mem_total>(instances*440010752)*1.50 else red(naturalsize(mem_total))
+    str_cpu_percentage= green(cpu_percentage) if cpu_percentage==0 else red(cpu_percentage)
+
+    print(_(f"Instances: {green(instances)}"))
+    print(_(f"Ports used: {green(list2string(list_ports))}"))
+    print(_(f"Memory used: {str_mem_total}"))    
+    print(_(f"CPU percentage: {str_cpu_percentage}"))
     
     total_cons=0
     for d in ld:
@@ -95,5 +96,6 @@ def monitor():
 #            print(con.laddr,  con.raddr, con.status)
             if con.status=="ESTABLISHED":
                 total_cons=total_cons+1
-    d["connections"]=total_cons
-    print(_(f"Connections: {Style.BRIGHT+Fore.RED + str(total_cons)+ Style.RESET_ALL}"))
+    
+    str_connections= green(total_cons) if total_cons==0 else red(total_cons)
+    print(_(f"Connections: {str_connections}"))
