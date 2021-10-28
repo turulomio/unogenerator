@@ -450,6 +450,7 @@ def get_from_process_info(cpu_percentage=False):
                     d["mem"]=vms
                     if cpu_percentage is True:
                         d["cpu_percentage"]=p.cpu_percent(interval=0.01)
+                        d["object"]=p
                     r.append(d)
         return r
     except:

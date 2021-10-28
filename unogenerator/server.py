@@ -4,7 +4,9 @@ from humanize import naturalsize
 from os import system, makedirs
 from pkg_resources import resource_filename
 from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info
-from unogenerator.reusing.listdict_functions import listdict_min, listdict_sum, listdict_average
+from unogenerator.reusing.casts import list2string
+from unogenerator.reusing.listdict_functions import listdict_sum, listdict_average, listdict2list
+from unogenerator.reusing.percentage import Percentage
 from subprocess import run
 
 try:
@@ -61,6 +63,8 @@ def server_stop():
     
     
 def monitor():    
+    from colorama import init as colorama_init, Fore, Style
+    colorama_init()
     parser=ArgumentParser(
         description=_('Monitor unogenerator statistics'), 
         epilog=argparse_epilog(), 
@@ -74,8 +78,22 @@ def monitor():
     addDebugSystem(args.debug)
     
     ld=get_from_process_info(cpu_percentage=True)
-    print(len(ld), listdict_min(ld,"port"))
-    print(listdict_sum(ld, "mem"), naturalsize(listdict_sum(ld, "mem")))
-    print(listdict_average(ld, "cpu_percentage"))
-
-
+    list_ports=listdict2list(ld, 'port', True)
+    cpu_percentage=listdict_average(ld, "cpu_percentage")
+    mem_total=listdict_sum(ld, "mem")
+    instances=len(ld)
+    print(_(f"Instances: {instances}"))
+    print(_(f"Ports used: {list2string(list_ports)}"))
+    print(_(f"Memory used: {naturalsize(mem_total)}"))
+    if mem_total>(instances*440010752)*1.50:
+        print(Style.BRIGHT+ Fore.RED+_("Too much memory used, you should restart unogenerator")+ Style.RESET_ALL)
+    print(_(f"CPU percentage: {Percentage(cpu_percentage, 100)}"))
+    
+    total_cons=0
+    for d in ld:
+        for con in  d["object"].connections():
+#            print(con.laddr,  con.raddr, con.status)
+            if con.status=="ESTABLISHED":
+                total_cons=total_cons+1
+    d["connections"]=total_cons
+    print(_(f"Connections: {Style.BRIGHT+Fore.RED + str(total_cons)+ Style.RESET_ALL}"))
