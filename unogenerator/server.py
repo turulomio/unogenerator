@@ -1,9 +1,10 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
 from gettext import translation
+from humanize import naturalsize
 from os import system, makedirs
 from pkg_resources import resource_filename
-from psutil import process_iter
-from unogenerator.commons import __version__, argparse_epilog, addDebugSystem
+from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info
+from unogenerator.reusing.listdict_functions import listdict_min, listdict_sum, listdict_average
 from subprocess import run
 
 try:
@@ -59,26 +60,22 @@ def server_stop():
     print(_(f"  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} processes"))
     
     
-def memory():    
+def monitor():    
     parser=ArgumentParser(
-        description=_('Launches libreoffice server to run unogenerator code'), 
+        description=_('Monitor unogenerator statistics'), 
         epilog=argparse_epilog(), 
         formatter_class=RawTextHelpFormatter
     )
     parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
+
     args=parser.parse_args()
 
     addDebugSystem(args.debug)
-    try:
-        instances=0
-        ports=[]
-        for p in process_iter(['name','cmdline', 'pid']): 
-            if p.info['name']=='soffice.bin':
-                if  'file:///tmp/unogenerator'  in ' '.join(p.info['cmdline']):
-                    instances=instances+1
-                    ports.append(int(p.info['cmdline'][1][-4:]))
-        first_port=min(ports)
-        return instances, first_port
-    except:
-        print(_("Have you launched unogenerator instances?. Please run unogenerator_start"))
-        return None, None
+    
+    ld=get_from_process_info(cpu_percentage=True)
+    print(len(ld), listdict_min(ld,"port"))
+    print(listdict_sum(ld, "mem"), naturalsize(listdict_sum(ld, "mem")))
+    print(listdict_average(ld, "cpu_percentage"))
+
+

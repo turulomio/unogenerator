@@ -20,6 +20,7 @@ class Reusing(Command):
         download_from_github('turulomio','reusingcode','python/github.py', 'unogenerator/reusing/')
         download_from_github('turulomio','reusingcode','python/casts.py', 'unogenerator/reusing/')
         download_from_github('turulomio','reusingcode','python/datetime_functions.py', 'unogenerator/reusing/')
+        download_from_github('turulomio','reusingcode','python/listdict_functions.py', 'unogenerator/reusing/')
         download_from_github('turulomio','reusingcode','python/decorators.py', 'unogenerator/reusing/')
         download_from_github('turulomio','reusingcode','python/libmanagers.py', 'unogenerator/reusing/')
         download_from_github('turulomio','reusingcode','python/percentage.py', 'unogenerator/reusing/')
@@ -163,12 +164,13 @@ setup(name='unogenerator',
      author_email='turulomio@yahoo.es',
      license='GPL-3',
      packages=['unogenerator'],
-     install_requires=[],
+     install_requires=["humanize", ],
      entry_points = {'console_scripts': [
                             'unogenerator_demo=unogenerator.demo:main',
                             'unogenerator_demo_concurrent=unogenerator.demo:main_concurrent',
                             'unogenerator_start=unogenerator.server:server_start',
                             'unogenerator_stop=unogenerator.server:server_stop',
+                            'unogenerator_monitor=unogenerator.server:monitor',
                         ],
                     },
      cmdclass={'doxygen': Doxygen,

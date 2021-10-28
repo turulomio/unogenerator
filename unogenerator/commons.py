@@ -6,6 +6,7 @@ from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, er
 from pkg_resources import resource_filename
 from psutil import process_iter
 from uno import createUnoStruct
+from unogenerator.reusing.listdict_functions import listdict_min
 
 __version__ = '0.8.0'
 __versiondatetime__=datetime(2021, 10, 18, 17, 41)
@@ -435,17 +436,28 @@ def get_range_from_iterable_object( coord_start, o):
         len_columns=len(o)-1
     return Range(f"{coord_start.string()}:{coord_start.addRowCopy(len_rows).addColumnCopy(len_columns).string()}")
 
-def get_from_process_numinstances_and_firstport():        
+## Returns a dictt with process info
+def get_from_process_info(cpu_percentage=False):    
     try:
-        instances=0
-        ports=[]
+        r=[]
         for p in process_iter(['name','cmdline', 'pid']): 
+            d={}
             if p.info['name']=='soffice.bin':
                 if  'file:///tmp/unogenerator'  in ' '.join(p.info['cmdline']):
-                    instances=instances+1
-                    ports.append(int(p.info['cmdline'][1][-4:]))
-        first_port=min(ports)
-        return instances, first_port
+                    d["port"]=int(p.info['cmdline'][1][-4:])
+                    d["pid"]=p.pid
+                    vms=p.memory_info().vms
+                    d["mem"]=vms
+                    if cpu_percentage is True:
+                        d["cpu_percentage"]=p.cpu_percent(interval=0.01)
+                    r.append(d)
+        return r
     except:
         print(_("Have you launched unogenerator instances?. Please run unogenerator_start"))
-        return None, None
+        return []
+    
+
+def get_from_process_numinstances_and_firstport():        
+    ld=get_from_process_info()
+    return len(ld), listdict_min(ld,"port")
+
