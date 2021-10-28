@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-18 17:45+0200\n"
+"POT-Creation-Date: 2021-10-28 22:10+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -43,9 +43,6 @@ msgstr ""
 #, python-brace-format
 msgid "Launching concurrent demo with {args.workers} workers to a daemon with {num_instances} instances from {first_port} port"
 msgstr ""
-
-msgid "My language is "
-msgstr "Mi idioma es "
 
 msgid "UnoGenerator ODS example"
 msgstr "Ejemplo ODS con UnoGenerator"
@@ -275,7 +272,7 @@ msgid "Launches libreoffice server to run unogenerator code"
 msgstr ""
 
 #, python-brace-format
-msgid "Preparing {args.instances} libreoffice server instances from port {args.first_port}:"
+msgid "Preparing {instances} libreoffice server instances from port {first_port}:"
 msgstr ""
 
 msgid "You can see instances output in /var/log/unogenerator"
@@ -289,6 +286,42 @@ msgid "Stops libreoffice server to finish using unogenerator code"
 msgstr ""
 
 msgid "  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} processes"
+msgstr ""
+
+msgid "Monitor unogenerator statistics"
+msgstr ""
+
+msgid "Instances: {green(instances)}"
+msgstr ""
+
+msgid "Ports used: {green(list2string(list_ports))}"
+msgstr ""
+
+#, python-brace-format
+msgid "Memory used: {str_mem_total}"
+msgstr ""
+
+msgid "Max memory recommended: {green(naturalsize(max_mem_recommended))}"
+msgstr ""
+
+#, python-brace-format
+msgid "CPU percentage: {str_cpu_percentage}"
+msgstr ""
+
+#, python-brace-format
+msgid "Connections: {str_connections}"
+msgstr ""
+
+msgid "Restarting server"
+msgstr ""
+
+msgid "Server restarted"
+msgstr ""
+
+msgid "Server wasn't restarted because it's busy"
+msgstr ""
+
+msgid "Server doesn't need to be restarted"
 msgstr ""
 
 #, python-brace-format
@@ -321,6 +354,9 @@ msgstr ""
 
 msgid "Filename extension must be 'xlsx'."
 msgstr ""
+
+#~ msgid "My language is "
+#~ msgstr "Mi idioma es "
 
 #~ msgid "Hello World example"
 #~ msgstr "Ejemplo Hola Mundo"

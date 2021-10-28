@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-18 17:47+0200\n"
+"POT-Creation-Date: 2021-10-28 22:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,9 +40,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Launching concurrent demo with {args.workers} workers to a daemon with {num_instances} instances from {first_port} port"
-msgstr ""
-
-msgid "My language is "
 msgstr ""
 
 msgid "UnoGenerator ODS example"
@@ -273,7 +270,7 @@ msgid "Launches libreoffice server to run unogenerator code"
 msgstr ""
 
 #, python-brace-format
-msgid "Preparing {args.instances} libreoffice server instances from port {args.first_port}:"
+msgid "Preparing {instances} libreoffice server instances from port {first_port}:"
 msgstr ""
 
 msgid "You can see instances output in /var/log/unogenerator"
@@ -287,6 +284,42 @@ msgid "Stops libreoffice server to finish using unogenerator code"
 msgstr ""
 
 msgid "  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} processes"
+msgstr ""
+
+msgid "Monitor unogenerator statistics"
+msgstr ""
+
+msgid "Instances: {green(instances)}"
+msgstr ""
+
+msgid "Ports used: {green(list2string(list_ports))}"
+msgstr ""
+
+#, python-brace-format
+msgid "Memory used: {str_mem_total}"
+msgstr ""
+
+msgid "Max memory recommended: {green(naturalsize(max_mem_recommended))}"
+msgstr ""
+
+#, python-brace-format
+msgid "CPU percentage: {str_cpu_percentage}"
+msgstr ""
+
+#, python-brace-format
+msgid "Connections: {str_connections}"
+msgstr ""
+
+msgid "Restarting server"
+msgstr ""
+
+msgid "Server restarted"
+msgstr ""
+
+msgid "Server wasn't restarted because it's busy"
+msgstr ""
+
+msgid "Server doesn't need to be restarted"
 msgstr ""
 
 #, python-brace-format

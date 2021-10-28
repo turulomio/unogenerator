@@ -57,6 +57,11 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.9.0 (2021-10-28)
+- Added monitor to restart server when needed.
+- Find and Replace method improved.
+- Automatically creates directories to save or export files.
+
 ### 0.8.0 (2021-10-18)
 - Added statistics and timing withd --debug DEBUG.
 - Process migrate to other port if there's a problem creating it.
