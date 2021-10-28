@@ -2,7 +2,7 @@
 ## @brief Package that allows to read and write Libreoffice ods and odt files
 
 from datetime import datetime
-from os import path
+from os import path, makedirs
 from uno import getComponentContext, createUnoStruct, systemPathToFileUrl
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
@@ -147,6 +147,7 @@ class ODT(ODF):
         with TemporaryDirectory() as tmpdirname:
                 tempfile=f"{tmpdirname}/{path.basename(filename)}"
                 self.document.storeAsURL(systemPathToFileUrl(tempfile), args)
+                makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
                 copyfile(tempfile, filename)
         
                 
@@ -162,6 +163,8 @@ class ODT(ODF):
         with TemporaryDirectory() as tmpdirname:
             tempfile=f"{tmpdirname}/{path.basename(filename)}"
             self.document.storeToURL(systemPathToFileUrl(tempfile), args)
+            
+            makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
             copyfile(tempfile, filename)
          
     def export_docx(self, filename):
@@ -177,6 +180,7 @@ class ODT(ODF):
         with TemporaryDirectory() as tmpdirname:
             tempfile=f"{tmpdirname}/{path.basename(filename)}"
             self.document.storeToURL(systemPathToFileUrl(tempfile), args)
+            makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
             copyfile(tempfile, filename)
 
 ##def insertTextIntoCell( table, cellName, text, color ):
@@ -654,6 +658,7 @@ class ODS(ODF):
         with TemporaryDirectory() as tmpdirname:
                 tempfile=f"{tmpdirname}/{path.basename(filename)}"
                 self.document.storeAsURL(systemPathToFileUrl(tempfile), args)
+                makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
                 copyfile(tempfile, filename)
         self.showStatistics()
 
@@ -669,6 +674,7 @@ class ODS(ODF):
         with TemporaryDirectory() as tmpdirname:
             tempfile=f"{tmpdirname}/{path.basename(filename)}"
             self.document.storeToURL(systemPathToFileUrl(tempfile), args)
+            makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
             copyfile(tempfile, filename)
 
 
@@ -684,6 +690,7 @@ class ODS(ODF):
         with TemporaryDirectory() as tmpdirname:
             tempfile=f"{tmpdirname}/{path.basename(filename)}"
             self.document.storeToURL(systemPathToFileUrl(tempfile), args)
+            makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
             copyfile(tempfile, filename)
 
 
