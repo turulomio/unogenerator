@@ -350,10 +350,18 @@ class ODT(ODF):
             
         self.cursor.setPropertyValue("PageDescName", style)
         self.document.Text.insertString(self.cursor, "", False)
+
 class ODS(ODF):
-    @timeit
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
+        self._remove_default_sheet=True
+        
+    def getRemoveDefaultSheet(self):
+        return self._remove_default_sheet
+        
+    ## @param b Boolean Sets if thiss class remove default sheet if it's empty
+    def setRemoveDefaultSheet(self, b):
+        self._remove_default_sheet=b
         
     ## Creates a new sheet at the end of the sheets
     ## @param if index is None it creates sheet at the end of the existing sheets
@@ -640,7 +648,18 @@ class ODS(ODF):
         else:
             return len(data[0]), len(data)
             
+    ## Method to remove default sheet if empty
+    def removeDefaultSheet(self):
+        for sheet in self.document.getSheets():
+            if sheet.getName() in ("Hoja1", "Sheet1") :
+                data=sheet.getData()
+                if len(data)==1 and len(data[0])==1:
+                    self.document.getSheets().removeByName(sheet.getName())
+            
     def save(self, filename, overwrite_template=False):
+        if self.getRemoveDefaultSheet() is True:
+            self.removeDefaultSheet()
+            
         if filename==self.template and overwrite_template is False:
             print(_("You can't use the same filename as your template or you will overwrite it."))
             print(_("You can force it, setting overwrite_template paramter to True"))
@@ -663,6 +682,9 @@ class ODS(ODF):
         self.showStatistics()
 
     def export_pdf(self, filename):
+        if self.getRemoveDefaultSheet() is True:
+            self.removeDefaultSheet()
+        
         if filename.endswith(".pdf") is False:
             print(_("Filename extension must be 'pdf'."))
             print(_("Document hasn't been saved."))
@@ -679,6 +701,9 @@ class ODS(ODF):
 
 
     def export_xlsx(self, filename):
+        if self.getRemoveDefaultSheet() is True:
+            self.removeDefaultSheet()
+
         if filename.endswith(".xlsx") is False:
             print(_("Filename extension must be 'xlsx'."))
             print(_("Document hasn't been saved."))

@@ -219,7 +219,6 @@ def demo_ods_standard(language, port=2002, suffix="",):
     lod.append(OrderedDict({"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 }))
     helper_list_of_ordereddicts_with_totals(doc, "A36",  lod, columns_header=1)
 
-    doc.removeSheet(0)
     doc.save(f"unogenerator_example_{language}{suffix}.ods")
     doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
     doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
