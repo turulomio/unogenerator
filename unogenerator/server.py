@@ -6,7 +6,7 @@ from os import system, makedirs
 from pkg_resources import resource_filename
 from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info, green, red, magenta
 from unogenerator.reusing.casts import list2string
-from unogenerator.reusing.listdict_functions import listdict_sum, listdict_average, listdict2list
+from unogenerator.reusing.listdict_functions import listdict_sum, listdict_average, listdict2list, listdict_order_by
 from unogenerator.reusing.percentage import Percentage
 from subprocess import run
 from time import sleep
@@ -88,9 +88,11 @@ def monitor():
 def command_monitor(restart, max_mem_multiplier):
     
     ld=get_from_process_info(cpu_percentage=True)
+    ld=listdict_order_by(ld, "port")
     instances=len(ld)
     max_mem_recommended=instances*440010752*max_mem_multiplier
     list_ports=listdict2list(ld, 'port', True)
+    cpu_nums=listdict2list(ld, 'cpu_number', True)
     cpu_percentage=Percentage(listdict_average(ld, "cpu_percentage"), 100)
     mem_total=listdict_sum(ld, "mem")
     str_mem_total=green(naturalsize(mem_total)) if mem_total<max_mem_recommended else red(naturalsize(mem_total))
@@ -98,6 +100,7 @@ def command_monitor(restart, max_mem_multiplier):
 
     print(_(f"Instances: {green(instances)}"))
     print(_(f"Ports used: {green(list2string(list_ports))}"))
+    print(_(f"CPU used: {green(list2string(cpu_nums))}"))
     print(_(f"Memory used: {str_mem_total}"))
     print(_(f"Max memory recommended: {green(naturalsize(max_mem_recommended))}"))    
     print(_(f"CPU percentage: {str_cpu_percentage}"))

@@ -446,8 +446,8 @@ def get_from_process_info(cpu_percentage=False):
                 if  'file:///tmp/unogenerator'  in ' '.join(p.info['cmdline']):
                     d["port"]=int(p.info['cmdline'][1][-4:])
                     d["pid"]=p.pid
-                    vms=p.memory_info().rss
-                    d["mem"]=vms
+                    d["mem"]=p.memory_info().rss
+                    d["cpu_number"]=p.cpu_num()
                     if cpu_percentage is True:
                         d["cpu_percentage"]=p.cpu_percent(interval=0.01)
                         d["object"]=p
