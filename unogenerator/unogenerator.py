@@ -198,6 +198,10 @@ class ODT(ODF):
             found.Text.insertString(self.cursor, replace, False)
         else:
             warning(f"'{find}' was not found in the document'")
+            
+    ## Sets the cursor after found string
+    def find(self, find):
+        self.first_and_replace(find, find)
 
         
     def addParagraph(self,  text,  style):
