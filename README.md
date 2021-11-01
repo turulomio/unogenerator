@@ -57,6 +57,13 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.10.0 (2021-11-01)
+- Changed vms to rss in psutil to get memory info.
+- Auto remove default sheet feature enabled.
+- Added find method.
+- Added used cpu in monitor info.
+- Added method find_and_delete_until_the_end_of_document.
+
 ### 0.9.0 (2021-10-28)
 - Added monitor to restart server when needed.
 - Find and Replace method improved.

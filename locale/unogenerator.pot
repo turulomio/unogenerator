@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-28 22:10+0200\n"
+"POT-Creation-Date: 2021-11-01 10:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -293,6 +293,9 @@ msgid "Instances: {green(instances)}"
 msgstr ""
 
 msgid "Ports used: {green(list2string(list_ports))}"
+msgstr ""
+
+msgid "CPU used: {green(list2string(cpu_nums))}"
 msgstr ""
 
 #, python-brace-format
