@@ -57,8 +57,6 @@ def main(arguments=None):
     if args.create==True:
         start=datetime.now()
         futures=[]
-        demo_odt_standard("es")
-        return
         with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
             for language in ['es', 'en']:
                 futures.append(executor.submit(demo_ods_standard, language))
@@ -403,7 +401,7 @@ doc.close()"""    , "Code")
     doc.addParagraph(_("This paragraph was set after a page break with Landscape style."), "Standard")
     
     
-    doc.find_and_delete_until_the_end_of_document("This paragraph was set after replacement.")
+    #doc.find_and_delete_until_the_end_of_document("This paragraph was set after replacement.")
     
     
     doc.save(f"unogenerator_documentation_{language}{suffix}.odt")

@@ -213,42 +213,17 @@ class ODT(ODF):
             found.setString("")
             self.cursor=found
             
-            oVC = self.document.getCurrentController().getViewCursor()#		'Create View Cursor oVC
-            oCursor = oVC.getText().createTextCursorByRange(oVC)
-            self.document.Text.insertString(oCursor, "INICIO", False)
-            print(oVC.getPosition())
-            #self.cursor = self.document.getText().createTextCursor()	#'Create Text Cursor by cloning the View Cursor (both have same position in doc)
-            
-            
-#            print(oTC.getPosition())
-#            oVC.gotoStart(False)				
-#            print("OVC",  oVC,  dir(oVC))
-#            self.document.Text.insertString(self.cursor, "INICIO", False)
-##            oNewDocVC = self.document.getViewCursor()#'Create another View Cursor for this new document
-
-
-            oVC.gotoStart(False)
-            self.document.Text.insertString(oCursor, "AFTERESTART", False)
-            print(oVC.getPosition())
-#            print(oTC.getPosition())
-#            while oVC.jumpToNextPage():
-#                print(oVC)
-#                pass
-#                #oVC.jumpToEndOfPage			'Move View Cursor oVC to EndOfPage
-#            print(oTC.getString())
-            oVC.gotoEnd(False)
-            print(oVC.getPosition())
-            self.document.Text.insertString(oCursor, "FIN", False)
+            oVC = self.document.getCurrentController().getViewCursor()#		'Create View Cursor oVC at the end of document by default?
             self.cursor.gotoRange(oVC,True)			#'Move Text Cursor to same location as oVC while selecting text in between (True)
-            oVC.setText("")
-            self.document.Text.insertString(self.cursor, "FIN2", False)
+            self.cursor.setString("")
+#            self.document.Text.insertString(self.cursor, "FIN2", False)
             
 ##            while True:
 #            self.cursor.gotoEnd(True)
 ##                r=self.cursor.gotoNextParagraph()
 #                if r==False:
 #                    break
-            found.Text.insertString(self.cursor, "AQUI", False)
+#            found.Text.insertString(self.cursor, "AQUI", False)
         else:
             warning(f"'{find}' was not found in the document'")
         
