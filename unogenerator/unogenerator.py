@@ -214,6 +214,7 @@ class ODT(ODF):
             self.cursor=found
             
             oVC = self.document.getCurrentController().getViewCursor()#		'Create View Cursor oVC at the end of document by default?
+            oVC.gotoEnd(False)
             self.cursor.gotoRange(oVC,True)			#'Move Text Cursor to same location as oVC while selecting text in between (True)
             self.cursor.setString("")
 #            self.document.Text.insertString(self.cursor, "FIN2", False)

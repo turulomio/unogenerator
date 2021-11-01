@@ -401,7 +401,7 @@ doc.close()"""    , "Code")
     doc.addParagraph(_("This paragraph was set after a page break with Landscape style."), "Standard")
     
     
-    #doc.find_and_delete_until_the_end_of_document("This paragraph was set after replacement.")
+#    doc.find_and_delete_until_the_end_of_document("This paragraph was set after replacement.")
     
     
     doc.save(f"unogenerator_documentation_{language}{suffix}.odt")
