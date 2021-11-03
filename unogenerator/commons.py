@@ -378,7 +378,9 @@ def generate_formula_total_string(key, coord_from, coord_to):
     return s
 
 def guess_object_style(o):
-    if o.__class__.__name__=="datetime":
+    if o is None:
+        return "Normal"
+    elif o.__class__.__name__=="datetime":
         return "Datetime"
     elif o.__class__.__name__=="int":
         return "Integer"
