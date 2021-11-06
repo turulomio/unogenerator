@@ -494,7 +494,7 @@ class ODS(ODF):
             self.addColumnWithStyle(coord_start.addColumnCopy(i), column, colors=colors,styles=styles)
 
     ## @param style If None tries to guess it
-    @timeit
+#    @timeit
     def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
         coord=C.assertCoord(coord)
         if style is None:
@@ -504,6 +504,8 @@ class ODS(ODF):
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
         self.numcells=self.numcells+1
+        if self.numcells % 500==0:
+            debug(f"Wrote {self.numcells} cells in {datetime.now()-self.init}")
         
     ## All of this names are document names
     def setCellName(self, coord, name):
