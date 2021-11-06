@@ -183,12 +183,7 @@ class ODT(ODF):
             makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
             copyfile(tempfile, filename)
 
-##def insertTextIntoCell( table, cellName, text, color ):
-##    tableText = table.getCellByName( cellName )
-##    cursor = tableText.createTextCursor()
-##    cursor.setPropertyValue( "CharColor", color )
-##    tableText.setString( text )
-    def find_and_replace(self, find, replace=""):
+    def find_and_replace(self, find, replace="", log=False):
         search=self.document.createSearchDescriptor()
         search.SearchString=find
         found=self.document.findFirst(search)
@@ -196,12 +191,29 @@ class ODT(ODF):
             found.setString("")
             self.cursor=found
             found.Text.insertString(self.cursor, replace, False)
+            return True
         else:
-            warning(f"'{find}' was not found in the document'")
+            if log is True:
+                warning(f"'{find}' was not found in the document'")
+            return False
+            
+#    def escape_string(self,s):
+#        r=""
+#        for c in s:
+#            if c in "()/":
+#                r=r+" "+c
+#            else:
+#                r=r+c
+#        return r
+
+    def findall_and_replace(self, find, replace="", log=False):
+        while self.find_and_replace(find, replace, log):
+            pass
+        
             
     ## Sets the cursor after found string
-    def find(self, find):
-        self.first_and_replace(find, find)
+    def find(self, find, log=False):
+        self.first_and_replace(find, find, log)
 
     ## Find a string and deleteAll untill the end of the document
     ## Usefull to delete document part with styles in templates
@@ -217,14 +229,6 @@ class ODT(ODF):
             oVC.gotoEnd(False)
             self.cursor.gotoRange(oVC,True)			#'Move Text Cursor to same location as oVC while selecting text in between (True)
             self.cursor.setString("")
-#            self.document.Text.insertString(self.cursor, "FIN2", False)
-            
-##            while True:
-#            self.cursor.gotoEnd(True)
-##                r=self.cursor.gotoNextParagraph()
-#                if r==False:
-#                    break
-#            found.Text.insertString(self.cursor, "AQUI", False)
         else:
             warning(f"'{find}' was not found in the document'")
         
