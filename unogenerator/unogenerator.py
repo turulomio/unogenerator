@@ -205,15 +205,14 @@ class ODT(ODF):
         found=self.document.findFirst(search)
         if found is not None:
             number=self.document.replaceAll(search)
-            warning(f"Replaced {number} times '{find}' by '{replace}'")
+            debug(f"Replaced {number} times '{find}' by '{replace}'")
             self.cursor=found
-            return True
+            return number
         else:
             if log is True:
-                warning(f"'{find}' was not found in the document'")
-            return False
-        
-            
+                debug(f"'{find}' was not found in the document'")
+            return 0
+
     ## Sets the cursor after found string
     def find(self, find, log=False):
         self.first_and_replace(find, find, log)
