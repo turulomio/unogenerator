@@ -43,8 +43,10 @@ def main(arguments=None):
     args=parser.parse_args(arguments)
 
     addDebugSystem(args.debug)
-
-
+    
+    demo_odt_standard("es")
+    return
+    
     if args.remove==True:
             for language in ['es', 'en']:
                 remove_without_errors(f"unogenerator_documentation_{language}.odt")
@@ -402,6 +404,15 @@ doc.close()"""    , "Code")
     
     
 #    doc.find_and_delete_until_the_end_of_document("This paragraph was set after replacement.")
+
+    doc.addParagraph(_("This is a pair of brackets ()."), "Standard")
+    doc.findall_and_replace(" ().", " )(.", True)
+    
+    doc.addParagraph(_("NOW)("), "Standard")
+    doc.addParagraph(_("This is a set of symbols: .,:;?ºª\_-/()."), "Standard")
+    doc.findall_and_replace(".,:;?ºª\_-/().", ".,:;?ºª\_-/(). REPLACED", True)
+    doc.addParagraph(_("NOW)("), "Standard")
+    
     
     
     doc.save(f"unogenerator_documentation_{language}{suffix}.odt")

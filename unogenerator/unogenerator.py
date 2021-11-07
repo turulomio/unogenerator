@@ -183,6 +183,7 @@ class ODT(ODF):
             makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
             copyfile(tempfile, filename)
 
+    ## This method has problems with ().\ *// especial characters. Findall and replace works fine
     def find_and_replace(self, find, replace="", log=False):
         search=self.document.createSearchDescriptor()
         search.SearchString=find
@@ -196,19 +197,21 @@ class ODT(ODF):
             if log is True:
                 warning(f"'{find}' was not found in the document'")
             return False
-            
-#    def escape_string(self,s):
-#        r=""
-#        for c in s:
-#            if c in "()/":
-#                r=r+" "+c
-#            else:
-#                r=r+c
-#        return r
 
     def findall_and_replace(self, find, replace="", log=False):
-        while self.find_and_replace(find, replace, log):
-            pass
+        search=self.document.createReplaceDescriptor()
+        search.setSearchString(find)
+        search.setReplaceString(replace)
+        found=self.document.findFirst(search)
+        if found is not None:
+            number=self.document.replaceAll(search)
+            warning(f"Replaced {number} times '{find}' by '{replace}'")
+            self.cursor=found
+            return True
+        else:
+            if log is True:
+                warning(f"'{find}' was not found in the document'")
+            return False
         
             
     ## Sets the cursor after found string
