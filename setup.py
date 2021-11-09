@@ -91,6 +91,7 @@ class Procedure(Command):
   * git commit -a -m 'unogenerator-{0}'
   * git push
   * Hacer un nuevo tag en GitHub
+  * python setup.py sdist
   * twine upload dist/unogenerator-{0}.tar.gz 
   * python setup.py uninstall
   * Crea un nuevo ebuild de UNOGENERATOR Gentoo con la nueva versión
