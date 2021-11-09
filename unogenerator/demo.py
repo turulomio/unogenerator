@@ -44,9 +44,6 @@ def main(arguments=None):
 
     addDebugSystem(args.debug)
     
-    demo_odt_standard("es")
-    return
-    
     if args.remove==True:
             for language in ['es', 'en']:
                 remove_without_errors(f"unogenerator_documentation_{language}.odt")
