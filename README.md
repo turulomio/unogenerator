@@ -57,6 +57,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.11.0 (2021-11-09)
+- Added findall_and_replace method.
+
 ### 0.10.0 (2021-11-01)
 - Changed vms to rss in psutil to get memory info.
 - Auto remove default sheet feature enabled.
@@ -78,17 +81,17 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 - Added deleteAll method to delete all document content.
 
 
-### 0.7.0 (2021-10-7)
+### 0.7.0 (2021-10-07)
 - Added method helper_list_of_ordereddicts_with_totals.
 - Concurrent demo has new parameter loops to increment script load.
 - Added --backtrace in `unogenerator_start` to try to log something (Experimental)
 - Save and export methods use now temporal directories to avoid locks
 
-### 0.6.0 (2021-10-6)
+### 0.6.0 (2021-10-06)
 - Added method helper_totals_from_range, 
 - Added __str__ method to Coord and Range to write code faster without .string()
 
-### 0.5.0 (2021-10-3)
+### 0.5.0 (2021-10-03)
 - Added dispatcher and create service methods.
 - Added posibility to link images to document.
 - Image width and height are now in cm units.
@@ -96,13 +99,13 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 - Improving freezeAndSelect with None values.
 - Added range column and number copy additions.
 
-### 0.4.0 (2021-10-2)
+### 0.4.0 (2021-10-02)
 - Replaced server.sh by `unogenerator_start` and `unogenerator_stop`
 - Added helper_list_of_dict and helper_list_of_ordereddict methods
 - Changed vertical alignment to center in all personal styles
 - Removed Gentoo confd initd files. Moved to unogenerator_daemon in myportage
 
-### 0.3.0 (2021-10-1)
+### 0.3.0 (2021-10-01)
 - server.sh now launches n instances
 - Code works with concurrency. Added method to change to next_port
 - Added .conf and init.d for Gentoo

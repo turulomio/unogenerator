@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 10:13+0100\n"
+"POT-Creation-Date: 2021-11-09 19:15+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -242,7 +242,7 @@ msgid "ODS"
 msgstr "ODS"
 
 msgid "ODS 'Hello World' example"
-msgstr ""
+msgstr "Ejemplo 'Hola mundo' con ODS"
 
 msgid "This is a Hello World example. You'll get the example in ods, xlsx and pdf formats:"
 msgstr ""
@@ -254,9 +254,18 @@ msgid "This paragraph was set after replacement."
 msgstr "Este párrafo fue añadido después de la sustitución."
 
 msgid "This paragraph was set after a page break."
-msgstr ""
+msgstr "Este párrafo se añadió despues de un salto de página."
 
 msgid "This paragraph was set after a page break with Landscape style."
+msgstr ""
+
+msgid "This is a pair of brackets ()."
+msgstr ""
+
+msgid "NOW)("
+msgstr ""
+
+msgid "This is a set of symbols: .,:;?ºª\\_-/()."
 msgstr ""
 
 msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
