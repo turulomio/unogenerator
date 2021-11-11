@@ -7,6 +7,10 @@ from uno import getComponentContext, createUnoStruct, systemPathToFileUrl
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
+from com.sun.star.sheet.ConditionEntryType import COLORSCALE
+
+
+
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
 from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
 from gettext import translation
@@ -385,6 +389,8 @@ class ODT(ODF):
         self.cursor.setPropertyValue("PageDescName", style)
         self.document.Text.insertString(self.cursor, "", False)
 
+
+
 class ODS(ODF):
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
@@ -753,7 +759,27 @@ class ODS(ODF):
             self.document.storeToURL(systemPathToFileUrl(tempfile), args)
             makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
             copyfile(tempfile, filename)
-
+            
+    def setColorScale(self, range):
+        range=R.assertRange(range)
+        myCells=self.sheet.getCellRangeByName(range.string())
+#        print(unorange, dir(unorange))
+#        print(self.sheet, dir(self.sheet))
+        myConditionalFormat = myCells.ConditionalFormat
+        args=(
+            PropertyValue('Operator',0, COLORSCALE,0),
+        )
+        myConditionalFormat.clear()
+        myConditionalFormat.addNew(args)
+        print(dir(myCells))
+        myCells.ConditionalFormat = myConditionalFormat
+#        self.ws_current.conditional_formatting.add(range, 
+#                            openpyxl.formatting.rule.ColorScaleRule(
+#                                                start_type='percentile', start_value=0, start_color='00FF00',
+#                                                mid_type='percentile', mid_value=50, mid_color='FFFFFF',
+#                                                end_type='percentile', end_value=100, end_color='FF0000'
+#                                                )
+#                                            )
 
 class ODS_Standard(ODS):
     def __init__(self, loserver_port=2002):

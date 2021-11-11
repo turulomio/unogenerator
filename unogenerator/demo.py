@@ -43,6 +43,8 @@ def main(arguments=None):
     args=parser.parse_args(arguments)
 
     addDebugSystem(args.debug)
+    demo_ods_standard("es")
+    return
     
     if args.remove==True:
             for language in ['es', 'en']:
@@ -216,6 +218,10 @@ def demo_ods_standard(language, port=2002, suffix="",):
     lod.append(OrderedDict({"Singer": "Elvis",  "Songs": 10000 , "Albums": 100}))
     lod.append(OrderedDict({"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 }))
     helper_list_of_ordereddicts_with_totals(doc, "A36",  lod, columns_header=1)
+    
+    
+    doc.addColumnWithStyle("A41",  [1, 3, 2, 4, 1, 5])
+    doc.setColorScale("A41:A46")
 
     doc.save(f"unogenerator_example_{language}{suffix}.ods")
     doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
