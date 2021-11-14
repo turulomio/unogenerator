@@ -92,6 +92,16 @@ class ODF:
             styles.sort()
             for style in styles:
                 print ( f"    - {style}")
+                
+                
+    # Returns a list of page styles objects
+    def getPageStyles(self):
+        r=[]
+        family=self.document.StyleFamilies.getByName('PageStyles')
+        for i in range(family.Count):
+            r.append(family.getByIndex(i))
+        return r
+        
 
     def setLanguage(self, language, country):
         print("FALTA")

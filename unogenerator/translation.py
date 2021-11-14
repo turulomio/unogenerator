@@ -58,52 +58,49 @@ def filter_occurrences(entries, filename, type):
         if filename==e_filename and e_type==type:
             r.append((e_filename, e_type, e_number,  e_position,  text))
     return r
-        
-## Input is a listst of strings
-def command(from_language, to_language, input, output_directory, translate,  undetected_strings=[], fake=False):   
-
-        
-        ##########################
-        
-    makedirs(output_directory, exist_ok=True)
-    makedirs(f"{output_directory}/{to_language}", exist_ok=True)
     
-    pot=f"{output_directory}/catalogue.pot"
-    po=f"{output_directory}/{to_language}/{to_language}.po"
-        
-    entries=[]#List of (filename,"type", numero, posicion) type=Paragraph, numero=numero parrafo y posición orden dentro del parrafo
-    set_strings=set()
-    # Creating pot file
-    print(_("Extracting strings from:"))
-    for filename in input:
-        print(_(f"   - {filename}"))
+    
+def getEntriesFromDocument(filename):
+        r=[]
         doc=ODT(filename)
+        print(dir(doc.document))
 
         #Extract strings from paragraphs
-        enumeration = doc.cursor.Text.createEnumeration()
-        for i,  par in enumerate(enumeration):
-            if  par.supportsService("com.sun.star.text.Paragraph") :
-                for position, element in enumerate(par.createEnumeration()):
-                    text_=element.getString()
-                    if text_ !="" and text_!=" " and text_!="  ":
-                        entries.append((filename,"Paragraph",  i,  position, text_))
-                        set_strings.add(text_)
+        r=r+entries_from_paragraph_enumeration("Paragraph", doc.cursor.Text.createEnumeration(), filename)
 
-        #Extract strings from headers
-        enumeration = doc.cursor.Text.createEnumeration()
-        
-        a=doc.document.Text
-        print(a, dir(a))
-        for i,  par in enumerate(enumeration):
-            if  par.supportsService("com.sun.star.text.Paragraph") :
-                for position, element in enumerate(par.createEnumeration()):
-                    text_=element.getString()
-                    if text_ !="" and text_!=" " and text_!="  ":
-                        entries.append((filename,"Headers",  i,  position, text_))
-                        set_strings.add(text_)
+        for style in doc.getPageStyles():
+#            print(style.getName())
+            
+            #Extract strings from headers
+            ht=style.HeaderText
+            if ht is None:
+                continue
+            r=r+entries_from_paragraph_enumeration("HeaderParagraph", ht.createEnumeration(), filename)
+            #Extract strings from foot
+            ft=style.FooterText
+            if ft is None:
+                continue
+            r=r+entries_from_paragraph_enumeration("FooterParagraph", ft.createEnumeration(), filename)
+
+        for table in doc.document.getTextTables():
+            print
 
         doc.close()
-    
+        return r
+        
+def entries_from_paragraph_enumeration(title, enumeration, filename):
+        r=[]
+        for i,  par in enumerate(enumeration):
+#            print(i, par, dir(par))
+            if  par.supportsService("com.sun.star.text.Paragraph") :
+                for position, element in enumerate(par.createEnumeration()):
+                    text_=element.getString()
+                    if text_ !="" and text_!=" " and text_!="  ":
+                        entry=(filename, title,  i,  position, text_)
+                        r.append(entry)
+
+        return r
+            
     #Extract strings from headers
 #    ' Turn headers on and then make them shared!
 #oPstyle.HeaderOn = True
@@ -122,8 +119,9 @@ def command(from_language, to_language, input, output_directory, translate,  und
 #sService = "com.sun.star.text.TextField.SheetName"
 #oField = oDoc.createInstance(sService)
 #oText.insertTextContent(oCursor, oField, False)
-    
-        
+## Input is a listst of strings
+
+def generate_pot_file(potfilename, set_strings, entries):
     file_pot = POFile()
     file_pot.metadata = {
         'Project-Id-Version': '1.0',
@@ -148,7 +146,28 @@ def command(from_language, to_language, input, output_directory, translate,  und
             occurrences=same_entries_to_ocurrences(same_entries)
         )
         file_pot.append(entry)
-    file_pot.save(pot)
+    file_pot.save(potfilename)
+
+def command(from_language, to_language, input, output_directory, translate,  undetected_strings=[], fake=False):   
+    makedirs(output_directory, exist_ok=True)
+    makedirs(f"{output_directory}/{to_language}", exist_ok=True)
+    
+    pot=f"{output_directory}/catalogue.pot"
+    po=f"{output_directory}/{to_language}/{to_language}.po"
+        
+    entries=[]#List of (filename,"type", numero, posicion) type=Paragraph, numero=numero parrafo y posición orden dentro del parrafo
+    print(_("Extracting strings from:"))
+    for filename in input:
+        print(_(f"   - {filename}"))
+        entries=entries+getEntriesFromDocument(filename)
+        
+    # Set with distinct strings of all entries
+    set_strings=set()
+    for filename, type, number, position, string_ in entries:
+        set_strings.add(string_)
+
+    #Generate pot file
+    generate_pot_file(pot, set_strings, entries)
     
     #Merging pot with out po file
     if path.exists(po)==False:
@@ -172,15 +191,19 @@ def command(from_language, to_language, input, output_directory, translate,  und
     if translate is True:
         print(_("Translating files to:"))
         for filename in input:
-            doc=ODT(filename)
             output=f"{output_directory}/{to_language}/{path.basename(filename)}"
             print(_(f"   - {output}"))
+            write_translation(output,  dict_po, entries)
+            
+            
+def write_translation(filename, dict_po, entries):
+            doc=ODT(filename)
             search_descriptor=None
             for filename, type, number,  position,  text in filter_occurrences(entries, filename, "Paragraph"):
                 search_descriptor=doc.find_and_replace_and_return_descriptor(text, dict_po[text], search_descriptor)
             
-            doc.save(output)
-            doc.export_pdf(output+".pdf")
+            doc.save(filename)
+            doc.export_pdf(filename+".pdf")
             doc.close()
         
 
