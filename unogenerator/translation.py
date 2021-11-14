@@ -97,29 +97,17 @@ def entries_from_paragraph_enumeration(title, enumeration, filename):
                     text_=element.getString()
                     if text_ !="" and text_!=" " and text_!="  ":
                         entry=(filename, title,  i,  position, text_)
+#                        print(entry)
                         r.append(entry)
-
+            elif  par.supportsService("com.sun.star.text.TextTable") :
+#                print("AQUQI", par, dir(par), par.getColumns().Count, par.getRows().Count)
+                for column in range(par.getColumns().Count):
+                    for row in range(par.getRows().Count):
+                        cell=par.getCellByPosition(column, row)
+                        r=r+entries_from_paragraph_enumeration(f"{title}Table,paragraph{i},column{column},row{row}", cell.createEnumeration(), filename)
         return r
             
-    #Extract strings from headers
-#    ' Turn headers on and then make them shared!
-#oPstyle.HeaderOn = True
-#oPstyle.HeaderShared = True
-#' The is also a RightText and a LeftText
-#oHeader = oPstyle.RightPageHeaderContent
-#oText = oHeader.CenterText
-#' You may now set the text object to be anything you desire
-#' Use setSTring() from the text object to set simple text.
-#' Use a cursor to insert a field (such as the current sheet name).
-#' First, clear any existing text!
-#oText.setString("")
-#oCursor = oText.createTextCursor()
-#oText.insertString(oCursor, "Sheet: ", False)
-#' This will have the sheet name of the current sheet!
-#sService = "com.sun.star.text.TextField.SheetName"
-#oField = oDoc.createInstance(sService)
-#oText.insertTextContent(oCursor, oField, False)
-## Input is a listst of strings
+
 
 def generate_pot_file(potfilename, set_strings, entries):
     file_pot = POFile()
@@ -190,20 +178,25 @@ def command(from_language, to_language, input, output_directory, translate,  und
     
     if translate is True:
         print(_("Translating files to:"))
-        for filename in input:
+        for filename_input in input:
             output=f"{output_directory}/{to_language}/{path.basename(filename)}"
             print(_(f"   - {output}"))
-            write_translation(output,  dict_po, entries)
+            write_translation(filename_input, output,  dict_po, entries)
             
             
-def write_translation(filename, dict_po, entries):
-            doc=ODT(filename)
-            search_descriptor=None
-            for filename, type, number,  position,  text in filter_occurrences(entries, filename, "Paragraph"):
-                search_descriptor=doc.find_and_replace_and_return_descriptor(text, dict_po[text], search_descriptor)
-            
-            doc.save(filename)
-            doc.export_pdf(filename+".pdf")
-            doc.close()
+def write_translation(original, filename, dict_po, entries):
+    doc=ODT(original)
+    search_descriptor=None
+    replaced=0
+    for filename_, type, number,  position,  text in entries:
+        if filename_==path.basename(filename):
+            search_descriptor=doc.find_and_replace_and_return_descriptor(text, dict_po[text], search_descriptor)
+            print(f"{text} ==> {dict_po[text]}")
+            if search_descriptor is not None:
+                replaced=replaced+1
+    print(f"Traducidas {replaced}")
+    doc.save(filename)
+    doc.export_pdf(filename+".pdf")
+    doc.close()
         
 
