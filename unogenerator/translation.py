@@ -6,7 +6,6 @@ from subprocess import run
 from pkg_resources import resource_filename
 from unogenerator.commons import __version__, argparse_epilog
 from unogenerator import ODT
-import xml.etree.ElementTree as ET
 
 
 try:
@@ -26,9 +25,6 @@ def run_check(command, shell=False):
         print("Saliendo de la instalación")
         exit(2)
 
-
-def innercontent(element):
-    return (element.text or '') + ''.join(ET.tostring(e, 'unicode').replace("ns0:", "") for e in element)
             
 def main():
     parser=ArgumentParser(prog='unogenerator', description=_('Generate a po and pot file from ODF'), epilog=argparse_epilog(), formatter_class=RawTextHelpFormatter)
@@ -49,16 +45,7 @@ def same_entries_to_ocurrences(l):
     for filename, type, number,  position,  text in l:
         r.append((filename, f"{type}#{number}#{position}"))
     return r
-    
-## Returns a list of entrieses withh filename and type sorted by number and positionion
-def filter_occurrences(entries, filename, type):
-    entries= sorted(entries, key=lambda x: (x[0], x[1], x[2], x[3]))
-    r=[]
-    for e_filename, e_type, e_number,  e_position,  text in entries:
-        if filename==e_filename and e_type==type:
-            r.append((e_filename, e_type, e_number,  e_position,  text))
-    return r
-    
+
     
 def getEntriesFromDocument(filename):
         r=[]
@@ -102,8 +89,11 @@ def entries_from_paragraph_enumeration(title, enumeration, filename):
 #                print("AQUQI", par, dir(par), par.getColumns().Count, par.getRows().Count)
                 for column in range(par.getColumns().Count):
                     for row in range(par.getRows().Count):
-                        cell=par.getCellByPosition(column, row)
-                        r=r+entries_from_paragraph_enumeration(f"{title}Table,paragraph{i},column{column},row{row}", cell.createEnumeration(), filename)
+                        try:
+                            cell=par.getCellByPosition(column, row)
+                            r=r+entries_from_paragraph_enumeration(f"{title}Table,paragraph{i},column{column},row{row}", cell.createEnumeration(), filename)
+                        except:
+                            print (_("Perhaps a merged string"))
         return r
             
 
