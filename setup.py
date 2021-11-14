@@ -150,7 +150,7 @@ with open('unogenerator/commons.py', encoding='utf-8') as f:
 
 setup(name='unogenerator',
      version=__version__,
-     description='Python module to read and write LibreOffice and MS Office files',
+     description='Python module to read and write LibreOffice and MS Office files using uno API',
      long_description='Project web page is in https://github.com/turulomio/unogenerator',
      long_description_content_type='text/markdown',
      classifiers=['Development Status :: 4 - Beta',
@@ -165,7 +165,7 @@ setup(name='unogenerator',
      author_email='turulomio@yahoo.es',
      license='GPL-3',
      packages=['unogenerator'],
-     install_requires=["humanize", "colorama"],
+     install_requires=["tqdm", "humanize", "colorama"],
      entry_points = {'console_scripts': [
                             'unogenerator_demo=unogenerator.demo:main',
                             'unogenerator_demo_concurrent=unogenerator.demo:main_concurrent',
