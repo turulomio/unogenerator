@@ -1,4 +1,5 @@
 # UnoGenerator
+
 ## Description
 Python module to generate Libreoffice documents (ODT and ODS) programatically.
 
@@ -43,6 +44,38 @@ doc.export_xlsx("hello_world.xlsx")
 doc.export_pdf("hello_world.pdf")
 doc.close()
 ```
+
+## Unogenerator scripts
+
+Python unogenerator package has the following scripts:
+
+### unogenerator_start
+
+Launch libreoffice server, as many process as cpus in your computer.
+
+### unogenerator_stop
+
+Stops libreoffice server instances
+
+### unogenerator_monitor
+
+Monitors your libreoffice server instances
+
+### unogenerator_translation
+
+With this tool you can translate several odt files with one command. It generates .pot and .po files, where you can set your translations. Then run your command again and you'll get your files translated
+
+`unogenerator_translation --from_language es --to_language en --input original.odt --input original2.odt  --output_directory "translation_original" --translate`
+
+You can use --fake to see simulation of your translation
+
+### unogenerator_demo
+
+With this tool you can generate a demo
+
+### unogenerator_demo_concurrent
+
+With this tool you can generate a demo with a lot of files to benchmark your unogenerator serve
 
 ## Documentation
 You can read [documentation](https://github.com/turulomio/unogenerator/blob/main/doc/unogenerator_documentation_en.odt?raw=true) in doc directory. It has been created with unogenerator.
