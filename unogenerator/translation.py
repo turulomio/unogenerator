@@ -63,7 +63,6 @@ def filter_occurrences(entries, filename, type):
 def getEntriesFromDocument(filename):
         r=[]
         doc=ODT(filename)
-        print(dir(doc.document))
 
         #Extract strings from paragraphs
         r=r+entries_from_paragraph_enumeration("Paragraph", doc.cursor.Text.createEnumeration(), filename)
@@ -179,8 +178,8 @@ def command(from_language, to_language, input, output_directory, translate,  und
     if translate is True:
         print(_("Translating files to:"))
         for filename_input in input:
-            output=f"{output_directory}/{to_language}/{path.basename(filename)}"
-            print(_(f"   - {output}"))
+            output=f"{output_directory}/{to_language}/{path.basename(filename_input)}"
+            print(_(f"   + {output}"))
             write_translation(filename_input, output,  dict_po, entries)
             
             
@@ -191,10 +190,10 @@ def write_translation(original, filename, dict_po, entries):
     for filename_, type, number,  position,  text in entries:
         if filename_==path.basename(filename):
             search_descriptor=doc.find_and_replace_and_return_descriptor(text, dict_po[text], search_descriptor)
-            print(f"{text} ==> {dict_po[text]}")
+#            print(f"{text} ==> {dict_po[text]}")
             if search_descriptor is not None:
                 replaced=replaced+1
-    print(f"Traducidas {replaced}")
+    print(f"      - Translated {replaced} strings")
     doc.save(filename)
     doc.export_pdf(filename+".pdf")
     doc.close()
