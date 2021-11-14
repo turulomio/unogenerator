@@ -32,27 +32,48 @@ oRangos = doc.document.createInstance("com.sun.star.sheet.SheetCellRanges")
 oRangos.addRangeAddress( doc.sheet.getCellRangeByName( "B1:B8" ).getRangeAddress() ,False )
 doc.document.getCurrentController().select(oRangos)
 
+print("oRangos", oRangos, dir(oRangos))
+orcf=oRangos.ConditionalFormat
+print("oRangosConditionalFormat", orcf, dir(orcf))
+
+arr=(
+    PropertyValue('FilterName',0,'writer8',0),
+)
+
+
+new=orcf.addNew()
+print("new", new, dir(new))
 
 
 
 cfs=doc.sheet.ConditionalFormats.createByRange(oRangos)
-print("CFS", cfs)
-cfo=doc.sheet.ConditionalFormats.getConditionalFormats()[0]
-print("CFO", cfo, dir(cfo), len(cfo))
-
-for e in range(cfo.Count):
-    p=cfo.getByIndex(e)
-    print("ORIGINAL", p,  dir(p))
-    print(p.ColorScaleEntries)
+#cfo=doc.sheet.ConditionalFormats.getConditionalFormats()[0]
+#print("CFO", cfo, dir(cfo), len(cfo))
+#
+#for e in range(cfo.Count):
+#    p=cfo.getByIndex(e)
+#    print("ORIGINAL", p,  dir(p))
+#    cse=p.ColorScaleEntries[0]
+#    print("COLORSCALEENTRIES",  cse ,  dir(cse))
+#    print("COLORSCALEENTRIESDETAILS", cse.getColor() ,  cse.getFormula(), cse.getType(), cse.getTypes())
 
 cf=doc.sheet.ConditionalFormats.getConditionalFormats()[cfs-1]
 print("CF", cf, dir(cf), len(cf))
-cf.createEntry(1, 0)#1 es colorscale
+#cf.createEntry(1, 0)#1 es colorscale
 
-entry=cf.getByIndex(0)
-
-print(entry.ColorScaleEntries)
-print("ENTRY",  entry, dir(entry))
+#entry=cf.getByIndex(0)
+#print("ENTRY",  entry, dir(entry))
+#
+#new = createUnoStruct("com.sun.star.sheet.XColorScaleEntry")
+#new.acquire()
+##print("NEW", new, dir(new))
+##newi=new.__init__()
+##print(newi)
+#
+#
+#print("Calorscaleentryies", entry.ColorScaleEntries,  dir(entry.ColorScaleEntries))
+#entry.ColorScaleEntries=(new, )
+#print("Calorscaleentryies", entry.ColorScaleEntries,  dir(entry.ColorScaleEntries))
 #se_uno=createUnoStruct("com.sun.star.sheet.ColorScale")
 #print(se_uno,  dir(se_uno), se_uno.__class__)
 #print(se_uno.getFormula())

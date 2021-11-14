@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project unogenerator",
     "copyright": "Copyright (C) 2021 , ",
-    "saved": "2021-10-29, 16:16:17"
+    "saved": "2021-11-14, 10:16:16"
   },
   "project": {
     "AUTHOR": "",
@@ -83,7 +83,11 @@
       "unogenerator/helpers.py",
       "unogenerator/__init__.py",
       "unogenerator/server.py",
-      "unogenerator/reusing/listdict_functions.py"
+      "unogenerator/reusing/listdict_functions.py",
+      "pruebasetcolors.py",
+      "pregunta.py",
+      "unogenerator/translate_odf.py",
+      "unogenerator/translation.py"
     ],
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",
