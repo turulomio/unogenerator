@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-09 19:16+0100\n"
+"POT-Creation-Date: 2021-11-14 19:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -332,6 +332,47 @@ msgid "Server wasn't restarted because it's busy"
 msgstr ""
 
 msgid "Server doesn't need to be restarted"
+msgstr ""
+
+msgid "Generate a po and pot file from ODF"
+msgstr ""
+
+msgid "Language to translate from. Example codes: es, fr, en, md"
+msgstr ""
+
+msgid "Language to translate to. Example codes: es, fr, en, md"
+msgstr ""
+
+msgid "File to translate"
+msgstr ""
+
+msgid "Output directory"
+msgstr ""
+
+msgid "Undetected strings to apped to translation"
+msgstr ""
+
+msgid "Make translation too"
+msgstr ""
+
+msgid "Sets fake to all strings"
+msgstr ""
+
+msgid "Perhaps a merged string"
+msgstr ""
+
+msgid "Extracting strings from:"
+msgstr ""
+
+#, python-brace-format
+msgid "   - {filename}"
+msgstr ""
+
+msgid "Translating files to:"
+msgstr ""
+
+#, python-brace-format
+msgid "   + {output}"
 msgstr ""
 
 #, python-brace-format

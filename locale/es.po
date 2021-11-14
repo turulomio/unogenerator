@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-09 19:15+0100\n"
+"POT-Creation-Date: 2021-11-14 19:51+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -248,7 +248,7 @@ msgid "This is a Hello World example. You'll get the example in ods, xlsx and pd
 msgstr ""
 
 msgid "This paragraph was set at the end of the code after a find and replace command."
-msgstr ""
+msgstr "Este párrafo se puso al final del código después de un comando de busqueda y sustitución."
 
 msgid "This paragraph was set after replacement."
 msgstr "Este párrafo fue añadido después de la sustitución."
@@ -311,7 +311,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Memory used: {str_mem_total}"
-msgstr ""
+msgstr "Memoria usada: {str_mem_total}"
 
 msgid "Max memory recommended: {green(naturalsize(max_mem_recommended))}"
 msgstr ""
@@ -334,6 +334,47 @@ msgid "Server wasn't restarted because it's busy"
 msgstr ""
 
 msgid "Server doesn't need to be restarted"
+msgstr ""
+
+msgid "Generate a po and pot file from ODF"
+msgstr ""
+
+msgid "Language to translate from. Example codes: es, fr, en, md"
+msgstr ""
+
+msgid "Language to translate to. Example codes: es, fr, en, md"
+msgstr ""
+
+msgid "File to translate"
+msgstr "Fichero a traducir"
+
+msgid "Output directory"
+msgstr "Directorio de salida"
+
+msgid "Undetected strings to apped to translation"
+msgstr ""
+
+msgid "Make translation too"
+msgstr "Realiza también la traducción"
+
+msgid "Sets fake to all strings"
+msgstr ""
+
+msgid "Perhaps a merged string"
+msgstr ""
+
+msgid "Extracting strings from:"
+msgstr ""
+
+#, python-brace-format
+msgid "   - {filename}"
+msgstr ""
+
+msgid "Translating files to:"
+msgstr "Traduciendo ficheros a:"
+
+#, python-brace-format
+msgid "   + {output}"
 msgstr ""
 
 #, python-brace-format

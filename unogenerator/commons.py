@@ -8,8 +8,8 @@ from psutil import process_iter
 from uno import createUnoStruct
 from unogenerator.reusing.listdict_functions import listdict_min
 
-__version__ = '0.11.0'
-__versiondatetime__=datetime(2021, 11, 9, 19, 14)
+__version__ = '0.12.0'
+__versiondatetime__=datetime(2021, 11, 14, 19, 49)
 __versiondate__=__versiondatetime__.date()
 
 try:

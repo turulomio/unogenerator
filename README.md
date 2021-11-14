@@ -90,6 +90,10 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.12.0 (2021-11-14)
+- Added `unogenerator_translation` script to translate odf files using .po files.
+- Added sortRange method.
+
 ### 0.11.0 (2021-11-09)
 - Added findall_and_replace method.
 
