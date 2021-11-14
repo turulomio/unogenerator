@@ -3,7 +3,7 @@
 
 from datetime import datetime
 from os import path, makedirs
-from uno import getComponentContext, createUnoStruct, systemPathToFileUrl
+from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
@@ -197,25 +197,10 @@ class ODT(ODF):
             makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
             copyfile(tempfile, filename)
 
-
-
     ## This method has problems with ().\ *// especial characters. Findall and replace works fine
-    def find_and_replace(self, find, replace="", log=False):
-        search=self.document.createSearchDescriptor()
-        search.SearchString=find
-        found=self.document.findNext(search)
-        if found is not None:
-            found.setString("")
-            self.cursor=found
-            found.Text.insertString(self.cursor, replace, False)
-            return True
-        else:
-            if log is True:
-                warning(f"'{find}' was not found in the document'")
-            return False
-
-    ## This method has problems with ().\ *// especial characters. Findall and replace works fine
-    def find_and_replace_and_return_descriptor(self, find, replace="", last=None, log=False):
+    ## Last is the descriptor returned after first found
+    ## @return None if  not found. Descriptor(can be used again with last) of the last found
+    def find_and_replace(self, find, replace="", last=None, log=False):
         search=self.document.createSearchDescriptor()
         search.SearchString=find
         if last is None:
@@ -578,6 +563,23 @@ class ODS(ODF):
         else:
             cell.setString(str(o))
             print("MISSING", o.__class__.__name__)
+            
+    def sortRange(self, range,  sortindex, ascending=True, casesensitive=True):
+        range=R.assertRange(range)
+        unorange=self.sheet.getCellRangeByName(range.string())
+        sortfield=createUnoStruct("com.sun.star.table.TableSortField")
+        sortfield.Field=sortindex
+        sortfield.IsAscending=ascending
+        sortfield.IsCaseSensitive=casesensitive
+        sortDescr = unorange.createSortDescriptor()
+        
+
+        for prop in sortDescr:
+            if prop.Name == 'SortFields':
+                prop.Value = Any('[]com.sun.star.table.TableSortField', (sortfield,))
+        # sort ...
+        unorange.sort(sortDescr)
+        
 
     def showStatistics(self):
         debug(f"- Number of cells {self.numcells}")
@@ -801,7 +803,6 @@ class ODS(ODF):
         )
         myConditionalFormat.clear()
         myConditionalFormat.addNew(args)
-        print(dir(myCells))
         myCells.ConditionalFormat = myConditionalFormat
 #        self.ws_current.conditional_formatting.add(range, 
 #                            openpyxl.formatting.rule.ColorScaleRule(

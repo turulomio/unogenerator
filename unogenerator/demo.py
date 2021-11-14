@@ -43,8 +43,6 @@ def main(arguments=None):
     args=parser.parse_args(arguments)
 
     addDebugSystem(args.debug)
-    demo_ods_standard("es")
-    return
     
     if args.remove==True:
             for language in ['es', 'en']:
@@ -222,6 +220,20 @@ def demo_ods_standard(language, port=2002, suffix="",):
     
     doc.addColumnWithStyle("A41",  [1, 3, 2, 4, 1, 5])
     doc.setColorScale("A41:A46")
+
+
+    ##Sort
+    doc.createSheet("Sort")
+    l=[7, 3, 2, 5, 6, 0, 9, 4, 10]
+    doc.addCellWithStyle("A1",  "Unsorted", ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("B1", "Sorted ASC", ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("C1", "Sorted DESC", ColorsNamed.Orange, "BoldCenter")
+    doc.addColumnWithStyle("A2", l)
+    doc.addColumnWithStyle("B2", l)
+    doc.addColumnWithStyle("C2", l)
+    doc.sortRange("B2:B10",  0)
+    doc.sortRange("C2:C10",  0, False)
+
 
     doc.save(f"unogenerator_example_{language}{suffix}.ods")
     doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")

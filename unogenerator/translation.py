@@ -179,7 +179,7 @@ def write_translation(original, filename, dict_po, entries):
     replaced=0
     for filename_, type, number,  position,  text in entries:
         if filename_==path.basename(filename):
-            search_descriptor=doc.find_and_replace_and_return_descriptor(text, dict_po[text], search_descriptor)
+            search_descriptor=doc.find_and_replace(text, dict_po[text], search_descriptor)
 #            print(f"{text} ==> {dict_po[text]}")
             if search_descriptor is not None:
                 replaced=replaced+1
