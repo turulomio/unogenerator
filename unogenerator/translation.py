@@ -31,14 +31,16 @@ def main():
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--from_language', action='store', help=_('Language to translate from. Example codes: es, fr, en, md'), required=True, metavar="CODE")
     parser.add_argument('--to_language', action='store', help=_('Language to translate to. Example codes: es, fr, en, md'), required=True,  metavar="CODE")
-    parser.add_argument('--input', action='append', help=_('File to translate'), required=True,  metavar="FILE")
-    parser.add_argument('--output_directory', action='store', help=_('Output directory'), required=True,  metavar="FILE")
-    parser.add_argument('--undetected', action='append', help=_('Undetected strings to apped to translation'), default=[])
-    parser.add_argument('--translate', action='store_true', help=_('Make translation too'), default=False)
-    parser.add_argument('--fake', action='store_true', help=_('Sets fake to all strings'), default=False)
+    parser.add_argument('--input', action='append', help=_('Files to translate. You can set several files.'), required=True,  metavar="FILE")
+    parser.add_argument('--output_directory', action='store', help=_('Output directory with results and catalogues'), required=True,  metavar="FILE")
+    parser.add_argument('--undetected', action='append', help=_('Undetected strings to append to translation'), default=[])
+    parser.add_argument('--translate', action='store_true', help=_('Creates translated file'), default=False)
+    parser.add_argument('--fake', action='store_true', help=_('Sets a fake translation to all strings'), default=False)
+    parser.add_argument('--pdf', action='store_true', help=_('Creates translated file in pdf'), default=False)
     args=parser.parse_args()
     
-    command(args.from_language, args.to_language, args.input, args.output_directory, args.translate, args.undetected, args.fake)
+    command(args.from_language, args.to_language, args.input, args.output_directory, args.translate, args.undetected, args.fake, args.pdf)
+
 def same_entries_to_ocurrences(l):
     l= sorted(l, key=lambda x: (x[0], x[1], x[2], x[3]))
     r=[]
@@ -54,9 +56,7 @@ def getEntriesFromDocument(filename):
         #Extract strings from paragraphs
         r=r+entries_from_paragraph_enumeration("Paragraph", doc.cursor.Text.createEnumeration(), filename)
 
-        for style in doc.getPageStyles():
-#            print(style.getName())
-            
+        for style in doc.getPageStyles():            
             #Extract strings from headers
             ht=style.HeaderText
             if ht is None:
@@ -67,10 +67,6 @@ def getEntriesFromDocument(filename):
             if ft is None:
                 continue
             r=r+entries_from_paragraph_enumeration("FooterParagraph", ft.createEnumeration(), filename)
-
-        for table in doc.document.getTextTables():
-            print
-
         doc.close()
         return r
         
@@ -125,7 +121,7 @@ def generate_pot_file(potfilename, set_strings, entries):
         file_pot.append(entry)
     file_pot.save(potfilename)
 
-def command(from_language, to_language, input, output_directory, translate,  undetected_strings=[], fake=False):   
+def command(from_language, to_language, input, output_directory, translate,  undetected_strings=[], fake=False, pdf=False):   
     makedirs(output_directory, exist_ok=True)
     makedirs(f"{output_directory}/{to_language}", exist_ok=True)
     
@@ -170,10 +166,10 @@ def command(from_language, to_language, input, output_directory, translate,  und
         for filename_input in input:
             output=f"{output_directory}/{to_language}/{path.basename(filename_input)}"
             print(_(f"   + {output}"))
-            write_translation(filename_input, output,  dict_po, entries)
+            write_translation(filename_input, output,  dict_po, entries, pdf)
             
             
-def write_translation(original, filename, dict_po, entries):
+def write_translation(original, filename, dict_po, entries, pdf):
     doc=ODT(original)
     search_descriptor=None
     replaced=0
@@ -185,7 +181,9 @@ def write_translation(original, filename, dict_po, entries):
                 replaced=replaced+1
     print(f"      - Translated {replaced} strings")
     doc.save(filename)
-    doc.export_pdf(filename+".pdf")
+    if pdf is True:
+        print("      - PDF translation generated")
+        doc.export_pdf(filename[:-4] +".pdf")
     doc.close()
         
 
