@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-14 19:53+0100\n"
+"POT-Creation-Date: 2021-11-16 05:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -343,19 +343,22 @@ msgstr ""
 msgid "Language to translate to. Example codes: es, fr, en, md"
 msgstr ""
 
-msgid "File to translate"
+msgid "Files to translate. You can set several files."
 msgstr ""
 
-msgid "Output directory"
+msgid "Output directory with results and catalogues"
 msgstr ""
 
-msgid "Undetected strings to apped to translation"
+msgid "Undetected strings to append to translation"
 msgstr ""
 
-msgid "Make translation too"
+msgid "Creates translated file"
 msgstr ""
 
-msgid "Sets fake to all strings"
+msgid "Sets a fake translation to all strings"
+msgstr ""
+
+msgid "Creates translated file in pdf"
 msgstr ""
 
 msgid "Perhaps a merged string"

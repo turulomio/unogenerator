@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-14 19:51+0100\n"
+"POT-Creation-Date: 2021-11-16 05:40+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -345,44 +345,47 @@ msgstr ""
 msgid "Language to translate to. Example codes: es, fr, en, md"
 msgstr ""
 
-msgid "File to translate"
-msgstr "Fichero a traducir"
-
-msgid "Output directory"
-msgstr "Directorio de salida"
-
-msgid "Undetected strings to apped to translation"
+msgid "Files to translate. You can set several files."
 msgstr ""
 
-msgid "Make translation too"
-msgstr "Realiza también la traducción"
-
-msgid "Sets fake to all strings"
+msgid "Output directory with results and catalogues"
 msgstr ""
+
+msgid "Undetected strings to append to translation"
+msgstr ""
+
+msgid "Creates translated file"
+msgstr "Crea el fichero traducido"
+
+msgid "Sets a fake translation to all strings"
+msgstr ""
+
+msgid "Creates translated file in pdf"
+msgstr "Crea el fichero traducido en pdf"
 
 msgid "Perhaps a merged string"
-msgstr ""
+msgstr "Quizas una cadena unida"
 
 msgid "Extracting strings from:"
 msgstr ""
 
 #, python-brace-format
 msgid "   - {filename}"
-msgstr ""
+msgstr "   - {filename}"
 
 msgid "Translating files to:"
 msgstr "Traduciendo ficheros a:"
 
 #, python-brace-format
 msgid "   + {output}"
-msgstr ""
+msgstr "   + {output}"
 
 #, python-brace-format
 msgid "Changing port {old} to {self.loserver_port} {i} times"
 msgstr ""
 
 msgid "This process died"
-msgstr ""
+msgstr "Este proceso murió"
 
 msgid "You can't use the same filename as your template or you will overwrite it."
 msgstr ""
@@ -391,244 +394,19 @@ msgid "You can force it, setting overwrite_template paramter to True"
 msgstr ""
 
 msgid "Document hasn't been saved."
-msgstr ""
+msgstr "El documento no ha sido guardado."
 
 msgid "Filename extension must be 'odt'."
-msgstr ""
+msgstr "La extensión del nombre del fichero debe ser 'odt'."
 
 msgid "Filename extension must be 'pdf'."
-msgstr ""
+msgstr "La extensión del nombre del fichero debe ser 'pdf'."
 
 msgid "Filename extension must be 'docx'."
-msgstr ""
+msgstr "La extensión del nombre del fichero debe ser 'docx'."
 
 msgid "Filename extension must be 'ods'."
-msgstr ""
+msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
-msgstr ""
-
-#~ msgid "My language is "
-#~ msgstr "Mi idioma es "
-
-#~ msgid "Hello World example"
-#~ msgstr "Ejemplo Hola Mundo"
-
-#~ msgid "We can create tables too, for example with size 11pt:"
-#~ msgstr "También podemos crear tablas, por ejemplo con tamaño 11pt:"
-
-#~ msgid "OfficeGenerator predefined paragraph styles"
-#~ msgstr "Estilos predefenidos de párrafo en OfficeGenerator"
-
-#~ msgid "OfficeGenerator has headers and titles as you can see in the document structure."
-#~ msgstr "OfficeGenerator tiene encabezados y titulos como puedes ver en la estructura del documento."
-
-#~ msgid "Morever, it has the following predefined styles:"
-#~ msgstr "Además, tiene los siguientes estilos predefinidos"
-
-#~ msgid "This is the 'Standard' style"
-#~ msgstr "Este es el estilo 'Standard'"
-
-#~ msgid "This is the 'StandardCenter' style"
-#~ msgstr "Este es el estilo 'StandardCenter'"
-
-#~ msgid "This is the 'StandardRight' style"
-#~ msgstr "Este es el estilo 'StandardRight'"
-
-#~ msgid "This is the 'Illustration' style"
-#~ msgstr "Este es el estilo 'Ilustración'"
-
-#~ msgid "This is the 'Bold18Center' style"
-#~ msgstr "Este es el estilo 'Bold18Center'"
-
-#~ msgid "This is the 'Bold16Center' style"
-#~ msgstr "Este es el estilo 'Bold16Center'"
-
-#~ msgid "This is the 'Bold14Center' style"
-#~ msgstr "Este es el estilo 'Bold14Center'"
-
-#~ msgid "This is the 'Bold12Center' style"
-#~ msgstr "Este es el estilo 'Bold12Center'"
-
-#~ msgid "This is the 'Bold12Underline' style"
-#~ msgstr "Este es el estilo 'Bold12Underline'"
-
-#~ msgid "Developed by Mariano Muñoz 2015-{}"
-#~ msgstr "Desarrollado por Mariano Muñoz 2015-{}"
-
-#~ msgid "Create example files using officegenerator module"
-#~ msgstr "Crea ficheros de ejemplo usando el módulo officegenerator"
-
-#~ msgid "This cell has been updated and modified"
-#~ msgstr "Esta celda ha sido actualizada y modificada"
-
-#~ msgid "Created cell"
-#~ msgstr "Celda creada"
-
-#~ msgid "OfficeGenerator ODS example"
-#~ msgstr "Ejemplo ODS de OfficeGenerator"
-
-#~ msgid "Demo with ODS_Write class"
-#~ msgstr "Demostración de la clase ODS_Write"
-
-#~ msgid "This file have been generated with OfficeGenerator-{}. You can see OfficeGenerator main page in http://github.com/turulomio/officegenerator"
-#~ msgstr "Este fichero ha sido generado con OfficeGenerator-{}. Puedes ver la página principal del proyecto OfficeGenerator en http://github.com/turulomio/officegenerator"
-
-#~ msgid "This is a comment"
-#~ msgstr "Esto es un comentario"
-
-#~ msgid "This cell is going to be merged with B13 a F14"
-#~ msgstr "Esta celda va a unir el rango B13 y F14"
-
-#~ msgid "This cell is going to be merged and aligned desde B18 a G18"
-#~ msgstr "Esta celda va a unir y alinear el rango B18 a G18"
-
-#~ msgid "These cells show formulas with diferent styles and number formats"
-#~ msgstr "Estas celdas muestran fórmulas with diferentes estilos y formatos numéricos"
-
-#~ msgid "OfficeGenerator ODT example"
-#~ msgstr "Ejemplo de ODT con OfficeGenerator"
-
-#~ msgid "Demo with ODT documents"
-#~ msgstr "Demostración con documentos ODT"
-
-#~ msgid "Manual of officegenerator"
-#~ msgstr "Manual de OfficeGenerator"
-
-#~ msgid "Version {}"
-#~ msgstr "Versión {}"
-
-#~ msgid "ODT files can be quickly generated with OfficeGenerator."
-#~ msgstr "Los ficheros ODT son creados rápidamente con OfficeGenerator."
-
-#~ msgid "It create predefined styles that allows to create nice documents without worry about styles."
-#~ msgstr "Crea estilos predefinidos que te permiten crear documentos vistosos sin preocuparte de los estilos."
-
-#~ msgid "Decimal"
-#~ msgstr "Decimal"
-
-#~ msgid "First"
-#~ msgstr "Primero"
-
-#~ msgid "Tables with the size 10pt:"
-#~ msgstr "Tablas con el tamaño 10pt:"
-
-#~ msgid "Tables with 8pt size:"
-#~ msgstr "Tablas con el tamaño 8pt:"
-
-#~ msgid "Third"
-#~ msgstr "Tercero"
-
-#~ msgid "Multilevel list with bullets"
-#~ msgstr "Lista multinivel con decoradores"
-
-#~ msgid "Multilevel list with Numbers"
-#~ msgstr "Lista multinivel con números"
-
-#~ msgid "Horizontal page"
-#~ msgstr "Página horizontal"
-
-#~ msgid "By default OfficeGenerator uses a predefined A4 page."
-#~ msgstr "Por defecto OfficeGenerator usa una página predefinida A4"
-
-#~ msgid "Morever, you can set a predefined A4 horizontal page, as you can see."
-#~ msgstr "Ademas, puedes añadir páginas horizontales A4 predefinidas, como puedes ver."
-
-#~ msgid "This is a custom cell"
-#~ msgstr "Esto es una celda modificada"
-
-#~ msgid "This cell is going to be merged with B13 and C13"
-#~ msgstr "Esta celda va a ser unida desde con B13 y C13"
-
-#~ msgid "This cell is going to be merged and aligned"
-#~ msgstr "Esta celda va a ser unida y alineada"
-
-#~ msgid "This are booleans"
-#~ msgstr "Estos son booleanos"
-
-#~ msgid "These are formulas returning booleans"
-#~ msgstr "Estas son fórmulas devolviendo booleanos"
-
-#~ msgid "This sheet max rows are {} and max columns {}"
-#~ msgstr "El número máximo de filas de esta celda es {} y el de columnas {}"
-
-#~ msgid "Cell B23 has a name 'Amount"
-#~ msgstr "La celda B23 tiene el nombre 'Amount'"
-
-#~ msgid "Cell B24 has a name 'Price"
-#~ msgstr "La celda B24 tiene el nombre 'Price'"
-
-#~ msgid "Cell B25 has a product with names"
-#~ msgstr "La celda B25 hace un producto con nombres"
-
-#~ msgid "Orange"
-#~ msgstr "Naranja"
-
-#~ msgid "Yellow"
-#~ msgstr "Amarillo"
-
-#~ msgid "White"
-#~ msgstr "Blanco"
-
-#~ msgid "You can't overwrite a readed ods"
-#~ msgstr "No puedes sobreescribir un ods leído"
-
-#~ msgid "You can't overwrite a readed odt"
-#~ msgstr "No puedes sobreescribir un odt leído"
-
-#~ msgid "*** ERROR: File wasn't generated ***"
-#~ msgstr "*** ERROR: El fichero no ha sido generado ***"
-
-#~ msgid "This is not a formula. You can't use overwrite_formula"
-#~ msgstr "Esto no es una fórmula. No puedes usar overwrite_formula"
-
-#~ msgid "Convert a ODF file into an indented xml"
-#~ msgstr "Convierte un fichero ODF en un xml indentado"
-
-#~ msgid "Odf file to convert"
-#~ msgstr "Fichero ODF a convertir"
-
-#~ msgid "officegenerator_odf2xml only works on Linux"
-#~ msgstr "officegenerator_odf2xml solo funciona en Linux"
-
-#~ msgid "Convert a XLSX file into an indented xml"
-#~ msgstr "Convierte un fichero XLSX en un xml con sangría"
-
-#~ msgid "XLSX file to convert"
-#~ msgstr "Fichero XLSX a convertir"
-
-#~ msgid "officegenerator_xlsx2xml only works on Linux"
-#~ msgstr "officegenerator_xlsx2xml sólo funciona en Linux"
-
-#~ msgid "Generating example files"
-#~ msgstr "Generando ficheros de ejemplo"
-
-#~ msgid "ODS Generated"
-#~ msgstr "ODS generado"
-
-#~ msgid "ODT Generated"
-#~ msgstr "ODT generado"
-
-#~ msgid "ODT (Search and replace) Generated"
-#~ msgstr "ODT (Buscar y remplazar) Generado"
-
-#~ msgid "ODT Generated from Manual Styles"
-#~ msgstr "ODT Generado con estilos manuales"
-
-#~ msgid "XLSX Generated"
-#~ msgstr "XLSX generado"
-
-#~ msgid "Integer with '"
-#~ msgstr "Entero con '"
-
-#~ msgid "ODS Readed and regenerated"
-#~ msgstr "ODS leído y regenerado"
-
-#~ msgid "XLSX Readed and regenerated"
-#~ msgstr "XLSX leído y regenerado"
-
-#~ msgid "This cell has been readed and modified"
-#~ msgstr "Esta celda ha sido leída y modificada"
-
-#~ msgid "Tag {} hasn't been found"
-#~ msgstr "La etiqueta {} no ha sido encontrada"
+msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
