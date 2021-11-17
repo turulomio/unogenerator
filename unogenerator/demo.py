@@ -347,7 +347,7 @@ doc=ODT()"""    , "Code")
 
     doc.addParagraph(_("Tables"), "Heading 2")
     table_data=[
-        [_("Concept"), _("Value"), _("Commnet") ], 
+        [_("Concept"), _("Value"), _("Comment") ], 
         [_("Text"), _("This is a text"), _("Good")], 
         [_("Datetime"), datetime.now(), _("Good")], 
         [_("Date"), date.today(), _("Good")], 

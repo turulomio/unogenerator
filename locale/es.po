@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-16 05:40+0100\n"
+"POT-Creation-Date: 2021-11-17 08:00+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -22,8 +22,15 @@ msgstr ""
 msgid "Developed by Mariano Muñoz 2020-{}"
 msgstr "Desarrollado por Mariano Muñoz 2021-{}"
 
+#, python-brace-format
+msgid "I couldn't detect unogenerator process info ({attempt}/{attempts} attempts)"
+msgstr "No pude detectar la información de los procesos de unogenerator ({attempt}/{attempts} intentos)"
+
 msgid "Have you launched unogenerator instances?. Please run unogenerator_start"
 msgstr ""
+
+msgid "I couldn't detect unogenerator instances"
+msgstr "No pude detectar las instancias de unogenerator"
 
 msgid "Error deleting: {} -> {}"
 msgstr "Error al borrar: {} -> {}"
@@ -94,7 +101,7 @@ msgid "UnoGenerator documentation"
 msgstr "Documentación de UnoGenerator"
 
 msgid "Unogenerator python module documentation"
-msgstr ""
+msgstr "Documentación del módulo Unogenerator de python"
 
 #, python-brace-format
 msgid "Version: {__version__}"
@@ -190,7 +197,7 @@ msgstr "Concepto"
 msgid "Value"
 msgstr "Valor"
 
-msgid "Commnet"
+msgid "Comment"
 msgstr ""
 
 msgid "Text"
@@ -298,7 +305,7 @@ msgid "  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} process
 msgstr ""
 
 msgid "Monitor unogenerator statistics"
-msgstr ""
+msgstr "Estadísticas del monitor de unogenerator"
 
 msgid "Instances: {green(instances)}"
 msgstr ""
@@ -325,16 +332,16 @@ msgid "Connections: {str_connections}"
 msgstr ""
 
 msgid "Restarting server"
-msgstr ""
+msgstr "Reiniciando servidor"
 
 msgid "Server restarted"
-msgstr ""
+msgstr "Servidor reiniciado"
 
 msgid "Server wasn't restarted because it's busy"
 msgstr ""
 
 msgid "Server doesn't need to be restarted"
-msgstr ""
+msgstr "El servidor no necesita ser reiniciado"
 
 msgid "Generate a po and pot file from ODF"
 msgstr ""

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-16 05:43+0100\n"
+"POT-Creation-Date: 2021-11-17 08:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,14 @@ msgstr ""
 msgid "Developed by Mariano Muñoz 2020-{}"
 msgstr ""
 
+#, python-brace-format
+msgid "I couldn't detect unogenerator process info ({attempt}/{attempts} attempts)"
+msgstr ""
+
 msgid "Have you launched unogenerator instances?. Please run unogenerator_start"
+msgstr ""
+
+msgid "I couldn't detect unogenerator instances"
 msgstr ""
 
 msgid "Error deleting: {} -> {}"
@@ -188,7 +195,7 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-msgid "Commnet"
+msgid "Comment"
 msgstr ""
 
 msgid "Text"

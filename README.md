@@ -90,6 +90,11 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.13.0 (2021-11-17)
+- Added all needed dependencies (tqdm, colorama, polib, psutil) to setup.py
+- Added --pdf argument to `unogenerator_translation` to return translation in a pdf file too.
+- If there's a problem getting unogenerator instances process information, it retries 10 attempts by default.
+
 ### 0.12.0 (2021-11-14)
 - Added `unogenerator_translation` script to translate odf files using .po files.
 - Added sortRange method.
