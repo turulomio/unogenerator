@@ -193,6 +193,7 @@ def helper_ods_sheet_stylenames(doc):
     for column, (family,  style_names) in enumerate(doc.dict_stylenames.items()):
         doc.addCellWithStyle(C("A1").addColumn(column), family, ColorsNamed.Orange, "BoldCenter")
         doc.addColumnWithStyle(C("A2").addColumn(column), style_names)
+    doc.freezeAndSelect("A2")
     
     
     
