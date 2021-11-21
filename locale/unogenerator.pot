@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-17 08:00+0100\n"
+"POT-Creation-Date: 2021-11-21 19:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -92,7 +92,7 @@ msgstr ""
 msgid "Boolean"
 msgstr ""
 
-msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}"
+msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.statistics.init} in {port}"
 msgstr ""
 
 msgid "UnoGenerator documentation"
@@ -273,7 +273,7 @@ msgstr ""
 msgid "This is a set of symbols: .,:;?ºª\\_-/()."
 msgstr ""
 
-msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
+msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.statistics.init} in {port}"
 msgstr ""
 
 msgid "Total"
@@ -339,6 +339,30 @@ msgid "Server wasn't restarted because it's busy"
 msgstr ""
 
 msgid "Server doesn't need to be restarted"
+msgstr ""
+
+msgid "Number"
+msgstr ""
+
+msgid "Total seconds"
+msgstr ""
+
+msgid "Average"
+msgstr ""
+
+msgid "Cells"
+msgstr ""
+
+msgid "Merged cells"
+msgstr ""
+
+msgid "Cell gets"
+msgstr ""
+
+msgid "Sheet creations"
+msgstr ""
+
+msgid "Sheet freezes"
 msgstr ""
 
 msgid "Generate a po and pot file from ODF"
@@ -408,6 +432,10 @@ msgid "Filename extension must be 'pdf'."
 msgstr ""
 
 msgid "Filename extension must be 'docx'."
+msgstr ""
+
+#, python-brace-format
+msgid "ERROR: You can't create '{name}' sheet, because it already exists."
 msgstr ""
 
 msgid "Filename extension must be 'ods'."

@@ -90,6 +90,11 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.14.0 (2021-11-21)
+- Added styles: Center, Right, VerticalCenter to standard.ods
+- Added a helper to create a ods sheet with all internal style names.
+- Added statistics module. Added a method to create an internal statistics ods sheet.
+
 ### 0.13.0 (2021-11-17)
 - Added all needed dependencies (tqdm, colorama, polib, psutil) to setup.py
 - Added --pdf argument to `unogenerator_translation` to return translation in a pdf file too.

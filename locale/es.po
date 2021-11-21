@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-17 08:00+0100\n"
+"POT-Creation-Date: 2021-11-21 19:29+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -36,7 +36,7 @@ msgid "Error deleting: {} -> {}"
 msgstr "Error al borrar: {} -> {}"
 
 msgid "Create example files using unogenerator module"
-msgstr ""
+msgstr "Crea ficheros de ejemplo usando el módulo de unogenerator"
 
 msgid "Debug program information"
 msgstr ""
@@ -94,8 +94,8 @@ msgstr "Tiempo"
 msgid "Boolean"
 msgstr "Booleano"
 
-msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}"
-msgstr "unogenerator_example_{language}{suffix}.ods tardó {datetime.now()-doc.init} en {port}"
+msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.statistics.init} in {port}"
+msgstr ""
 
 msgid "UnoGenerator documentation"
 msgstr "Documentación de UnoGenerator"
@@ -198,7 +198,7 @@ msgid "Value"
 msgstr "Valor"
 
 msgid "Comment"
-msgstr ""
+msgstr "Comentario"
 
 msgid "Text"
 msgstr "Texto"
@@ -219,7 +219,7 @@ msgid "Currency"
 msgstr "Divisa"
 
 msgid "We can create tables with diferent font sizes and formats:"
-msgstr ""
+msgstr "Podemos crear tablas con diferentes tamaños de fuentes y formatos:"
 
 msgid "Lists and numbered lists"
 msgstr "Listas y listas numeradas"
@@ -275,8 +275,8 @@ msgstr ""
 msgid "This is a set of symbols: .,:;?ºª\\_-/()."
 msgstr ""
 
-msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
-msgstr "unogenerator_documentation_{language}{suffix}.odt tardó {datetime.now()-doc.init} en {port}"
+msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.statistics.init} in {port}"
+msgstr ""
 
 msgid "Total"
 msgstr "Total"
@@ -329,7 +329,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Connections: {str_connections}"
-msgstr ""
+msgstr "Conexiones: {str_connections}"
 
 msgid "Restarting server"
 msgstr "Reiniciando servidor"
@@ -338,10 +338,34 @@ msgid "Server restarted"
 msgstr "Servidor reiniciado"
 
 msgid "Server wasn't restarted because it's busy"
-msgstr ""
+msgstr "El servidor no fue reiniciado porque está ocupado"
 
 msgid "Server doesn't need to be restarted"
 msgstr "El servidor no necesita ser reiniciado"
+
+msgid "Number"
+msgstr "Número"
+
+msgid "Total seconds"
+msgstr "Segundos totales"
+
+msgid "Average"
+msgstr "Media"
+
+msgid "Cells"
+msgstr "Celdas"
+
+msgid "Merged cells"
+msgstr "Celdas unidas"
+
+msgid "Cell gets"
+msgstr "Lectura de celdas"
+
+msgid "Sheet creations"
+msgstr "Nuevas hojas"
+
+msgid "Sheet freezes"
+msgstr "Inmovilizaciones de hoja"
 
 msgid "Generate a po and pot file from ODF"
 msgstr ""
@@ -412,8 +436,18 @@ msgstr "La extensión del nombre del fichero debe ser 'pdf'."
 msgid "Filename extension must be 'docx'."
 msgstr "La extensión del nombre del fichero debe ser 'docx'."
 
+#, python-brace-format
+msgid "ERROR: You can't create '{name}' sheet, because it already exists."
+msgstr ""
+
 msgid "Filename extension must be 'ods'."
 msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
+
+#~ msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}"
+#~ msgstr "unogenerator_example_{language}{suffix}.ods tardó {datetime.now()-doc.init} en {port}"
+
+#~ msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
+#~ msgstr "unogenerator_documentation_{language}{suffix}.odt tardó {datetime.now()-doc.init} en {port}"
