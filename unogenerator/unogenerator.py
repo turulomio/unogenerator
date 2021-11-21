@@ -23,6 +23,7 @@ from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.decorators import timeit
 from unogenerator.reusing.percentage import Percentage
+from sys import exit
 
 def createUnoService(serviceName):
 #        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
@@ -66,6 +67,7 @@ class ODF:
                     else:
                         self.document=self.desktop.loadComponentFromURL(self.template,'_blank', 8, args)
                     self.cursor=self.document.Text.createTextCursor()
+                self.dict_stylenames=self.dictionary_of_stylenames()
                 break
             except Exception as e:
                 print(e)
@@ -82,20 +84,21 @@ class ODF:
     def close(self):
         self.document.dispose()
         
-    def print_styles(self):
+    ## Generate a dictionary_of_styles with families as key, and a list of string styles as value
+    def dictionary_of_stylenames(self):
         stylefam=self.document.StyleFamilies
-        
-        print("Document styles")
+        d={}
         for sf_index,  sf in enumerate(stylefam):
-            print (f"  * Family '{stylefam.getElementNames()[sf_index]}'")
+            r=[]
             styles=list(sf.getElementNames())
             styles.sort()
             for style in styles:
-                print ( f"    - {style}")
-                
-                
+                r.append(style)
+            d[stylefam.getElementNames()[sf_index]]=r
+        return d
+
     # Returns a list of page styles objects
-    def getPageStyles(self):
+    def getPageStylesObjects(self):
         r=[]
         family=self.document.StyleFamilies.getByName('PageStyles')
         for i in range(family.Count):
@@ -418,10 +421,19 @@ class ODS(ODF):
     def setRemoveDefaultSheet(self, b):
         self._remove_default_sheet=b
         
+    def getSheetNames(self):        
+        return self.document.Sheets.ElementNames
+        
+        
     ## Creates a new sheet at the end of the sheets
     ## @param if index is None it creates sheet at the end of the existing sheets
     @timeit
     def createSheet(self, name, index=None):
+        for sheet in self.getSheetNames():
+            if sheet.upper()==name.upper():
+                print(_(f"ERROR: You can't create '{name}' sheet, because it already exists.")) 
+                exit(4)
+        
         sheets=self.document.getSheets()
         if index is None:
             index=len(sheets)
@@ -712,6 +724,7 @@ class ODS(ODF):
     def getSheetRange(self):
         endcoord=C("A1").addRow(self.rowNumber()-1).addColumn(self.columnNumber()-1)
         return R("A1:" + endcoord.string())
+        
 
     ## Returns (columnsNumber, rowsNumber
     @timeit

@@ -56,7 +56,7 @@ def getEntriesFromDocument(filename):
         #Extract strings from paragraphs
         r=r+entries_from_paragraph_enumeration("Paragraph", doc.cursor.Text.createEnumeration(), filename)
 
-        for style in doc.getPageStyles():            
+        for style in doc.getPageStylesObjects():            
             #Extract strings from headers
             ht=style.HeaderText
             if ht is None:

@@ -171,9 +171,6 @@ def helper_list_of_ordereddicts(doc, coord_start,  lod, keys=None, columns_heade
             
             doc.addCellWithStyle(coord_data.addRowCopy(row).addColumnCopy(column), od[key], color_, style)
 
-
-
-
 ## Write cells from a list of ordered dictionaries
 ## @param lod List of ordered dictionaries
 ## @param keys. If None write all keys, Else must be a list of keys
@@ -185,10 +182,17 @@ def helper_list_of_ordereddicts_with_totals(doc, coord_start,  lod, keys=None, c
     range_lod.start.addColumn(columns_header) ## Adds to skip columns headers
     helper_totals_from_range (doc, range_lod, key, totalcolumns, totalrows)
     
-
-
-
-
 ## It's the same of helper_list_of_ordereddicts but withth mandatory keys
 def helper_list_of_dicts(doc, coord_start,  lod, keys, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
     helper_list_of_ordereddicts(doc, coord_start,  lod, keys, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None)
+
+## Creates a new sheet called "Style names" with alll ods styles grouped by families
+def helper_ods_sheet_stylenames(doc):
+    doc.createSheet("Internal style names")
+    doc.setColumnsWidth([5, 5])
+    for column, (family,  style_names) in enumerate(doc.dict_stylenames.items()):
+        doc.addCellWithStyle(C("A1").addColumn(column), family, ColorsNamed.Orange, "BoldCenter")
+        doc.addColumnWithStyle(C("A2").addColumn(column), style_names)
+    
+    
+    

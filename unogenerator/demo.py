@@ -14,7 +14,7 @@ from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, C
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
-from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals
+from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals, helper_ods_sheet_stylenames
 from os import remove
 from tqdm import tqdm
 
@@ -233,7 +233,9 @@ def demo_ods_standard(language, port=2002, suffix="",):
     doc.addColumnWithStyle("C2", l)
     doc.sortRange("B2:B10",  0)
     doc.sortRange("C2:C10",  0, False)
-
+    
+    ## Sheet with all styles names
+    helper_ods_sheet_stylenames(doc)
 
     doc.save(f"unogenerator_example_{language}{suffix}.ods")
     doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
