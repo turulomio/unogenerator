@@ -18,7 +18,7 @@ from logging import warning, debug
 from pkg_resources import resource_filename
 from shutil import copyfile
 from tempfile import TemporaryDirectory
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, Coord_from_letters, Coord_from_index, next_port, get_from_process_numinstances_and_firstport
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, Coord_from_letters, Coord_from_index, next_port, get_from_process_numinstances_and_firstport,  is_formula
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.percentage import Percentage
@@ -539,7 +539,7 @@ class ODS(ODF):
         elif o.__class__.__name__ in ("int", ):
             cell.setValue(int(o))
         elif o.__class__.__name__ in ("str", ):
-            if o.startswith("=") or o.startswith("+"):
+            if is_formula(o):
                 cell.setFormula(o)
             else:
                 cell.setString(o)
@@ -614,13 +614,13 @@ class ODS(ODF):
         self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
         self.statistics.appendSheetFreezesCreationStartMoment(start)
         
-    def getValue(self, coord, standard=True):
+    def getValue(self, coord,  detailed=False):
         coord=C.assertCoord(coord)
-        return self.getValueByPosition(coord.letterIndex(), coord.numberIndex(), standard)
+        return self.getValueByPosition(coord.letterIndex(), coord.numberIndex(), detailed)
         
-    def getValueByPosition(self, letter_index, number_index, standard=True):
+    def getValueByPosition(self, letter_index, number_index,  detailed=False):
         start=datetime.now()
-        r=self.__cell_to_object(self.sheet.getCellByPosition(letter_index, number_index), standard)
+        r=self.__cell_to_object(self.sheet.getCellByPosition(letter_index, number_index), detailed)
         self.statistics.appendCellGetValuesStartMoment(start)
         return r
 
@@ -630,20 +630,21 @@ class ODS(ODF):
     ## @param skip_up int. Number of rows to skip at the begining of the list of rows (lor)
     ## @param skip_down int. Number of rows to skip at the end of the list of rows (lor)
     ## @return Returns a list of rows of object values
-    def getValues(self, skip_up=0, skip_down=0, standard=True):
+    def getValues(self, skip_up=0, skip_down=0,  detailed=False):
         if skip_up>0 or skip_down>0:
             print("FALTA, REMOVE FROM RANGE")
-        return self.getValuesByRange(self.getSheetRange(), standard)
+        return self.getValuesByRange(self.getSheetRange(), detailed)
 
     ## @param sheet_index Integer index of the sheet
     ## @param range_ Range object to get values. If None returns all values from sheet
     ## @return Returns a list of rows of object values
-    def getValuesByRange(self, range_, standard=True):
+    def getValuesByRange(self, range_,  detailed=False):
+        range_=R.assertRange(range_)
         r=[]
         for row_indexes in range_.indexes_list():
             rrow=[]
             for column_index,  row_index in row_indexes:
-                rrow.append(self.getValueByPosition(column_index, row_index, standard))
+                rrow.append(self.getValueByPosition(column_index, row_index, detailed))
             r.append(rrow)
         return r
     
@@ -651,47 +652,53 @@ class ODS(ODF):
     ## @param column_letter Letter of the column to get values
     ## @param skip Integer Number of top rows to skip in the result
     ## @return List of values
-    def getValuesByColumn(self, column_letter, skip_up=0, skip_down=0, standard=True):
+    def getValuesByColumn(self, column_letter, skip_up=0, skip_down=0,  detailed=False):
         r=[]
         for row in range(skip_up, self.rowNumber()-skip_down):
-            r.append(self.getValueByPosition(column2index(column_letter), row, standard))
+            r.append(self.getValueByPosition(column2index(column_letter), row, detailed))
         return r    
 
     ## @param sheet_index Integer index of the sheet
     ## @param row_number String Number of the row to get values
     ## @param skip Integer Number of top rows to skip in the result
     ## @return List of values
-    def getValuesByRow(self, row_number, skip_left=0, skip_right=0, standard=True):
+    def getValuesByRow(self, row_number, skip_left=0, skip_right=0,  detailed=False):
         r=[]
         for column in range(skip_left, self.columnNumber()-skip_right):
-            r.append(self.getValueByPosition(column, row2index(row_number), standard))
+            r.append(self.getValueByPosition(column, row2index(row_number), detailed))
         return r    
 
 
-    ## @standard Bool Uses standard templates styles if true
-    def __cell_to_object(self, cell, standard=True):
-        if standard is True:
-            if cell.CellStyle=="Bool":
-                return bool(cell.getValue())
-            elif cell.CellStyle in ["Datetime"]:
-                return string2dtnaive(cell.getString(),"%Y-%m-%d %H:%M:%S.")
-            elif cell.CellStyle in ["Date"]:
-                return string2date(cell.getString())
-            elif cell.CellStyle in ["Time"]:
-                return string2time(cell.getString(), "HH:MM:SS")
-            elif cell.CellStyle in ["Float2", "Float6"]:
-                return cell.getValue()
-            elif cell.CellStyle in ["Integer"]:
-                return int(cell.getValue())
-            elif cell.CellStyle in ["EUR", "USD"]:
-                return Currency(cell.getValue(), cell.CellStyle)
-            elif cell.CellStyle in ["Percentage"]:
-                return Percentage(cell.getValue(), 1)
-#            else:
-                #print("Missing", cell.CellStyle)
-            return cell.getString()
-        else: #standad is false
-            return cell.getString()
+    ## If formula  or without known style returns a tuple (value, formula)
+    ## if detailed return a tuple (value, formula, style)
+    def __cell_to_object(self, cell, detailed=False):
+        isformula=is_formula(cell.getFormula())
+        if isformula:
+            value=cell.getValue()
+        if cell.CellStyle=="Bool":
+            value=bool(cell.getValue())
+        elif cell.CellStyle in ["Datetime"]:
+            value=string2dtnaive(cell.getString(),"%Y-%m-%d %H:%M:%S.")
+        elif cell.CellStyle in ["Date"]:
+            value=string2date(cell.getString())
+        elif cell.CellStyle in ["Time"]:
+            value=string2time(cell.getString(), "HH:MM:SS")
+        elif cell.CellStyle in ["Float2", "Float6"]:
+            value=cell.getValue()
+        elif cell.CellStyle in ["Integer"]:
+            value=int(cell.getValue())
+        elif cell.CellStyle in ["EUR", "USD"]:
+            value=Currency(cell.getValue(), cell.CellStyle)
+        elif cell.CellStyle in ["Percentage"]:
+            value=Percentage(cell.getValue(), 1)
+        else:
+            value=cell.getString()
+        
+        if detailed is False:
+            return value
+        else:
+            formula = cell.getFormula() if isformula else None
+            return {"value":value, "string":  cell.getString(),  "style":cell.CellStyle, "class": value.__class__.__name__, "is_formula": isformula, "formula": formula}
 
     ## Return a Range object with the limits of the index sheet
     def getSheetRange(self):

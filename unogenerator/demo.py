@@ -174,10 +174,11 @@ def demo_ods_standard(language, port=2002, suffix="",):
     
     doc.freezeAndSelect("B2")
     
-##    # Un comment to see objjects from cell
-##    for i in range(10):
-##        o=doc.getValue(Coord_from_index(i, 3))
-##        print(o, o.__class__)    
+#    # Un comment to see objjects from cell
+#    from unogenerator.commons import Coord_from_index
+#    for i in range(10):
+#        o=doc.getValue(Coord_from_index(i, 3), True)
+#        print(o)
 
     ## HELPERS
     doc.createSheet("Helpers")
@@ -220,6 +221,12 @@ def demo_ods_standard(language, port=2002, suffix="",):
     
     doc.addColumnWithStyle("A41",  [1, 3, 2, 4, 1, 5])
     doc.setColorScale("A41:A46")
+
+
+#    # Un comment to see objjects from cell
+#    l=doc.getValuesByRange("E19:E23", True)
+#    for o in l:
+#        print(o)
 
 
     ##Sort

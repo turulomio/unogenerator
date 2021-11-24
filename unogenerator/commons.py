@@ -476,6 +476,14 @@ def get_from_process_numinstances_and_firstport():
         print(_("I couldn't detect unogenerator instances"))
     return len(ld), listdict_min(ld,"port")
    
+def is_formula(s):
+    if s is None:
+        return False
+    s=str(s)
+    if s.startswith("=") or s.startswith("+"):
+        return True
+    return False
+   
 def red(s):
     return Style.BRIGHT + Fore.RED + str(s) + Style.RESET_ALL
 def green(s):
