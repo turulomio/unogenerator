@@ -653,8 +653,9 @@ class ODS(ODF):
     ## @param skip Integer Number of top rows to skip in the result
     ## @return List of values
     def getValuesByColumn(self, column_letter, skip_up=0, skip_down=0,  detailed=False):
+        columns,  rows=self.getSheetSize()
         r=[]
-        for row in range(skip_up, self.rowNumber()-skip_down):
+        for row in range(skip_up, rows-skip_down):
             r.append(self.getValueByPosition(column2index(column_letter), row, detailed))
         return r    
 
@@ -663,8 +664,9 @@ class ODS(ODF):
     ## @param skip Integer Number of top rows to skip in the result
     ## @return List of values
     def getValuesByRow(self, row_number, skip_left=0, skip_right=0,  detailed=False):
+        columns,  rows=self.getSheetSize()
         r=[]
-        for column in range(skip_left, self.columnNumber()-skip_right):
+        for column in range(skip_left, columns-skip_right):
             r.append(self.getValueByPosition(column, row2index(row_number), detailed))
         return r    
 
@@ -702,7 +704,8 @@ class ODS(ODF):
 
     ## Return a Range object with the limits of the index sheet
     def getSheetRange(self):
-        endcoord=C("A1").addRow(self.rowNumber()-1).addColumn(self.columnNumber()-1)
+        columns,  rows=self.getSheetSize()
+        endcoord=C("A1").addRow(rows-1).addColumn(columns-1)
         return R("A1:" + endcoord.string())
         
 
