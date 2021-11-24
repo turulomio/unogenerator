@@ -90,6 +90,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.15.0 (2021-11-24)
+- Improved get methods. Added detailed output.
+
 ### 0.14.0 (2021-11-21)
 - Added styles: Center, Right, VerticalCenter to standard.ods
 - Added a helper to create a ods sheet with all internal style names.
