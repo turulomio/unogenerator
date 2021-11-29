@@ -90,6 +90,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.16.0 (2021-11-29)
+- Fixed bugs with old methods for numrows and numcolumns
+
 ### 0.15.0 (2021-11-24)
 - Improved get methods. Added detailed output.
 
