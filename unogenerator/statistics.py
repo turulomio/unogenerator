@@ -38,7 +38,7 @@ class StatisticsODS(Statistics):
     def appendCellCreationStartMoment(self, start):
         self.cells.append(datetime.now()-start)
         if len(self.cells) % 500==0:
-            debug(f"Wrote {self.numcells} cells in {datetime.now()-self.init}")
+            debug(f"Wrote {len(self.cells)} cells in {datetime.now()-self.init}")
 
     def appendCellMergedCreationStartMoment(self, start):
         self.cells_merged.append(datetime.now()-start)

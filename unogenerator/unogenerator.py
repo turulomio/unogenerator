@@ -655,7 +655,7 @@ class ODS(ODF):
     def getValuesByColumn(self, column_letter, skip_up=0, skip_down=0,  detailed=False):
         columns,  rows=self.getSheetSize()
         r=[]
-        for row in range(skip_up, rows-skip_down):
+        for row in range(skip_up, rows-skip_down+1):
             r.append(self.getValueByPosition(column2index(column_letter), row, detailed))
         return r    
 
@@ -666,7 +666,7 @@ class ODS(ODF):
     def getValuesByRow(self, row_number, skip_left=0, skip_right=0,  detailed=False):
         columns,  rows=self.getSheetSize()
         r=[]
-        for column in range(skip_left, columns-skip_right):
+        for column in range(skip_left, columns-skip_right+1):
             r.append(self.getValueByPosition(column, row2index(row_number), detailed))
         return r    
 
