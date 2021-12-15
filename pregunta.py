@@ -26,10 +26,23 @@ cfs=sheet.ConditionalFormats.createByRange(oRangos)
 cf=sheet.ConditionalFormats.getConditionalFormats()[cfs-1]
 
 # I Create a colorscale conditional format
+
 cf.createEntry(1, 0)   #1 iS COLORSCALE
+print(cf,dir(cf))
+entry=cf[0]
+print("entry", entry,dir(entry))
+pep=entry.queryInterface("com.sun.star.sheet.XColorScaleEntry")
+print(pep,dir(pep))
+cse=entry.ColorScaleEntries
+print("CSENTRIES",cse,dir(cse))
+
+for i in cse:
+    print("cse",i,dir(i))
+
+
 
 # I don't know how to follow
-#new = createUnoStruct("com.sun.star.sheet.XColorScaleEntry")
+#new = createUnoStruct()
 
 
 save_args=(
