@@ -18,6 +18,7 @@ for o in mcf:
     print("O", o, dir(o))
     for cse in o.ColorScaleEntries:
         print("cse",cse, dir(cse))
+        print(cse.getFormula(), cse.getColor(),cse.getType())
 
 
 # cse=mcf
