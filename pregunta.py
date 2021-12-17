@@ -1,6 +1,7 @@
 from os import path
 from uno import getComponentContext, createUnoStruct, systemPathToFileUrl
 from com.sun.star.beans import PropertyValue
+from com.sun.star.sheet.ConditionEntryType import COLORSCALE
 localContext = getComponentContext()
 
 resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
@@ -22,52 +23,70 @@ oRangos.addRangeAddress( sheet.getCellRangeByName( "B1:B8" ).getRangeAddress() ,
 document.getCurrentController().select(oRangos)
         
 #I create a conditional format range in the sheet
-cfs=sheet.ConditionalFormats.createByRange(oRangos)
-cf=sheet.ConditionalFormats.getConditionalFormats()[cfs-1]
+
+
+cfs=sheet.ConditionalFormats
+print("CFS", cfs, dir(cfs),"\n")
+cf_id=sheet.ConditionalFormats.createByRange(oRangos)
+print(cf_id,"\n")
+cf=sheet.ConditionalFormats.getConditionalFormats()[cf_id-1]
+
+print("CF", cf, dir(cf),cf.Count,"\n")
 
 # I Create a colorscale conditional format
 
-cf.createEntry(1, 0)   #1 iS COLORSCALE
-print(cf,dir(cf))
+cf.createEntry(COLORSCALE, 0)   
+print("CFDESPUES CREATEENTRY",cf,dir(cf), cf.Count,"\n")
 entry=cf[0]
-print("entry", entry,dir(entry),entry.getPropertySetInfo())
+
+print("entry", entry,dir(entry),entry.getPropertySetInfo(),"\n")
+
+
+for p in entry.getPropertySetInfo().Properties:
+    print("P" , p, dir(p) , p.value, "\n")
+
+
+
 # # pep=entry.queryInterface("com.sun.star.sheet.XColorScaleEntry")
 # # print(pep,dir(pep))
-cse=entry.ColorScaleEntries
-print("CSENTRIES",cse,dir(cse),cse.__class__)
+# cse=entry.ColorScaleEntries
+# print("CSENTRIES",cse,dir(cse),cse.__class__,"\n")
 
 
-from com.sun.star.beans import PropertyValue
+# from com.sun.star.beans import PropertyValue
 
 from com.sun.star.sheet import XColorScaleEntry
-celladdress= createUnoStruct("com.sun.star.table.CellAddress")
-celladdress= createUnoStruct("com.sun.star.sheet.XColorScaleEntry")
-print("CELLADDRESS", celladdress,dir(celladdress))
+# celladdress= createUnoStruct("com.sun.star.table.CellAddress")
+# celladdress= createUnoStruct("com.sun.star.sheet.XColorScaleEntry")
+# print("CELLADDRESS", celladdress,dir(celladdress))
 a=XColorScaleEntry()
 print("A",a,dir(a))
-a.setType(1)
+# a.setType(1)
 
 
-# colorentry=list()
+colorent=list()
 
-# entry= list()
-# entry.append(PropertyValue("Formula",0,0,0))
-# entry.append(PropertyValue("Color",0,16711680,0))
-# entry.append(PropertyValue("Type",0,0,0))
-# colorentry.append(tuple(entry))
-# entry= list()
-# entry.append(PropertyValue("Formula",0,50,0))
-# entry.append(PropertyValue("Color",0,16777215,0))
-# entry.append(PropertyValue("Type",0,2,0))
-# colorentry.append(tuple(entry))
-# entry= list()
-# entry.append(PropertyValue("Formula",0,0,0))
-# entry.append(PropertyValue("Color",0,43315,0))
-# entry.append(PropertyValue("Type",0,1,0))
-# colorentry.append(tuple(entry))
+ent= list()
+ent.append(PropertyValue("Formula",0,0,0))
+ent.append(PropertyValue("Color",0,16711680,0))
+ent.append(PropertyValue("Type",0,0,0))
+colorent.append(tuple(ent))
+ent= list()
+ent.append(PropertyValue("Formula",0,50,0))
+ent.append(PropertyValue("Color",0,16777215,0))
+ent.append(PropertyValue("Type",0,2,0))
+colorent.append(tuple(ent))
+ent= list()
+ent.append(PropertyValue("Formula",0,0,0))
+ent.append(PropertyValue("Color",0,43315,0))
+ent.append(PropertyValue("Type",0,1,0))
+colorent.append(tuple(ent))
 
-# colorentry=tuple(colorentry)
-# cse=colorentry
+colorent=tuple(colorent)
+
+entry.setPropertyValue("ColorScaleEntries", colorent)
+
+
 
 # for o in cse:
 #     print("cse",o, dir(o))

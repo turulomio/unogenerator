@@ -15,10 +15,20 @@ print("CONDITIONAL FORMAT [0]", mcf, dir(mcf))
 
 print(mcf.Count)
 for o in mcf:
-    print("O", o, dir(o))
+    print("ENTRY", o, dir(o))
+    psi=o.getPropertySetInfo()
+    print("PSI", psi, dir(psi),"\n")
+    print(o.getPropertySetInfo())
+
+    for p in psi.Properties:
+        print("P", p, dir(p), p.typeName, p.value ,"\n", dir(p.value), "\n")
+
+
+
     for cse in o.ColorScaleEntries:
         print("cse",cse, dir(cse))
         print(cse.getFormula(), cse.getColor(),cse.getType())
+    print("GPV", o.getPropertyValue("ColorScaleEntries"), dir(o.getPropertyValue("ColorScaleEntries")), "\n")
 
 
 # cse=mcf
@@ -90,7 +100,7 @@ for o in mcf:
 #print("Calorscaleentryies", entry.ColorScaleEntries,  dir(entry.ColorScaleEntries))
 #se_uno=createUnoStruct("com.sun.star.sheet.ColorScale")
 #print(se_uno,  dir(se_uno), se_uno.__class__)
-#print(se_uno.getFormula())
+#print(se_uno.getFormula())ColorScaleEntries
 #p=PropertyValue('FilterName',0,'writer8',0),
 #se=entry.queryInterface()
 #print("SE",  se,  dir(se), se.__class__)
