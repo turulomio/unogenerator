@@ -43,10 +43,7 @@ def main(arguments=None):
     args=parser.parse_args(arguments)
 
     addDebugSystem(args.debug)
-    
-    demo_odt_standard("es")
-    return
-    
+        
     if args.remove==True:
             for language in ['es', 'en']:
                 remove_without_errors(f"unogenerator_documentation_{language}.odt")
@@ -394,13 +391,9 @@ doc=ODT()"""    , "Code")
     l.append(". Ahora sigo escribiendo sin problemas.")
     doc.addParagraphComplex(l, "Standard")
     
-
-    bytes_=open("/home/keko/prueba.png", "rb").read()
-#    print(bytes_[:66])
-
     l=[]
     l.append( _("This is an image loaded from bytes: "))
-    l.append(doc.textcontentImage_from_stream(bytes_, 1, 1, "AS_CHARACTER", "PRIMERA", linked=False))
+    l.append(doc.textcontentImage(open(resource_filename(__name__, 'images/crown.png'), "rb").read(), 1, 1, "AS_CHARACTER", "d", linked=False))
     doc.addParagraphComplex(l, "Standard")
 
     l=[]
