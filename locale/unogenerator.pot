@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-21 19:32+0100\n"
+"POT-Creation-Date: 2022-01-04 09:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -229,6 +229,9 @@ msgid "Images"
 msgstr ""
 
 msgid "Este es un ejemplo de imagen as char: "
+msgstr ""
+
+msgid "This is an image loaded from bytes: "
 msgstr ""
 
 msgid "As you can see, I can reuse it one hundred times. File size will not be increased because I used reference names."

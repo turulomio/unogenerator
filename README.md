@@ -90,6 +90,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.17.0 (2022-01-04)
+- Added feature to insert images from bytes sequence
+
 ### 0.16.0 (2021-11-29)
 - Fixed bugs with old methods for numrows and numcolumns
 
