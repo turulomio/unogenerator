@@ -3,7 +3,7 @@
 
 from datetime import datetime
 from os import path, makedirs
-from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any
+from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
@@ -284,6 +284,30 @@ class ODT(ODF):
             image.setName(name)
         image.AnchorType=anchortype
         image.Size=Size(width*1000, height*1000)
+        return image
+        
+        
+    ## Returns a text content that can be inserted with document.Text.insertTextContent(cursor,image, False)
+    ## @param anchortype AS_CHARACTER, AT_PARAGRAPH
+    ## @param name None if we want to use lo default name
+    def textcontentImage_from_stream(self, bytes_, width=2,  height=2, anchortype="AS_CHARACTER", name=None, linked=False ):
+        
+        localContext = getComponentContext()
+        bytes_stream = localContext.ServiceManager.createInstanceWithContext('com.sun.star.io.SequenceInputStream', localContext)
+        bytes_stream.initialize((ByteSequence(bytes_),)) ##Método para inicializar un servicio
+        print(bytes_stream, dir(bytes_stream),  bytes_stream.getLength())
+        oProps=(
+            PropertyValue('InputStream',0, bytes_stream,0),
+            PropertyValue('FilterName',0, "PNG",0),
+        )        
+        graphic=self.graphicsprovider.queryGraphic(oProps)
+        image = self.document.createInstance("com.sun.star.text.GraphicObject")
+        image.Graphic=graphic
+        if name is not None:
+            image.setName(name)
+        image.AnchorType=anchortype
+        image.Size=Size(width*1000, height*1000)
+        
         return image
         
     ## @param width float in cm
