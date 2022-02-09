@@ -42,7 +42,8 @@ class ODF:
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
         self.loserver_port=loserver_port
         self.num_instances, self.first_port=get_from_process_numinstances_and_firstport()
-        for i in range(self.num_instances):
+        maxtries=self.num_instances*3
+        for i in range(maxtries):
             try:
                 localContext = getComponentContext()
                 resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
@@ -73,7 +74,7 @@ class ODF:
                 old=self.loserver_port
                 self.loserver_port=next_port(self.loserver_port, self.first_port, self.num_instances)
                 print(_(f"Changing port {old} to {self.loserver_port} {i} times"))
-                if i==self.num_instances-1:
+                if i==maxtries - 1:
                     print(_("This process died"))
 
 
