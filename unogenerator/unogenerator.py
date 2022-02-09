@@ -3,7 +3,7 @@
 
 from datetime import datetime
 from os import path, makedirs
-from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any
+from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
@@ -47,9 +47,10 @@ class ODF:
             try:
                 localContext = getComponentContext()
                 resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
-                ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
-                self.desktop = ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
-                self.graphicsprovider=ctx.ServiceManager.createInstance("com.sun.star.graphic.GraphicProvider")                   
+                ## self.ctx parece que es mi contexto para servicios
+                self.ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
+                self.desktop = self.ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
+                self.graphicsprovider=self.ctx.ServiceManager.createInstance("com.sun.star.graphic.GraphicProvider")                   
                 args=(
                     PropertyValue('AsTemplate',0,True,0),
                 )
@@ -271,13 +272,23 @@ class ODT(ODF):
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
     ## Returns a text content that can be inserted with document.Text.insertTextContent(cursor,image, False)
+    
+    ## @param filename_or_bytessequence, Can be a filename path or a bytesequence
     ## @param anchortype AS_CHARACTER, AT_PARAGRAPH
     ## @param name None if we want to use lo default name
-    def textcontentImage(self, filename, width=2,  height=2, anchortype="AS_CHARACTER", name=None, linked=False ):
-        oProps=(
-            PropertyValue('URL',0,systemPathToFileUrl(filename),0),
-            PropertyValue('LoadAsLink',0, linked,0),
-        )        
+    def textcontentImage(self, filename_or_bytessequence, width=2,  height=2, anchortype="AS_CHARACTER", name=None, linked=False ):
+        if filename_or_bytessequence.__class__.__name__=="bytes":
+            bytes_stream = self.ctx.ServiceManager.createInstanceWithContext('com.sun.star.io.SequenceInputStream', self.ctx)
+            bytes_stream.initialize((ByteSequence(filename_or_bytessequence),)) ##Método para inicializar un servicio
+            oProps=(
+                PropertyValue('InputStream',0, bytes_stream,0),
+            )        
+            
+        else:
+            oProps=(
+                PropertyValue('URL',0,systemPathToFileUrl(filename_or_bytessequence),0),
+                PropertyValue('LoadAsLink',0, linked,0),
+            )        
         graphic=self.graphicsprovider.queryGraphic(oProps)
         image = self.document.createInstance("com.sun.star.text.GraphicObject")
         image.Graphic=graphic
@@ -287,12 +298,13 @@ class ODT(ODF):
         image.Size=Size(width*1000, height*1000)
         return image
         
+    ## @param filename_or_bytessequence_list List of filename path or byte_sequence
     ## @param width float in cm
     ## @param height float in cm
-    def addImageParagraph(self, filename_list, width=2,  height=2, name=None, style="Illustration", linked=False):
+    def addImageParagraph(self, filename_or_bytessequence_list, width=2,  height=2, name=None, style="Illustration", linked=False):
         self.cursor.setPropertyValue("ParaStyleName", style)
-        for filename in filename_list:
-            self.document.Text.insertTextContent(self.cursor,self.textcontentImage(filename, width, height, "AS_CHARACTER", linked=linked), False)
+        for filename_or_bytessequence in filename_or_bytessequence_list:
+            self.document.Text.insertTextContent(self.cursor,self.textcontentImage(filename_or_bytessequence, width, height, "AS_CHARACTER", linked=linked), False)
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
 
 
