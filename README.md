@@ -90,6 +90,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.18.0 (2022-02-10)
+- Increased max attempts to reconnect to libreoffice instances.
+
 ### 0.17.0 (2022-01-04)
 - Added feature to insert images from bytes sequence
 
