@@ -39,13 +39,13 @@ msgid "Create example files using unogenerator module"
 msgstr "Crea ficheros de ejemplo usando el módulo de unogenerator"
 
 msgid "Debug program information"
-msgstr ""
+msgstr "Información de depuración del programa"
 
 msgid "All process took {}"
 msgstr "Todos los procesos tardaron {}"
 
 msgid "Number of workers to process this script. Default 4"
-msgstr ""
+msgstr "Número de procesos para ejecutar este script. Por defecto 4"
 
 #, python-brace-format
 msgid "Launching concurrent demo with {args.workers} workers to a daemon with {num_instances} instances from {first_port} port"
@@ -126,7 +126,7 @@ msgid "You can edit this one or create your own."
 msgstr "Puedes editar éste o crear el tuyo."
 
 msgid "This document has been created with 'standard.odt' files that you can find inside this python module."
-msgstr ""
+msgstr "Este documento ha sido creado con 'standard.odt', que lo puedes encontrar dentro de este modulo"
 
 msgid "Installation"
 msgstr "Instalación"
