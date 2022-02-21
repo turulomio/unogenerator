@@ -459,18 +459,22 @@ class ODS(ODF):
         celladdress.Row=coord.numberIndex()
         self.sheet.Annotations.insertNew(celladdress, comment)
             
-    def addCell(self, coord, o, color_dict=ColorsNamed.White, outlined=1, alignment="left", decimals=2, bold=False):
+    ## If addCell is used, preserves styles properties
+    ## If you want to change these properties you must add parameters. Not developed
+    def addCell(self, coord, o, color=None, outlined=None, alignment=None, decimals=None, bold=None):
         coord=C.assertCoord(coord)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__object_to_cell(cell, o)
-            
-        border_prop = createUnoStruct("com.sun.star.table.BorderLine2")
-        border_prop.LineWidth = outlined
-        cell.setPropertyValue("TopBorder", border_prop)
-        cell.setPropertyValue("LeftBorder", border_prop)
-        cell.setPropertyValue("RightBorder", border_prop)
-        cell.setPropertyValue("BottomBorder", border_prop)
-        cell.setPropertyValue("CellBackColor", color_dict["color"])
+        
+        if outlined is not None:
+            border_prop = createUnoStruct("com.sun.star.table.BorderLine2")
+            border_prop.LineWidth = outlined
+            cell.setPropertyValue("TopBorder", border_prop)
+            cell.setPropertyValue("LeftBorder", border_prop)
+            cell.setPropertyValue("RightBorder", border_prop)
+            cell.setPropertyValue("BottomBorder", border_prop)
+        if color is not None:
+            cell.setPropertyValue("CellBackColor", color)
 
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
