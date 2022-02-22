@@ -9,8 +9,8 @@ from uno import createUnoStruct
 from unogenerator.reusing.listdict_functions import listdict_min
 from time import sleep
 
-__version__ = '0.18.0'
-__versiondatetime__=datetime(2022, 2, 10, 8, 6)
+__version__ = '0.19.0'
+__versiondatetime__=datetime(2022, 2, 22, 11, 46)
 __versiondate__=__versiondatetime__.date()
 
 try:

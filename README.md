@@ -90,6 +90,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.19.0 (2022-02-22)
+- ODS.addCell is now used to change values or strings, but doesn't change defined property styles, if they aren't defined
+
 ### 0.18.0 (2022-02-10)
 - Increased max attempts to reconnect to libreoffice instances.
 

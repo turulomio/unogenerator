@@ -27,7 +27,7 @@ msgid "I couldn't detect unogenerator process info ({attempt}/{attempts} attempt
 msgstr "No pude detectar la información de los procesos de unogenerator ({attempt}/{attempts} intentos)"
 
 msgid "Have you launched unogenerator instances?. Please run unogenerator_start"
-msgstr ""
+msgstr "¿Has iniciado las instancias de unogenerator?. Por favor ejecute unogenerator_start"
 
 msgid "I couldn't detect unogenerator instances"
 msgstr "No pude detectar las instancias de unogenerator"
@@ -59,7 +59,7 @@ msgstr "Demostración de la clase ODS"
 
 #, python-brace-format
 msgid "This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"
-msgstr ""
+msgstr "Este fichero ha sido generado con UnoGenerator-{__version__}. La pagina principal del proyecto se encuentra en http://github.com/turulomio/unogenerator"
 
 msgid "Style name"
 msgstr "Nombre de estilo"
