@@ -548,7 +548,10 @@ class ODS(ODF):
         elif o.__class__.__name__  == "time":
             cell.setValue(time2localc1989(o))
         elif o.__class__.__name__ in ("Percentage", "Money"):
-            cell.setValue(float(o.value))
+            if o.value is None:
+                cell.setString("")
+            else:
+                cell.setValue(float(o.value))
         elif o.__class__.__name__ in ("Currency", "Money"):
             cell.setValue(float(o.amount))
         elif o.__class__.__name__ in ("Decimal",  "float"):
