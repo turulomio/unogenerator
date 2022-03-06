@@ -7,6 +7,7 @@ from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, date, timedelta
 from gettext import translation
+from logging import info
 from multiprocessing import cpu_count
 from pkg_resources import resource_filename
 
@@ -81,12 +82,13 @@ def main_concurrent(arguments=None):
 
     if args.remove==True:
             for i in range(args.loops):
-                remove_without_errors(f"unogenerator_documentation_en.{i}.odt")
-                remove_without_errors(f"unogenerator_documentation_en.{i}.docx")
-                remove_without_errors(f"unogenerator_documentation_en.{i}.pdf")
-                remove_without_errors(f"unogenerator_example_en.{i}.ods")
-                remove_without_errors(f"unogenerator_example_en.{i}.xlsx")
-                remove_without_errors(f"unogenerator_example_en.{i}.pdf")
+                for language in ['es', 'en']:
+                    remove_without_errors(f"unogenerator_documentation_{language}.{i}.odt")
+                    remove_without_errors(f"unogenerator_documentation_{language}.{i}.docx")
+                    remove_without_errors(f"unogenerator_documentation_{language}.{i}.pdf")
+                    remove_without_errors(f"unogenerator_example_{language}.{i}.ods")
+                    remove_without_errors(f"unogenerator_example_{language}.{i}.xlsx")
+                    remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
 
     if args.create==True:
         print(_(f"Launching concurrent demo with {num_instances} workers to a daemon with {num_instances} instances from {first_port} port"))
@@ -95,16 +97,17 @@ def main_concurrent(arguments=None):
         futures=[]
         port=first_port
         with ProcessPoolExecutor(max_workers=num_instances) as executor:
-            with tqdm(total=args.loops*2) as progress:
+            with tqdm(total=args.loops*4) as progress:
                 for i in range(args.loops):
-                    port=next_port(port, first_port, num_instances)
-                    future=executor.submit(demo_ods_standard, 'en', port, f".{i}")
-                    future.add_done_callback(lambda p: progress.update())
-                    futures.append(future)
-                    port=next_port(port, first_port, num_instances)
-                    future=executor.submit(demo_odt_standard, 'en', port, f".{i}")
-                    future.add_done_callback(lambda p: progress.update())
-                    futures.append(future)
+                    for language in ['es', 'en']:
+                        port=next_port(port, first_port, num_instances)
+                        future=executor.submit(demo_ods_standard, language, port, f".{i}")
+                        future.add_done_callback(lambda p: progress.update())
+                        futures.append(future)
+                        port=next_port(port, first_port, num_instances)
+                        future=executor.submit(demo_odt_standard, 'en', port, f".{i}")
+                        future.add_done_callback(lambda p: progress.update())
+                        futures.append(future)
 
                 for future in as_completed(futures):
                     future.result()
@@ -246,7 +249,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
     doc.close()
     
     r= _(f"unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.statistics.init} in {port}")
-    print(r)
+    info(r)
     return r
     
     
@@ -442,7 +445,7 @@ doc.close()"""    , "Code")
     doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
     doc.close()
     r=_(f"unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.statistics.init} in {port}")
-    print(r)
+    info(r)
     return r
 
 if __name__ == "__main__":
