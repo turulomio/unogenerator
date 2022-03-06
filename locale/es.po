@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-04 09:14+0100\n"
+"POT-Creation-Date: 2022-03-06 18:35+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -44,12 +44,9 @@ msgstr "Información de depuración del programa"
 msgid "All process took {}"
 msgstr "Todos los procesos tardaron {}"
 
-msgid "Number of workers to process this script. Default 4"
-msgstr "Número de procesos para ejecutar este script. Por defecto 4"
-
 #, python-brace-format
-msgid "Launching concurrent demo with {args.workers} workers to a daemon with {num_instances} instances from {first_port} port"
-msgstr ""
+msgid "Launching concurrent demo with {num_instances} workers to a daemon with {num_instances} instances from {first_port} port"
+msgstr "Lanzando la demostración concurrente con {num_instances} procesos a un demonio con {num_instances} instancias desde el puerto {first_port}"
 
 msgid "UnoGenerator ODS example"
 msgstr "Ejemplo ODS con UnoGenerator"
@@ -111,12 +108,12 @@ msgid "Introduction"
 msgstr "Introducción"
 
 msgid "UnoGenerator uses Libreoffice UNO API python bindings to generate documents."
-msgstr ""
+msgstr "UnoGenerator usa la API de python de Libreoffice para generar documentos."
 
 msgid "So in order to use, you need to launch a --headless libreoffice instance."
 msgstr ""
 
-msgid "You can easily launch unogenerator_start script with bash."
+msgid "We recomend to launch then easily with 'unogenerator_start' script."
 msgstr ""
 
 msgid "UnoGenerator has standard templates to help you with edition, although you can use your own templates."
@@ -448,6 +445,12 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
+
+#~ msgid "You can easily launch unogenerator_start script with bash."
+#~ msgstr "Puedes lanzarlo facilmente con el script "
+
+#~ msgid "Number of workers to process this script. Default 4"
+#~ msgstr "Número de procesos para ejecutar este script. Por defecto 4"
 
 #~ msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}"
 #~ msgstr "unogenerator_example_{language}{suffix}.ods tardó {datetime.now()-doc.init} en {port}"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-22 11:49+0100\n"
+"POT-Creation-Date: 2022-03-06 18:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,11 +42,8 @@ msgstr ""
 msgid "All process took {}"
 msgstr ""
 
-msgid "Number of workers to process this script. Default 4"
-msgstr ""
-
 #, python-brace-format
-msgid "Launching concurrent demo with {args.workers} workers to a daemon with {num_instances} instances from {first_port} port"
+msgid "Launching concurrent demo with {num_instances} workers to a daemon with {num_instances} instances from {first_port} port"
 msgstr ""
 
 msgid "UnoGenerator ODS example"
@@ -114,7 +111,7 @@ msgstr ""
 msgid "So in order to use, you need to launch a --headless libreoffice instance."
 msgstr ""
 
-msgid "You can easily launch unogenerator_start script with bash."
+msgid "We recomend to launch then easily with 'unogenerator_start' script."
 msgstr ""
 
 msgid "UnoGenerator has standard templates to help you with edition, although you can use your own templates."
