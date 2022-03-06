@@ -73,7 +73,6 @@ def main_concurrent(arguments=None):
     group= parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
-    parser.add_argument('--workers', help=_("Number of workers to process this script. Default 4"), action="store", default=4,  type=int)
     parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
     args=parser.parse_args(arguments)
 
@@ -90,12 +89,12 @@ def main_concurrent(arguments=None):
                 remove_without_errors(f"unogenerator_example_en.{i}.pdf")
 
     if args.create==True:
-        print(_(f"Launching concurrent demo with {args.workers} workers to a daemon with {num_instances} instances from {first_port} port"))
+        print(_(f"Launching concurrent demo with {num_instances} workers to a daemon with {num_instances} instances from {first_port} port"))
 
         start=datetime.now()
         futures=[]
         port=first_port
-        with ProcessPoolExecutor(max_workers=args.workers) as executor:
+        with ProcessPoolExecutor(max_workers=num_instances) as executor:
             with tqdm(total=args.loops*2) as progress:
                 for i in range(args.loops):
                     port=next_port(port, first_port, num_instances)
@@ -120,13 +119,9 @@ def main_concurrent(arguments=None):
 
        
 def demo_ods_standard(language, port=2002, suffix="",):
-    if language=="en":
-        lang1=translation('unogenerator' , resource_filename("unogenerator","locale"), languages=[language])
-        lang1.install()
-    else:
-        lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
-        lang1.install()
-    ##print(_("My language is "),language,lang1)
+    lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
+    lang1.install()
+    _=lang1.gettext
     
     doc=ODS_Standard(port)
     doc.setMetadata(
@@ -256,12 +251,9 @@ def demo_ods_standard(language, port=2002, suffix="",):
     
     
 def demo_odt_standard(language, port=2002, suffix=""):
-    if language=="en":
-        lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
-        lang1.install()
-    else:
-        lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
-        lang1.install()
+    lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
+    lang1.install()
+    _=lang1.gettext
 
     doc=ODT_Standard(port)
     doc.setMetadata(
