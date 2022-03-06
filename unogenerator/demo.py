@@ -105,7 +105,7 @@ def main_concurrent(arguments=None):
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
                         port=next_port(port, first_port, num_instances)
-                        future=executor.submit(demo_odt_standard, 'en', port, f".{i}")
+                        future=executor.submit(demo_odt_standard, language, port, f".{i}")
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 
