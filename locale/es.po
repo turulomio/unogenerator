@@ -114,7 +114,7 @@ msgid "So in order to use, you need to launch a --headless libreoffice instance.
 msgstr ""
 
 msgid "We recomend to launch then easily with 'unogenerator_start' script."
-msgstr ""
+msgstr "Recomendamos lanzarlo facilmente con el script 'unogenerator_start'."
 
 msgid "UnoGenerator has standard templates to help you with edition, although you can use your own templates."
 msgstr ""
@@ -153,7 +153,7 @@ msgid "You can call ODT constructor in this ways:"
 msgstr "Puedes llamar al constructor ODT de estas maneras:"
 
 msgid "ODT with standard template (Recomended)."
-msgstr ""
+msgstr "ODT con la plantilla estándard (Recomendado)."
 
 msgid "There is a predefined template in code called 'standard.odt', inside this python module, to help you with edition, although you can use your own ones."
 msgstr ""
@@ -231,7 +231,7 @@ msgid "Este es un ejemplo de imagen as char: "
 msgstr ""
 
 msgid "This is an image loaded from bytes: "
-msgstr ""
+msgstr "Esta es una imagen cargado desde unos bytes: "
 
 msgid "As you can see, I can reuse it one hundred times. File size will not be increased because I used reference names."
 msgstr "Como puedes ver, puedo reutilizar la imagen cien veces. El tamaño del fichero no aumentará porque uso referencias."
@@ -296,10 +296,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "  - Launched instance in port {port}"
-msgstr ""
+msgstr "  - Lanzada instancia en el puerto {port}"
 
 msgid "Stops libreoffice server to finish using unogenerator code"
-msgstr ""
+msgstr "Para el servidor de LibreOffice, para terminar de usar código de UnoGenerator"
 
 msgid "  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} processes"
 msgstr ""
@@ -308,10 +308,10 @@ msgid "Monitor unogenerator statistics"
 msgstr "Estadísticas del monitor de unogenerator"
 
 msgid "Instances: {green(instances)}"
-msgstr ""
+msgstr "Instancias: {green(instances)}"
 
 msgid "Ports used: {green(list2string(list_ports))}"
-msgstr ""
+msgstr "Puertos usados: {green(list2string(list_ports))}"
 
 msgid "CPU used: {green(list2string(cpu_nums))}"
 msgstr ""
@@ -389,7 +389,7 @@ msgid "Creates translated file"
 msgstr "Crea el fichero traducido"
 
 msgid "Sets a fake translation to all strings"
-msgstr ""
+msgstr "Establece una traducción de prueba a todas las cadenas"
 
 msgid "Creates translated file in pdf"
 msgstr "Crea el fichero traducido en pdf"

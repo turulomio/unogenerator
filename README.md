@@ -91,6 +91,10 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.20.0 (2022-03-06)
+- Fixed error when percentage value is None.
+- Fixed problem translating demo documents.
+
 ### 0.19.0 (2022-02-22)
 - ODS.addCell is now used to change values or strings, but doesn't change defined property styles, if they aren't defined
 
