@@ -523,16 +523,45 @@ class ODS(ODF):
             self.addColumnWithStyle(coord_start.addColumnCopy(i), column, colors=colors,styles=styles)
 
     ## @param style If None tries to guess it
-    def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
-        start=datetime.now()
+    ## @param rewritewrite If color is ColorsNamed.White, rewrites the color to White instead of ignoring it. Ignore it gains 0.200 ms
+    def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None, rewritewhite=False):
+        debugcell=C("A4999")
+        total=datetime.now()
         coord=C.assertCoord(coord)
+        if coord==debugcell:
+            print(coord, "Time after assert",  datetime.now()-total)
+            
+        
+        start=datetime.now()
         if style is None:
             style=guess_object_style(o)
+            if coord==debugcell:
+                print(coord, "Time after guessing style",  datetime.now()-start)
+                
+        start=datetime.now()
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
+        if coord==debugcell:
+            print(coord, "Time after cellbyposition",  datetime.now()-start)
+        
+        start=datetime.now()
         self.__object_to_cell(cell, o)
+        if coord==debugcell:
+            print(coord, "Time after object to cell",  datetime.now()-start)
+        
+        start=datetime.now()
         cell.setPropertyValue("CellStyle", style)
-        cell.setPropertyValue("CellBackColor", color)
+        if color!=ColorsNamed.White or rewritewhite is True:
+            cell.setPropertyValue("CellBackColor", color)
+        if coord==debugcell:
+            print(coord, "Time after properties",  datetime.now()-start)
+        
+        start=datetime.now()
         self.statistics.appendCellCreationStartMoment(start)
+        if coord==debugcell:
+            print(coord, "Time after statistics",  datetime.now()-start)
+            
+        if coord==debugcell:
+            print(coord,  "Total cell", datetime.now()-total)
         
     ## All of this names are document names
     def setCellName(self, coord, name):
@@ -541,7 +570,14 @@ class ODS(ODF):
         self.document.NamedRanges.addNewByName(name, coord.string(), cell, 0)
         
     def __object_to_cell(self, cell, o):
-        if o.__class__.__name__  == "datetime":
+        if o.__class__.__name__ in ("int", ):
+            cell.setValue(int(o))
+        elif o.__class__.__name__ in ("str", ):
+            if is_formula(o):
+                cell.setFormula(o)
+            else:
+                cell.setString(o)
+        elif o.__class__.__name__  == "datetime":
             cell.setValue(datetime2localc1989(o))
         elif o.__class__.__name__  == "date":
             cell.setValue(date2localc1989(o))
@@ -556,13 +592,6 @@ class ODS(ODF):
             cell.setValue(float(o.amount))
         elif o.__class__.__name__ in ("Decimal",  "float"):
             cell.setValue(float(o))
-        elif o.__class__.__name__ in ("int", ):
-            cell.setValue(int(o))
-        elif o.__class__.__name__ in ("str", ):
-            if is_formula(o):
-                cell.setFormula(o)
-            else:
-                cell.setString(o)
         elif o.__class__.__name__ in ("bool", ):
             cell.setValue(int(o))
         elif o.__class__.__name__ in ("timedelta", ):
