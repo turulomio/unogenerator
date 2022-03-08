@@ -510,11 +510,54 @@ class ODS(ODF):
         for i,o in enumerate(list_o):
             self.addCellWithStyle(coord_start.addRowCopy(i),o,colors[i],styles[i])
 
-    ## @param style If None tries to guess it
-    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None):
-        coord_start=C.assertCoord(coord_start)
-        for i, row in enumerate(list_rows):
-            self.addRowWithStyle(coord_start.addRowCopy(i), row, colors=colors,styles=styles)
+    ## Function used to add a big amount of cells to paste quickly
+    ## @param colors. List of column colors or None to use white
+    ## @param styles. List of styles (columns) or None to guess them from first row
+    ## @param cellbycell If true creates cells with addCellWithStyle instead of range.setDataArray
+    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None, cellbycell=False):
+        coord_start=C.assertCoord(coord_start) 
+        
+        if cellbycell is True:
+            for i, row in enumerate(list_rows):
+                self.addRowWithStyle(coord_start.addRowCopy(i), row, colors=colors,styles=styles)
+        else:
+            #Calculates the number of rows and columns of list_rows
+            rows=len(list_rows)
+            if rows==0:
+                columns=0
+            else:
+                columns=len(list_rows[0])
+
+            #Sets colors and styles
+            if colors.__class__.__name__!="list" and columns>0:
+                colors=[ColorsNamed.White]*columns
+            if styles is None and rows>0:
+                styles=[]
+                for o in list_rows[0]:
+                    styles.append(guess_object_style(o))
+            if len(colors)!=columns:
+                print("Colors must have the same number of items as data columns")
+            if len(styles)!=columns:
+                print("Styles must have the same number of items as data columns")
+                
+            #Convert list_rows to valid dataarray
+            r=[]
+            for row in list_rows:
+                r_row=[]
+                for o in row:
+                    r_row.append(self.__object_to_dataarray_element(o))
+                r.append(r_row)
+
+            #Writes data fast
+            range=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
+            range.setDataArray(r)
+
+            #Create styles by columns cellranges
+            if rows>0:
+                for c, o in enumerate(list_rows[0]):
+                    columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
+                    columnrange.setPropertyValue("CellStyle", styles[c])
+                    columnrange.setPropertyValue("CellBackColor", colors[c])
 
     ## @param style If None tries to guess it
     def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None):
@@ -522,12 +565,24 @@ class ODS(ODF):
         for i, column in enumerate(list_columns):
             self.addColumnWithStyle(coord_start.addColumnCopy(i), column, colors=colors,styles=styles)
 
+    ## Making prints in each statement we can see that most of the time is interactuating with libreoffice server (Times in a very fast machine)    ##A4999 Time after assert 0:00:00.000002
+    ## Thats why we create adding all celss with range.setDataArray in addListOfRowsWithStyle
+    ##A4999 Time after guessing style 0:00:00.000001
+    ##A4999 Time after cellbyposition 0:00:00.000284
+    ##A4999 Time after object to cell 0:00:00.000099
+    ##A4999 Time after properties 0:00:00.000247
+    ##A4999 Time after statistics 0:00:00.000002
+    ##A4999 Total cell 0:00:00.000688
+
     ## @param style If None tries to guess it
+    ## @param rewritewrite If color is ColorsNamed.White, rewrites the color to White instead of ignoring it. Ignore it gains 0.200 ms
     def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
         start=datetime.now()
         coord=C.assertCoord(coord)
+        
         if style is None:
             style=guess_object_style(o)
+                
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__object_to_cell(cell, o)
         cell.setPropertyValue("CellStyle", style)
@@ -541,13 +596,20 @@ class ODS(ODF):
         self.document.NamedRanges.addNewByName(name, coord.string(), cell, 0)
         
     def __object_to_cell(self, cell, o):
-        if o.__class__.__name__  == "datetime":
+        if o.__class__.__name__ in ("int", ):
+            cell.setValue(int(o))
+        elif o.__class__.__name__ in ("str", ):
+            if is_formula(o):
+                cell.setFormula(o)
+            else:
+                cell.setString(o)
+        elif o.__class__.__name__  == "datetime":
             cell.setValue(datetime2localc1989(o))
         elif o.__class__.__name__  == "date":
             cell.setValue(date2localc1989(o))
         elif o.__class__.__name__  == "time":
             cell.setValue(time2localc1989(o))
-        elif o.__class__.__name__ in ("Percentage", "Money"):
+        elif o.__class__.__name__ in ("Percentage", ):
             if o.value is None:
                 cell.setString("")
             else:
@@ -556,13 +618,6 @@ class ODS(ODF):
             cell.setValue(float(o.amount))
         elif o.__class__.__name__ in ("Decimal",  "float"):
             cell.setValue(float(o))
-        elif o.__class__.__name__ in ("int", ):
-            cell.setValue(int(o))
-        elif o.__class__.__name__ in ("str", ):
-            if is_formula(o):
-                cell.setFormula(o)
-            else:
-                cell.setString(o)
         elif o.__class__.__name__ in ("bool", ):
             cell.setValue(int(o))
         elif o.__class__.__name__ in ("timedelta", ):
@@ -571,6 +626,40 @@ class ODS(ODF):
             cell.setString("")
         else:
             cell.setString(str(o))
+            print("MISSING", o.__class__.__name__)
+            
+    ## Function used to massive data_array creation
+    def __object_to_dataarray_element(self, o):
+        if o.__class__.__name__ in ("int", "float"):
+            return o
+        elif o.__class__.__name__ in ("str", ):
+            if is_formula(o):
+                return o
+            else:
+                return o
+        elif o.__class__.__name__  == "datetime":
+            return datetime2localc1989(o)
+        elif o.__class__.__name__  == "date":
+            return date2localc1989(o)
+        elif o.__class__.__name__  == "time":
+            return time2localc1989(o)
+        elif o.__class__.__name__ in ("Percentage", ):
+            if o.value is None:
+                 return ""
+            else:
+                return float(o.value)
+        elif o.__class__.__name__ in ("Currency", "Money"):
+            return float(o.amount)
+        elif o.__class__.__name__ in ("Decimal", ):
+            return float(o)
+        elif o.__class__.__name__ in ("bool", ):
+            return int(o)
+        elif o.__class__.__name__ in ("timedelta", ):
+            return str(o)
+        elif o is None:
+            return ""
+        else:
+            return str(o)
             print("MISSING", o.__class__.__name__)
             
     def sortRange(self, range,  sortindex, ascending=True, casesensitive=True):
