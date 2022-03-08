@@ -6,7 +6,7 @@ from unogenerator.reusing.percentage import Percentage
 from unogenerator.reusing.currency import Currency
 
 
-number=10000
+number=2000
 lor=[]
 for i in range(number):
     lor.append([
