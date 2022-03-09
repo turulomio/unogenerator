@@ -3,8 +3,8 @@
 ## @param styles List with string styles or None. If none tries to guest from top column object. List example: ["GrayLightPercentage", "GrayLightInteger"]
 ## @param string with the row where th3e total begins
 ## @param string with the rew where the formula ends. If None it's a coord.row -1
+from collections import OrderedDict
 from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string, get_range_from_iterable_object
-
 from gettext import translation
 from pkg_resources import resource_filename
 
@@ -134,6 +134,35 @@ def helper_totals_from_range (
         doc.addCellWithStyle(coord_horizontal_title.addColumnCopy(data_columns+1), generate_formula_total_string(key, range.start.addRowCopy(data_rows+1), range.end.addRowCopy(1)), ColorsNamed.GrayLight, style_data)
 
 
+def listofdicts_to_listofordereddicts(ld, keys):
+    if len(ld)==0:
+        return []
+                
+    r=[]  
+    for d in ld:
+        r_d=OrderedDict()
+        for key in keys:
+            r_d[key]=d[key]
+        r.append(r_d)
+    return r
+
+
+## Converts a list of ordereddict to a list of rows. ONLY DATA
+def listofordereddicts_to_listofrows(lod,  keys=None):
+    if len(lod)==0:
+        return []
+        
+    if keys is None:
+        keys=lod[0].keys()
+        
+    r=[]  
+    for od in lod:
+        row_r=[]
+        for key in keys:
+            row_r.append(od[key])
+        r.append(row_r)
+    return r
+
 ## Write cells from a list of ordered dictionaries
 ## @param lod List of ordered dictionaries
 ## @param keys. If None write all keys, Else must be a list of keys
@@ -153,6 +182,22 @@ def helper_list_of_ordereddicts(doc, coord_start,  lod, keys=None, columns_heade
     for column,  key in enumerate(keys):       
         doc.addCellWithStyle(coord_start.addColumnCopy(column), key, color_row_header, "BoldCenter")
     coord_data=coord_start.addRowCopy(1)
+    
+    
+    lor=listofordereddicts_to_listofrows(lod)
+    
+    #Generate list of colors
+    colors=[]
+    for i in range(len(keys)):
+        if i <= columns_header-1:
+            colors.append(color_column_header)
+        else:
+            colors.append(color)
+   
+    #Generate list of rows
+    doc.addListOfRowsWithStyle(coord_data, lor, colors, styles)
+    
+    
     
     #Data
     for row, od in enumerate(lod):

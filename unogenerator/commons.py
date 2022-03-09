@@ -217,6 +217,12 @@ class Range:
         
     def __str__(self):
         return self.string()
+        
+    @classmethod
+    def from_coords_indexes(cls, start_letter_index, start_number_index, end_letter_index, end_number_index):
+        c_start=Coord_from_index(start_letter_index, start_number_index)
+        c_end=Coord_from_index(end_letter_index, end_number_index)
+        return cls(f"{c_start}:{c_end}")
 
     ##Return the outcome of the test b in a. Note the reversed operands.
     def __contains__(self, b):
