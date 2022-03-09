@@ -92,7 +92,7 @@ msgid "Boolean"
 msgstr "Booleano"
 
 msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.statistics.init} in {port}"
-msgstr ""
+msgstr "unogenerator_example_{language}{suffix}.ods tardó {datetime.now()-doc.statistics.init} en {port}"
 
 msgid "UnoGenerator documentation"
 msgstr "Documentación de UnoGenerator"
@@ -111,7 +111,7 @@ msgid "UnoGenerator uses Libreoffice UNO API python bindings to generate documen
 msgstr "UnoGenerator usa la API de python de Libreoffice para generar documentos."
 
 msgid "So in order to use, you need to launch a --headless libreoffice instance."
-msgstr ""
+msgstr "Por ello se necesita lanzar una instancia de LibreOffice --headless."
 
 msgid "We recomend to launch then easily with 'unogenerator_start' script."
 msgstr "Recomendamos lanzarlo facilmente con el script 'unogenerator_start'."

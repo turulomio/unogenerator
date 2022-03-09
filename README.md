@@ -91,6 +91,11 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.21.0 (2022-03-09)
+- Improved log and debug system.
+- ODS.addListOfRowsWithStyle is now almost instant with lots of cells.
+- helper_list_of_ordereddicts now uses ODS.addListOfRowsWithStyle to improve doc generation.
+
 ### 0.20.0 (2022-03-06)
 - Fixed error when percentage value is None.
 - Fixed problem translating demo documents.
