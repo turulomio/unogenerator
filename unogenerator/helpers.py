@@ -184,7 +184,7 @@ def helper_list_of_ordereddicts(doc, coord_start,  lod, keys=None, columns_heade
     coord_data=coord_start.addRowCopy(1)
     
     
-    lor=listofordereddicts_to_listofrows(lod)
+    lor=listofordereddicts_to_listofrows(lod, keys)
     
     #Generate list of colors
     colors=[]
