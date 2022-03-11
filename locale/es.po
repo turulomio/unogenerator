@@ -398,7 +398,7 @@ msgid "Perhaps a merged string"
 msgstr "Quizas una cadena unida"
 
 msgid "Extracting strings from:"
-msgstr ""
+msgstr "Extrayendo cadenas de:"
 
 #, python-brace-format
 msgid "   - {filename}"
@@ -413,7 +413,7 @@ msgstr "   + {output}"
 
 #, python-brace-format
 msgid "Changing port {old} to {self.loserver_port} {i} times"
-msgstr ""
+msgstr "Cambiando el puerto {old} a {self.loserver_port} {i} vez"
 
 msgid "This process died"
 msgstr "Este proceso murió"
