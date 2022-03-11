@@ -92,7 +92,7 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 ## Changelog
 
 ### 0.22.0 (2022-03-11)
-- Improved installation methods documentation at {INSTALL.md}(INSTALL.md)
+- Improved installation methods documentation at [INSTALL.md](INSTALL.md)
 - Fix bug with missing keys parameter
 
 ### 0.21.0 (2022-03-09)
