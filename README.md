@@ -8,9 +8,9 @@ Morever, you can export them to (.xlsx, .docx, .pdf) easyly.
 It uses Libreoffice uno module, so you need Libreoffice to be installed in your system.
 
 ## Installation
-You can use pip to install this python package:
 
-`pip install unogenerator`
+Only Linux is supported. I'm going to write unogenerator [installation methods](INSTALL.md) for some main Linux Distributions 
+
 
 ## ODT 'Hello World' example
 
