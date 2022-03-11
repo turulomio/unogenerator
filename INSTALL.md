@@ -27,3 +27,6 @@ To launch Libreoffice server instances:
 To generate unogenerator demo files:
 
 `unogenerator_demo --create`
+
+If everything goes fine, you'll find demo files created in your current directory
+
