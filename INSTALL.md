@@ -1,3 +1,5 @@
+# UnoGenerator installation methods
+
 Only Linux is supported
 
 Here you can find installation methods for some Linux distributions
