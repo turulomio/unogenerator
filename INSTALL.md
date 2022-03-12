@@ -2,6 +2,10 @@
 
 Only Linux is supported
 
+You need LibreOffice installed in your system
+
+In some distros you need to install Python LibreOffice bindings too (python3-uno)
+
 Here you can find installation methods for some Linux distributions
 
 ## Gentoo Linux
