@@ -14,7 +14,25 @@ I've developed this tool with Gentoo.
 
 If you want to install it in Gentoo you can use my ebuild at [myportage](https://github.com/turulomio/myportage/tree/master/dev-python/unogenerator).
 
-## Kubuntu Linux (LiveCD)
+## Debian (LiveCD)
+
+I've downloaded debian-live-11.2.0-amd64-kde.iso. Run from a usb pendrive and opened Konsole
+
+`sudo su -`
+
+`apt update`
+
+`apt install python3-pip`
+
+`pip install unogenerator`
+
+`unogenerator_start` (It throws me some errors that java-vm is missing, but java-vm is not needed for UnoGenerator so I ignore them)
+
+`unogenerator_demo --create`
+
+If everything goes fine, you'll find demo files created in your current directory
+
+## Kubuntu (LiveCD)
 
 To instal python3 pip system:
 
