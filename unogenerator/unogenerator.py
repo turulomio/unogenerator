@@ -77,7 +77,17 @@ class ODF:
                 print(_(f"Changing port {old} to {self.loserver_port} {i} times"))
                 if i==maxtries - 1:
                     print(_("This process died"))
-
+        
+    ## This method allows to use with statement. 
+    ## with ODS() as doc:
+    ##      doc.createSheet("WITH")
+    ## First calls __init__ with None and 2002, then enter, then exit
+    def __enter__(self):
+        return self
+        
+    ## Exit function to use with with statement. __enter__ defines enter in with
+    def __exit__(self, *args, **kwargs):
+        self.close()
 
     def calculateAll(self):
         self.document.calculateAll()
@@ -404,7 +414,7 @@ class ODS(ODF):
     def __init__(self, template=None, loserver_port=2002):
         ODF.__init__(self, template, loserver_port)
         self._remove_default_sheet=True
-        
+
     def getRemoveDefaultSheet(self):
         return self._remove_default_sheet
         
