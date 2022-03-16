@@ -117,6 +117,7 @@ class Coord:
         
         
     ## Creates a Coord object from spreadsheet index coords
+    @classmethod
     def from_index(cls, column_index, row_index):
         return cls(index2column(column_index)+index2row(row_index))
         

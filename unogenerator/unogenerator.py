@@ -557,7 +557,7 @@ class ODS(ODF):
                 r.append(r_row)
 
             #Writes data fast
-            range_indexes=(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
+            range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
             range=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
             range.setDataArray(r)
 
