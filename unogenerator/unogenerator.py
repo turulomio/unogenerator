@@ -115,7 +115,6 @@ class ODF:
         
 
     def setLanguage(self, language, country):
-        print("FALTA")
         self.language="es"
         self.country="ES"
 
