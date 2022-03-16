@@ -8,9 +8,6 @@ from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.sheet.ConditionEntryType import COLORSCALE
-
-
-
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
 from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
 from gettext import translation
@@ -18,7 +15,7 @@ from logging import warning, debug
 from pkg_resources import resource_filename
 from shutil import copyfile
 from tempfile import TemporaryDirectory
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, Coord_from_letters, Coord_from_index, next_port, get_from_process_numinstances_and_firstport,  is_formula
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.percentage import Percentage
@@ -712,7 +709,7 @@ class ODS(ODF):
         self.document.getCurrentController().freezeAtPosition(freeze.letterIndex(), freeze.numberIndex())
 
         if selected is None:
-            selected=Coord_from_index(num_columns-1, num_rows-1)
+            selected=C.from_index(num_columns-1, num_rows-1)
         else:
             selected=C.assertCoord(selected)
         selectedcell=self.sheet.getCellByPosition(selected.letterIndex(), selected.numberIndex())
@@ -729,7 +726,7 @@ class ODS(ODF):
                 number=freeze.number
             else:
                 number=minus_coord.number
-            topleft=Coord_from_letters(letter, number)
+            topleft=C.from_letters(letter, number)
         else:
             topleft=C.assertCoord(topleft)
         self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
@@ -746,16 +743,18 @@ class ODS(ODF):
         self.statistics.appendCellGetValuesStartMoment(start)
         return r
 
-
     ## Returns a list of rows with the values of the sheet
     ## @param sheet_index Integer index of the sheet
     ## @param skip_up int. Number of rows to skip at the begining of the list of rows (lor)
     ## @param skip_down int. Number of rows to skip at the end of the list of rows (lor)
     ## @return Returns a list of rows of object values
     def getValues(self, skip_up=0, skip_down=0,  detailed=False):
-        if skip_up>0 or skip_down>0:
-            print("FALTA, REMOVE FROM RANGE")
-        return self.getValuesByRange(self.getSheetRange(), detailed)
+        range=self.getSheetRange()
+        if skip_up>0:
+           range=range.addRowBefore(-skip_up)
+        if skip_down>0:
+           range=range.addRowAfter(-skip_down)
+        return self.getValuesByRange(range, detailed)
 
     ## @param sheet_index Integer index of the sheet
     ## @param range_ Range object to get values. If None returns all values from sheet

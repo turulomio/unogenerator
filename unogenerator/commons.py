@@ -114,6 +114,17 @@ def index2column(index):
 class Coord:
     def __init__(self, strcoord):
         self.letter, self.number=self.__extract(strcoord)
+        
+        
+    ## Creates a Coord object from spreadsheet index coords
+    def from_index(cls, column_index, row_index):
+        return cls(index2column(column_index)+index2row(row_index))
+        
+            
+    ## Creates a Coord object from spreadsheet letters
+    @classmethod
+    def from_letters(cls, column, letter):
+        return cls(column+letter)
 
     def __repr__(self):
         return f"Coord <{self}>"
@@ -220,9 +231,18 @@ class Range:
         
     @classmethod
     def from_coords_indexes(cls, start_letter_index, start_number_index, end_letter_index, end_number_index):
-        c_start=Coord_from_index(start_letter_index, start_number_index)
-        c_end=Coord_from_index(end_letter_index, end_number_index)
+        c_start=Coord.from_index(start_letter_index, start_number_index)
+        c_end=Coord.from_index(end_letter_index, end_number_index)
         return cls(f"{c_start}:{c_end}")
+        
+        
+    
+    ## Creates a Range object from itself stard and end coords
+    @classmethod
+    def from_coords(cls, start, end):
+        start=Coord.assertCoord(start)
+        end=Coord.assertCoord(end)
+        return cls(f"{start}:{end}")
 
     ##Return the outcome of the test b in a. Note the reversed operands.
     def __contains__(self, b):
@@ -233,15 +253,7 @@ class Range:
             return True
         return False
 
-    ## Returns a list of rows of all Coord objects in the range
-    def coords(self):
-        r=[]
-        for row in range(self.numRows()):
-            tmprow=[]
-            for column in range(self.numColumns()):
-                tmprow.append(self.start.addRowCopy(row).addColumnCopy(column))
-            r.append(tmprow)
-        return r
+
 
     ## Converts a string to a Range. Returns None if conversion can't be done
     def __extract(self,range):
@@ -326,17 +338,18 @@ class Range:
                     row.append((letter_index, number_index))
                 r.append(row)
         return r
-
+        
+    ## Returns a list of rows of all Coord objects in the range
     def coords_list(self, plain=False):
         r=[]
         if plain is True:
             for letter_index, number_index in self.indexes_list():
-                r.append(Coord_from_index(letter_index, number_index))
+                r.append(Coord.from_index(letter_index, number_index))
         else:
             for row  in self.indexes_list():
                 r2=[]
                 for  letter_index , number_index  in row:
-                    r2.append(Coord_from_index(letter_index, number_index))
+                    r2.append(Coord.from_index(letter_index, number_index))
                 r.append(r2)
         return r
 
@@ -360,19 +373,7 @@ def addDebugSystem(level):
 
 
 
-## Creates a Coord object from spreadsheet letters
-def Coord_from_letters(column, letter):
-    return Coord(column+letter)
 
-## Creates a Coord object from spreadsheet index coords
-def Coord_from_index(column_index, row_index):
-    return Coord(index2column(column_index)+index2row(row_index))
-    
-## Creates a Range object from itself stard and end coords
-def Range_from_coords(start, end):
-    start=Coord.assertCoord(start)
-    end=Coord.assertCoord(end)
-    return Range(f"{start}:{end}")
 
 def generate_formula_total_string(key, coord_from, coord_to):
     if key == "#SUM":

@@ -173,9 +173,9 @@ def demo_ods_standard(language, port=2002, suffix="",):
     doc.freezeAndSelect("B2")
     
 #    # Un comment to see objjects from cell
-#    from unogenerator.commons import Coord_from_index
+#    from unogenerator.commons import Coord.from_index
 #    for i in range(10):
-#        o=doc.getValue(Coord_from_index(i, 3), True)
+#        o=doc.getValue(Coord.from_index(i, 3), True)
 #        print(o)
 
     ## HELPERS
