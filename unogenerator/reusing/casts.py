@@ -4,8 +4,18 @@
 from decimal import Decimal
 from json import dumps
 from logging import warning
-from .currency import Currency
-from .percentage import Percentage
+from unogenerator.reusing.currency import Currency
+from unogenerator.reusing.percentage import Percentage
+
+
+from inspect import currentframe
+
+## Converts a string in a f-string
+## Used to translate f-strings due to a gettext limitation for this ones
+## Example f(_("Hello {name}"))
+def f(s):
+    frame = currentframe().f_back
+    return eval(f'f"""{s}"""', frame.f_locals, frame.f_globals)
 
 def valueORempty(v):
     return "" if v is None else v

@@ -428,26 +428,25 @@ class ObjectManager_With_IdName(ObjectManager_With_Id):
 
     ## Creates a libreoffice sheet from the ObjectManager
     ##
-    ## This function needs the officegenerator package
-    ## @param ods Officegenerator ODS_Write object
+    ## This function needs the unogenerator package
+    ## @param doc Unogenerator ODS_Standard, ODS object
     ## @param sheetname String with the name of the libreoffice sheet
     ## @param titles List of strings with the titles of the columns
     ## @param order_by_name Boolean. True: orders by name. False: orders by id
     ## @returns Officegenerator OdfSheet
-    def ods_sheet(self, ods, sheetname, titles=["Id", "Name"],  order_by_name=True):
-        from officegenerator import Coord
+    def uno_sheet(self, doc, sheetname, titles=["Id", "Name"],  order_by_name=True):
+        from unogenerator.commons import Coord, ColorsNamed
         if order_by_name==True:
             self.order_by_name()
         else:
             self.order_by_id()
-        s=ods.createSheet(sheetname)
-        s.setColumnsWidth([80, 240])
-        s.add("A1", [titles], "OrangeCenter")
+        doc.createSheet(sheetname)
+        doc.setColumnsWidth([3, 20])
+        doc.addRowWithStyle("A1", titles, ColorsNamed.Orange, "BoldCenter")
         for number, o in enumerate(self.arr):
-            s.add(Coord("A2").addRow(number), o.id, "WhiteRight")        
-            s.add(Coord("B2").addRow(number), o.name, "WhiteLeft")
-        s.freezeAndSelect("A1")
-        return s
+            doc.addCellWithStyle(Coord("A2").addRow(number), o.id)        
+            doc.addCellWithStyle(Coord("B2").addRow(number), str(o.name))
+        doc.freezeAndSelect("A2")
 
 ## Usefull when creating a class with two attributes self.id and self.name only
 class Object_With_IdName:

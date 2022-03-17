@@ -1,7 +1,8 @@
 ## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
 ## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
 
-from .casts import var2json
+from unogenerator.reusing.casts import var2json
+from collections import OrderedDict
 
 
 
@@ -176,7 +177,14 @@ def listdict_median(listdict, key):
     return median(listdict2list(listdict, key, sorted=True))
 
 
-## Converts a listdict to a dict using key as new dict key
+## Converts a listdict to a dict using key as new dict key, and value as the key of the value field
+def listdict2dictkv(listdict, key, value):
+    d={}
+    for ld in listdict:
+        d[ld[key]]=ld[value]
+    return d
+
+## Converts a listdict to a dict using key as new dict key, and the dict as a value
 def listdict2dict(listdict, key):
     d={}
     for ld in listdict:
@@ -201,6 +209,28 @@ def listdict2list(listdict, key, sorted=False, cast=None):
         r.sort()
     return r
 
+
+## Returns a list from a listdict key, with distinct values, not all values
+## @param listdict
+## @param key String with the key to extract
+## @param sorted Boolean. If true sorts final result
+## @param cast String. "str", "float", casts the content of the key
+def listdict2list_distinct(listdict, key, sorted=False, cast=None):
+    set_=set()
+    for ld in listdict:
+        if cast is None:
+            set_.add(ld[key])
+        elif cast == "str":
+            set_.add(str(ld[key]))
+        elif cast == "float":
+            set_.add(float(ld[key]))
+    r=list(set_)
+    if sorted is True:
+        r.sort()
+    return r
+
+
+
 def listdict2json(listdict):
     if len(listdict)==0:
         return "[]"
@@ -222,6 +252,34 @@ def listdict_max(listdict, key):
 def listdict_min(listdict, key):
     return min(listdict2list(listdict,key))
 
+## Converts a list of ordereddict to a list of rows. ONLY DATA
+## @params keys If None we must suppose is an ordered dict or keys will be randomized
+def listdict2listofrows(lod,  keys=None):
+    if len(lod)==0:
+        return []
+        
+    if keys is None:
+        keys=lod[0].keys()
+        
+    r=[]  
+    for od in lod:
+        row_r=[]
+        for key in keys:
+            row_r.append(od[key])
+        r.append(row_r)
+    return r
+
+def listdict2listofordereddicts(ld, keys):
+    if len(ld)==0:
+        return []
+                
+    r=[]  
+    for d in ld:
+        r_d=OrderedDict()
+        for key in keys:
+            r_d[key]=d[key]
+        r.append(r_d)
+    return r
 
 if __name__ == "__main__":
     from datetime import datetime, date
@@ -235,3 +293,5 @@ if __name__ == "__main__":
         print("")
         for row in lor:
             print(row)
+            
+    print(listdict2dictkv(ld, "a","b"))

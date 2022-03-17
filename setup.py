@@ -3,12 +3,18 @@ import site
 import os
 import platform
 
+
+
+
 class Reusing(Command):
-    description = "Download modules from https://github.com/turulomio/reusingcode/"
-    user_options = []
+    description = "Fetch remote modules"
+    user_options = [
+      # The format is (long option, short option, description).
+      ( 'local', None, 'Update files without internet'),
+  ]
 
     def initialize_options(self):
-        pass
+        self.local=False
 
     def finalize_options(self):
         pass
@@ -16,15 +22,24 @@ class Reusing(Command):
     def run(self):
         from sys import path
         path.append("unogenerator/reusing")
-        from github import download_from_github
-        download_from_github('turulomio','reusingcode','python/github.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/casts.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/datetime_functions.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/listdict_functions.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/decorators.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/libmanagers.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/percentage.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/currency.py', 'unogenerator/reusing/')
+        print(self.local)
+        if self.local is False:
+            from github import download_from_github
+            download_from_github('turulomio','reusingcode','python/github.py', 'unogenerator/reusing/')
+            download_from_github('turulomio','reusingcode','python/casts.py', 'unogenerator/reusing/')
+            download_from_github('turulomio','reusingcode','python/datetime_functions.py', 'unogenerator/reusing/')
+            download_from_github('turulomio','reusingcode','python/listdict_functions.py', 'unogenerator/reusing/')
+            download_from_github('turulomio','reusingcode','python/file_functions.py', 'unogenerator/reusing/')
+            download_from_github('turulomio','reusingcode','python/decorators.py', 'unogenerator/reusing/')
+            download_from_github('turulomio','reusingcode','python/libmanagers.py', 'unogenerator/reusing/')
+            download_from_github('turulomio','reusingcode','python/percentage.py', 'unogenerator/reusing/')
+            download_from_github('turulomio','reusingcode','python/currency.py', 'unogenerator/reusing/')
+        
+        from file_functions import replace_in_file
+        replace_in_file("unogenerator/reusing/casts.py","from currency","from unogenerator.reusing.currency")
+        replace_in_file("unogenerator/reusing/casts.py","from percentage","from unogenerator.reusing.percentage")
+        replace_in_file("unogenerator/reusing/listdict_functions.py","from casts","from unogenerator.reusing.casts")
+
 
 ## Class to define doc command
 class Translate(Command):
