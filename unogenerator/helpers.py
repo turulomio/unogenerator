@@ -117,7 +117,7 @@ def helper_totals_from_range (
     data_columns=range.numColumns()
     coord_horizontal_title=range.start.addColumnCopy(-1).addRowCopy(data_rows) 
     coord_vertical_title=range.start.addRowCopy(-1).addColumnCopy(data_columns)
-    style_data=guess_object_style(doc.getValue(range.start))
+    style_data=guess_object_style(doc.getValue(range.end))
     
     if totalcolumns==True and totalrows==True:
         doc.addCellWithStyle(coord_horizontal_title, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
@@ -167,12 +167,13 @@ def listofordereddicts_to_listofrows(lod,  keys=None):
 ## @param lod List of ordered dictionaries
 ## @param keys. If None write all keys, Else must be a list of keys
 ## @param columns_header. Integer with the number of columns to apply color_header
+## @return Range. Returns the range of the data without headers. Useful to set totals.
 def helper_list_of_ordereddicts(doc, coord_start,  lod, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
     coord_start=C.assertCoord(coord_start)
     
     if len(lod)==0 and keys is None:
         doc.addCellWithStyle(coord_start, _("No data to show"), ColorsNamed.Red, "BoldCenter")
-        return
+        return None
 
         
     #Header
@@ -195,26 +196,7 @@ def helper_list_of_ordereddicts(doc, coord_start,  lod, keys=None, columns_heade
             colors.append(color)
    
     #Generate list of rows
-    doc.addListOfRowsWithStyle(coord_data, lor, colors, styles)
-    
-    
-    
-    #Data
-    for row, od in enumerate(lod):
-        for column, key in enumerate(keys):
-            if styles is None:
-                style=guess_object_style(od[key])
-            elif styles.__class__.__name__ != "list":
-                style=styles
-            else:
-                style=styles[column]
-
-            if column+1<=columns_header:
-                color_=color_column_header
-            else:
-                color_=color
-            
-            doc.addCellWithStyle(coord_data.addRowCopy(row).addColumnCopy(column), od[key], color_, style)
+    return doc.addListOfRowsWithStyle(coord_data, lor, colors, styles)
 
 ## Write cells from a list of ordered dictionaries
 ## @param lod List of ordered dictionaries

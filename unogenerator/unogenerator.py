@@ -16,6 +16,7 @@ from pkg_resources import resource_filename
 from shutil import copyfile
 from tempfile import TemporaryDirectory
 from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula
+from unogenerator.reusing.casts import lor_transposed
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.percentage import Percentage
@@ -524,16 +525,18 @@ class ODS(ODF):
     def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None, cellbycell=False):
         coord_start=C.assertCoord(coord_start) 
         
+        rows=len(list_rows)
+        if rows==0:
+            columns=0
+        else:
+            columns=len(list_rows[0])
+        
         if cellbycell is True:
             for i, row in enumerate(list_rows):
                 self.addRowWithStyle(coord_start.addRowCopy(i), row, colors=colors,styles=styles)
+                return R.from_columns_rows(coord_start, columns, rows)
         else:
             #Calculates the number of rows and columns of list_rows
-            rows=len(list_rows)
-            if rows==0:
-                columns=0
-            else:
-                columns=len(list_rows[0])
 
             #Sets colors and styles
             if colors.__class__.__name__!="list" and columns>0:
@@ -569,11 +572,24 @@ class ODS(ODF):
             return R.from_coords_indexes(*range_indexes)
 
     ## @param style If None tries to guess it
-    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None):
-        coord_start=C.assertCoord(coord_start)
-        for i, column in enumerate(list_columns):
-            self.addColumnWithStyle(coord_start.addColumnCopy(i), column, colors=colors,styles=styles)
-
+    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None, cellbycell=False):
+        coord_start=C.assertCoord(coord_start) 
+        
+        if cellbycell is True:
+            if len(list_columns)>0:
+                columns=len(list_columns)
+                rows=len(list_columns[0])
+            else:
+                columns=0
+                rows=0
+            
+            for i, column in enumerate(list_columns):
+                self.addColumnWithStyle(coord_start.addColumnCopy(i), column, colors=colors,styles=styles)
+                return R.from_columns_rows(coord_start, columns, rows)
+        else:
+            list_rows=lor_transposed(list_columns)
+            return self.addListOfRowsWithStyle(coord_start, list_rows, colors, styles, cellbycell)
+            
     ## Making prints in each statement we can see that most of the time is interactuating with libreoffice server (Times in a very fast machine)    ##A4999 Time after assert 0:00:00.000002
     ## Thats why we create adding all celss with range.setDataArray in addListOfRowsWithStyle
     ##A4999 Time after guessing style 0:00:00.000001

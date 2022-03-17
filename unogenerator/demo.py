@@ -15,7 +15,7 @@ from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, C
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
-from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_column, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals, helper_ods_sheet_stylenames
+from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals, helper_ods_sheet_stylenames
 from os import remove
 from tqdm import tqdm
 
@@ -171,62 +171,43 @@ def demo_ods_standard(language, port=2002, suffix="",):
     doc.setComment("B14", "This is nice comment")
     
     doc.freezeAndSelect("B2")
-    
-#    # Un comment to see objjects from cell
-#    from unogenerator.commons import Coord.from_index
-#    for i in range(10):
-#        o=doc.getValue(Coord.from_index(i, 3), True)
-#        print(o)
 
     ## HELPERS
     doc.createSheet("Helpers")
     doc.addCellMergedWithStyle("A1:E1","Helper values with total (horizontal)", ColorsNamed.Orange, "BoldCenter")
     helper_title_values_total_row(doc, "A2", "Suma 3", [1,2,3])
 
-    doc.addCellMergedWithStyle("A4:E4","Helper values with total (vertical)", ColorsNamed.Orange, "BoldCenter")
-    helper_title_values_total_column(doc, "A5", "Suma 3", [1,2,3])
+    doc.addCellMergedWithStyle("A4:A9","Helper values with total (vertical)", ColorsNamed.Orange, "VerticalBoldCenter")
+    helper_title_values_total_column(doc, "B4", "Suma 3", [1,2,3, 4])
     
     doc.addCellMergedWithStyle("A11:C11","List of rows", ColorsNamed.Orange, "BoldCenter")
-    doc.addListOfRowsWithStyle("A12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+    range_=doc.addListOfRowsWithStyle("A12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+    helper_totals_row(doc, range_.start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="12", row_to="14")
     
     doc.addCellMergedWithStyle("E11:G11","List of columns", ColorsNamed.Orange, "BoldCenter")
-    doc.addListOfColumnsWithStyle("E12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+    range_=doc.addListOfColumnsWithStyle("E12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+    helper_totals_row(doc, range_.start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="12", row_to="14")
 
-    helper_totals_row(doc, "A17", ["#SUM"]*3, styles=None, row_from="12", row_to="15")
-    helper_totals_column(doc, "I12", ["#SUM"]*3, styles=None, column_from="E", column_to="G")
-
-
-    doc.addCellMergedWithStyle("A19:D19","List of rows with totals", ColorsNamed.Orange, "BoldCenter")
-    doc.addListOfRowsWithStyle("A20", [["A",12000,2,3],["B",1020,5,6],["C",20404,8,9]], ColorsNamed.White)
-    helper_totals_from_range(doc, "B20:D22", totalcolumns=True, totalrows=True)
+    doc.addCellMergedWithStyle("A17:D17","List of rows with totals", ColorsNamed.Orange, "BoldCenter")
+    range_=doc.addListOfRowsWithStyle("A18", [["A",12000,2,3],["B",1020,5,6],["C",20404,8,9]], ColorsNamed.White)
+    helper_totals_from_range(doc, range_, totalcolumns=True, totalrows=True)
 
     
-    doc.addCellMergedWithStyle("A25:B25","List of ordered dictionaries", ColorsNamed.Orange, "BoldCenter")
+    doc.addCellMergedWithStyle("A23:B23","List of ordered dictionaries", ColorsNamed.Orange, "BoldCenter")
     lod=[]
     lod.append(OrderedDict({"Singer": "Elvis",  "Song": "Fever" }))
     lod.append(OrderedDict({"Singer": "Roy Orbison",  "Song": "Blue angel" }))
-    helper_list_of_ordereddicts(doc, "A26",  lod, columns_header=1)
+    helper_list_of_ordereddicts(doc, "A24",  lod, columns_header=1)
     
-    doc.addCellMergedWithStyle("A30:B30","List of dictionaries", ColorsNamed.Orange, "BoldCenter")
-    helper_list_of_dicts(doc, "A31",  lod, keys=["Song",  "Singer"])
+    doc.addCellMergedWithStyle("A28:B28","List of dictionaries", ColorsNamed.Orange, "BoldCenter")
+    helper_list_of_dicts(doc, "A29",  lod, keys=["Song",  "Singer"])
     
-    doc.addCellMergedWithStyle("A35:D35","List of ordered dictionaries one method with totals", ColorsNamed.Orange, "BoldCenter")
+    doc.addCellMergedWithStyle("A33:D33","List of ordered dictionaries one method with totals", ColorsNamed.Orange, "BoldCenter")
     lod=[]
     lod.append(OrderedDict({"Singer": "Elvis",  "Songs": 10000 , "Albums": 100}))
     lod.append(OrderedDict({"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 }))
-    helper_list_of_ordereddicts_with_totals(doc, "A36",  lod, columns_header=1)
+    helper_list_of_ordereddicts_with_totals(doc, "A34",  lod, columns_header=1)
     
-    
-    doc.addColumnWithStyle("A41",  [1, 3, 2, 4, 1, 5])
-    doc.setColorScale("A41:A46")
-
-
-#    # Un comment to see objjects from cell
-#    l=doc.getValuesByRange("E19:E23", True)
-#    for o in l:
-#        print(o)
-
-
     ##Sort
     doc.createSheet("Sort")
     l=[7, 3, 2, 5, 6, 0, 9, 4, 10]

@@ -244,6 +244,18 @@ class Range:
         start=Coord.assertCoord(start)
         end=Coord.assertCoord(end)
         return cls(f"{start}:{end}")
+    
+    ## Creates a Range object from Changing the start_coord of a range
+    @classmethod
+    def from_start_coord_change(cls, range, new_start_coord):
+        return cls.from_columns_rows(new_start_coord, range.numColumns(), range.numRows())
+        
+    ## Creates a Range object from a coord_start and the number of columms and rows of therange
+    @classmethod
+    def from_columns_rows(cls, coord_start, number_columns,  number_rows):
+        start=Coord.assertCoord(coord_start)
+        end=Coord(start).addRow(number_rows-1).addColumn(number_columns-1)
+        return cls(f"{start}:{end}")
 
     ##Return the outcome of the test b in a. Note the reversed operands.
     def __contains__(self, b):
