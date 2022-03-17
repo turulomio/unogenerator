@@ -4,7 +4,7 @@
 ## @param string with the row where th3e total begins
 ## @param string with the rew where the formula ends. If None it's a coord.row -1
 from collections import OrderedDict
-from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string, get_range_from_iterable_object
+from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string
 from gettext import translation
 from pkg_resources import resource_filename
 
@@ -133,6 +133,7 @@ def helper_totals_from_range (
         helper_totals_row(doc, coord_horizontal_title.addColumnCopy(1),[key]*(data_columns+0), styles=style_data, row_from=range.start.number) #1 menos por la esquina
         doc.addCellWithStyle(coord_horizontal_title.addColumnCopy(data_columns+1), generate_formula_total_string(key, range.start.addRowCopy(data_rows+1), range.end.addRowCopy(1)), ColorsNamed.GrayLight, style_data)
 
+    return range_of_data
 
 def listofdicts_to_listofordereddicts(ld, keys):
     if len(ld)==0:
@@ -202,16 +203,18 @@ def helper_list_of_ordereddicts(doc, coord_start,  lod, keys=None, columns_heade
 ## @param lod List of ordered dictionaries
 ## @param keys. If None write all keys, Else must be a list of keys
 ## @param columns_header. Integer with the number of columns to apply color_header
+## @return Range of the data
 def helper_list_of_ordereddicts_with_totals(doc, coord_start,  lod, keys=None, columns_header=1,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, totalcolumns=True, totalrows=True, key="#SUM"):
     coord_start=C.assertCoord(coord_start)
     helper_list_of_ordereddicts(doc, coord_start,  lod, keys, columns_header,  color_row_header, color_column_header,  color, styles)
-    range_lod=get_range_from_iterable_object(coord_start.addRow(1), lod)## Adds q to skip top headers
+    range_lod=R.from_iterable_object(coord_start.addRow(1), lod)## Adds q to skip top headers
     range_lod.start.addColumn(columns_header) ## Adds to skip columns headers
-    helper_totals_from_range (doc, range_lod, key, totalcolumns, totalrows)
+    return helper_totals_from_range (doc, range_lod, key, totalcolumns, totalrows)
     
 ## It's the same of helper_list_of_ordereddicts but withth mandatory keys
+## @return Range of the data
 def helper_list_of_dicts(doc, coord_start,  lod, keys, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
-    helper_list_of_ordereddicts(doc, coord_start,  lod, keys, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None)
+    return helper_list_of_ordereddicts(doc, coord_start,  lod, keys, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None)
 
 ## Creates a new sheet called "Style names" with alll ods styles grouped by families
 def helper_ods_sheet_stylenames(doc):

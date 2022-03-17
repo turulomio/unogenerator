@@ -235,9 +235,7 @@ class Range:
         c_start=Coord.from_index(start_letter_index, start_number_index)
         c_end=Coord.from_index(end_letter_index, end_number_index)
         return cls(f"{c_start}:{c_end}")
-        
-        
-    
+
     ## Creates a Range object from itself stard and end coords
     @classmethod
     def from_coords(cls, start, end):
@@ -256,6 +254,22 @@ class Range:
         start=Coord.assertCoord(coord_start)
         end=Coord(start).addRow(number_rows-1).addColumn(number_columns-1)
         return cls(f"{start}:{end}")
+
+    @classmethod
+    def from_iterable_object(cls,  coord_start, o):
+        coord_start=Coord.assertCoord(coord_start)
+        r=Range(f"{coord_start.string()}:{coord_start.string()}")
+
+        if len(o)==0:
+            return r
+
+        if o[0].__class__.__name__ in ("list","dict", "OrderedDict"): #Iterables con len
+            len_rows=len(o)-1
+            len_columns=len(o[0])-1
+        else:
+            len_rows=0
+            len_columns=len(o)-1
+        return Range(f"{coord_start.string()}:{coord_start.addRowCopy(len_rows).addColumnCopy(len_columns).string()}")
 
     ##Return the outcome of the test b in a. Note the reversed operands.
     def __contains__(self, b):
@@ -445,20 +459,6 @@ def next_port(last,  first_port,  instances):
     else:
         return last+1
 
-def get_range_from_iterable_object( coord_start, o):
-    coord_start=Coord.assertCoord(coord_start)
-    r=Range(f"{coord_start.string()}:{coord_start.string()}")
-
-    if len(o)==0:
-        return r
-
-    if o[0].__class__.__name__ in ("list","dict", "OrderedDict"): #Iterables con len
-        len_rows=len(o)-1
-        len_columns=len(o[0])-1
-    else:
-        len_rows=0
-        len_columns=len(o)-1
-    return Range(f"{coord_start.string()}:{coord_start.addRowCopy(len_rows).addColumnCopy(len_columns).string()}")
 
 ## @param attempts (Integer). Sometimes when server is busy this method fails to detect info. So I make several attempts with a time interval
 ## @return listdict with process info
