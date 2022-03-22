@@ -162,7 +162,7 @@ msgid "With this mode you can create new documents"
 msgstr "Con este modo puedes crear nuevos documentos"
 
 msgid "ODT with template or file (Recomended)."
-msgstr ""
+msgstr "ODT con plantilla o fichero (Recomendado)."
 
 msgid "With this mode you can read your files to overwrite them or use your file as a new template to create new documents"
 msgstr ""
@@ -180,7 +180,7 @@ msgid "Styles"
 msgstr "Estilos"
 
 msgid "To call default Libreoffice paragraph styles you must use their english name."
-msgstr ""
+msgstr "Para invocar los estilos por defecto de Libreoffice, debes usar su nombre en inglés."
 
 msgid "You can see their names with this method:"
 msgstr "Puedes ver sus nombres con este método:"

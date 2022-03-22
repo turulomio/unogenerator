@@ -91,6 +91,13 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.23.0 (2022-03-22)
+- Now you can use with statement with ODF classes.
+- Added Coord, Range, ColorsNamed to unogenerator import.
+- Added skip_up and skip_down parameters to getvalues().
+- addListOfRows and addListOfColumns now returns created range.
+- Added VerticalBoldCenter style to standard.ods template
+
 ### 0.22.0 (2022-03-11)
 - Improved installation methods documentation at [INSTALL.md](INSTALL.md)
 - Fix bug with missing keys parameter
