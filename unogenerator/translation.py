@@ -143,9 +143,9 @@ def command(from_language, to_language, input, output_directory, translate,  und
     generate_pot_file(pot, set_strings, entries)
     
     #Merging pot with out po file
-    if path.exists(po)==False:
+    if path.exists(po) is False:
         run_check(["msginit", "-i", pot,  "-o", po])
-    run_check(["msgmerge","-N", "--no-wrap","-U", po, pot])
+    run_check(["msgmerge","-N", "--no-wrap","-U", "-F", po, pot])
     
     print(f"{len(set_strings)} different strings detected")
     
