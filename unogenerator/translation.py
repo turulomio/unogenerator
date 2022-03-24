@@ -4,7 +4,8 @@ from os import path,  makedirs
 from polib import POEntry,  POFile, pofile
 from subprocess import run
 from pkg_resources import resource_filename
-from unogenerator.commons import __version__, argparse_epilog
+from unogenerator.commons import __version__, argparse_epilog, red
+from unogenerator.reusing.casts import f
 from unogenerator import ODT
 
 
@@ -32,14 +33,13 @@ def main():
     parser.add_argument('--from_language', action='store', help=_('Language to translate from. Example codes: es, fr, en, md'), required=True, metavar="CODE")
     parser.add_argument('--to_language', action='store', help=_('Language to translate to. Example codes: es, fr, en, md'), required=True,  metavar="CODE")
     parser.add_argument('--input', action='append', help=_('Files to translate. You can set several files.'), required=True,  metavar="FILE")
-    parser.add_argument('--output_directory', action='store', help=_('Output directory with results and catalogues'), required=True,  metavar="FILE")
-    parser.add_argument('--undetected', action='append', help=_('Undetected strings to append to translation'), default=[])
-    parser.add_argument('--translate', action='store_true', help=_('Creates translated file'), default=False)
-    parser.add_argument('--fake', action='store_true', help=_('Sets a fake translation to all strings'), default=False)
-    parser.add_argument('--pdf', action='store_true', help=_('Creates translated file in pdf'), default=False)
+    parser.add_argument('--output_directory', action='store', help=_('Output directory with results and catalogues. Default: ./unogenerator_translation/') , metavar="FILE",  default="./unogenerator_translation/")
+    parser.add_argument('--undetected', action='append', help=_('Undetected strings to append to translation. Default: []'), default=[])
+    parser.add_argument('--fake', action='store_true', help=_('Sets a fake translation to all strings. Default: False'), default=False)
+    parser.add_argument('--pdf', action='store_true', help=_('Creates translated file in pdf. Default: False'), default=False)
     args=parser.parse_args()
     
-    command(args.from_language, args.to_language, args.input, args.output_directory, args.translate, args.undetected, args.fake, args.pdf)
+    command(args.from_language, args.to_language, args.input, args.output_directory, args.undetected, args.fake, args.pdf)
 
 def same_entries_to_ocurrences(l):
     l= sorted(l, key=lambda x: (x[0], x[1], x[2], x[3]))
@@ -121,7 +121,7 @@ def generate_pot_file(potfilename, set_strings, entries):
         file_pot.append(entry)
     file_pot.save(potfilename)
 
-def command(from_language, to_language, input, output_directory, translate,  undetected_strings=[], fake=False, pdf=False):   
+def command(from_language, to_language, input, output_directory="./unogenerator_translation/", undetected_strings=[], fake=False, pdf=False):   
     makedirs(output_directory, exist_ok=True)
     makedirs(f"{output_directory}/{to_language}", exist_ok=True)
     
@@ -131,8 +131,13 @@ def command(from_language, to_language, input, output_directory, translate,  und
     entries=[]#List of (filename,"type", numero, posicion) type=Paragraph, numero=numero parrafo y posición orden dentro del parrafo
     print(_("Extracting strings from:"))
     for filename in input:
-        print(_(f"   - {filename}"))
+        if filename.upper()[-3:]!="ODT":
+            print(f"   - {filename}. " + red(_("Only ODT files are supported")))
+            input.remove(filename)
+            continue
+        print(f"   - {filename}")
         entries=entries+getEntriesFromDocument(filename)
+        
         
     # Set with distinct strings of all entries
     set_strings=set()
@@ -140,16 +145,15 @@ def command(from_language, to_language, input, output_directory, translate,  und
         set_strings.add(string_)
 
     #Generate pot file
+    print(f(_("Generating {pot}")))
     generate_pot_file(pot, set_strings, entries)
     
-    #Merging pot with out po file
+    #Merging pot file to po (new or not)
     if path.exists(po) is False:
         run_check(["msginit", "-i", pot,  "-o", po])
     run_check(["msgmerge","-N", "--no-wrap","-U", "-F", po, pot])
+    print(f(_("   - {len(set_strings)} different strings detected")))
     
-    print(f"{len(set_strings)} different strings detected")
-    
-        
     # Creates a dictionary of translations
     dict_po={}
     for i, entry in enumerate(pofile(po)):
@@ -161,24 +165,30 @@ def command(from_language, to_language, input, output_directory, translate,  und
             else:
                 dict_po[entry.msgid]=entry.msgstr
     
-    if translate is True:
-        print(_("Translating files to:"))
-        for filename_input in input:
-            output=f"{output_directory}/{to_language}/{path.basename(filename_input)}"
-            print(_(f"   + {output}"))
-            write_translation(filename_input, output,  dict_po, entries, pdf)
+    print(_("Translating files to:"))
+    for filename_input in input:
+        output=f"{output_directory}/{to_language}/{path.basename(filename_input)}"
+        print(f"   + {output}")
+        write_translation(filename_input, output,  dict_po, entries, pdf)
             
             
 def write_translation(original, filename, dict_po, entries, pdf):
     doc=ODT(original)
     search_descriptor=None
     replaced=0
+    #Replaces all strings generic
     for filename_, type, number,  position,  text in entries:
         if filename_==path.basename(filename):
             search_descriptor=doc.find_and_replace(text, dict_po[text], search_descriptor)
 #            print(f"{text} ==> {dict_po[text]}")
             if search_descriptor is not None:
                 replaced=replaced+1
+                
+    # Overwrites special strings
+    
+    
+    
+    
     print(f"      - Translated {replaced} strings")
     doc.save(filename)
     if pdf is True:
