@@ -171,10 +171,10 @@ msgid "ODT without template."
 msgstr "ODT sin plantilla"
 
 msgid "With this mode you can write your files with Libreoffice default styles."
-msgstr ""
+msgstr "Con esta modalidad puedes escribir tus ficheros con los estilos por defecto de Libreoffice."
 
 msgid "If you want to create new ones, you should write them using Libreoffice API code"
-msgstr ""
+msgstr "Si quieres crear nuevos, deberías escibirlos usando código de la API de Libreoffice"
 
 msgid "Styles"
 msgstr "Estilos"
@@ -325,7 +325,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "CPU percentage: {str_cpu_percentage}"
-msgstr ""
+msgstr "Porcentage de CPU: {str_cpu_percentage}"
 
 #, python-brace-format
 msgid "Connections: {str_connections}"

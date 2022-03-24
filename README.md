@@ -91,6 +91,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.24.0 (2022-03-24)
+- unogenerator_translator. Entries in po files are now sorted by comment.
+
 ### 0.23.0 (2022-03-22)
 - Now you can use with statement with ODF classes.
 - Added Coord, Range, ColorsNamed to unogenerator import.
