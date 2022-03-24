@@ -263,6 +263,30 @@ class ODT(ODF):
         else:
             warning(f"'{find}' was not found in the document'")
         
+    def addString(self, text, style=None, paragraphBreak=False):
+        if style is not None:
+            self.cursor.setPropertyValue("ParaStyleName", style)
+        self.document.Text.insertString(self.cursor, text, False)
+        if paragraphBreak is True:
+            self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
+        
+        
+        
+    def addStringHyperlink(self,  name,  url, paragraphBreak=False):
+
+        oVC = self.document.getCurrentController().getViewCursor()#		'Create View Cursor oVC at the end of document by default?
+        text=oVC.getText()
+        text.insertString(oVC, name,  True)
+        oVC.HyperLinkTarget=url
+        oVC.HyperLinkURL=url
+        
+        oVC.gotoEnd(False)
+        self.cursor.gotoRange(oVC,False)			#'Move Text Cursor to same location as oVC while selecting text in between (True)
+#        self.document.Text.insertString(self.cursor, " ",  False)
+
+        if paragraphBreak is True:
+            self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
+        
     def addParagraph(self,  text,  style):
         self.cursor.setPropertyValue("ParaStyleName", style)
         self.document.Text.insertString(self.cursor, text, False)

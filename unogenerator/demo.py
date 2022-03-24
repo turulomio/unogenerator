@@ -358,6 +358,14 @@ def demo_odt_standard(language, port=2002, suffix=""):
 
 
         doc.pageBreak()
+        doc.addParagraph(_("Hyperlinks"), "Heading 2")
+        
+        doc.addString(_("If you want to go to Google, click on this "))
+        doc.addStringHyperlink("link",  "https://www.google.com")
+        doc.addString(". " + _("That's all folks!"), paragraphBreak=True)
+        
+        doc.addStringHyperlink("Other link",  "https://www.google.com",  paragraphBreak=True)
+        doc.pageBreak()
         doc.addParagraph(_("Images"), "Heading 2")
         
         l=[]
