@@ -219,9 +219,12 @@ class ODT(ODF):
             found=self.document.findNext(last,search)
         
         if found is not None:
-            found.setString("")
-            self.cursor=found
-            found.Text.insertString(self.cursor, replace, False)
+            if found.HyperLinkTarget != "" or found.HyperLinkName != "" or found.HyperLinkURL != "":
+                self.cursor=found
+            else:
+                found.setString("")
+                self.cursor=found
+                found.Text.insertString(self.cursor, replace, False)
         else:
             if log is True:
                 warning(f"'{find}' was not found in the document'")
