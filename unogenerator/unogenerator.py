@@ -220,11 +220,14 @@ class ODT(ODF):
         
         if found is not None:
             if found.HyperLinkTarget != "" or found.HyperLinkName != "" or found.HyperLinkURL != "":
-                self.cursor=found
+                url=found.HyperLinkURL
+                target=found.HyperLinkTarget
+                found.setString(replace)
+                found.HyperLinkURL=url
+                found.HyperLinkTarget=target
             else:
-                found.setString("")
-                self.cursor=found
-                found.Text.insertString(self.cursor, replace, False)
+                found.setString(replace)
+            self.cursor=found
         else:
             if log is True:
                 warning(f"'{find}' was not found in the document'")
@@ -282,8 +285,8 @@ class ODT(ODF):
         text.insertString(oVC, name,  True)
         oVC.HyperLinkTarget=url
         oVC.HyperLinkURL=url
-        
-        oVC.gotoEnd(False)
+#        
+        oVC.goRight(len(name), False)
         self.cursor.gotoRange(oVC,False)			#'Move Text Cursor to same location as oVC while selecting text in between (True)
 #        self.document.Text.insertString(self.cursor, " ",  False)
 

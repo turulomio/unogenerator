@@ -90,6 +90,7 @@ def entries_from_paragraph_enumeration(title, enumeration, filename):
                             r=r+entries_from_paragraph_enumeration(f"{title}Table,paragraph{i},column{column},row{row}", cell.createEnumeration(), filename)
                         except:
                             print (_("Perhaps a merged string"))
+                            continue
         return r
             
 
@@ -130,13 +131,16 @@ def command(from_language, to_language, input, output_directory="./unogenerator_
         
     entries=[]#List of (filename,"type", numero, posicion) type=Paragraph, numero=numero parrafo y posición orden dentro del parrafo
     print(_("Extracting strings from:"))
+    
+    goodinput=[]#To remove bad files and dont make errors deleting in list
     for filename in input:
         if filename.upper()[-3:]!="ODT":
             print(f"   - {filename}. " + red(_("Only ODT files are supported")))
-            input.remove(filename)
             continue
         print(f"   - {filename}")
+        goodinput.append(filename)
         entries=entries+getEntriesFromDocument(filename)
+    input=goodinput
         
         
     # Set with distinct strings of all entries
