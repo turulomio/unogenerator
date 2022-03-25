@@ -2,7 +2,7 @@
 from colorama import Fore, Style
 from datetime import datetime, date
 from gettext import translation
-from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error
+from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error, debug
 from pkg_resources import resource_filename
 from psutil import process_iter
 from uno import createUnoStruct
@@ -40,6 +40,13 @@ def datetime2uno( dt):
     r.Minutes=dt.minute
     r.Seconds=dt.second
     return r
+
+## Converts a com.sun.star.util.DateTime to datetime
+def uno2datetime(r):
+    try:
+        return datetime(r.Year, r.Month, r.Day, r.Hours, r.Minutes, r.Seconds)
+    except:
+        debug(_("There was a problem converting com.sun.star.util.DateTime to datetime."))
 
 def date2uno( dt):
     r=createUnoStruct("com.sun.star.util.Date")

@@ -15,7 +15,7 @@ from logging import warning, debug
 from pkg_resources import resource_filename
 from shutil import copyfile
 from tempfile import TemporaryDirectory
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__
 from unogenerator.reusing.casts import lor_transposed
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
@@ -119,15 +119,34 @@ class ODF:
         self.language="es"
         self.country="ES"
 
-    def setMetadata(self, title="",  subject="", creator="", description="", keywords=[], creationdate=datetime.now()):
-        self.document.DocumentProperties.Author=creator
-        self.document.DocumentProperties.Generator=creator
-        self.document.DocumentProperties.Description=description
-        self.document.DocumentProperties.Subject=subject
-        self.document.DocumentProperties.Keywords=keywords
+    def getMetadata(self):
+        print("Author",  self.document.DocumentProperties.Author)
+        print(dir(self.document.DocumentProperties))
+        return {
+            "Author": self.document.DocumentProperties.Author, 
+            "Description": self.document.DocumentProperties.Description, 
+            "Subject": self.document.DocumentProperties.Subject, 
+            "Keywords": self.document.DocumentProperties.Keywords, 
+            "CreationDate": uno2datetime(self.document.DocumentProperties.CreationDate), 
+            "ModificationDate": uno2datetime(self.document.DocumentProperties.ModificationDate), 
+            "Title": self.document.DocumentProperties.Title, 
+        }
+        
+    ##Only sets a value when it's different of [] or ""
+    def setMetadata(self, title="",  subject="", author="", description="", keywords=[], creationdate=datetime.now()):
+        if author!="":
+            self.document.DocumentProperties.Author=author
+        self.document.DocumentProperties.Generator=f"UnoGenerator-{__version__}"
+        if description!="":
+            self.document.DocumentProperties.Description=description
+        if subject!="":
+            self.document.DocumentProperties.Subject=subject
+        if keywords!="":
+            self.document.DocumentProperties.Keywords=keywords
         self.document.DocumentProperties.CreationDate=datetime2uno(creationdate)
         self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
-        self.document.DocumentProperties.Title=title
+        if title!="":
+            self.document.DocumentProperties.Title=title
 
     def deleteAll(self):
         self.executeDispatch(".uno:SelectAll")

@@ -52,6 +52,11 @@ def same_entries_to_ocurrences(l):
 def getEntriesFromDocument(filename):
         r=[]
         doc=ODT(filename)
+        #Extract strings from metadata
+        metadata=doc.getMetadata()
+        for key,  value in metadata.items():
+            if value.__class__.__name__=="str" and len(value)>0:
+                r.append((filename, f"Metadata_{key}",  0,  0, value))
 
         #Extract strings from paragraphs
         r=r+entries_from_paragraph_enumeration("Paragraph", doc.cursor.Text.createEnumeration(), filename)
@@ -93,7 +98,9 @@ def entries_from_paragraph_enumeration(title, enumeration, filename):
                             continue
         return r
             
+        
 
+            
 
 def generate_pot_file(potfilename, set_strings, entries):
     file_pot = POFile()
@@ -183,15 +190,24 @@ def write_translation(original, filename, dict_po, entries, pdf):
     #Replaces all strings generic
     for filename_, type, number,  position,  text in entries:
         if filename_==path.basename(filename):
-            search_descriptor=doc.find_and_replace(text, dict_po[text], search_descriptor)
-#            print(f"{text} ==> {dict_po[text]}")
-            if search_descriptor is not None:
+            #Translate metadata
+            if type=="Metadata_Author":
+                doc.setMetadata(author=dict_po[text])
                 replaced=replaced+1
+            elif type=="Metadata_Description":
+                doc.setMetadata(description=dict_po[text])
+                replaced=replaced+1
+            elif type=="Metadata_Title":
+                doc.setMetadata(title=dict_po[text])
+                replaced=replaced+1
+            elif type=="Metadata_Subject":
+                doc.setMetadata(subject=dict_po[text])
+                replaced=replaced+1
+            else:#Translate rest of entries
+                search_descriptor=doc.find_and_replace(text, dict_po[text], search_descriptor)
+                if search_descriptor is not None:
+                    replaced=replaced+1
                 
-    # Overwrites special strings
-    
-    
-    
     
     print(f"      - Translated {replaced} strings")
     doc.save(filename)
