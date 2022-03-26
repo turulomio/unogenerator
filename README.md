@@ -65,7 +65,7 @@ Monitors your libreoffice server instances
 
 With this tool you can translate several odt files with one command. It generates .pot and .po files, where you can set your translations. Then run your command again and you'll get your files translated
 
-`unogenerator_translation --from_language es --to_language en --input original.odt --input original2.odt  --output_directory "translation_original" --translate`
+`unogenerator_translation --from_language es --to_language en --input original.odt --input original2.odt  --output_directory "translation_original"`
 
 You can use --fake to see simulation of your translation
 
