@@ -312,7 +312,7 @@ class ODT(ODF):
         if paragraphBreak is True:
             self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
-    def addParagraph(self,  text,  style):
+    def addParagraph(self,  text,  style="Standard"):
         self.cursor.setPropertyValue("ParaStyleName", style)
         self.document.Text.insertString(self.cursor, text, False)
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
