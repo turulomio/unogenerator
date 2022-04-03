@@ -825,13 +825,13 @@ class ODS(ODF):
     ## @return Returns a list of rows of object values
     def getValuesByRange(self, range_,  detailed=False):
         range_=R.assertRange(range_)
-        r=[]
-        for row_indexes in range_.indexes_list():
-            rrow=[]
-            for column_index,  row_index in row_indexes:
-                rrow.append(self.getValueByPosition(column_index, row_index, detailed))
-            r.append(rrow)
-        return r
+        
+        
+        #Reads data fast
+        range_uno=self.sheet.getCellRangeByPosition(range.start.letterIndex(), range.start.numberIndex(), range.end.letterIndex(), range.end.numberIndex())
+        rows=range_uno.getDataArray()
+        print(rows)
+        return rows
     
     ## @param sheet_index Integer index of the sheet
     ## @param column_letter Letter of the column to get values
