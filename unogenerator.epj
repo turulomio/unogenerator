@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project unogenerator",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-03-09, 09:50:15"
+    "saved": "2022-04-03, 15:49:52"
   },
   "project": {
     "AUTHOR": "",
@@ -51,7 +51,8 @@
     "MIXEDLANGUAGE": false,
     "OTHERS": [
       "README.md",
-      "unogenerator.epj"
+      "unogenerator.epj",
+      "INSTALL.md"
     ],
     "OTHERTOOLSPARMS": {},
     "PACKAGERSPARMS": {},
@@ -84,7 +85,16 @@
       "unogenerator/server.py",
       "unogenerator/reusing/listdict_functions.py",
       "unogenerator/translation.py",
-      "unogenerator/statistics.py"
+      "unogenerator/statistics.py",
+      "unogenerator/reusing/file_functions.py",
+      "tests/metadata.py",
+      "tests/pruebasetcolors.py",
+      "tests/pregunta.py",
+      "tests/with.py",
+      "tests/benchmark.py",
+      "tests/setcolorsincells.py",
+      "tests/get_values.py",
+      "tests/range.py"
     ],
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",
