@@ -16,7 +16,7 @@ from pkg_resources import resource_filename
 from shutil import copyfile
 from tempfile import TemporaryDirectory
 from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__
-from unogenerator.reusing.casts import lor_transposed
+from unogenerator.reusing.casts import lor_transposed, f
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.percentage import Percentage
@@ -312,7 +312,7 @@ class ODT(ODF):
         if paragraphBreak is True:
             self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
-    def addParagraph(self,  text,  style):
+    def addParagraph(self,  text,  style="Standard"):
         self.cursor.setPropertyValue("ParaStyleName", style)
         self.document.Text.insertString(self.cursor, text, False)
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
@@ -579,6 +579,11 @@ class ODS(ODF):
             columns=0
         else:
             columns=len(list_rows[0])
+            
+            
+        if rows==0 or columns==0:
+            debug(f(_("addListOfRowsWithStyle has {rows} rows and {columns } columns. Nothing to write. Ignoring...")))
+            return 
         
         if cellbycell is True:
             for i, row in enumerate(list_rows):

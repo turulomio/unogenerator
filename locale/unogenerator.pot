@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-24 13:01+0100\n"
+"POT-Creation-Date: 2022-03-31 15:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+msgid "There was a problem converting com.sun.star.util.DateTime to datetime."
+msgstr ""
 
 msgid "Developed by Mariano Muñoz 2020-{}"
 msgstr ""
@@ -222,6 +225,15 @@ msgstr ""
 msgid "Simple list"
 msgstr ""
 
+msgid "Hyperlinks"
+msgstr ""
+
+msgid "If you want to go to Google, click on this "
+msgstr ""
+
+msgid "That's all folks!"
+msgstr ""
+
 msgid "Images"
 msgstr ""
 
@@ -377,19 +389,16 @@ msgstr ""
 msgid "Files to translate. You can set several files."
 msgstr ""
 
-msgid "Output directory with results and catalogues"
+msgid "Output directory with results and catalogues. Default: ./unogenerator_translation/"
 msgstr ""
 
-msgid "Undetected strings to append to translation"
+msgid "Undetected strings to append to translation. Default: []"
 msgstr ""
 
-msgid "Creates translated file"
+msgid "Sets a fake translation to all strings. Default: False"
 msgstr ""
 
-msgid "Sets a fake translation to all strings"
-msgstr ""
-
-msgid "Creates translated file in pdf"
+msgid "Creates translated file in pdf. Default: False"
 msgstr ""
 
 msgid "Perhaps a merged string"
@@ -398,15 +407,17 @@ msgstr ""
 msgid "Extracting strings from:"
 msgstr ""
 
+msgid "Only ODT files are supported"
+msgstr ""
+
 #, python-brace-format
-msgid "   - {filename}"
+msgid "Generating {pot}"
+msgstr ""
+
+msgid "   - {len(set_strings)} different strings detected"
 msgstr ""
 
 msgid "Translating files to:"
-msgstr ""
-
-#, python-brace-format
-msgid "   + {output}"
 msgstr ""
 
 #, python-brace-format
@@ -436,6 +447,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "ERROR: You can't create '{name}' sheet, because it already exists."
+msgstr ""
+
+msgid "addListOfRowsWithStyle has {rows} rows and {columns } columns. Nothing to write. Ignoring..."
 msgstr ""
 
 msgid "Filename extension must be 'ods'."

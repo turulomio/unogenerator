@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-06 18:35+0100\n"
+"POT-Creation-Date: 2022-03-31 15:11+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -18,6 +18,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 19.12.3\n"
+
+msgid "There was a problem converting com.sun.star.util.DateTime to datetime."
+msgstr ""
 
 msgid "Developed by Mariano Muñoz 2020-{}"
 msgstr "Desarrollado por Mariano Muñoz 2021-{}"
@@ -224,6 +227,15 @@ msgstr "Listas y listas numeradas"
 msgid "Simple list"
 msgstr "Lista simle"
 
+msgid "Hyperlinks"
+msgstr ""
+
+msgid "If you want to go to Google, click on this "
+msgstr ""
+
+msgid "That's all folks!"
+msgstr ""
+
 msgid "Images"
 msgstr "Imágenes"
 
@@ -379,20 +391,17 @@ msgstr ""
 msgid "Files to translate. You can set several files."
 msgstr ""
 
-msgid "Output directory with results and catalogues"
+msgid "Output directory with results and catalogues. Default: ./unogenerator_translation/"
 msgstr ""
 
-msgid "Undetected strings to append to translation"
+msgid "Undetected strings to append to translation. Default: []"
 msgstr ""
 
-msgid "Creates translated file"
-msgstr "Crea el fichero traducido"
+msgid "Sets a fake translation to all strings. Default: False"
+msgstr ""
 
-msgid "Sets a fake translation to all strings"
-msgstr "Establece una traducción de prueba a todas las cadenas"
-
-msgid "Creates translated file in pdf"
-msgstr "Crea el fichero traducido en pdf"
+msgid "Creates translated file in pdf. Default: False"
+msgstr ""
 
 msgid "Perhaps a merged string"
 msgstr "Quizas una cadena unida"
@@ -400,16 +409,18 @@ msgstr "Quizas una cadena unida"
 msgid "Extracting strings from:"
 msgstr "Extrayendo cadenas de:"
 
+msgid "Only ODT files are supported"
+msgstr ""
+
 #, python-brace-format
-msgid "   - {filename}"
-msgstr "   - {filename}"
+msgid "Generating {pot}"
+msgstr ""
+
+msgid "   - {len(set_strings)} different strings detected"
+msgstr ""
 
 msgid "Translating files to:"
 msgstr "Traduciendo ficheros a:"
-
-#, python-brace-format
-msgid "   + {output}"
-msgstr "   + {output}"
 
 #, python-brace-format
 msgid "Changing port {old} to {self.loserver_port} {i} times"
@@ -440,11 +451,31 @@ msgstr "La extensión del nombre del fichero debe ser 'docx'."
 msgid "ERROR: You can't create '{name}' sheet, because it already exists."
 msgstr ""
 
+msgid "addListOfRowsWithStyle has {rows} rows and {columns } columns. Nothing to write. Ignoring..."
+msgstr ""
+
 msgid "Filename extension must be 'ods'."
 msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
+
+#~ msgid "Creates translated file"
+#~ msgstr "Crea el fichero traducido"
+
+#~ msgid "Sets a fake translation to all strings"
+#~ msgstr "Establece una traducción de prueba a todas las cadenas"
+
+#~ msgid "Creates translated file in pdf"
+#~ msgstr "Crea el fichero traducido en pdf"
+
+#, python-brace-format
+#~ msgid "   - {filename}"
+#~ msgstr "   - {filename}"
+
+#, python-brace-format
+#~ msgid "   + {output}"
+#~ msgstr "   + {output}"
 
 #~ msgid "You can easily launch unogenerator_start script with bash."
 #~ msgstr "Puedes lanzarlo facilmente con el script "
