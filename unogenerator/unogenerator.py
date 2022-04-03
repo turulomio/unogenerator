@@ -15,7 +15,7 @@ from logging import warning, debug
 from pkg_resources import resource_filename
 from shutil import copyfile
 from tempfile import TemporaryDirectory
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__, string_float2object
 from unogenerator.reusing.casts import lor_transposed, f
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
@@ -740,6 +740,7 @@ class ODS(ODF):
         else:
             return str(o)
             print("MISSING", o.__class__.__name__)
+
             
     def sortRange(self, range,  sortindex, ascending=True, casesensitive=True):
         range=R.assertRange(range)
@@ -760,7 +761,7 @@ class ODS(ODF):
     def addCellMergedWithStyle(self, range, o, color=ColorsNamed.White, style=None):
         start=datetime.now()
         range=R.assertRange(range)
-        cell=self.sheet.getCellByPosition(range.start.letterIndex(), range.start.numberIndex())
+        cell=self.sheet.getCellByPosition(range.c_start.letterIndex(), range.c_start.numberIndex())
         cellrange=self.sheet.getCellRangeByName(range.string())
         cellrange.merge(True)
         self.__object_to_cell(cell, o)
@@ -825,18 +826,47 @@ class ODS(ODF):
            range=range.addRowAfter(-skip_down)
         return self.getValuesByRange(range, detailed)
 
+
     ## @param sheet_index Integer index of the sheet
     ## @param range_ Range object to get values. If None returns all values from sheet
     ## @return Returns a list of rows of object values
     def getValuesByRange(self, range_,  detailed=False):
         range_=R.assertRange(range_)
-        
-        
+        r=[]
+        for row_indexes in range_.indexes_list():
+            rrow=[]
+            for column_index,  row_index in row_indexes:
+                rrow.append(self.getValueByPosition(column_index, row_index, detailed))
+            r.append(rrow)
+        return r
+
+
+    ## Gets values by block, returns strings and floats only
+    ## @param range_ Range object to get values.
+    ## @return Returns a tuple of tuples of object values
+    def getBlockValuesByRange(self, range_):
+        range_=R.assertRange(range_)
+        range_uno=self.sheet.getCellRangeByPosition(range_.c_start.letterIndex(), range_.c_start.numberIndex(), range_.c_end.letterIndex(), range_.c_end.numberIndex())
+        return range_uno.getDataArray()
+    
+
+    ## Gets values by block, returns strings and floats only
+    ## @param range_ Range object to get values. If None returns all values from sheet
+    ## @param styles List of strings with style names, to cast string and float to objects. Allowed values
+    ##      "int", "str", "Decimal", "float", "Percentage", "USD", "EUR",
+    ## @return Returns a tuple of tuples of object values
+    def getBlockValuesByRangeWithCast(self, range_,  cast):
+        tupleoftuples=self.getBlockValuesByRange(range_)
+        range_=R.assertRange(range_)
         #Reads data fast
-        range_uno=self.sheet.getCellRangeByPosition(range.start.letterIndex(), range.start.numberIndex(), range.end.letterIndex(), range.end.numberIndex())
-        rows=range_uno.getDataArray()
-        print(rows)
-        return rows
+        lor=[]
+        for tuple_ in tupleoftuples:
+            lor_row=[]
+            for i, tuple_value in enumerate(tuple_):
+                lor_row.append(string_float2object(tuple_value, cast[i]))
+            lor.append(lor_row)
+        return lor
+        
     
     ## @param sheet_index Integer index of the sheet
     ## @param column_letter Letter of the column to get values

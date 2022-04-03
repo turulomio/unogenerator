@@ -115,23 +115,23 @@ def helper_totals_from_range (
     range=R.assertRange(range_of_data)
     data_rows=range.numRows()
     data_columns=range.numColumns()
-    coord_horizontal_title=range.start.addColumnCopy(-1).addRowCopy(data_rows) 
-    coord_vertical_title=range.start.addRowCopy(-1).addColumnCopy(data_columns)
-    style_data=guess_object_style(doc.getValue(range.end))
+    coord_horizontal_title=range.c_start.addColumnCopy(-1).addRowCopy(data_rows) 
+    coord_vertical_title=range.c_start.addRowCopy(-1).addColumnCopy(data_columns)
+    style_data=guess_object_style(doc.getValue(range.c_end))
     
     if totalcolumns==True and totalrows==True:
         doc.addCellWithStyle(coord_horizontal_title, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
-        helper_totals_row(doc, coord_horizontal_title.addColumnCopy(1), [key]*data_columns,styles=style_data, row_from=range.start.number)
+        helper_totals_row(doc, coord_horizontal_title.addColumnCopy(1), [key]*data_columns,styles=style_data, row_from=range.c_start.number)
         doc.addCellWithStyle(coord_vertical_title, _("Total"), ColorsNamed.GrayLight, vertical_total_title_style)
-        helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.start.letter)
+        helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.c_start.letter)
     elif totalcolumns==True:
         doc.addCellWithStyle(coord_vertical_title, _("Total"), ColorsNamed.GrayLight, vertical_total_title_style)
-        helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.start.letter)
-        doc.addCellWithStyle(coord_vertical_title.addRowCopy(data_rows+1), generate_formula_total_string(key, range.start.addColumnCopy(data_columns+1), range.end.addColumnCopy(1)), ColorsNamed.GrayLight, style_data)
+        helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.c_start.letter)
+        doc.addCellWithStyle(coord_vertical_title.addRowCopy(data_rows+1), generate_formula_total_string(key, range.c_start.addColumnCopy(data_columns+1), range.c_end.addColumnCopy(1)), ColorsNamed.GrayLight, style_data)
     elif totalrows==True:
         doc.addCellWithStyle(coord_horizontal_title, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
-        helper_totals_row(doc, coord_horizontal_title.addColumnCopy(1),[key]*(data_columns+0), styles=style_data, row_from=range.start.number) #1 menos por la esquina
-        doc.addCellWithStyle(coord_horizontal_title.addColumnCopy(data_columns+1), generate_formula_total_string(key, range.start.addRowCopy(data_rows+1), range.end.addRowCopy(1)), ColorsNamed.GrayLight, style_data)
+        helper_totals_row(doc, coord_horizontal_title.addColumnCopy(1),[key]*(data_columns+0), styles=style_data, row_from=range.c_start.number) #1 menos por la esquina
+        doc.addCellWithStyle(coord_horizontal_title.addColumnCopy(data_columns+1), generate_formula_total_string(key, range.c_start.addRowCopy(data_rows+1), range.c_end.addRowCopy(1)), ColorsNamed.GrayLight, style_data)
 
     return range_of_data
 
@@ -181,7 +181,7 @@ def helper_list_of_ordereddicts_with_totals(doc, coord_start,  lod, keys=None, c
     coord_start=C.assertCoord(coord_start)
     helper_list_of_ordereddicts(doc, coord_start,  lod, keys, columns_header,  color_row_header, color_column_header,  color, styles)
     range_lod=R.from_iterable_object(coord_start.addRow(1), lod)## Adds q to skip top headers
-    range_lod.start.addColumn(columns_header) ## Adds to skip columns headers
+    range_lod.c_start.addColumn(columns_header) ## Adds to skip columns headers
     return helper_totals_from_range (doc, range_lod, key, totalcolumns, totalrows)
     
 ## It's the same of helper_list_of_ordereddicts but withth mandatory keys

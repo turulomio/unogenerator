@@ -182,11 +182,11 @@ def demo_ods_standard(language, port=2002, suffix="",):
         
         doc.addCellMergedWithStyle("A11:C11","List of rows", ColorsNamed.Orange, "BoldCenter")
         range_=doc.addListOfRowsWithStyle("A12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
-        helper_totals_row(doc, range_.start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="12", row_to="14")
+        helper_totals_row(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="12", row_to="14")
         
         doc.addCellMergedWithStyle("E11:G11","List of columns", ColorsNamed.Orange, "BoldCenter")
         range_=doc.addListOfColumnsWithStyle("E12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
-        helper_totals_row(doc, range_.start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="12", row_to="14")
+        helper_totals_row(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="12", row_to="14")
 
         doc.addCellMergedWithStyle("A17:D17","List of rows with totals", ColorsNamed.Orange, "BoldCenter")
         range_=doc.addListOfRowsWithStyle("A18", [["A",12000,2,3],["B",1020,5,6],["C",20404,8,9]], ColorsNamed.White)

@@ -1,12 +1,15 @@
 ## @namespace unogenerator.commons
 from colorama import Fore, Style
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
+from decimal import Decimal
 from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error, debug
 from pkg_resources import resource_filename
 from psutil import process_iter
 from uno import createUnoStruct
 from unogenerator.reusing.listdict_functions import listdict_min
+from unogenerator.reusing.currency import Currency
+from unogenerator.reusing.percentage import Percentage
 from time import sleep
 
 __version__ = '0.25.0'
@@ -229,7 +232,7 @@ class Coord:
 ## Class that manages spreadsheet Ranges for ods and xlsx
 class Range:
     def __init__(self,strrange):
-        self.start, self.end=self.__extract(strrange)
+        self.c_start, self.c_end=self.__extract(strrange)
 
     def __repr__(self):
         return f"Range <{self}>"
@@ -243,12 +246,12 @@ class Range:
         c_end=Coord.from_index(end_letter_index, end_number_index)
         return cls(f"{c_start}:{c_end}")
 
-    ## Creates a Range object from itself stard and end coords
+    ## Creates a Range object from itself stard and c_end coords
     @classmethod
-    def from_coords(cls, start, end):
-        start=Coord.assertCoord(start)
-        end=Coord.assertCoord(end)
-        return cls(f"{start}:{end}")
+    def from_coords(cls, c_start, c_end):
+        c_start=Coord.assertCoord(c_start)
+        c_end=Coord.assertCoord(c_end)
+        return cls(f"{c_start}:{c_end}")
     
     ## Creates a Range object from Changing the start_coord of a range
     @classmethod
@@ -258,9 +261,9 @@ class Range:
     ## Creates a Range object from a coord_start and the number of columms and rows of therange
     @classmethod
     def from_columns_rows(cls, coord_start, number_columns,  number_rows):
-        start=Coord.assertCoord(coord_start)
-        end=Coord(start).addRow(number_rows-1).addColumn(number_columns-1)
-        return cls(f"{start}:{end}")
+        c_start=Coord.assertCoord(coord_start)
+        c_end=Coord(c_start).addRow(number_rows-1).addColumn(number_columns-1)
+        return cls(f"{c_start}:{c_end}")
 
     @classmethod
     def from_iterable_object(cls,  coord_start, o):
@@ -280,10 +283,10 @@ class Range:
 
     ##Return the outcome of the test b in a. Note the reversed operands.
     def __contains__(self, b):
-        if (    b.letterIndex()>=self.start.letterIndex() and 
-                b.letterIndex()<=self.end.letterIndex() and 
-                b.numberIndex()>=self.start.numberIndex() and 
-                b.numberIndex()<=self.end.numberIndex())==True:
+        if (    b.letterIndex()>=self.c_start.letterIndex() and 
+                b.letterIndex()<=self.c_end.letterIndex() and 
+                b.numberIndex()>=self.c_start.numberIndex() and 
+                b.numberIndex()<=self.c_end.numberIndex())==True:
             return True
         return False
 
@@ -299,15 +302,15 @@ class Range:
 
     ## String of a range in spreadsheets
     def string(self):
-        return "{}:{}".format(self.start.string(), self.end.string())
+        return "{}:{}".format(self.c_start.string(), self.c_end.string())
 
     ## Number of range of the range
     def numRows(self):
-        return row2number(self.end.number)-row2number(self.start.number) +1
+        return row2number(self.c_end.number)-row2number(self.c_start.number) +1
 
     ## Number of columns of the range
     def numColumns(self):
-        return column2number(self.end.letter)-column2number(self.start.letter) +1
+        return column2number(self.c_end.letter)-column2number(self.c_start.letter) +1
 
     ## Returns a Range object even o is a str or a Range
     @staticmethod
@@ -318,9 +321,9 @@ class Range:
             return Range(o)
 
 
-    ## Adds a row to the end Coord, so it adds a row to the range
+    ## Adds a row to the c_end Coord, so it adds a row to the range
     def addRowAfter(self, num=1):
-        self.end=self.end.addRow(num)
+        self.c_end=self.c_end.addRow(num)
         return self
 
     def addRowAfterCopy(self, num=1):
@@ -328,9 +331,9 @@ class Range:
         r.addRowAfter(num)
         return r
 
-    ## Adds a column to the end Coord, so it adds a column to the range
+    ## Adds a column to the c_end Coord, so it adds a column to the range
     def addColumnAfter(self, num=1):
-        self.end=self.end.addColumn(num)
+        self.c_end=self.c_end.addColumn(num)
         return self
 
     def addColumnAfterCopy(self, num=1):
@@ -338,9 +341,9 @@ class Range:
         r.addColumnAfter(num)
         return r
 
-    ## Adds a row to the top of the start Coord, so it adds a row to the range. If start Coord number is 1 returns the same Coord
+    ## Adds a row to the top of the c_start Coord, so it adds a row to the range. If c_start Coord number is 1 returns the same Coord
     def addRowBefore(self, num=1):
-        self.start=self.start.addRow(-num)
+        self.c_start=self.c_start.addRow(-num)
         return self
 
     def addRowBeforeCopy(self, num=1):
@@ -348,9 +351,9 @@ class Range:
         r.addRowBefore(num)
         return r
 
-    ## Adds a column to the end Coord, so it adds a column to the range. If start Coord letter is A, returns the same Coord
+    ## Adds a column to the c_end Coord, so it adds a column to the range. If c_start Coord letter is A, returns the same Coord
     def addColumnBefore(self, num=1):
-        self.start=self.start.addColumn(-num)
+        self.c_start=self.c_start.addColumn(-num)
         return self
 
     def addColumnBeforeCopy(self, num=1):
@@ -362,13 +365,13 @@ class Range:
     def indexes_list(self, plain=False):
         r=[]
         if plain is True:
-            for letter_index in range(self.start.letterIndex(), self.end.letterIndex()+1):
-                for number_index in range(self.start.numberIndex(), self.end.numberIndex()+1):
+            for letter_index in range(self.c_start.letterIndex(), self.c_end.letterIndex()+1):
+                for number_index in range(self.c_start.numberIndex(), self.c_end.numberIndex()+1):
                     r.append((letter_index, number_index))
         else:
-            for number_index in range(self.start.numberIndex(), self.end.numberIndex()+1):
+            for number_index in range(self.c_start.numberIndex(), self.c_end.numberIndex()+1):
                 row=[]
-                for letter_index in range(self.start.letterIndex(), self.end.letterIndex()+1 ):
+                for letter_index in range(self.c_start.letterIndex(), self.c_end.letterIndex()+1 ):
                     row.append((letter_index, number_index))
                 r.append(row)
         return r
@@ -451,13 +454,29 @@ def datetime2localc1989(o):
     delta = o -  datetime(1899, 12, 30)
     return float(delta.days) + float(delta.seconds) / 86400
     
+def localc19892datetime(value):    
+    return  datetime(1899, 12, 30)+timedelta(days=int(value),  seconds=(value-int(value))*86400)
+    
+    
 def date2localc1989(o):
     delta = o -  date(1899, 12, 30)
     return float(delta.days) 
 
+def localc19892date(o):
+    return date(1899, 12, 30) + timedelta(days=o)
+
 def time2localc1989(o):
     seconds=o.hour*3600+o.minute*60+o.second
     return float(seconds) / 86400
+    
+def localc19892time(o):
+    ##If you need to get datetime.time value, you can use this trick:
+    ##my_time = (datetime(1970,1,1) + timedelta(seconds=my_seconds)).time()
+    ##You cannot add timedelta to time, but can add it to datetime.
+    return (datetime(1970,1,1) + timedelta(seconds=o*86400)).time()
+
+
+
     
 ## Used to change port when there are multiple sockets of libreoffice accepting
 def next_port(last,  first_port,  instances):
@@ -496,6 +515,72 @@ def get_from_process_info(cpu_percentage=False, attempts=10):
     print(_("Have you launched unogenerator instances?. Please run unogenerator_start"))
     return []
     
+        
+## Converts an string or a float to an object.
+## Used to cast getDataArray
+## string_float. String or float or None
+## cast "int", "float, ....
+## If there is an error, returns the value
+def string_float2object(string_float, cast):
+    if string_float is None:
+        return None
+    if cast=="int":
+        try:
+            return int(string_float)
+        except:
+            return string_float
+    elif cast=="float":
+        try:
+            return float(string_float)
+        except:
+            return string_float
+    elif cast=="Decimal":
+        try:
+            return Decimal(str(string_float))
+        except:
+            return string_float
+    elif cast=="datetime":
+        try:
+            return localc19892datetime(string_float)
+        except:
+            return string_float
+    elif cast=="date":
+        try:
+            return localc19892date(string_float)
+        except:
+            return string_float
+    elif cast=="time":
+        try:
+            return localc19892time(string_float)
+        except:
+            return string_float
+        
+    elif cast=="bool":
+        if string_float==0:
+            return False
+        elif string_float==1:
+            return True
+        else:
+            return string_float
+    elif cast in ["EUR", "€"]:
+        try:
+            return Currency(string_float, "EUR")
+        except:
+            return string_float
+    elif cast in ["USD", "$"]:
+        try:
+            return Currency(string_float, "USD")
+        except:
+            return string_float
+    elif cast=="Percentage":
+        if string_float.__class__.__name__=="str":
+            return string_float
+        try:
+            return Percentage(string_float, 1)
+        except:
+            return string_float
+    return string_float
+
 
 def get_from_process_numinstances_and_firstport():        
     ld=get_from_process_info()
