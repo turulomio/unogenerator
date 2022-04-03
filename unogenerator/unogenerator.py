@@ -858,7 +858,6 @@ class ODS(ODF):
     ## @return Returns a tuple of tuples of object values
     def getBlockValuesByRangeWithCast(self, range_,  cast):
         tupleoftuples=self.getBlockValuesByRange(range_)
-        range_=R.assertRange(range_)
         #Reads data fast
         lor=[]
         for tuple_ in tupleoftuples:
