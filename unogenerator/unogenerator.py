@@ -854,6 +854,7 @@ class ODS(ODF):
     ## @param range_ Range object to get values. If None returns all values from sheet
     ## @param styles List of strings with style names, to cast string and float to objects. Allowed values
     ##      "int", "str", "Decimal", "float", "Percentage", "USD", "EUR",
+    ##      The cast columns, so you need to have the same cast items as columns in range
     ## @return Returns a tuple of tuples of object values
     def getBlockValuesByRangeWithCast(self, range_,  cast):
         tupleoftuples=self.getBlockValuesByRange(range_)
