@@ -5,9 +5,10 @@ from humanize import naturalsize
 from os import system, makedirs
 from pkg_resources import resource_filename
 from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info, green, red, magenta
-from unogenerator.reusing.casts import list2string
+from unogenerator.reusing.casts import list2string, f
 from unogenerator.reusing.listdict_functions import listdict_sum, listdict_average, listdict2list, listdict_order_by
 from unogenerator.reusing.percentage import Percentage
+from socket import socket, AF_INET, SOCK_STREAM
 from subprocess import run
 from time import sleep
 
@@ -16,6 +17,16 @@ try:
     _=t.gettext
 except:
     _=str
+
+def is_port_opened(host, port):
+    sock = socket(AF_INET, SOCK_STREAM)
+    result = sock.connect_ex((host,port))
+    sock.close()
+    if result == 0:
+       return False
+    else:
+       return True
+
 
 def server_start():#!/bin/bash
     parser=ArgumentParser(
@@ -32,6 +43,12 @@ def server_start():#!/bin/bash
     command_start(args.instances, args.first_port, args.backtrace)
     
 def command_start(instances, first_port=2002, backtrace=False):
+    if not is_port_opened("127.0.0.1", first_port):
+        print(red(f(_("It seems that server is already launched in port {first_port}"))))
+        return 
+        
+    
+    
     print(_(f"Preparing {instances} libreoffice server instances from port {first_port}:"))
     if backtrace is True:
         makedirs("/var/log/unogenerator/", exist_ok=True)
