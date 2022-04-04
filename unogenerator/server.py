@@ -48,7 +48,7 @@ def command_start(instances, first_port=2002, backtrace=False):
             command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless &'
         sleep(0.4)
 
-        print(_(f"  - Launched instance in port {port}"))
+        print(_(f"  - Launched LibreOffice headless instance in port {port}"))
         system(command)
 
 def server_stop():
