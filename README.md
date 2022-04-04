@@ -91,6 +91,12 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.26.0 (2022-04-04)
+- Range.start refactorized to Range.c_start. Range.end refactorized to Range.c_end. 
+- Added getBlockValuesByRange and getBlockValuesByRangeWithCast, to get values from sheet very fast
+- Added a sleep time launch libreoffice instances to try to avoid some issues.
+- unogenerator_start detects if LibreOffice instances are already launched.
+
 ### 0.25.0 (2022-03-31)
 - Added ODT.addStringHyperlinks method to create hyperlinks in ODT documents.
 - unogenerator_translator. Removed --translate parameter. Now is implicit.

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-31 15:11+0200\n"
+"POT-Creation-Date: 2022-04-04 13:57+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -228,13 +228,13 @@ msgid "Simple list"
 msgstr "Lista simle"
 
 msgid "Hyperlinks"
-msgstr ""
+msgstr "Hiperenlaces"
 
 msgid "If you want to go to Google, click on this "
 msgstr ""
 
 msgid "That's all folks!"
-msgstr ""
+msgstr "¡Eso es todo amigos!"
 
 msgid "Images"
 msgstr "Imágenes"
@@ -300,15 +300,19 @@ msgid "Launches libreoffice server to run unogenerator code"
 msgstr "Lanza el servidor de libreoffice para ejecutar código de UnoGenerator"
 
 #, python-brace-format
+msgid "It seems that server is already launched in port {first_port}"
+msgstr "Parece que el servidor ya se ha lanzado en el puerto {first_port}"
+
+#, python-brace-format
 msgid "Preparing {instances} libreoffice server instances from port {first_port}:"
 msgstr ""
 
 msgid "You can see instances output in /var/log/unogenerator"
-msgstr ""
+msgstr "Puedes ver registros de las instancias en /var/log/unogenerator"
 
 #, python-brace-format
-msgid "  - Launched instance in port {port}"
-msgstr "  - Lanzada instancia en el puerto {port}"
+msgid "  - Launched LibreOffice headless instance in port {port}"
+msgstr ""
 
 msgid "Stops libreoffice server to finish using unogenerator code"
 msgstr "Para el servidor de LibreOffice, para terminar de usar código de UnoGenerator"
@@ -459,6 +463,10 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
+
+#, python-brace-format
+#~ msgid "  - Launched instance in port {port}"
+#~ msgstr "  - Lanzada instancia en el puerto {port}"
 
 #~ msgid "Creates translated file"
 #~ msgstr "Crea el fichero traducido"

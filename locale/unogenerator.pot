@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-31 15:11+0200\n"
+"POT-Creation-Date: 2022-04-04 13:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -298,6 +298,10 @@ msgid "Launches libreoffice server to run unogenerator code"
 msgstr ""
 
 #, python-brace-format
+msgid "It seems that server is already launched in port {first_port}"
+msgstr ""
+
+#, python-brace-format
 msgid "Preparing {instances} libreoffice server instances from port {first_port}:"
 msgstr ""
 
@@ -305,7 +309,7 @@ msgid "You can see instances output in /var/log/unogenerator"
 msgstr ""
 
 #, python-brace-format
-msgid "  - Launched instance in port {port}"
+msgid "  - Launched LibreOffice headless instance in port {port}"
 msgstr ""
 
 msgid "Stops libreoffice server to finish using unogenerator code"
