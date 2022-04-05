@@ -468,6 +468,11 @@ class ODS(ODF):
     def setRemoveDefaultSheet(self, b):
         self._remove_default_sheet=b
         
+    ## Sets sheet pagestyle. If you use ODS_Standard you can set Default (Landscape) and Portrait
+    ## Usefull when exporting to pdf
+    def setSheetStyle(self, style):
+        self.sheet.PageStyle=style
+        
     def getSheetNames(self):        
         return self.document.Sheets.ElementNames
         
@@ -969,7 +974,10 @@ class ODS(ODF):
                 makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
                 copyfile(tempfile, filename)
 
-    def export_pdf(self, filename):
+    ## If you want to set one page to portrait use setSheetStyle
+    ## @filename
+    ## @page_per_sheet If True exports pdf with a pdf page per sheet. If False makes a standard export
+    def export_pdf(self, filename, page_per_sheet=True):
         if self.getRemoveDefaultSheet() is True:
             self.removeDefaultSheet()
         
@@ -977,10 +985,23 @@ class ODS(ODF):
             print(_("Filename extension must be 'pdf'."))
             print(_("Document hasn't been saved."))
             return
-        args=(
-            PropertyValue('FilterName',0,'calc_pdf_Export',0),
-            PropertyValue('Overwrite',0,True,0),
-        )
+            
+        if page_per_sheet is True:
+            oStyleFamilies =self.document.getStyleFamilies()
+            oObj_1 = oStyleFamilies.getByName("PageStyles")
+            oObj_2 = oObj_1.getByName("Default")
+            oObj_2.ScaleToPagesX= 1
+            oObj_2.ScaleToPagesY = 1
+            args=(
+                PropertyValue('FilterName',0,'calc_pdf_Export',0),
+                PropertyValue('Overwrite',0,True,0),
+            )
+        else: #page_per_sheet False
+            args=(
+                PropertyValue('FilterName',0,'calc_pdf_Export',0),
+                PropertyValue('Overwrite',0,True,0),
+            )
+        
         with TemporaryDirectory() as tmpdirname:
             tempfile=f"{tmpdirname}/{path.basename(filename)}"
             self.document.storeToURL(systemPathToFileUrl(tempfile), args)

@@ -137,7 +137,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
         doc.createSheet("Styles")
         doc.setColumnsWidth([3.5, 5, 2, 2, 2, 2, 2, 5, 5, 3, 3])
         
-        
+        doc.setSheetStyle("Portrait")
         doc.setCellName("A1",  "MYNAME")
         
         doc.addCellWithStyle("A1", _("Style name"), ColorsNamed.Orange, "BoldCenter")
@@ -209,6 +209,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
 
         ## HELPERS
         doc.createSheet("Helpers")
+        doc.setSheetStyle("Portrait")
         doc.addCellMergedWithStyle("A1:E1","Helper values with total (horizontal)", ColorsNamed.Orange, "BoldCenter")
         helper_title_values_total_row(doc, "A2", "Suma 3", [1,2,3])
 
