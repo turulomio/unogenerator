@@ -171,6 +171,41 @@ def demo_ods_standard(language, port=2002, suffix="",):
         doc.setComment("B14", "This is nice comment")
         
         doc.freezeAndSelect("B2")
+        
+        ## List of rows
+        doc.createSheet("List of rows or columns")
+        
+                
+        doc.addCellMergedWithStyle("A1:C1","List of rows with helper_totals_row", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A2", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+        helper_totals_row(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="2", row_to="4")
+        
+        doc.addCellMergedWithStyle("A8:C8","List of columns with helper_totals_row", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfColumnsWithStyle("A9", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+        helper_totals_row(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="9", row_to="11")
+
+        doc.addCellMergedWithStyle("A15:E15","List of rows with helper_totals_from_range in rows and columns", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A16", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        helper_totals_from_range(doc, range_, totalcolumns=True, totalrows=True)
+        
+        
+        doc.addCellMergedWithStyle("A22:E22","List of rows with helper_totals_from_range in rows", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A23", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        helper_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True) #Removes one column to filter first alphanumerical column
+
+        doc.addCellMergedWithStyle("A29:E29","List of rows with helper_totals_from_range in columns", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A30", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        helper_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False)
+        
+        doc.addCellMergedWithStyle("A35:E35","List of rows with helper_totals_from_range in rows showing", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A36", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        helper_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True, showing=True)
+
+        doc.addCellMergedWithStyle("A42:E42","List of rows with helper_totals_from_range in columns showing", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A43", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        helper_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False, showing=True)
+
+        
 
         ## HELPERS
         doc.createSheet("Helpers")
@@ -179,18 +214,6 @@ def demo_ods_standard(language, port=2002, suffix="",):
 
         doc.addCellMergedWithStyle("A4:A9","Helper values with total (vertical)", ColorsNamed.Orange, "VerticalBoldCenter")
         helper_title_values_total_column(doc, "B4", "Suma 3", [1,2,3, 4])
-        
-        doc.addCellMergedWithStyle("A11:C11","List of rows", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
-        helper_totals_row(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="12", row_to="14")
-        
-        doc.addCellMergedWithStyle("E11:G11","List of columns", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfColumnsWithStyle("E12", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
-        helper_totals_row(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="12", row_to="14")
-
-        doc.addCellMergedWithStyle("A17:D17","List of rows with totals", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A18", [["A",12000,2,3],["B",1020,5,6],["C",20404,8,9]], ColorsNamed.White)
-        helper_totals_from_range(doc, range_, totalcolumns=True, totalrows=True)
 
         
         doc.addCellMergedWithStyle("A23:B23","List of ordered dictionaries", ColorsNamed.Orange, "BoldCenter")

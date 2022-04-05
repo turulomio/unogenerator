@@ -103,6 +103,7 @@ def helper_title_values_total_column(doc, coord, title, values,
 ## @param s xlsx doc
 ## @param range_of_data. Range with data values
 ## @param keys Key of formula if List, it has all values
+## @param showing When totalcolumns=True or totalrows=True only, shows a Total of Totals
 def helper_totals_from_range (
                                                     doc, 
                                                     range_of_data, 
@@ -110,7 +111,8 @@ def helper_totals_from_range (
                                                     totalcolumns=True, 
                                                     totalrows=True, 
                                                     vertical_total_title_style="BoldCenter", 
-                                                    horizontal_total_title_style="BoldCenter"
+                                                    horizontal_total_title_style="BoldCenter", 
+                                                    showing=False
                                                 ):
     range=R.assertRange(range_of_data)
     data_rows=range.numRows()
@@ -126,12 +128,18 @@ def helper_totals_from_range (
         helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.c_start.letter)
     elif totalcolumns==True:
         doc.addCellWithStyle(coord_vertical_title, _("Total"), ColorsNamed.GrayLight, vertical_total_title_style)
-        helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.c_start.letter)
-        doc.addCellWithStyle(coord_vertical_title.addRowCopy(data_rows+1), generate_formula_total_string(key, range.c_start.addColumnCopy(data_columns+1), range.c_end.addColumnCopy(1)), ColorsNamed.GrayLight, style_data)
+        helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+0), styles=style_data, column_from=range.c_start.letter)
+        if showing is True:
+            coord_sum_totals=coord_vertical_title.addRowCopy(data_rows+1)
+            doc.addCellWithStyle(coord_sum_totals, generate_formula_total_string(key, range.c_start.addColumnCopy(data_columns+1), range.c_end.addColumnCopy(1)), ColorsNamed.GrayLight, style_data)
+            doc.addCellWithStyle(coord_sum_totals.addColumnCopy(-1), _("Sum of totals"), ColorsNamed.GrayDark, style_data)
     elif totalrows==True:
         doc.addCellWithStyle(coord_horizontal_title, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
         helper_totals_row(doc, coord_horizontal_title.addColumnCopy(1),[key]*(data_columns+0), styles=style_data, row_from=range.c_start.number) #1 menos por la esquina
-        doc.addCellWithStyle(coord_horizontal_title.addColumnCopy(data_columns+1), generate_formula_total_string(key, range.c_start.addRowCopy(data_rows+1), range.c_end.addRowCopy(1)), ColorsNamed.GrayLight, style_data)
+        if showing is True:
+            coord_sum_totals=coord_horizontal_title.addColumnCopy(data_columns+1)
+            doc.addCellWithStyle(coord_sum_totals, generate_formula_total_string(key, range.c_start.addRowCopy(data_rows+1), range.c_end.addRowCopy(1)), ColorsNamed.GrayLight, style_data)
+            doc.addCellWithStyle(coord_sum_totals.addRowCopy(-1), _("Sum of totals"), ColorsNamed.GrayDark, style_data)
 
     return range_of_data
 
