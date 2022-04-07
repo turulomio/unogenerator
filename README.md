@@ -1,5 +1,7 @@
 # UnoGenerator
+[![PyPI](https://img.shields.io/pypi/v/unogenerator)](https://pypi.org/project/unogenerator/) [![PyPI - Downloads](https://img.shields.io/pypi/dm/unogenerator)](https://pypi.org/project/unogenerator/)
 
+[![Github](https://img.shields.io/github/stars/turulomio/unogenerator?style=social)](https://github.com/turulomio/unogenerator/) [![Github - Downloads](https://shields.io/github/downloads/turulomio/unogenerator/total )](https://github.com/turulomio/unogenerator/)
 ## Description
 Python module to generate Libreoffice documents (ODT and ODS) programatically.
 
