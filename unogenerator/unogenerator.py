@@ -274,11 +274,9 @@ class ODT(ODF):
     ## Find a string and deleteAll untill the end of the document
     ## Usefull to delete document part with styles in templates
     def find_and_delete_until_the_end_of_document(self, find):
-        search=self.document.createSearchDescriptor()
-        search.SearchString=find
-        found=self.document.findFirst(search)
+        found=self.find_and_replace(find, "", None, False)
         if found is not None:
-            found.setString("")
+#            found.setString("")
             self.cursor=found
             
             oVC = self.document.getCurrentController().getViewCursor()#		'Create View Cursor oVC at the end of document by default?
