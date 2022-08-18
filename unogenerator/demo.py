@@ -412,6 +412,29 @@ def demo_odt_standard(language, port=2002, suffix=""):
 
         doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
         doc.addImageParagraph([resource_filename(__name__, 'images/crown.png')]*5, 2.5, 1.5, "Illustration", linked=False)
+        
+        doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
+        doc.addImageParagraph([resource_filename(__name__, 'images/crown.png')]*5, 2.5, 1.5, "Illustration", linked=False)
+        
+        
+        doc.addParagraph(_("You can play with image width and height:"), "Standard")
+        l=[]
+        l.append(doc.textcontentImage(resource_filename(__name__, 'images/icons.jpg'), None, None,  "AS_CHARACTER", "PRIMERA", linked=False))
+        l.append(" Image default size. Height and width are set to None.")
+        doc.addParagraphComplex(l, "Standard")
+        l=[]
+        l.append(doc.textcontentImage(resource_filename(__name__, 'images/icons.jpg'), 3,  None,  "AS_CHARACTER", "PRIMERA", linked=False))
+        l.append(" Image width 3cm of width and height automatically set.")
+        doc.addParagraphComplex(l, "Standard")
+        l=[]
+        l.append(doc.textcontentImage(resource_filename(__name__, 'images/icons.jpg'),  None, 3,  "AS_CHARACTER", "PRIMERA", linked=False))
+        l.append(" Image height 3cm of width and width automatically set.")
+        doc.addParagraphComplex(l, "Standard")
+        l=[]
+        l.append(doc.textcontentImage(resource_filename(__name__, 'images/icons.jpg'), 3, 3,  "AS_CHARACTER", "PRIMERA", linked=False))
+        l.append(" Image width and height set to 3cm.")
+        doc.addParagraphComplex(l, "Standard")
+        
 
 
         doc.addParagraph(_("Search and Replace"), "Heading 2")

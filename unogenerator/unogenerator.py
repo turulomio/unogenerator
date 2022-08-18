@@ -330,7 +330,14 @@ class ODT(ODF):
     ## @param filename_or_bytessequence, Can be a filename path or a bytesequence
     ## @param anchortype AS_CHARACTER, AT_PARAGRAPH
     ## @param name None if we want to use lo default name
-    def textcontentImage(self, filename_or_bytessequence, width=2,  height=2, anchortype="AS_CHARACTER", name=None, linked=False ):
+    ## @param width 
+    ## @param height Puede ser None or a value. If a value, witdth will be set  automatically
+    ##      -Width:None -Heigth:None. Usa tamaño por defecto de la imagen (Opción por defecto)
+    ##      - Width: 5  -Height:None. Pone 5cm de ancho y la altura automática
+    ##      - Width: None  -Height:None5. Pone la anchura automática y 5cm de alto
+    ##      - Width: 5  -Height:5. Pone 5cm de ancho de alto
+    
+    def textcontentImage(self, filename_or_bytessequence, width=None,  height=None, anchortype="AS_CHARACTER", name=None, linked=False ):
         if filename_or_bytessequence.__class__.__name__=="bytes":
             bytes_stream = self.ctx.ServiceManager.createInstanceWithContext('com.sun.star.io.SequenceInputStream', self.ctx)
             bytes_stream.initialize((ByteSequence(filename_or_bytessequence),)) ##Método para inicializar un servicio
@@ -349,6 +356,14 @@ class ODT(ODF):
         if name is not None:
             image.setName(name)
         image.AnchorType=anchortype
+        #Calculate sizes
+        if width is None and height is None:
+            width=graphic.Size100thMM.Width/1000
+            height=graphic.Size100thMM.Height/1000
+        elif width is None and height is not None:
+            width=round(height*graphic.Size100thMM.Width/graphic.Size100thMM.Height, 3)
+        elif height is None and width is not None:
+            height=round(width*graphic.Size100thMM.Height/graphic.Size100thMM.Width, 3)
         image.Size=Size(width*1000, height*1000)
         return image
         
