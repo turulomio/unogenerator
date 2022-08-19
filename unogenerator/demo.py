@@ -11,7 +11,7 @@ from logging import info
 from multiprocessing import cpu_count
 from pkg_resources import resource_filename
 
-from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port, get_from_process_numinstances_and_firstport
+from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port, get_from_process_numinstances_and_firstport, bytes_after_trim_image
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.unogenerator import ODT_Standard, ODS_Standard
@@ -433,6 +433,18 @@ def demo_odt_standard(language, port=2002, suffix=""):
         l=[]
         l.append(doc.textcontentImage(resource_filename(__name__, 'images/icons.jpg'), 3, 3,  "AS_CHARACTER", "PRIMERA", linked=False))
         l.append(" Image width and height set to 3cm.")
+        doc.addParagraphComplex(l, "Standard")
+        
+        
+        doc.addParagraph(_("You can trim image border white space when needed:"), "Standard")
+        
+        l=[]
+        l.append("This is a camerawith gray space around it: ")
+        l.append(doc.textcontentImage(resource_filename(__name__, 'images/Imagewithborder.png'), 1, None))
+        l.append(". ")
+        l.append(_("You can trim that gray space when needed with 'bytes_after_trim_image' method. To use this method you need Imagemagick installed to use 'convert' command. This is the result: "))
+        bytes_=bytes_after_trim_image(resource_filename(__name__, 'images/Imagewithborder.png'), "png")
+        l.append(doc.textcontentImage(bytes_, 1, None,))
         doc.addParagraphComplex(l, "Standard")
         
 

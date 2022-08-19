@@ -6,6 +6,8 @@ from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error, debug
 from pkg_resources import resource_filename
 from psutil import process_iter
+from subprocess import run
+from tempfile import TemporaryDirectory
 from uno import createUnoStruct
 from unogenerator.reusing.listdict_functions import listdict_min
 from unogenerator.reusing.currency import Currency
@@ -602,3 +604,27 @@ def green(s):
     return Style.BRIGHT + Fore.GREEN + str(s) + Style.RESET_ALL
 def magenta(s):
     return Style.BRIGHT + Fore.MAGENTA + str(s) + Style.RESET_ALL
+    
+## Removes border white space from a path or a byte array of a image. It uses convert from imagemagick
+## @param type Image extension
+def bytes_after_trim_image(filename_or_bytessequence, type):
+    with TemporaryDirectory() as tmpdirname:
+        filename_trimed=f"{tmpdirname}/filename_trimed.{type}"
+        #Converts bytes to temporary file
+        if filename_or_bytessequence.__class__.__name__=="bytes":
+            filename_to_trim=f"{tmpdirname}/filename_to_trim.{type}"
+            with open(filename_to_trim, "w+b") as f:
+                f.write(filename_or_bytessequence)
+        else:
+            filename_to_trim=filename_or_bytessequence
+
+        #Trims white space
+        p=run(f"convert -trim '{filename_to_trim}' '{filename_trimed}'",  shell=True)
+        if p.returncode==0:
+            #Alter bytes if converted
+            with open(filename_trimed, "r+b") as f:
+                bytes_=f.read()
+                return bytes_
+        else:
+            print(_("There was an error triming image. Is convert command (from Imagemagick) installed?"))
+
