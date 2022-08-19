@@ -361,16 +361,24 @@ class ODT(ODF):
             width=graphic.Size100thMM.Width/1000
             height=graphic.Size100thMM.Height/1000
         elif width is None and height is not None:
-            width=round(height*graphic.Size100thMM.Width/graphic.Size100thMM.Height, 3)
+            if graphic.Size100thMM.Height==0:
+                print("This graphic has 0 height",  graphic.Size100thMM.Width, graphic.Size100thMM.Height, "Setting width to 2")
+                width=2
+            else:
+                width=round(height*graphic.Size100thMM.Width/graphic.Size100thMM.Height, 3)
         elif height is None and width is not None:
-            height=round(width*graphic.Size100thMM.Height/graphic.Size100thMM.Width, 3)
+            if graphic.Size100thMM.Width==0:
+                print("This graphic has 0 width",  graphic.Size100thMM.Width, graphic.Size100thMM.Height, "Setting height to 2")
+                height=2
+            else:
+                height=round(width*graphic.Size100thMM.Height/graphic.Size100thMM.Width, 3)
         image.Size=Size(width*1000, height*1000)
         return image
         
     ## @param filename_or_bytessequence_list List of filename path or byte_sequence
     ## @param width float in cm
     ## @param height float in cm
-    def addImageParagraph(self, filename_or_bytessequence_list, width=2,  height=2, name=None, style="Illustration", linked=False):
+    def addImageParagraph(self, filename_or_bytessequence_list, width=None,  height=None, name=None, style="Illustration", linked=False):
         self.cursor.setPropertyValue("ParaStyleName", style)
         for filename_or_bytessequence in filename_or_bytessequence_list:
             self.document.Text.insertTextContent(self.cursor,self.textcontentImage(filename_or_bytessequence, width, height, "AS_CHARACTER", linked=linked), False)
