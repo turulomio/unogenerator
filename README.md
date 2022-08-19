@@ -90,6 +90,13 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.27.0 (2022-08-19)
+- Helper_totals_by_range now hides total of totals by default.
+- ODS.export_pdf now uses one pdf page per sheet by default.
+- Added ODS.setSheetStyle. If you use ODS_Standard you can use the portrait style.
+- ODT images size can be managed automatically.
+- Now you can trim images to remove innecesary space.
+
 ### 0.26.0 (2022-04-04)
 - Range.start refactorized to Range.c_start. Range.end refactorized to Range.c_end. 
 - Added getBlockValuesByRange and getBlockValuesByRangeWithCast, to get values from sheet very fast

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-04 13:59+0200\n"
+"POT-Creation-Date: 2022-08-19 09:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,6 +31,9 @@ msgid "Have you launched unogenerator instances?. Please run unogenerator_start"
 msgstr ""
 
 msgid "I couldn't detect unogenerator instances"
+msgstr ""
+
+msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
 msgstr ""
 
 msgid "Error deleting: {} -> {}"
@@ -249,6 +252,15 @@ msgstr ""
 msgid "The next paragraph is generated with the illustration method"
 msgstr ""
 
+msgid "You can play with image width and height:"
+msgstr ""
+
+msgid "You can trim image border white space when needed:"
+msgstr ""
+
+msgid "You can trim that gray space when needed with 'bytes_after_trim_image' method. To use this method you need Imagemagick installed to use 'convert' command. This is the result: "
+msgstr ""
+
 msgid "Search and Replace"
 msgstr ""
 
@@ -289,6 +301,9 @@ msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-do
 msgstr ""
 
 msgid "Total"
+msgstr ""
+
+msgid "Sum of totals"
 msgstr ""
 
 msgid "No data to show"

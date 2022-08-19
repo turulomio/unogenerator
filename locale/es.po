@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-04 13:57+0200\n"
+"POT-Creation-Date: 2022-08-19 08:59+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "X-Generator: Lokalize 19.12.3\n"
 
 msgid "There was a problem converting com.sun.star.util.DateTime to datetime."
-msgstr ""
+msgstr "Hubo un problema al convertir com.sun.star.util.DateTime a datetime"
 
 msgid "Developed by Mariano Muñoz 2020-{}"
 msgstr "Desarrollado por Mariano Muñoz 2021-{}"
@@ -34,6 +34,9 @@ msgstr "¿Has iniciado las instancias de unogenerator?. Por favor ejecute unogen
 
 msgid "I couldn't detect unogenerator instances"
 msgstr "No pude detectar las instancias de unogenerator"
+
+msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
+msgstr "Hubo un error al eliminar espacio innecesario de la imagen. ¿Está el comando 'convert' de Imagemagick instalado?"
 
 msgid "Error deleting: {} -> {}"
 msgstr "Error al borrar: {} -> {}"
@@ -251,6 +254,15 @@ msgstr "Como puedes ver, puedo reutilizar la imagen cien veces. El tamaño del f
 msgid "The next paragraph is generated with the illustration method"
 msgstr "El siguiente párrafo es generado con el método illustration"
 
+msgid "You can play with image width and height:"
+msgstr ""
+
+msgid "You can trim image border white space when needed:"
+msgstr ""
+
+msgid "You can trim that gray space when needed with 'bytes_after_trim_image' method. To use this method you need Imagemagick installed to use 'convert' command. This is the result: "
+msgstr ""
+
 msgid "Search and Replace"
 msgstr "Buscar y reemplazar"
 
@@ -292,6 +304,9 @@ msgstr ""
 
 msgid "Total"
 msgstr "Total"
+
+msgid "Sum of totals"
+msgstr ""
 
 msgid "No data to show"
 msgstr "No hay datos para mostrar"
