@@ -325,6 +325,20 @@ class ODT(ODF):
                 self.document.Text.insertTextContent(self.cursor, o, False)               
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
+        
+    def pixelsto100thmm(self, pixels):
+        ##                #OOo uses, 1440 twips per inch, which equals 56.7 twips per mm,
+        ##The functions TwipsPerPixelX() and TwipsPerPixelY() (both of which return 15 on my system),
+        ##Shape is in 100ths of a mm,
+        ##Therefore,
+        ##PixelsWidth = (1/15) * 56.7 * (ShapeSize.Width/100) [ (pixels/twips) * (twips/mm) * ((mm*100)/100) = pixels ]
+        ##PixelsWidth = 0.0378 * ShapeSize.Width
+        cm=pixels*15*1/56.7*100#pixels* [twips/pixels]*[mm/twips] * [*100thmm/1mm]
+        #print("Converting pixels ",  pixels, "to thmm", cm)
+
+        return cm  
+            
+        
     ## Returns a text content that can be inserted with document.Text.insertTextContent(cursor,image, False)
     
     ## @param filename_or_bytessequence, Can be a filename path or a bytesequence
@@ -357,22 +371,27 @@ class ODT(ODF):
             image.setName(name)
         image.AnchorType=anchortype
         #Calculate sizes
-        if width is None and height is None:
-            width=graphic.Size100thMM.Width/1000
-            height=graphic.Size100thMM.Height/1000
-        elif width is None and height is not None:
-            if graphic.Size100thMM.Height==0:
-                print("This graphic has 0 height",  graphic.Size100thMM.Width, graphic.Size100thMM.Height, "Setting width to 2")
-                width=2
-            else:
-                width=round(height*graphic.Size100thMM.Width/graphic.Size100thMM.Height, 3)
-        elif height is None and width is not None:
-            if graphic.Size100thMM.Width==0:
-                print("This graphic has 0 width",  graphic.Size100thMM.Width, graphic.Size100thMM.Height, "Setting height to 2")
-                height=2
-            else:
-                height=round(width*graphic.Size100thMM.Height/graphic.Size100thMM.Width, 3)
-        image.Size=Size(width*1000, height*1000)
+        if graphic.getType()==1:#Pixel
+            ##Size100thMM sometimes is 0 in some images, but no Size
+            height100thmm=graphic.Size100thMM.Height if graphic.Size100thMM.Height!=0 else self.pixelsto100thmm(graphic.Size.Height)
+            width100thmm=graphic.Size100thMM.Width if graphic.Size100thMM.Width!=0 else self.pixelsto100thmm(graphic.Size.Width)
+            #print("100thmm problem ",  graphic.Size100thMM.Width,  graphic.Size100thMM.Height, width100thmm, height100thmm)
+            
+            
+            
+            if width is None and height is None:
+                width=width100thmm/1000
+                height=height100thmm/1000
+            elif width is None and height is not None:
+                width=round(height*width100thmm/height100thmm, 3)
+            elif height is None and width is not None:
+                height=round(width*height100thmm/width100thmm, 3)
+            image.Size=Size(width*1000, height*1000)
+        elif graphic.getType()==2:#Vector
+            print("This is a vector graphic. TODO")
+        elif graphic.getType()==0:#Empty
+            print("This is a empty graphic. TODO")
+        #print("Final size", width, height)
         return image
         
     ## @param filename_or_bytessequence_list List of filename path or byte_sequence

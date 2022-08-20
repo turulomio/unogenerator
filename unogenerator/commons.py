@@ -619,7 +619,7 @@ def bytes_after_trim_image(filename_or_bytessequence, type):
             filename_to_trim=filename_or_bytessequence
 
         #Trims white space
-        p=run(f"convert -trim '{filename_to_trim}' '{filename_trimed}'",  shell=True)
+        p=run(f"convert -trim +repage '{filename_to_trim}' '{filename_trimed}'",  shell=True)
         if p.returncode==0:
             #Alter bytes if converted
             with open(filename_trimed, "r+b") as f:
