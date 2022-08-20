@@ -85,7 +85,7 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 - [LibreOffice API](https://api.libreoffice.org/docs/idl/ref/index.html)
 - [OpenOffice Forums](https://forum.openoffice.org/en/forum/viewforum.php?f=20)
 - [LibreOffice Forums](https://ask.libreoffice.org/)
-- [UnoGenerator API](http://turulomio.users.sourceforge.net/doxygen/unogenerator/)
+- [UnoGenerator API](https://coolnewton.mooo.com/doxygen/unogenerator/)
 
 
 ## Changelog
