@@ -2,7 +2,7 @@
 
 Only Linux is supported
 
-You need LibreOffice installed in your system
+You need LibreOffice installed in your system. Imagemagick is recommended for some image operations.
 
 In some distros you need to install Python LibreOffice bindings too (python3-uno)
 
