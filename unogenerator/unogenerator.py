@@ -373,6 +373,8 @@ class ODT(ODF):
         #Calculate sizes
         if graphic.getType()==1:#Pixel
             ##Size100thMM sometimes is 0 in some images, but no Size
+            if graphic.Size100thMM.Height==0 or graphic.Size100thMM.Height==0:
+                debug(_("Problems to detect size in 100thmm, I'm trying to calculate it"))
             height100thmm=graphic.Size100thMM.Height if graphic.Size100thMM.Height!=0 else self.pixelsto100thmm(graphic.Size.Height)
             width100thmm=graphic.Size100thMM.Width if graphic.Size100thMM.Width!=0 else self.pixelsto100thmm(graphic.Size.Width)
             #print("100thmm problem ",  graphic.Size100thMM.Width,  graphic.Size100thMM.Height, width100thmm, height100thmm)
