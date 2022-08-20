@@ -90,6 +90,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.28.0 (2022-08-20)
+- Fixed bug with image size detection.
+
 ### 0.27.0 (2022-08-19)
 - Helper_totals_by_range now hides total of totals by default.
 - ODS.export_pdf now uses one pdf page per sheet by default.

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-19 08:59+0200\n"
+"POT-Creation-Date: 2022-08-20 09:19+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -465,6 +465,9 @@ msgstr "La extensión del nombre del fichero debe ser 'pdf'."
 
 msgid "Filename extension must be 'docx'."
 msgstr "La extensión del nombre del fichero debe ser 'docx'."
+
+msgid "Problems to detect size in 100thmm, I'm trying to calculate it"
+msgstr ""
 
 #, python-brace-format
 msgid "ERROR: You can't create '{name}' sheet, because it already exists."
