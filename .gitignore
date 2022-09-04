@@ -4,6 +4,7 @@ develop-eggs/
 dist/
 *.egg-info/
 .eric6project/
+.eric7project/
 *.po~
 doc/html/
 doc/unogenerator.tag
