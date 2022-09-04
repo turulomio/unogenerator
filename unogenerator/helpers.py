@@ -6,6 +6,8 @@
 from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string
 from unogenerator.reusing.listdict_functions import listdict2listofrows
 from gettext import translation
+from logging import debug
+from math import ceil
 from pkg_resources import resource_filename
 
 try:
@@ -205,6 +207,42 @@ def helper_ods_sheet_stylenames(doc):
         doc.addCellWithStyle(C("A1").addColumn(column), family, ColorsNamed.Orange, "BoldCenter")
         doc.addColumnWithStyle(C("A2").addColumn(column), style_names)
     doc.freezeAndSelect("A2")
-    
+
+## This helper is used when lor length is bigger than localc limits (1048576)
+## With this function you can split a lor automatically in all sheets needed
+## If the number of rows is lower than max_rows makes a normal sheet
+## You have to set a header of one line. 
+## @param doc ODS Document
+## @param sheet_name Root name of the sheet
+## @param lor List of rows with data
+## @param headers List of strings
+## @param headers_colors Color of the sheet header
+## @param columns_width None=3cm. Integer=all that value, List. Defines all columns width
+## @param coord_to_freeze Coord with coord to freeze
+def helper_split_big_listofrows(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575):
+    ceil_=ceil(len(lor)/max_rows)
+    for num_sheet in range(ceil_):
+        #Sets name and headers
+        if ceil_>1:
+            name=_("{0} ({1} of {2})").format(sheet_name, num_sheet+1,  ceil_)
+            debug(_("More than {0} rows. Spliting {1} of {2} sheets").format(max_rows, num_sheet+1,  ceil_))
+        else:
+            name=sheet_name
+        doc.createSheet(name)
+        doc.addRowWithStyle("A1", headers, headers_colors, "BoldCenter")
+        
+        #Sets width of columns
+        if len(lor)>0:
+            if columns_width is None:
+                columns_width=[3]*len(lor)
+            elif columns_width.__class__.__name__=="int":
+                columns_width=[columns_width]*len(lor)
+            doc.setColumnsWidth(columns_width)
+        
+        #Splits data
+        from_=max_rows*num_sheet
+        to_=max_rows*(num_sheet+1) if len(lor)>=max_rows*(num_sheet+1) else len(lor)
+        doc.addListOfRowsWithStyle("A2", lor[from_:to_])
+        doc.freezeAndSelect(C.assertCoord(coord_to_freeze))
     
     
