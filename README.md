@@ -90,6 +90,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.29.0 (2022-09-04)
+- Added helper 'helper_split_big_listofrows' to automatically split a sheet in several ones, when is number or rows is bigger than a max_rows parameter
+
 ### 0.28.0 (2022-08-20)
 - Fixed bug with image size detection.
 

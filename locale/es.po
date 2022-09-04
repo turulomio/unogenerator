@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-20 09:19+0200\n"
+"POT-Creation-Date: 2022-09-04 08:32+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -97,6 +97,9 @@ msgstr "Tiempo"
 msgid "Boolean"
 msgstr "Booleano"
 
+msgid "String"
+msgstr "Cadena"
+
 msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.statistics.init} in {port}"
 msgstr "unogenerator_example_{language}{suffix}.ods tardó {datetime.now()-doc.statistics.init} en {port}"
 
@@ -162,7 +165,7 @@ msgid "ODT with standard template (Recomended)."
 msgstr "ODT con la plantilla estándard (Recomendado)."
 
 msgid "There is a predefined template in code called 'standard.odt', inside this python module, to help you with edition, although you can use your own ones."
-msgstr ""
+msgstr "Hay una plantilla predefinida llamada 'standard.odt' dentro de este módulo de python, para ayudarte con la edición, aunque tu puedes usar tus propias plantillas."
 
 msgid "With this mode you can create new documents"
 msgstr "Con este modo puedes crear nuevos documentos"
@@ -234,7 +237,7 @@ msgid "Hyperlinks"
 msgstr "Hiperenlaces"
 
 msgid "If you want to go to Google, click on this "
-msgstr ""
+msgstr "Si quieres ir a Google, pulsa en este "
 
 msgid "That's all folks!"
 msgstr "¡Eso es todo amigos!"
@@ -255,7 +258,7 @@ msgid "The next paragraph is generated with the illustration method"
 msgstr "El siguiente párrafo es generado con el método illustration"
 
 msgid "You can play with image width and height:"
-msgstr ""
+msgstr "Puedes jugar con la anchura y altura de la imagen:"
 
 msgid "You can trim image border white space when needed:"
 msgstr ""
@@ -306,10 +309,18 @@ msgid "Total"
 msgstr "Total"
 
 msgid "Sum of totals"
-msgstr ""
+msgstr "Suma de totales"
 
 msgid "No data to show"
 msgstr "No hay datos para mostrar"
+
+#, python-brace-format
+msgid "{0} ({1} of {2})"
+msgstr "{0} ({1} de {2})"
+
+#, python-brace-format
+msgid "More than {0} rows. Spliting {1} of {2} sheets"
+msgstr "Más de {0} filas. Dividiendo {1} de {2} hojas"
 
 msgid "Launches libreoffice server to run unogenerator code"
 msgstr "Lanza el servidor de libreoffice para ejecutar código de UnoGenerator"
@@ -399,7 +410,7 @@ msgid "Sheet freezes"
 msgstr "Inmovilizaciones de hoja"
 
 msgid "Generate a po and pot file from ODF"
-msgstr ""
+msgstr "Genera un fichero po y pot de un ODF"
 
 msgid "Language to translate from. Example codes: es, fr, en, md"
 msgstr ""
@@ -429,7 +440,7 @@ msgid "Extracting strings from:"
 msgstr "Extrayendo cadenas de:"
 
 msgid "Only ODT files are supported"
-msgstr ""
+msgstr "Solo están soportados los documentos ODT"
 
 #, python-brace-format
 msgid "Generating {pot}"
@@ -482,35 +493,3 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
 
-#, python-brace-format
-#~ msgid "  - Launched instance in port {port}"
-#~ msgstr "  - Lanzada instancia en el puerto {port}"
-
-#~ msgid "Creates translated file"
-#~ msgstr "Crea el fichero traducido"
-
-#~ msgid "Sets a fake translation to all strings"
-#~ msgstr "Establece una traducción de prueba a todas las cadenas"
-
-#~ msgid "Creates translated file in pdf"
-#~ msgstr "Crea el fichero traducido en pdf"
-
-#, python-brace-format
-#~ msgid "   - {filename}"
-#~ msgstr "   - {filename}"
-
-#, python-brace-format
-#~ msgid "   + {output}"
-#~ msgstr "   + {output}"
-
-#~ msgid "You can easily launch unogenerator_start script with bash."
-#~ msgstr "Puedes lanzarlo facilmente con el script "
-
-#~ msgid "Number of workers to process this script. Default 4"
-#~ msgstr "Número de procesos para ejecutar este script. Por defecto 4"
-
-#~ msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.init} in {port}"
-#~ msgstr "unogenerator_example_{language}{suffix}.ods tardó {datetime.now()-doc.init} en {port}"
-
-#~ msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.init} in {port}"
-#~ msgstr "unogenerator_documentation_{language}{suffix}.odt tardó {datetime.now()-doc.init} en {port}"

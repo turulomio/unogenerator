@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-20 09:19+0200\n"
+"POT-Creation-Date: 2022-09-04 08:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -93,6 +93,9 @@ msgid "Time"
 msgstr ""
 
 msgid "Boolean"
+msgstr ""
+
+msgid "String"
 msgstr ""
 
 msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.statistics.init} in {port}"
@@ -307,6 +310,14 @@ msgid "Sum of totals"
 msgstr ""
 
 msgid "No data to show"
+msgstr ""
+
+#, python-brace-format
+msgid "{0} ({1} of {2})"
+msgstr ""
+
+#, python-brace-format
+msgid "More than {0} rows. Spliting {1} of {2} sheets"
 msgstr ""
 
 msgid "Launches libreoffice server to run unogenerator code"
