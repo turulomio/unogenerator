@@ -3,14 +3,14 @@ from gettext import translation
 from os import path,  makedirs
 from polib import POEntry,  POFile, pofile
 from subprocess import run
-from pkg_resources import resource_filename
+from importlib.resources import files
 from unogenerator.commons import __version__, argparse_epilog, red
 from unogenerator.reusing.casts import f
 from unogenerator import ODT
 
 
 try:
-    t=translation('unogenerator', resource_filename("unogenerator","locale"))
+    t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
 except:
     _=str

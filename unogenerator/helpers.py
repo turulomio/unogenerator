@@ -8,10 +8,10 @@ from unogenerator.reusing.listdict_functions import listdict2listofrows
 from gettext import translation
 from logging import debug
 from math import ceil
-from pkg_resources import resource_filename
+from importlib.resources import files
 
 try:
-    t=translation('unogenerator', resource_filename("unogenerator","locale"))
+    t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
 except:
     _=str

@@ -4,7 +4,7 @@ from datetime import datetime, date, timedelta
 from decimal import Decimal
 from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error, debug
-from pkg_resources import resource_filename
+from importlib.resources import files
 from psutil import process_iter
 from subprocess import run
 from tempfile import TemporaryDirectory
@@ -19,7 +19,7 @@ __versiondatetime__=datetime(2022, 9, 4, 8, 29)
 __versiondate__=__versiondatetime__.date()
 
 try:
-    t=translation('unogenerator',resource_filename("unogenerator","locale"))
+    t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
 except:
     _=str

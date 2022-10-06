@@ -4,7 +4,7 @@ from gettext import translation
 from humanize import naturalsize
 from multiprocessing import cpu_count
 from os import system, makedirs
-from pkg_resources import resource_filename
+from importlib.resources import files
 from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info, green, red, magenta
 from unogenerator.reusing.casts import list2string, f
 from unogenerator.reusing.listdict_functions import listdict_sum, listdict_average, listdict2list, listdict_order_by
@@ -14,7 +14,7 @@ from subprocess import run
 from time import sleep
 
 try:
-    t=translation('unogenerator', resource_filename("unogenerator","locale"))
+    t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
 except:
     _=str

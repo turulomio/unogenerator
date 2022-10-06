@@ -12,7 +12,7 @@ from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
 from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
 from gettext import translation
 from logging import warning, debug
-from pkg_resources import resource_filename
+from importlib.resources import files
 from shutil import copyfile
 from tempfile import TemporaryDirectory
 from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__, string_float2object
@@ -29,7 +29,7 @@ def createUnoService(serviceName):
 
         
 try:
-    t=translation('unogenerator', resource_filename("unogenerator","locale"))
+    t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
 except:
     _=str
@@ -361,7 +361,7 @@ class ODT(ODF):
             
         else:
             oProps=(
-                PropertyValue('URL',0,systemPathToFileUrl(filename_or_bytessequence),0),
+                PropertyValue('URL',0,systemPathToFileUrl(str(filename_or_bytessequence)),0),
                 PropertyValue('LoadAsLink',0, linked,0),
             )        
         graphic=self.graphicsprovider.queryGraphic(oProps)
@@ -1091,11 +1091,11 @@ class ODS(ODF):
 
 class ODS_Standard(ODS):
     def __init__(self, loserver_port=2002):
-        ODS.__init__(self, resource_filename(__name__, 'templates/standard.ods'), loserver_port)
+        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', loserver_port)
 
 class ODT_Standard(ODT):
     def __init__(self, loserver_port=2002):
-        ODT.__init__(self, resource_filename(__name__, 'templates/standard.odt'), loserver_port)
+        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', loserver_port)
         self.deleteAll()
 
 

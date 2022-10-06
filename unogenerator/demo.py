@@ -9,7 +9,7 @@ from datetime import datetime, date, timedelta
 from gettext import translation
 from logging import info
 from multiprocessing import cpu_count
-from pkg_resources import resource_filename
+from importlib.resources import files
 
 from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port, get_from_process_numinstances_and_firstport, bytes_after_trim_image
 from unogenerator.reusing.currency import Currency
@@ -20,7 +20,7 @@ from os import remove
 from tqdm import tqdm
 
 try:
-    t=translation('unogenerator', resource_filename("unogenerator","locale"))
+    t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
 except:
     _=str
@@ -122,7 +122,7 @@ def main_concurrent(arguments=None):
 
        
 def demo_ods_standard(language, port=2002, suffix="",):
-    lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
+    lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
     
@@ -266,7 +266,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
     
     
 def demo_odt_standard(language, port=2002, suffix=""):
-    lang1=translation('unogenerator', resource_filename("unogenerator","locale"), languages=[language])
+    lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
 
@@ -402,44 +402,44 @@ def demo_odt_standard(language, port=2002, suffix=""):
         
         l=[]
         l.append( _("Este es un ejemplo de imagen as char: "))
-        l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 1, 1, "AS_CHARACTER", "PRIMERA", linked=False))
+        l.append(doc.textcontentImage(files('unogenerator') / 'images/crown.png', 1, 1, "AS_CHARACTER", "PRIMERA", linked=False))
         l.append(". Ahora sigo escribiendo sin problemas.")
         doc.addParagraphComplex(l, "Standard")
         
         l=[]
         l.append( _("This is an image loaded from bytes: "))
-        l.append(doc.textcontentImage(open(resource_filename(__name__, 'images/crown.png'), "rb").read(), 1, 1, "AS_CHARACTER", "d", linked=False))
+        l.append(doc.textcontentImage(open(files('unogenerator') / 'images/crown.png', "rb").read(), 1, 1, "AS_CHARACTER", "d", linked=False))
         doc.addParagraphComplex(l, "Standard")
 
         l=[]
         l.append( _("As you can see, I can reuse it one hundred times. File size will not be increased because I used reference names."))
         for i in range(100):
-            l.append(doc.textcontentImage(resource_filename(__name__, 'images/crown.png'), 0.5,  0.5, "AS_CHARACTER", linked=False))
+            l.append(doc.textcontentImage(files('unogenerator') / 'images/crown.png', 0.5,  0.5, "AS_CHARACTER", linked=False))
         doc.addParagraphComplex(l, "Standard")
 
 
         doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
-        doc.addImageParagraph([resource_filename(__name__, 'images/crown.png')]*5, 2.5, 1.5, "Illustration", linked=False)
+        doc.addImageParagraph([files('unogenerator') / 'images/crown.png']*5, 2.5, 1.5, "Illustration", linked=False)
         
         doc.addParagraph(_("The next paragraph is generated with the illustration method"), "Standard")
-        doc.addImageParagraph([resource_filename(__name__, 'images/crown.png')]*5, 2.5, 1.5, "Illustration", linked=False)
+        doc.addImageParagraph([files('unogenerator') / 'images/crown.png']*5, 2.5, 1.5, "Illustration", linked=False)
         
         
         doc.addParagraph(_("You can play with image width and height:"), "Standard")
         l=[]
-        l.append(doc.textcontentImage(resource_filename(__name__, 'images/icons.jpg'), None, None,  "AS_CHARACTER", "PRIMERA", linked=False))
+        l.append(doc.textcontentImage(files('unogenerator') / 'images/icons.jpg', None, None,  "AS_CHARACTER", "PRIMERA", linked=False))
         l.append(" Image default size. Height and width are set to None.")
         doc.addParagraphComplex(l, "Standard")
         l=[]
-        l.append(doc.textcontentImage(resource_filename(__name__, 'images/icons.jpg'), 3,  None,  "AS_CHARACTER", "PRIMERA", linked=False))
+        l.append(doc.textcontentImage(files('unogenerator') / 'images/icons.jpg', 3,  None,  "AS_CHARACTER", "PRIMERA", linked=False))
         l.append(" Image width 3cm of width and height automatically set.")
         doc.addParagraphComplex(l, "Standard")
         l=[]
-        l.append(doc.textcontentImage(resource_filename(__name__, 'images/icons.jpg'),  None, 3,  "AS_CHARACTER", "PRIMERA", linked=False))
+        l.append(doc.textcontentImage(files('unogenerator') / 'images/icons.jpg',  None, 3,  "AS_CHARACTER", "PRIMERA", linked=False))
         l.append(" Image height 3cm of width and width automatically set.")
         doc.addParagraphComplex(l, "Standard")
         l=[]
-        l.append(doc.textcontentImage(resource_filename(__name__, 'images/icons.jpg'), 3, 3,  "AS_CHARACTER", "PRIMERA", linked=False))
+        l.append(doc.textcontentImage(files('unogenerator') / 'images/icons.jpg', 3, 3,  "AS_CHARACTER", "PRIMERA", linked=False))
         l.append(" Image width and height set to 3cm.")
         doc.addParagraphComplex(l, "Standard")
         
@@ -448,10 +448,10 @@ def demo_odt_standard(language, port=2002, suffix=""):
         
         l=[]
         l.append("This is a camerawith gray space around it: ")
-        l.append(doc.textcontentImage(resource_filename(__name__, 'images/Imagewithborder.png'), 1, None))
+        l.append(doc.textcontentImage(files('unogenerator') / 'images/Imagewithborder.png', 1, None))
         l.append(". ")
         l.append(_("You can trim that gray space when needed with 'bytes_after_trim_image' method. To use this method you need Imagemagick installed to use 'convert' command. This is the result: "))
-        bytes_=bytes_after_trim_image(resource_filename(__name__, 'images/Imagewithborder.png'), "png")
+        bytes_=bytes_after_trim_image(files('unogenerator') / 'images/Imagewithborder.png', "png")
         l.append(doc.textcontentImage(bytes_, 1, None,))
         doc.addParagraphComplex(l, "Standard")
         
