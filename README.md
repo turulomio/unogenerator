@@ -90,6 +90,10 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.30.0 (2022-10-06)
+- [unogenerator_monitor] Added --recommended parameter to set max recmmended memory in Mb. 600Mb per cpu by default.
+- Replaced pkg_resources module by importlib.resources as recommended in python.org
+
 ### 0.29.0 (2022-09-04)
 - Added helper 'helper_split_big_listofrows' to automatically split a sheet in several ones, when is number or rows is bigger than a max_rows parameter
 

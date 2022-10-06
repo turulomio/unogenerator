@@ -5,7 +5,6 @@ from polib import POEntry,  POFile, pofile
 from subprocess import run
 from importlib.resources import files
 from unogenerator.commons import __version__, argparse_epilog, red
-from unogenerator.reusing.casts import f
 from unogenerator import ODT
 
 
@@ -156,14 +155,14 @@ def command(from_language, to_language, input, output_directory="./unogenerator_
         set_strings.add(string_)
 
     #Generate pot file
-    print(f(_("Generating {pot}")))
+    print(_("Generating {0}").format(pot))
     generate_pot_file(pot, set_strings, entries)
     
     #Merging pot file to po (new or not)
     if path.exists(po) is False:
         run_check(["msginit", "-i", pot,  "-o", po])
     run_check(["msgmerge","-N", "--no-wrap","-U", "-F", po, pot])
-    print(f(_("   - {len(set_strings)} different strings detected")))
+    print(_("   - {0} different strings detected").format(len(set_strings)))
     
     # Creates a dictionary of translations
     dict_po={}

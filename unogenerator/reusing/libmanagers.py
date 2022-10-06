@@ -426,11 +426,11 @@ class ObjectManager_With_IdName(ObjectManager_With_Id):
         self.order_with_none(("name.upper", []), reverse=reverse, none_at_top=none_at_top)
 
 
-    ## Creates a libreoffice sheet from the ObjectManager
+    ## Creates a LibreOffice sheet from the ObjectManager
     ##
     ## This function needs the unogenerator package
-    ## @param doc Unogenerator ODS_Standard, ODS object
-    ## @param sheetname String with the name of the libreoffice sheet
+    ## @param doc UnoGenerator ODS_Standard, ODS object
+    ## @param sheetname String with the name of the LibreOffice sheet
     ## @param titles List of strings with the titles of the columns
     ## @param order_by_name Boolean. True: orders by name. False: orders by id
     ## @returns Officegenerator OdfSheet

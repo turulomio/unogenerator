@@ -29,7 +29,7 @@ def remove_without_errors(filename):
     try:
         remove(filename)
     except OSError as e:
-        print(_("Error deleting: {} -> {}".format(filename, e.strerror)))
+        print(_("Error deleting: {0} -> {1}").format(filename, e.strerror))
 
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
 ## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
@@ -64,7 +64,7 @@ def main(arguments=None):
 
         for future in as_completed(futures):
             future.result()
-        print(_("All process took {}".format(datetime.now()-start)))
+        print(_("All process took {}").format(datetime.now()-start))
 
 
 def main_concurrent(arguments=None):
@@ -91,7 +91,7 @@ def main_concurrent(arguments=None):
                     remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
 
     if args.create==True:
-        print(_(f"Launching concurrent demo with {num_instances} workers to a daemon with {num_instances} instances from {first_port} port"))
+        print(_("Launching concurrent demo with {0} workers to a daemon with {0} instances from {1} port").format(num_instances, first_port))
 
         start=datetime.now()
         futures=[]
@@ -131,7 +131,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
             _("UnoGenerator ODS example"),  
             _("Demo with ODS class"), 
             "Turulomio", 
-            _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
+            _("This file have been generated with UnoGenerator-{0}. You can see UnoGenerator main page in https://github.com/turulomio/unogenerator").format(__version__), 
             ["unogenerator", "demo", "files"]
         )
         doc.createSheet("Styles")
@@ -167,7 +167,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
             doc.addCellWithStyle(C("K2").addRow(row), bool(row%2), color_key, "Bool")
 
         doc.addCellWithStyle(C("E2").addRow(row+1),f"=sum(E2:{C('E2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR" )
-        doc.addCellMergedWithStyle("E15:K15", "Prueba de merge", ColorsNamed.Yellow, style="BoldCenter")
+        doc.addCellMergedWithStyle("E15:K15", "Merge proof", ColorsNamed.Yellow, style="BoldCenter")
         doc.setComment("B14", "This is nice comment")
         
         doc.freezeAndSelect("B2")
@@ -260,7 +260,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
         doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
         doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
     
-    r= _(f"unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.statistics.init} in {port}")
+    r= _("unogenerator_example_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.statistics.init, port)
     info(r)
     return r
     
@@ -273,21 +273,21 @@ def demo_odt_standard(language, port=2002, suffix=""):
     with ODT_Standard(port) as doc:
         doc.setMetadata(
             _("UnoGenerator documentation"),  
-            _("Unogenerator python module documentation"), 
+            _("UnoGenerator python module documentation"), 
             "Turulomio", 
-            _(f"This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"), 
+            _("This file have been generated with UnoGenerator-{0}. You can see UnoGenerator main page in https://github.com/turulomio/unogenerator").format(__version__), 
             ["unogenerator", "demo", "files"]
         )
         
         
         doc.addParagraph(_("UnoGenerator documentation"), "Title")
-        doc.addParagraph(_(f"Version: {__version__}"), "Subtitle")
+        doc.addParagraph(_("Version: {0}").format(__version__), "Subtitle")
         
         doc.addParagraph(_("Introduction"),  "Heading 1")
         
         doc.addParagraph(
             _("UnoGenerator uses Libreoffice UNO API python bindings to generate documents.") +" " +
-            _("So in order to use, you need to launch a --headless libreoffice instance.") + " "+
+            _("So in order to use, you need to launch a --headless LibreOffice instance.") + " "+
             _("We recomend to launch then easily with 'unogenerator_start' script."), 
             "Standard"
         )
@@ -401,9 +401,9 @@ def demo_odt_standard(language, port=2002, suffix=""):
         doc.addParagraph(_("Images"), "Heading 2")
         
         l=[]
-        l.append( _("Este es un ejemplo de imagen as char: "))
+        l.append( _("This is an 'image as char' example: "))
         l.append(doc.textcontentImage(files('unogenerator') / 'images/crown.png', 1, 1, "AS_CHARACTER", "PRIMERA", linked=False))
-        l.append(". Ahora sigo escribiendo sin problemas.")
+        l.append(". "+_("Now I keep writing without problems."))
         doc.addParagraphComplex(l, "Standard")
         
         l=[]
@@ -499,7 +499,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
         doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
         doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
 
-    r=_(f"unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.statistics.init} in {port}")
+    r= _("unogenerator_documentation_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.statistics.init, port)
     info(r)
     return r
 

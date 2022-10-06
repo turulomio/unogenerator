@@ -16,7 +16,7 @@ from importlib.resources import files
 from shutil import copyfile
 from tempfile import TemporaryDirectory
 from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__, string_float2object
-from unogenerator.reusing.casts import lor_transposed, f
+from unogenerator.reusing.casts import lor_transposed
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.percentage import Percentage
@@ -72,7 +72,7 @@ class ODF:
                 print(e)
                 old=self.loserver_port
                 self.loserver_port=next_port(self.loserver_port, self.first_port, self.num_instances)
-                print(_(f"Changing port {old} to {self.loserver_port} {i} times"))
+                print(_("Changing port {0} to {1} {2} times").format(old, self.loserver_port, i))
                 if i==maxtries - 1:
                     print(_("This process died"))
         
@@ -525,7 +525,7 @@ class ODS(ODF):
         start=datetime.now()
         for sheet in self.getSheetNames():
             if sheet.upper()==name.upper():
-                print(_(f"ERROR: You can't create '{name}' sheet, because it already exists.")) 
+                print(_("ERROR: You can't create '{0}' sheet, because it already exists.").format(name)) 
                 exit(4)
         
         sheets=self.document.getSheets()
@@ -629,7 +629,7 @@ class ODS(ODF):
             
             
         if rows==0 or columns==0:
-            debug(f(_("addListOfRowsWithStyle has {rows} rows and {columns } columns. Nothing to write. Ignoring...")))
+            debug(_("addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring...").format(rows, columns))
             return 
         
         if cellbycell is True:
@@ -647,9 +647,9 @@ class ODS(ODF):
                 for o in list_rows[0]:
                     styles.append(guess_object_style(o))
             if len(colors)!=columns:
-                print("Colors must have the same number of items as data columns")
+                print(_("Colors must have the same number of items as data columns"))
             if len(styles)!=columns:
-                print("Styles must have the same number of items as data columns")
+                print(_("Styles must have the same number of items as data columns"))
                 
             #Convert list_rows to valid dataarray
             r=[]
@@ -691,7 +691,7 @@ class ODS(ODF):
             list_rows=lor_transposed(list_columns)
             return self.addListOfRowsWithStyle(coord_start, list_rows, colors, styles, cellbycell)
             
-    ## Making prints in each statement we can see that most of the time is interactuating with libreoffice server (Times in a very fast machine)    ##A4999 Time after assert 0:00:00.000002
+    ## Making prints in each statement we can see that most of the time is interactuating with LibreOffice server (Times in a very fast machine)    ##A4999 Time after assert 0:00:00.000002
     ## Thats why we create adding all celss with range.setDataArray in addListOfRowsWithStyle
     ##A4999 Time after guessing style 0:00:00.000001
     ##A4999 Time after cellbyposition 0:00:00.000284

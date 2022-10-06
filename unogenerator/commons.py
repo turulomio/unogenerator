@@ -14,8 +14,8 @@ from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from time import sleep
 
-__version__ = '0.29.0'
-__versiondatetime__=datetime(2022, 9, 4, 8, 29)
+__version__ = '0.30.0'
+__versiondatetime__=datetime(2022, 10, 6, 8, 33)
 __versiondate__=__versiondatetime__.date()
 
 try:
@@ -480,7 +480,7 @@ def localc19892time(o):
 
 
     
-## Used to change port when there are multiple sockets of libreoffice accepting
+## Used to change port when there are multiple sockets of LibreOffice accepting
 def next_port(last,  first_port,  instances):
     if last==first_port+instances -1:
         return first_port
@@ -511,7 +511,7 @@ def get_from_process_info(cpu_percentage=False, attempts=10):
                 raise
             return r
         except:
-            print(_(f"I couldn't detect unogenerator process info ({attempt}/{attempts} attempts)"))
+            print(_("I couldn't detect unogenerator process info ({0}/{1} attempts)").format(attempt, attempts))
             sleep(5)
             continue
     print(_("Have you launched unogenerator instances?. Please run unogenerator_start"))

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-04 08:32+0200\n"
+"POT-Creation-Date: 2022-10-06 09:10+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -26,8 +26,8 @@ msgid "Developed by Mariano Muñoz 2020-{}"
 msgstr "Desarrollado por Mariano Muñoz 2021-{}"
 
 #, python-brace-format
-msgid "I couldn't detect unogenerator process info ({attempt}/{attempts} attempts)"
-msgstr "No pude detectar la información de los procesos de unogenerator ({attempt}/{attempts} intentos)"
+msgid "I couldn't detect unogenerator process info ({0}/{1} attempts)"
+msgstr "No he podido conseguir información del proceso de unogenerator ({0}/{1} attempts)"
 
 msgid "Have you launched unogenerator instances?. Please run unogenerator_start"
 msgstr "¿Has iniciado las instancias de unogenerator?. Por favor ejecute unogenerator_start"
@@ -38,8 +38,9 @@ msgstr "No pude detectar las instancias de unogenerator"
 msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
 msgstr "Hubo un error al eliminar espacio innecesario de la imagen. ¿Está el comando 'convert' de Imagemagick instalado?"
 
-msgid "Error deleting: {} -> {}"
-msgstr "Error al borrar: {} -> {}"
+#, python-brace-format
+msgid "Error deleting: {0} -> {1}"
+msgstr "Error al borrar: {0} -> {1}"
 
 msgid "Create example files using unogenerator module"
 msgstr "Crea ficheros de ejemplo usando el módulo de unogenerator"
@@ -51,8 +52,8 @@ msgid "All process took {}"
 msgstr "Todos los procesos tardaron {}"
 
 #, python-brace-format
-msgid "Launching concurrent demo with {num_instances} workers to a daemon with {num_instances} instances from {first_port} port"
-msgstr "Lanzando la demostración concurrente con {num_instances} procesos a un demonio con {num_instances} instancias desde el puerto {first_port}"
+msgid "Launching concurrent demo with {0} workers to a daemon with {0} instances from {1} port"
+msgstr ""
 
 msgid "UnoGenerator ODS example"
 msgstr "Ejemplo ODS con UnoGenerator"
@@ -61,8 +62,8 @@ msgid "Demo with ODS class"
 msgstr "Demostración de la clase ODS"
 
 #, python-brace-format
-msgid "This file have been generated with UnoGenerator-{__version__}. You can see UnoGenerator main page in http://github.com/turulomio/unogenerator"
-msgstr "Este fichero ha sido generado con UnoGenerator-{__version__}. La pagina principal del proyecto se encuentra en http://github.com/turulomio/unogenerator"
+msgid "This file have been generated with UnoGenerator-{0}. You can see UnoGenerator main page in https://github.com/turulomio/unogenerator"
+msgstr "Este fichero ha sido generado con UnoGenerator-{0}. Puedes ver la página principal de UnoGenerator en https://github.com/turulomio/unogenerator/"
 
 msgid "Style name"
 msgstr "Nombre de estilo"
@@ -100,18 +101,19 @@ msgstr "Booleano"
 msgid "String"
 msgstr "Cadena"
 
-msgid "unogenerator_example_{language}{suffix}.ods took {datetime.now()-doc.statistics.init} in {port}"
-msgstr "unogenerator_example_{language}{suffix}.ods tardó {datetime.now()-doc.statistics.init} en {port}"
+#, python-brace-format
+msgid "unogenerator_example_{0}{1}.ods took {2} in {3}"
+msgstr ""
 
 msgid "UnoGenerator documentation"
 msgstr "Documentación de UnoGenerator"
 
-msgid "Unogenerator python module documentation"
-msgstr "Documentación del módulo Unogenerator de python"
+msgid "UnoGenerator python module documentation"
+msgstr "Documentación del módulo de python UnoGenerator"
 
 #, python-brace-format
-msgid "Version: {__version__}"
-msgstr "Versión: {__version__}"
+msgid "Version: {0}"
+msgstr "Versión: {0}"
 
 msgid "Introduction"
 msgstr "Introducción"
@@ -119,14 +121,14 @@ msgstr "Introducción"
 msgid "UnoGenerator uses Libreoffice UNO API python bindings to generate documents."
 msgstr "UnoGenerator usa la API de python de Libreoffice para generar documentos."
 
-msgid "So in order to use, you need to launch a --headless libreoffice instance."
-msgstr "Por ello se necesita lanzar una instancia de LibreOffice --headless."
+msgid "So in order to use, you need to launch a --headless LibreOffice instance."
+msgstr ""
 
 msgid "We recomend to launch then easily with 'unogenerator_start' script."
 msgstr "Recomendamos lanzarlo facilmente con el script 'unogenerator_start'."
 
 msgid "UnoGenerator has standard templates to help you with edition, although you can use your own templates."
-msgstr ""
+msgstr "UnoGenerator tiene plantillas estándar para ayudarte con la edición, aunque puedes usar tus propias plantillas."
 
 msgid "You can edit this one or create your own."
 msgstr "Puedes editar éste o crear el tuyo."
@@ -245,8 +247,11 @@ msgstr "¡Eso es todo amigos!"
 msgid "Images"
 msgstr "Imágenes"
 
-msgid "Este es un ejemplo de imagen as char: "
-msgstr ""
+msgid "This is an 'image as char' example: "
+msgstr "Este es un ejemple de 'imagen como carácter': "
+
+msgid "Now I keep writing without problems."
+msgstr "Ahora sigo escribiendo sin problemas."
 
 msgid "This is an image loaded from bytes: "
 msgstr "Esta es una imagen cargado desde unos bytes: "
@@ -302,7 +307,8 @@ msgstr ""
 msgid "This is a set of symbols: .,:;?ºª\\_-/()."
 msgstr ""
 
-msgid "unogenerator_documentation_{language}{suffix}.odt took {datetime.now()-doc.statistics.init} in {port}"
+#, python-brace-format
+msgid "unogenerator_documentation_{0}{1}.ods took {2} in {3}"
 msgstr ""
 
 msgid "Total"
@@ -322,56 +328,76 @@ msgstr "{0} ({1} de {2})"
 msgid "More than {0} rows. Spliting {1} of {2} sheets"
 msgstr "Más de {0} filas. Dividiendo {1} de {2} hojas"
 
-msgid "Launches libreoffice server to run unogenerator code"
-msgstr "Lanza el servidor de libreoffice para ejecutar código de UnoGenerator"
-
-#, python-brace-format
-msgid "It seems that server is already launched in port {first_port}"
-msgstr "Parece que el servidor ya se ha lanzado en el puerto {first_port}"
-
-#, python-brace-format
-msgid "Preparing {instances} libreoffice server instances from port {first_port}:"
+msgid "Launches LibreOffice server to run unogenerator code"
 msgstr ""
+
+msgid "Number of concurrent LibreOffice instances"
+msgstr "Número de instancias concurrentes de LibreOffice"
+
+msgid "First port assigned to server"
+msgstr "Primer puerto asignado al servidor"
+
+msgid "Backtrace logs"
+msgstr "Logs de registro"
+
+#, python-brace-format
+msgid "It seems that server is already launched in port {0}"
+msgstr "Parece que el servidor ya está lanzado en el puerto {0}"
+
+#, python-brace-format
+msgid "Preparing {0} LibreOffice server instances from port {1}:"
+msgstr "Preparando {0} instancias de servidor de LibreOffice desde el puerto {1}:"
 
 msgid "You can see instances output in /var/log/unogenerator"
 msgstr "Puedes ver registros de las instancias en /var/log/unogenerator"
 
 #, python-brace-format
-msgid "  - Launched LibreOffice headless instance in port {port}"
+msgid "  - Launched LibreOffice headless instance in port {0}"
 msgstr ""
 
-msgid "Stops libreoffice server to finish using unogenerator code"
-msgstr "Para el servidor de LibreOffice, para terminar de usar código de UnoGenerator"
-
-msgid "  - Server was stopped killing {s.stdout.decode('UTF-8').strip()} processes"
-msgstr ""
-
-msgid "Monitor unogenerator statistics"
-msgstr "Estadísticas del monitor de unogenerator"
-
-msgid "Instances: {green(instances)}"
-msgstr "Instancias: {green(instances)}"
-
-msgid "Ports used: {green(list2string(list_ports))}"
-msgstr "Puertos usados: {green(list2string(list_ports))}"
-
-msgid "CPU used: {green(list2string(cpu_nums))}"
+msgid "Stops LibreOffice server to finish using unogenerator code"
 msgstr ""
 
 #, python-brace-format
-msgid "Memory used: {str_mem_total}"
-msgstr "Memoria usada: {str_mem_total}"
+msgid "  - Server was stopped killing {0} processes"
+msgstr "  - El servidor se ha parado matando {0} procesos"
 
-msgid "Max memory recommended: {green(naturalsize(max_mem_recommended))}"
-msgstr ""
+msgid "UnoGenerator monitor"
+msgstr "Monitor de UnoGenerator"
+
+msgid "Restart server when idle"
+msgstr "Reiniciar el servidor cuando esté inactivo"
+
+msgid "Recommended max memory (Mb) to restart server when idle. By default: 600Mb per instance"
+msgstr "Máxima memoria recomendadada (Mb) para reiniciar el servidor cuando esté inactivo. Por defecto: 600Mb por instancia"
 
 #, python-brace-format
-msgid "CPU percentage: {str_cpu_percentage}"
-msgstr "Porcentage de CPU: {str_cpu_percentage}"
+msgid "Instances: {0}"
+msgstr "Instancias: {0}"
 
 #, python-brace-format
-msgid "Connections: {str_connections}"
-msgstr "Conexiones: {str_connections}"
+msgid "Ports used: {0}"
+msgstr "Puertos usados: {0}"
+
+#, python-brace-format
+msgid "CPU used: {0}"
+msgstr "CPU usadas: {0}"
+
+#, python-brace-format
+msgid "Memory used: {0}"
+msgstr "Memoria usada: {0}"
+
+#, python-brace-format
+msgid "Max memory recommended: {0}"
+msgstr "Máxima memoria recomendada: {0}"
+
+#, python-brace-format
+msgid "CPU percentage: {0}"
+msgstr "Porcentage de uso de CPU: {0}"
+
+#, python-brace-format
+msgid "Connections: {0}"
+msgstr "Conexiones: {0}"
 
 msgid "Restarting server"
 msgstr "Reiniciando servidor"
@@ -419,7 +445,7 @@ msgid "Language to translate to. Example codes: es, fr, en, md"
 msgstr ""
 
 msgid "Files to translate. You can set several files."
-msgstr ""
+msgstr "Ficheros a traducir. Puedes añadir varios ficheros."
 
 msgid "Output directory with results and catalogues. Default: ./unogenerator_translation/"
 msgstr ""
@@ -431,7 +457,7 @@ msgid "Sets a fake translation to all strings. Default: False"
 msgstr ""
 
 msgid "Creates translated file in pdf. Default: False"
-msgstr ""
+msgstr "Crea el fichero traducido en pdf. Por defecto: Falso"
 
 msgid "Perhaps a merged string"
 msgstr "Quizas una cadena unida"
@@ -443,18 +469,19 @@ msgid "Only ODT files are supported"
 msgstr "Solo están soportados los documentos ODT"
 
 #, python-brace-format
-msgid "Generating {pot}"
-msgstr ""
+msgid "Generating {0}"
+msgstr "Generando {0}"
 
-msgid "   - {len(set_strings)} different strings detected"
+#, python-brace-format
+msgid "   - {0} different strings detected"
 msgstr ""
 
 msgid "Translating files to:"
 msgstr "Traduciendo ficheros a:"
 
 #, python-brace-format
-msgid "Changing port {old} to {self.loserver_port} {i} times"
-msgstr "Cambiando el puerto {old} a {self.loserver_port} {i} vez"
+msgid "Changing port {0} to {1} {2} times"
+msgstr ""
 
 msgid "This process died"
 msgstr "Este proceso murió"
@@ -481,10 +508,17 @@ msgid "Problems to detect size in 100thmm, I'm trying to calculate it"
 msgstr ""
 
 #, python-brace-format
-msgid "ERROR: You can't create '{name}' sheet, because it already exists."
+msgid "ERROR: You can't create '{0}' sheet, because it already exists."
 msgstr ""
 
-msgid "addListOfRowsWithStyle has {rows} rows and {columns } columns. Nothing to write. Ignoring..."
+#, python-brace-format
+msgid "addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring..."
+msgstr ""
+
+msgid "Colors must have the same number of items as data columns"
+msgstr ""
+
+msgid "Styles must have the same number of items as data columns"
 msgstr ""
 
 msgid "Filename extension must be 'ods'."

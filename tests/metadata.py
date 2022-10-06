@@ -4,7 +4,7 @@ from unogenerator import ODT_Standard, ODT
 with ODT_Standard() as doc:
     doc.setMetadata(
         title="Metadata example",
-        subject="Unogenerator testing",
+        subject="UnoGenerator testing",
         author="Turulomio",
         description="This testing works with metadata methods",
         keywords=["Metadata", "Testing"],

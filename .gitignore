@@ -8,3 +8,4 @@ dist/
 *.po~
 doc/html/
 doc/unogenerator.tag
+.jedi/
