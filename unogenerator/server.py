@@ -2,6 +2,7 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from colorama import init as colorama_init
 from gettext import translation
 from humanize import naturalsize
+from multiprocessing import cpu_count
 from os import system, makedirs
 from pkg_resources import resource_filename
 from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info, green, red, magenta
@@ -90,25 +91,26 @@ def command_stop():
 def monitor():    
     colorama_init()
     parser=ArgumentParser(
-        description=_('Monitor unogenerator statistics'), 
+        description=_('Unogenerator monitor'), 
         epilog=argparse_epilog(), 
         formatter_class=RawTextHelpFormatter
     )
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
     parser.add_argument('--restart', help="Restart server when idle", action="store_true", default=False)
-    parser.add_argument('--max_mem_multiplier', help="Restart server when idle", action="store", type=int, default=2)
+    parser.add_argument('--recommended', help="Recommended max memory (Mb) to restart server when idle. By default: 600Mb per instance", action="store", type=int, default=cpu_count()*600)
     args=parser.parse_args()
 
     addDebugSystem(args.debug)
-    command_monitor(args.restart, args.max_mem_multiplier)
+    command_monitor(args.restart, args.recommended)
     
-def command_monitor(restart, max_mem_multiplier):
-    
+## @param restart boolean. To restart unogenerator server when idle and used memory above recommended memory
+## @param recommended. Integer. Recomended memory in Mb
+def command_monitor(restart, recommended_memory):
     ld=get_from_process_info(cpu_percentage=True)
     ld=listdict_order_by(ld, "port")
     instances=len(ld)
-    max_mem_recommended=instances*440010752*max_mem_multiplier
+    max_mem_recommended=recommended_memory*1024*1024
     list_ports=listdict2list(ld, 'port', True)
     cpu_nums=listdict2list(ld, 'cpu_number', True)
     cpu_percentage=Percentage(listdict_average(ld, "cpu_percentage"), 100)
@@ -126,7 +128,6 @@ def command_monitor(restart, max_mem_multiplier):
     total_cons=0
     for d in ld:
         for con in  d["object"].connections():
-#            print(con.laddr,  con.raddr, con.status)
             if con.status=="ESTABLISHED":
                 total_cons=total_cons+1
     
@@ -134,7 +135,6 @@ def command_monitor(restart, max_mem_multiplier):
     print(_(f"Connections: {str_connections}"))
     if restart is True:
         if mem_total>max_mem_recommended:
-            
             if total_cons==0 :
                 print(magenta(_("Restarting server")))
                 first_port=min(list_ports)
@@ -143,7 +143,7 @@ def command_monitor(restart, max_mem_multiplier):
                 command_start(instances, first_port, False)
                 sleep(10)
                 print(magenta(_("Server restarted")))
-                command_monitor(False, max_mem_multiplier)
+                command_monitor(False, recommended_memory)
             else:
                 print(magenta(_("Server wasn't restarted because it's busy")))
                 
