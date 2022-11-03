@@ -122,7 +122,7 @@ msgid "UnoGenerator uses Libreoffice UNO API python bindings to generate documen
 msgstr "UnoGenerator usa la API de python de Libreoffice para generar documentos."
 
 msgid "So in order to use, you need to launch a --headless LibreOffice instance."
-msgstr ""
+msgstr "Por lo que para usarlo, necesitas lanzar una instancia --headless de LibreOffice."
 
 msgid "We recomend to launch then easily with 'unogenerator_start' script."
 msgstr "Recomendamos lanzarlo facilmente con el script 'unogenerator_start'."
@@ -266,7 +266,7 @@ msgid "You can play with image width and height:"
 msgstr "Puedes jugar con la anchura y altura de la imagen:"
 
 msgid "You can trim image border white space when needed:"
-msgstr ""
+msgstr "Puedes recortar el espacio blanco alrededor de la imagen cuando lo necesites:"
 
 msgid "You can trim that gray space when needed with 'bytes_after_trim_image' method. To use this method you need Imagemagick installed to use 'convert' command. This is the result: "
 msgstr ""
@@ -284,7 +284,7 @@ msgid "ODS 'Hello World' example"
 msgstr "Ejemplo 'Hola mundo' con ODS"
 
 msgid "This is a Hello World example. You'll get the example in ods, xlsx and pdf formats:"
-msgstr ""
+msgstr "Esto es un ejemplo Hola Mundo. Conseguiras el ejemplo en formatos ods, xlsx y pdf: "
 
 msgid "This paragraph was set at the end of the code after a find and replace command."
 msgstr "Este párrafo se puso al final del código después de un comando de busqueda y sustitución."

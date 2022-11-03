@@ -90,6 +90,9 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.31.0 (2022-11-03)
+- Added method is_server_working()
+
 ### 0.30.0 (2022-10-06)
 - [unogenerator_monitor] Added --recommended parameter to set max recmmended memory in Mb. 600Mb per cpu by default.
 - Replaced pkg_resources module by importlib.resources as recommended in python.org
