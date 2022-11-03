@@ -147,3 +147,10 @@ def command_monitor(restart, recommended_memory):
                 
         else:
             print(magenta(_("Server doesn't need to be restarted")))
+            
+## @return Boolean. True if server is working
+def is_server_working():
+    ld=get_from_process_info(attempts=2)
+    if ld==[]:
+        return False
+    return True
