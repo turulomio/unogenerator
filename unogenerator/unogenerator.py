@@ -986,11 +986,12 @@ class ODS(ODF):
             
     ## Method to remove default sheet if empty
     def removeDefaultSheet(self):
-        for sheet in self.document.getSheets():
+        sheets=self.document.getSheets()
+        for sheet in sheets:
             if sheet.getName() in ("Hoja1", "Sheet1"):
                 data=sheet.getData()
                 d=sheet.getCellByPosition(0, 0)
-                if len(data)==1 and len(data[0])==1   and d.Value==0: #Empty and A1 value 0
+                if len(data)==1 and len(data[0])==1 and d.Value==0 and len(sheets)>1: #Empty and A1 value 0 and number sheets >1
                     self.document.getSheets().removeByName(sheet.getName())
             
     def save(self, filename, overwrite_template=False):
