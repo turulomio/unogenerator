@@ -19,13 +19,12 @@ First you have to launch libreoffice as a service. Run `unogenerator_start`.
 
 ```python
 from unogenerator import ODT_Standard
-doc=ODT_Standard()
-doc.addParagraph("Hello World", "Heading 1")
-doc.addParagraph("Easy, isn't it","Standard")
-doc.save("hello_world.odt")
-doc.export_docx("hello_world.docx")
-doc.export_pdf("hello_world.pdf")
-doc.close()
+with ODT_Standard() as doc:
+  doc.addParagraph("Hello World", "Heading 1")
+  doc.addParagraph("Easy, isn't it","Standard")
+  doc.save("hello_world.odt")
+  doc.export_docx("hello_world.docx")
+  doc.export_pdf("hello_world.pdf")
 ```
 
 ## ODS 'Hello World' example
@@ -36,12 +35,11 @@ You don't have to relaunch `unogenerator_start` if you did before
 
 ```python
 from unogenerator import ODS_Standard
-doc=ODS_Standard()
-doc.addCellMergedWithStyle("A1:E1", "Hello world", style="BoldCenter")
-doc.save("hello_world.ods")
-doc.export_xlsx("hello_world.xlsx")
-doc.export_pdf("hello_world.pdf")
-doc.close()
+with ODS_Standard() as doc:
+  doc.addCellMergedWithStyle("A1:E1", "Hello world", style="BoldCenter")
+  doc.save("hello_world.ods")
+  doc.export_xlsx("hello_world.xlsx")
+  doc.export_pdf("hello_world.pdf")
 ```
 
 ## Unogenerator scripts
