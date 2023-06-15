@@ -6,6 +6,8 @@ You need LibreOffice installed in your system. Imagemagick is recommended for so
 
 In some distros you need to install Python LibreOffice bindings too (python3-uno)
 
+If you are using a python virtual environmet change `include-system-site-packages = false` in your pyvenv.conf file to allow to access libreoffice python bindings from your OS
+
 Here you can find installation methods for some Linux distributions
 
 ## Gentoo Linux
