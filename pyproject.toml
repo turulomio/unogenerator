@@ -36,6 +36,8 @@ documentation = { script = "unogenerator.poethepoet:documentation" }
 release = { script = "unogenerator.poethepoet:release" }
 reusing = { script = "unogenerator.poethepoet:reusing" }
 translate = { script = "unogenerator.poethepoet:translate" }
+docker = { script = "unogenerator.poethepoet:docker" }
+docker_build = { script = "unogenerator.poethepoet:docker_build" }
 
 [project.urls]
 homepage = "https://github.com/turulomio/unogenerator/"

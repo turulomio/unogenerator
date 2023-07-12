@@ -125,3 +125,8 @@ def release():
 
 
 
+def docker_build():
+    system("docker build --tag turulomio/unogenerator:latest .")
+
+def docker():
+    system(f"docker  run  -p 127.0.0.1:2002:2002 -it {argv[1]}")
