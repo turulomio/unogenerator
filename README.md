@@ -88,6 +88,10 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 ## Changelog
 
+### 0.32.0 (2023-07-12)
+- Fixed bug deleting default sheet
+- Migrated to poetry installation method
+
 ### 0.31.0 (2022-11-03)
 - Added method is_server_working()
 

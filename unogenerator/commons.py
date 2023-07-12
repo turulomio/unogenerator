@@ -14,8 +14,8 @@ from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from time import sleep
 
-__version__ = '0.31.0'
-__versiondatetime__=datetime(2022, 11, 3, 12, 6)
+__version__ = '0.32.0'
+__versiondatetime__=datetime(2023, 7, 12, 8, 6)
 __versiondate__=__versiondatetime__.date()
 
 try:
