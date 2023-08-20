@@ -87,6 +87,8 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 
 ## Changelog
+### 0.33.0 (2023-08-20)
+- Added ODT method to insert a HTML block
 
 ### 0.32.0 (2023-07-12)
 - Fixed bug deleting default sheet

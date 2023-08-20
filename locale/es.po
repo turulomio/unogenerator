@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-06 09:10+0200\n"
+"POT-Creation-Date: 2023-08-20 15:37+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -53,7 +53,7 @@ msgstr "Todos los procesos tardaron {}"
 
 #, python-brace-format
 msgid "Launching concurrent demo with {0} workers to a daemon with {0} instances from {1} port"
-msgstr ""
+msgstr "Lanzando demo concurrente con {0} procesos a un demonio con {0} instancias desde el puerto {1}"
 
 msgid "UnoGenerator ODS example"
 msgstr "Ejemplo ODS con UnoGenerator"
@@ -243,6 +243,9 @@ msgstr "Si quieres ir a Google, pulsa en este "
 
 msgid "That's all folks!"
 msgstr "¡Eso es todo amigos!"
+
+msgid "HTML code"
+msgstr "Código HTML"
 
 msgid "Images"
 msgstr "Imágenes"
@@ -481,7 +484,7 @@ msgstr "Traduciendo ficheros a:"
 
 #, python-brace-format
 msgid "Changing port {0} to {1} {2} times"
-msgstr ""
+msgstr "Cambiando el puerto {0} a {1} {2} veces"
 
 msgid "This process died"
 msgstr "Este proceso murió"
@@ -526,4 +529,3 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
-
