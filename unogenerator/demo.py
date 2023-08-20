@@ -398,6 +398,12 @@ def demo_odt_standard(language, port=2002, suffix=""):
         
         doc.addStringHyperlink("Other link",  "https://www.google.com",  paragraphBreak=True)
         doc.pageBreak()
+        
+        
+        doc.addParagraph(_("HTML code"), "Heading 2")
+        doc.addHTMLBlock("<ul><li>This is a html list</li></ul><p style='color:red;'>This is a html paragraph.</p>")
+        doc.pageBreak()
+
         doc.addParagraph(_("Images"), "Heading 2")
         
         l=[]
@@ -455,8 +461,6 @@ def demo_odt_standard(language, port=2002, suffix=""):
         l.append(doc.textcontentImage(bytes_, 1, None,))
         doc.addParagraphComplex(l, "Standard")
         
-
-
         doc.addParagraph(_("Search and Replace"), "Heading 2")
         doc.addParagraph(_("Below this paragraph is a paragraph with a % REPLACEME % (Without white spaces) text and it's going to be replaced after all document is been generated"), "Standard")
         doc.addParagraph("%REPLACEME%", "Standard")

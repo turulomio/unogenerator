@@ -326,6 +326,22 @@ class ODT(ODF):
         self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
         
+    def addHTMLBlock(self, htmlcode):  
+        oStream = self.ctx.ServiceManager.createInstanceWithContext("com.sun.star.io.SequenceInputStream", self.ctx)
+        oStream.initialize((ByteSequence(htmlcode.encode()),))
+
+        prop1 = PropertyValue()
+        prop1.Name  = "FilterName"
+        prop1.Value = "HTML (StarWriter)"
+        prop2 = PropertyValue()
+        prop2.Name = "InputStream" 
+        prop2.Value = oStream
+        oVC = self.document.getCurrentController().getViewCursor()#		'Create View Cursor oVC at the end of document by default?
+        self.cursor.insertDocumentFromURL("private:stream", (prop1, prop2))
+        oVC.goRight(len(htmlcode), False)
+        self.cursor.gotoRange(oVC,False)		
+
+        
     def pixelsto100thmm(self, pixels):
         ##                #OOo uses, 1440 twips per inch, which equals 56.7 twips per mm,
         ##The functions TwipsPerPixelX() and TwipsPerPixelY() (both of which return 15 on my system),
