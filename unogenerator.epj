@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project unogenerator",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-07-12, 08:04:29"
+    "saved": "2023-08-24, 14:49:34"
   },
   "project": {
     "AUTHOR": "",
@@ -52,6 +52,7 @@
     },
     "MIXEDLANGUAGE": false,
     "OTHERS": [
+      "DOCKER.md",
       "INSTALL.md",
       "README.md",
       "unogenerator.epj"
@@ -73,6 +74,7 @@
       "tests/benchmark.py",
       "tests/get_values.py",
       "tests/metadata.py",
+      "tests/percentil_color.py",
       "tests/pregunta.py",
       "tests/pruebasetcolors.py",
       "tests/range.py",
