@@ -14,6 +14,8 @@ colorama = "^0.4.6"
 polib = "^1.2.0"
 psutil = "^5.9.5"
 pytz = "^2023.3"
+pillow = "^10.0.0"
+colour = "^0.1.5"
 
 [tool.poetry.group.dev.dependencies]
 poetry = "^1.5.1"
