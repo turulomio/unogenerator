@@ -14,7 +14,6 @@ def test_metadata():
         doc.save("delete_metadata.odt")
 
     with ODT("delete_metadata.odt") as doc:
-        print(doc.getMetadata())
         assert doc.getMetadata()["Title"]== "Metadata example"
         
     remove("delete_metadata.odt")

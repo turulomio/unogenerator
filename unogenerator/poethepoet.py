@@ -5,6 +5,12 @@ from os import system
 from sys import argv
 
 
+def pytest():
+    system("pytest")
+    
+def coverage():
+    system("coverage run --omit='*/reusing/*,*uno.py' -m pytest && coverage report")
+
 
 def reusing():
     """
