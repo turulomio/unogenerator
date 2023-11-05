@@ -1,5 +1,6 @@
-## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
-## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode/python/datetime_functions.py
+## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
+## DO NOT UPDATE IT IN YOUR CODE
 
 ## If a function only can be used by dtaware or naive it will have its prefix dtaware_ or dtnaive_
 ## If a function can use both of them its prefix will be dt_
@@ -226,23 +227,26 @@ def time2string(ti, format="HH:MM" ):
 def string2date(iso, format="YYYY-MM-DD"):
     allowed=["YYYY-MM-DD", "DD/MM/YYYY", "DD.MM.YYYY", "DD/MM"]
     if format in allowed:
-        if format=="YYYY-MM-DD": #YYYY-MM-DD
-            d=iso.split("-")
-            return date(int(d[0]), int(d[1]),  int(d[2]))
-        if format=="DD/MM/YYYY": #DD/MM/YYYY
-            d=iso.split("/")
-            return date(int(d[2]), int(d[1]),  int(d[0]))
-        if format=="DD.MM.YYYY": #DD.MM.YYYY
-            d=iso.split(".")
-            return date(int(d[2]), int(d[1]),  int(d[0]))
-        if format=="DD/MM": #DD/MM
-            d=iso.split("/")
-            return date(date.today().year, int(d[1]),  int(d[0]))
+        try:
+            if format=="YYYY-MM-DD": #YYYY-MM-DD
+                d=iso.split("-")
+                return date(int(d[0]), int(d[1]),  int(d[2]))
+            if format=="DD/MM/YYYY": #DD/MM/YYYY
+                d=iso.split("/")
+                return date(int(d[2]), int(d[1]),  int(d[0]))
+            if format=="DD.MM.YYYY": #DD.MM.YYYY
+                d=iso.split(".")
+                return date(int(d[2]), int(d[1]),  int(d[0]))
+            if format=="DD/MM": #DD/MM
+                d=iso.split("/")
+                return date(date.today().year, int(d[1]),  int(d[0]))
+        except:
+            return None
     else:
         error("I can't convert this format '{}'. I only support this {}".format(format, allowed))
 
 def string2dtnaive(s, format):
-    allowed=["%Y%m%d%H%M","%Y-%m-%d %H:%M:%S","%d/%m/%Y %H:%M","%d %m %H:%M %Y","%Y-%m-%d %H:%M:%S.","%H:%M:%S"]
+    allowed=["%Y%m%d%H%M","%Y-%m-%d %H:%M:%S","%d/%m/%Y %H:%M","%d %m %H:%M %Y","%Y-%m-%d %H:%M:%S.","%H:%M:%S", '%b %d %H:%M:%S']
     if format in allowed:
         if format=="%Y%m%d%H%M":
             dat=datetime.strptime( s, format )
@@ -264,6 +268,9 @@ def string2dtnaive(s, format):
             tod=date.today()
             a=s.split(":")
             return datetime(tod.year, tod.month, tod.day, int(a[0]), int(a[1]), int(a[2]))
+        if format=='%b %d %H:%M:%S': #Apr 26 07:50:44. Year is missing so I set to current
+            s=f"{date.today().year} {s}"
+            return datetime.strptime(s, '%Y %b %d %H:%M:%S')
     else:
         error("I can't convert this format '{}'. I only support this {}".format(format, allowed))
 
@@ -327,7 +334,7 @@ def dtaware2string(dt, format):
 ## @param format String in ["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y%m%d %H%M", "%Y%m%d%H%M"]
 ## @return String
 def dtnaive2string(dt, format):
-    allowed=["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y%m%d %H%M", "%Y%m%d%H%M"]
+    allowed=["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y%m%d %H%M", "%Y%m%d%H%M", "JsUtcIso"]
     if dt==None:
         return "None"
     elif format in allowed:
@@ -339,6 +346,8 @@ def dtnaive2string(dt, format):
             return dt.strftime("%Y%m%d %H%M")
         elif format=="%Y%m%d%H%M":
             return dt.strftime("%Y%m%d%H%M")
+        elif format=="JsUtcIso":
+            return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     else:
         error("I can't convert this format '{}'. I only support this {}".format(format, allowed))
 

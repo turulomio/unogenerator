@@ -1,13 +1,12 @@
 ## @brief Module with objects managers as list or as dictionary.
-## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
-## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
-##
+## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode/python/libmanagers.py
+## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
+## DO NOT UPDATE IT IN YOUR CODE
 ## You have to use list objects if you are going to make selections and secuential access.
 
 from datetime import datetime, timedelta, date
 from logging import critical, debug
-from .datetime_functions import dtaware_day_end_from_date, dtaware_day_start_from_date, dtnaive_day_end_from_date, dtnaive_day_start_from_date
-from .call_by_name import call_by_name
+from datetime_functions import dtaware_day_end_from_date, dtaware_day_start_from_date, dtnaive_day_end_from_date, dtnaive_day_start_from_date
 
 ## Defines who self.selected is managed
 ## If can take the following values
@@ -85,17 +84,30 @@ class ObjectManager(object):
         except:
             critical("I couldn't retrive object from {} position".format(index))
 
+    def order_with_none(self, lambda_function, reverse=False, none_at_top=True):
+        """
+        Order with none values
+        lambda_function Objects will be ordered with this function
+        
+        Example: self.order_with_none(lambda o: o.id, reverse=True)
+
+        @param lambda DESCRIPTION
+        @type o
+        @param reverse DESCRIPTION (defaults to False)
+        @type TYPE (optional)
+        @param none_at_top DESCRIPTION (defaults to True)
+        @type TYPE (optional)
+        """
     ## Order data columns. None values are set at the beginning
-    def order_with_none(self, string_or_tuple, reverse=False, none_at_top=True):
         nonull=[]
         null=[]
         for o in self.arr:
-            com=call_by_name(o, string_or_tuple)
+            com=lambda_function(o)
             if com is None:
                 null.append(o)
             else:
                 nonull.append(o)
-        nonull=sorted(nonull, key=lambda c: call_by_name(c,string_or_tuple), reverse=reverse)
+        nonull=sorted(nonull, key=lambda o: lambda_function(o), reverse=reverse)
         if none_at_top==True:#Set None at top of the list
             self.arr=null+nonull
         else:
@@ -103,10 +115,10 @@ class ObjectManager(object):
 
     ## @param string_or_tuple String or tuple used with a call_by_name method
     ## @return List returned with a call_by_name string or tuplen array with all object ids
-    def list_of(self, string_or_tuple):
+    def list_of(self, lambda_function):
         r=[]
         for o in self:
-            r.append(call_by_name(o, string_or_tuple))
+            r.append(lambda_function(o))
         return r
 
     ## Returns a new manager with the objects that have found a list of strings in several commands, passed as 
@@ -114,12 +126,12 @@ class ObjectManager(object):
     ## @param string_or_tuple_list List of _string_or_tuple_to_command parameters
     ## @param s_list List of string to search
     ## @param upper boolean
-    def find_strings_contained_in_string_or_tuple_results(self, string_or_tuple_list, s_list, upper=False):
+    def find_strings_contained_in_string_or_tuple_results(self, list_of_lambda_functions, s_list, upper=False):
         r=self.emptyManager()
         for o in self.arr:
             string_=""
-            for string_or_tuple in string_or_tuple_list:
-                string_=string_+str(call_by_name(o, string_or_tuple))
+            for lambda_function in list_of_lambda_functions:
+                string_=string_+str(lambda_function(o))
                 
             for s in s_list:
                 if upper==True:
@@ -132,14 +144,14 @@ class ObjectManager(object):
                         break
         return r
         
-    def find_string_exact_in_string_or_tuple_results(self, string_or_tuple, s, upper=False):        
+    def find_string_exact_in_string_or_tuple_results(self, lambda_function, s, upper=False):        
         r=self.emptyManager()
         for o in self.arr:
             if upper==True:
-                if s.upper() == call_by_name(o, string_or_tuple).upper():
+                if s.upper() == lambda_function(o).upper():
                     r.append(o)
             else:#upper False
-                if s == call_by_name(o, string_or_tuple):
+                if s == lambda_function(o):
                     r.append(o)
         return r
 
@@ -175,8 +187,8 @@ class ObjectManager(object):
                 combo.addItem(combo.tr("No options to select"), None)
         for a in self.arr:
             print(a,id_attr,name_attr)
-            id_  =call_by_name(a, id_attr) if id_attr is not None else id(a)
-            name_=call_by_name(a, name_attr) if name_attr is not None else str(a)
+            id_  =getattr(a, id_attr) if id_attr is not None else id(a)
+            name_=getattr(a, name_attr) if name_attr is not None else str(a)
             if icons==True:
                 combo.addItem(a.qicon(), name_, id_)
             else:
@@ -426,11 +438,11 @@ class ObjectManager_With_IdName(ObjectManager_With_Id):
         self.order_with_none(("name.upper", []), reverse=reverse, none_at_top=none_at_top)
 
 
-    ## Creates a LibreOffice sheet from the ObjectManager
+    ## Creates a libreoffice sheet from the ObjectManager
     ##
     ## This function needs the unogenerator package
-    ## @param doc UnoGenerator ODS_Standard, ODS object
-    ## @param sheetname String with the name of the LibreOffice sheet
+    ## @param doc Unogenerator ODS_Standard, ODS object
+    ## @param sheetname String with the name of the libreoffice sheet
     ## @param titles List of strings with the titles of the columns
     ## @param order_by_name Boolean. True: orders by name. False: orders by id
     ## @returns Officegenerator OdfSheet
