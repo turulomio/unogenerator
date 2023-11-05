@@ -1,13 +1,10 @@
-## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT
-## DO NOT UPDATE IT IN YOUR CODE IT WILL BE REPLACED USING FUNCTION IN README
+## THIS IS FILE IS FROM https://github.com/turulomio/python/reusingcode/casts.py
+## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
+## DO NOT UPDATE IT IN YOUR CODE
 
 from decimal import Decimal
 from json import dumps
 from logging import warning
-from unogenerator.reusing.currency import Currency
-from unogenerator.reusing.percentage import Percentage
-
-
 from inspect import currentframe
 
 ## Converts a string in a f-string
@@ -36,10 +33,10 @@ def list2string(lista):
             return resultado[:-2]
 
 ## Reverse function of list2string where class is a str
-def string2list_of_strings(s):
+def string2list_of_strings(s, separator=", "):
     arr=[]
     if s!="":
-        arrs=s.split(", ")
+        arrs=s.split(separator)
         for a in arrs:
             arr.append(a[1:-1])
     return arr
@@ -264,12 +261,21 @@ def value2object(value, stringtypes):
         return Decimal(value)
     elif stringtypes==["datetime", "date", "time"]:
         return value
-    elif stringtypes in ["EUR", "€"]:
-        return Currency(value, "EUR")
-    elif stringtypes in ["USD", "$"]:
-        return Currency(value, "EUR")
-    elif stringtypes=="Percentage":
-        return Percentage(value, 1)
+    elif stringtypes in ["EUR", "USD"]:
+        try:
+            from unogenerator.reusing.currency import Currency
+            return Currency(value, "EUR")
+        except ImportError:
+            raise NotImplementedError("You need https://github.com/turulomio/reusingcode/python/currency.py to use this function.")   
+        
+    elif stringtypes=="Percentage":       
+        try:
+            from unogenerator.reusing.percentage import Percentage
+            return Percentage(value, 1)
+        except ImportError:
+            raise NotImplementedError("You need https://github.com/turulomio/reusingcode/python/currency.py to use this function.")   
+        
+
     return value
 
     
@@ -289,8 +295,6 @@ def var2json(var):
     elif var is None:
         return dumps(var)
     return var
-
-
 
 if __name__ == "__main__":
     def print_lor(lor):

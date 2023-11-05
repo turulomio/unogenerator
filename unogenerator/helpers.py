@@ -4,7 +4,7 @@
 ## @param string with the row where th3e total begins
 ## @param string with the rew where the formula ends. If None it's a coord.row -1
 from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string
-from unogenerator.reusing.listdict_functions import listdict2listofrows
+from pydicts import lod
 from gettext import translation
 from logging import debug
 from math import ceil
@@ -152,24 +152,24 @@ def helper_totals_from_range (
 ## @param keys. If None write all keys, Else must be a list of keys
 ## @param columns_header. Integer with the number of columns to apply color_header
 ## @return Range. Returns the range of the data without headers. Useful to set totals.
-def helper_list_of_ordereddicts(doc, coord_start,  lod, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
+def helper_list_of_ordereddicts(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
     coord_start=C.assertCoord(coord_start)
     
-    if len(lod)==0 and keys is None:
+    if len(lod_)==0 and keys is None:
         doc.addCellWithStyle(coord_start, _("No data to show"), ColorsNamed.Red, "BoldCenter")
         return None
 
         
     #Header
     if keys is None:
-        keys=lod[0].keys()
+        keys=lod.lod_keys(lod_)
     
     for column,  key in enumerate(keys):       
         doc.addCellWithStyle(coord_start.addColumnCopy(column), key, color_row_header, "BoldCenter")
     coord_data=coord_start.addRowCopy(1)
     
     
-    lor=listdict2listofrows(lod, keys)
+    lor=lod.lod2lol(lod_, keys)
     
     #Generate list of colors
     colors=[]

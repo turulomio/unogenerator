@@ -4,10 +4,10 @@ from gettext import translation
 from humanize import naturalsize
 from multiprocessing import cpu_count
 from os import system, makedirs
+from pydicts import lod
 from importlib.resources import files
 from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info, green, red, magenta
 from unogenerator.reusing.casts import list2string
-from unogenerator.reusing.listdict_functions import listdict_sum, listdict_average, listdict2list, listdict_order_by
 from unogenerator.reusing.percentage import Percentage
 from socket import socket, AF_INET, SOCK_STREAM
 from subprocess import run
@@ -106,13 +106,13 @@ def monitor():
 ## @param recommended. Integer. Recomended memory in Mb
 def command_monitor(restart, recommended_memory):
     ld=get_from_process_info(cpu_percentage=True)
-    ld=listdict_order_by(ld, "port")
+    ld=lod.lod_order_by(ld, "port")
     instances=len(ld)
     max_mem_recommended=recommended_memory*1024*1024
-    list_ports=listdict2list(ld, 'port', True)
-    cpu_nums=listdict2list(ld, 'cpu_number', True)
-    cpu_percentage=Percentage(listdict_average(ld, "cpu_percentage"), 100)
-    mem_total=listdict_sum(ld, "mem")
+    list_ports=lod.lod2list(ld, 'port', True)
+    cpu_nums=lod.lod2list(ld, 'cpu_number', True)
+    cpu_percentage=Percentage(lod.lod_average(ld, "cpu_percentage"), 100)
+    mem_total=lod.lod_sum(ld, "mem")
     str_mem_total=green(naturalsize(mem_total)) if mem_total<max_mem_recommended else red(naturalsize(mem_total))
     str_cpu_percentage= green(cpu_percentage) if cpu_percentage.value==0 else red(cpu_percentage)
 

@@ -934,6 +934,20 @@ files = [
 ]
 
 [[package]]
+name = "pydicts"
+version = "0.7.0"
+description = "Module to use dictionaries in various situations"
+optional = false
+python-versions = ">3.8"
+files = [
+    {file = "pydicts-0.7.0-py3-none-any.whl", hash = "sha256:a5439d34a5554fb14ad05a09edd84ac297d40eb3f4b4c9926c3140430e128b3a"},
+    {file = "pydicts-0.7.0.tar.gz", hash = "sha256:49f6ee66a2a9dfeeff8e1a5b981a125f93ef3943bbd469114b6f902b660a86df"},
+]
+
+[package.dependencies]
+tabulate = ">=0.9.0,<0.10.0"
+
+[[package]]
 name = "pyproject-hooks"
 version = "1.0.0"
 description = "Wrappers to call pyproject.toml-based build backend hooks."
@@ -1155,6 +1169,20 @@ files = [
 ]
 
 [[package]]
+name = "tabulate"
+version = "0.9.0"
+description = "Pretty-print tabular data"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "tabulate-0.9.0-py3-none-any.whl", hash = "sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f"},
+    {file = "tabulate-0.9.0.tar.gz", hash = "sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c"},
+]
+
+[package.extras]
+widechars = ["wcwidth"]
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -1346,4 +1374,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">3.8,<4.0"
-content-hash = "14ee2df6d9ea55da4fb44fdad02d3e9fe04e0653ebf57480d1c01722266ff379"
+content-hash = "c9c9cbb770d03104fd3c563a00fd04c42716dd73d134ec7ac80ffe013c694d5e"

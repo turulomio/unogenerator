@@ -6,10 +6,10 @@ from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error, debug
 from importlib.resources import files
 from psutil import process_iter
+from pydicts import lod
 from subprocess import run
 from tempfile import TemporaryDirectory
 from uno import createUnoStruct
-from unogenerator.reusing.listdict_functions import listdict_min
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
 from time import sleep
@@ -492,7 +492,6 @@ def next_port(last,  first_port,  instances):
 
 ## @param attempts (Integer). Sometimes when server is busy this method fails to detect info. So I make several attempts with a time interval
 ## @return listdict with process info
-
 def get_from_process_info(cpu_percentage=False, attempts=10):
     for attempt in range(attempts):
         try:
@@ -590,7 +589,7 @@ def get_from_process_numinstances_and_firstport():
     ld=get_from_process_info()
     if len(ld)==0:
         print(_("I couldn't detect unogenerator instances"))
-    return len(ld), listdict_min(ld,"port")
+    return len(ld), lod.lod_min_value(ld,"port")
    
 def is_formula(s):
     if s is None:
