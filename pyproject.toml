@@ -1,23 +1,23 @@
 [tool.poetry]
 name = "unogenerator"
-version = "0.33.0"
+version = "0.34.0"
 description = "Libreoffice files generator programmatically with python and Libreoffice server instances"
 authors = ["turulomio <turulomio@yahoo.es>"]
 license = "GPL-3.0 license"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">3.8,<4.0"
 tqdm = "^4.66.1"
 humanize = "^4.8.0"
 colorama = "^0.4.6"
 polib = "^1.2.0"
-psutil = "^5.9.5"
+psutil = "^5.9.6"
 pytz = "^2023.3"
 
 [tool.poetry.group.dev.dependencies]
-poetry = "^1.5.1"
-poethepoet = "^0.22.0"
+poetry = "^1.7.0"
+poethepoet = "^0.24.2"
 
 [build-system]
 requires = ["poetry-core"]

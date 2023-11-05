@@ -87,6 +87,10 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 
 ## Changelog
+### 0.34.0 (2023-11-05)
+- Optimize addRowWithStyle addColumnWithStyle and addListOfRowsWithStyle. 
+- Removed cellbycell parameter from this methods.
+
 ### 0.33.0 (2023-08-20)
 - Added ODT method to insert a HTML block
 
