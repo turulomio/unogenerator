@@ -14,6 +14,7 @@ colorama = "^0.4.6"
 polib = "^1.2.0"
 psutil = "^5.9.6"
 pytz = "^2023.3"
+pydicts = "^0.7.0"
 
 [tool.poetry.group.dev.dependencies]
 poetry = "^1.7.0"

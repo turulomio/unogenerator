@@ -34,8 +34,6 @@ def reusing():
     
     replace_in_file("unogenerator/reusing/casts.py","from currency","from unogenerator.reusing.currency")
     replace_in_file("unogenerator/reusing/casts.py","from percentage","from unogenerator.reusing.percentage")
-    replace_in_file("unogenerator/reusing/listdict_functions.py","from casts","from unogenerator.reusing.casts")
-
 
 def translate():
         system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o locale/unogenerator.pot  unogenerator/*.py unogenerator/reusing/*.py ")
