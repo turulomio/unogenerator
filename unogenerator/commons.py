@@ -125,6 +125,8 @@ def index2column(index):
 ## Class that manage spreadsheet coordinates (letter + number)
 class Coord:
     def __init__(self, strcoord):
+        if not strcoord.__class__==str:
+            error(f"strcoord should be a str and is a {strcoord.__class__}")
         self.letter, self.number=self.__extract(strcoord)
         
         
@@ -264,7 +266,7 @@ class Range:
     @classmethod
     def from_columns_rows(cls, coord_start, number_columns,  number_rows):
         c_start=Coord.assertCoord(coord_start)
-        c_end=Coord(c_start).addRow(number_rows-1).addColumn(number_columns-1)
+        c_end=c_start.addRowCopy(number_rows-1).addColumnCopy(number_columns-1)
         return cls(f"{c_start}:{c_end}")
 
     @classmethod

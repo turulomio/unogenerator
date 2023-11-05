@@ -597,7 +597,8 @@ class ODS(ODF):
 
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
-    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+    ## @param cellbycell If true creates cells with addCellWithStyle instead of range.setDataArray
+    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, cellbycell=False):
         coord_start=C.assertCoord(coord_start)
         if styles is None:
             styles=[]
@@ -609,8 +610,12 @@ class ODS(ODF):
         if colors.__class__.__name__!="list":
             colors=[colors]*len(list_o)
 
-        for i,o in enumerate(list_o):
-            self.addCellWithStyle(coord_start.addColumnCopy(i),o,colors[i],styles[i])
+        if cellbycell is True:
+            for i,o in enumerate(list_o):
+                self.addCellWithStyle(coord_start.addColumnCopy(i),o,colors[i],styles[i])
+        else:
+            for i,o in enumerate(list_o):
+                self.addCellWithStyle(coord_start.addColumnCopy(i),o,colors[i],styles[i])
 
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
@@ -651,7 +656,7 @@ class ODS(ODF):
         if cellbycell is True:
             for i, row in enumerate(list_rows):
                 self.addRowWithStyle(coord_start.addRowCopy(i), row, colors=colors,styles=styles)
-                return R.from_columns_rows(coord_start, columns, rows)
+            return R.from_columns_rows(coord_start, columns, rows)
         else:
             #Calculates the number of rows and columns of list_rows
 
