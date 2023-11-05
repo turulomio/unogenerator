@@ -619,41 +619,68 @@ class ODS(ODF):
         else:
             #Writes data fast
             range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
-            range=self.sheet.getCellRangeByPosition(*range_indexes)
-            range.setDataArray([list_o, ])
+            range_=self.sheet.getCellRangeByPosition(*range_indexes)
+            range_.setDataArray([list_o, ])
             #Fast color:
             if colors.__class__==list:
                 for i in range(len(list_o)):
                     cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
                     cell.setPropertyValue("CellBackColor", colors[i])
             else:
-                range.setPropertyValue("CellBackColor", colors)
+                range_.setPropertyValue("CellBackColor", colors)
             #Fast style:
             if styles.__class__==list:
                 for i in range(len(list_o)):
                     cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
                     cell.setPropertyValue("CellStyle", styles[i])
             else:
-                range.setPropertyValue("CellStyle", styles)
+                range_.setPropertyValue("CellStyle", styles)
             return R.from_coords_indexes(*range_indexes)
             
 
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
-    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, cellbycell=False):
         coord_start=C.assertCoord(coord_start)
-        if styles is None:
-            styles=[]
+        if cellbycell is True:
+            if styles is None:
+                styles=[]
+                for o in list_o:
+                    styles.append(guess_object_style(o))
+            elif styles.__class__.__name__!="list":
+                styles=[styles]*len(list_o)
+
+            if colors.__class__.__name__!="list":
+                colors=[colors]*len(list_o)
+
+            for i,o in enumerate(list_o):
+                self.addCellWithStyle(coord_start.addRowCopy(i),o,colors[i],styles[i])
+        else:
+            #Writes data fast
+            range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex(), coord_start.numberIndex()+len(list_o)-1]
+            range_=self.sheet.getCellRangeByPosition(*range_indexes)
+            
+            #Get list transposed
+            dataarray=[]
             for o in list_o:
-                styles.append(guess_object_style(o))
-        elif styles.__class__.__name__!="list":
-            styles=[styles]*len(list_o)
-
-        if colors.__class__.__name__!="list":
-            colors=[colors]*len(list_o)
-
-        for i,o in enumerate(list_o):
-            self.addCellWithStyle(coord_start.addRowCopy(i),o,colors[i],styles[i])
+                dataarray.append([o, ])
+            range_.setDataArray(dataarray)
+            #Fast color:
+            if colors.__class__==list:
+                for i in range(len(list_o)):
+                    cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
+                    cell.setPropertyValue("CellBackColor", colors[i])
+            else:
+                range_.setPropertyValue("CellBackColor", colors)
+            #Fast style:
+            if styles.__class__==list:
+                for i in range(len(list_o)):
+                    cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
+                    cell.setPropertyValue("CellStyle", styles[i])
+            else:
+                range_.setPropertyValue("CellStyle", styles)
+            return R.from_coords_indexes(*range_indexes)
+            
 
     ## Function used to add a big amount of cells to paste quickly
     ## @param colors. List of column colors or None to use white
