@@ -630,3 +630,19 @@ def bytes_after_trim_image(filename_or_bytessequence, type):
         else:
             print(_("There was an error triming image. Is convert command (from Imagemagick) installed?"))
 
+
+def are_all_values_of_the_list_the_same(list_):
+    """
+        Returns true if all values of the list are the same
+        Devuelve True si la lista es vacía
+    """
+    if len(list_)==0:
+        return True
+        
+    value=list_[0]
+    for i in range(1, len(list_)):
+        if not list_[i]==value:
+            return False
+    return True
+    
+    

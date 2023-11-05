@@ -595,27 +595,48 @@ class ODS(ODF):
         if color is not None:
             cell.setPropertyValue("CellBackColor", color)
 
-    ## @param colors If None uses Wh
+
+
+    ## @param colors Color: Use color for all array, List of colors one for each cell
     ## @param styles If None uses guest style. Else an array of styles
-    ## @param cellbycell If true creates cells with addCellWithStyle instead of range.setDataArray
+    ## @param cellbycell If true creates cells with addCellWithStyle instead of range.setDataArray. Should only be used by developers bechmarks
+    ## @return range
     def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, cellbycell=False):
         coord_start=C.assertCoord(coord_start)
-        if styles is None:
-            styles=[]
-            for o in list_o:
-                styles.append(guess_object_style(o))
-        elif styles.__class__.__name__!="list":
-            styles=[styles]*len(list_o)
-
-        if colors.__class__.__name__!="list":
-            colors=[colors]*len(list_o)
-
         if cellbycell is True:
+            if styles is None:
+                styles=[]
+                for o in list_o:
+                    styles.append(guess_object_style(o))
+            elif styles.__class__.__name__!="list":
+                styles=[styles]*len(list_o)
+
+            if colors.__class__.__name__!="list":
+                colors=[colors]*len(list_o)
+
             for i,o in enumerate(list_o):
                 self.addCellWithStyle(coord_start.addColumnCopy(i),o,colors[i],styles[i])
         else:
-            for i,o in enumerate(list_o):
-                self.addCellWithStyle(coord_start.addColumnCopy(i),o,colors[i],styles[i])
+            #Writes data fast
+            range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
+            range=self.sheet.getCellRangeByPosition(*range_indexes)
+            range.setDataArray([list_o, ])
+            #Fast color:
+            if colors.__class__==list:
+                for i in range(len(list_o)):
+                    cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
+                    cell.setPropertyValue("CellBackColor", colors[i])
+            else:
+                range.setPropertyValue("CellBackColor", colors)
+            #Fast style:
+            if styles.__class__==list:
+                for i in range(len(list_o)):
+                    cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
+                    cell.setPropertyValue("CellStyle", styles[i])
+            else:
+                range.setPropertyValue("CellStyle", styles)
+            return R.from_coords_indexes(*range_indexes)
+            
 
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
