@@ -9,7 +9,7 @@ def pytest():
     system("pytest")
     
 def coverage():
-    system("coverage run --omit='*/reusing/*,*uno.py' -m pytest && coverage report")
+    system("coverage run --omit='*/reusing/*,*uno.py' -m pytest && coverage report && coverage html")
 
 
 def reusing():

@@ -42,7 +42,6 @@ def main(arguments=None):
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
     args=parser.parse_args(arguments)
-
     addDebugSystem(args.debug)
         
     if args.remove==True:
@@ -507,5 +506,3 @@ def demo_odt_standard(language, port=2002, suffix=""):
     info(r)
     return r
 
-if __name__ == "__main__":
-    main()
