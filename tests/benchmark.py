@@ -22,24 +22,36 @@ for i in range(number):
     ])
 headers=["N", "String", "Date", "Datetime", "Float", "Decimal", "Percentage", "Currency", "Boolean"]
 
+row=[]
+for i in range(number):
+    row.append(i)
 
-start=datetime.now()
-doc=ODS_Standard()
-doc.createSheet("Benchmark")
-doc.setColumnsWidth([4]*20)
-doc.addRowWithStyle("A1", headers, ColorsNamed.Orange, "BoldCenter")
-doc.addListOfRowsWithStyle(Coord("A2"), lor, cellbycell=True)
-print(f"UnoGenerator creates {number} cells (cellbycell) in {datetime.now()-start}")
-doc.save("benchmark_unogenerator_guessing_styles.ods")
-doc.close()
 
-start=datetime.now()
-doc=ODS_Standard()
-doc.createSheet("Benchmark")
-doc.setColumnsWidth([4]*20)
-doc.addRowWithStyle("A1", headers, ColorsNamed.Orange, "BoldCenter")
+with ODS_Standard() as doc:
+    doc.createSheet("Row with list of colors and styles")
+    start=datetime.now()
+    doc.addRowWithStyle("A1", row , [ColorsNamed.Orange, ColorsNamed.Yellow, ColorsNamed.Blue, ColorsNamed.Green]*250, ["BoldCenter", "Integer"]*500)
+    print(f"UnoGenerator creates {number} cells (cellbycell) in {datetime.now()-start}")
+    
 
-doc.addListOfRowsWithStyle(Coord("A2"), lor)
-print(f"UnoGenerator creates {number} cells in {datetime.now()-start}")
-doc.save("benchmark_unogenerator_using_massive.ods")
-doc.close()
+    doc.createSheet("Row with one color and style")
+    start=datetime.now()
+    doc.addRowWithStyle("A1", row, ColorsNamed.Orange, "BoldCenter")
+    print(f"UnoGenerator creates {number} cells (cellbycell) in {datetime.now()-start}")
+
+    doc.createSheet("Column with one color and style")
+    start=datetime.now()
+    doc.addColumnWithStyle("A1", row, ColorsNamed.Orange, "BoldCenter")
+    print(f"UnoGenerator creates {number} cells (cellbycell) in {datetime.now()-start}")
+
+
+    doc.createSheet("List of rows")
+    start=datetime.now()
+    doc.addListOfRowsWithStyle(Coord("A2"), lor)
+    print(f"UnoGenerator creates {number} cells in {datetime.now()-start}")
+
+    doc.createSheet("List of columns")
+    start=datetime.now()
+    doc.addListOfColumnsWithStyle(Coord("A2"), lor)
+    print(f"UnoGenerator creates {number} cells in {datetime.now()-start}")
+
