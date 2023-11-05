@@ -596,46 +596,78 @@ class ODS(ODF):
         if color is not None:
             cell.setPropertyValue("CellBackColor", color)
 
-    ## @param colors If None uses Wh
+
+
+    ## @param colors Color: Use color for all array, List of colors one for each cell
     ## @param styles If None uses guest style. Else an array of styles
+    ## @return range
     def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
         coord_start=C.assertCoord(coord_start)
-        if styles is None:
-            styles=[]
-            for o in list_o:
-                styles.append(guess_object_style(o))
-        elif styles.__class__.__name__!="list":
-            styles=[styles]*len(list_o)
 
-        if colors.__class__.__name__!="list":
-            colors=[colors]*len(list_o)
-
-        for i,o in enumerate(list_o):
-            self.addCellWithStyle(coord_start.addColumnCopy(i),o,colors[i],styles[i])
+        #Convert list_rows to valid dataarray
+        r=[]
+        for o in list_o:
+            r.append(self.__object_to_dataarray_element(o))
+        
+        #Writes data fast
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
+        range_=self.sheet.getCellRangeByPosition(*range_indexes)
+        range_.setDataArray([r, ])
+        #Fast color:
+        if colors.__class__==list:
+            for i in range(len(list_o)):
+                cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
+                cell.setPropertyValue("CellBackColor", colors[i])
+        else:
+            range_.setPropertyValue("CellBackColor", colors)
+        #Fast style:
+        if styles.__class__==list:
+            for i in range(len(list_o)):
+                cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
+                cell.setPropertyValue("CellStyle", styles[i])
+        else:
+            range_.setPropertyValue("CellStyle", styles)
+        return R.from_coords_indexes(*range_indexes)
+            
 
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
     def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
         coord_start=C.assertCoord(coord_start)
-        if styles is None:
-            styles=[]
-            for o in list_o:
-                styles.append(guess_object_style(o))
-        elif styles.__class__.__name__!="list":
-            styles=[styles]*len(list_o)
+        
 
-        if colors.__class__.__name__!="list":
-            colors=[colors]*len(list_o)
-
-        for i,o in enumerate(list_o):
-            self.addCellWithStyle(coord_start.addRowCopy(i),o,colors[i],styles[i])
+        #Convert list_o to valid dataarray
+        r=[]
+        for o in list_o:
+            r.append([self.__object_to_dataarray_element(o), ])
+        
+        #Writes data fast
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex(), coord_start.numberIndex()+len(list_o)-1]
+        range_=self.sheet.getCellRangeByPosition(*range_indexes)
+        range_.setDataArray(r)
+        
+        #Fast color:
+        if colors.__class__==list:
+            for i in range(len(list_o)):
+                cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
+                cell.setPropertyValue("CellBackColor", colors[i])
+        else:
+            range_.setPropertyValue("CellBackColor", colors)
+        #Fast style:
+        if styles.__class__==list:
+            for i in range(len(list_o)):
+                cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
+                cell.setPropertyValue("CellStyle", styles[i])
+        else:
+            range_.setPropertyValue("CellStyle", styles)
+        return R.from_coords_indexes(*range_indexes)
+            
 
     ## Function used to add a big amount of cells to paste quickly
     ## @param colors. List of column colors or None to use white
     ## @param styles. List of styles (columns) or None to guess them from first row
-    ## @param cellbycell If true creates cells with addCellWithStyle instead of range.setDataArray
     ## @return range of the list_of_rows
-    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None, cellbycell=False):
+    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None):
         coord_start=C.assertCoord(coord_start) 
         
         rows=len(list_rows)
@@ -648,65 +680,47 @@ class ODS(ODF):
         if rows==0 or columns==0:
             debug(_("addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring...").format(rows, columns))
             return 
-        
-        if cellbycell is True:
-            for i, row in enumerate(list_rows):
-                self.addRowWithStyle(coord_start.addRowCopy(i), row, colors=colors,styles=styles)
-                return R.from_columns_rows(coord_start, columns, rows)
-        else:
-            #Calculates the number of rows and columns of list_rows
 
-            #Sets colors and styles
-            if colors.__class__.__name__!="list" and columns>0:
-                colors=[ColorsNamed.White]*columns
-            if styles is None and rows>0:
-                styles=[]
-                for o in list_rows[0]:
-                    styles.append(guess_object_style(o))
-            if len(colors)!=columns:
-                print(_("Colors must have the same number of items as data columns"))
-            if len(styles)!=columns:
-                print(_("Styles must have the same number of items as data columns"))
-                
-            #Convert list_rows to valid dataarray
-            r=[]
-            for row in list_rows:
-                r_row=[]
-                for o in row:
-                    r_row.append(self.__object_to_dataarray_element(o))
-                r.append(r_row)
+        #Calculates the number of rows and columns of list_rows
 
-            #Writes data fast
-            range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
-            range=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
-            range.setDataArray(r)
+        #Sets colors and styles
+        if colors.__class__.__name__!="list" and columns>0:
+            colors=[ColorsNamed.White]*columns
+        if styles is None and rows>0:
+            styles=[]
+            for o in list_rows[0]:
+                styles.append(guess_object_style(o))
+        if len(colors)!=columns:
+            print(_("Colors must have the same number of items as data columns"))
+        if len(styles)!=columns:
+            print(_("Styles must have the same number of items as data columns"))
+            
+        #Convert list_rows to valid dataarray
+        r=[]
+        for row in list_rows:
+            r_row=[]
+            for o in row:
+                r_row.append(self.__object_to_dataarray_element(o))
+            r.append(r_row)
 
-            #Create styles by columns cellranges
-            if rows>0:
-                for c, o in enumerate(list_rows[0]):
-                    columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
-                    columnrange.setPropertyValue("CellStyle", styles[c])
-                    columnrange.setPropertyValue("CellBackColor", colors[c])                    
-            return R.from_coords_indexes(*range_indexes)
+        #Writes data fast
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
+        range=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
+        range.setDataArray(r)
+
+        #Create styles by columns cellranges
+        if rows>0:
+            for c, o in enumerate(list_rows[0]):
+                columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
+                columnrange.setPropertyValue("CellStyle", styles[c])
+                columnrange.setPropertyValue("CellBackColor", colors[c])                    
+        return R.from_coords_indexes(*range_indexes)
 
     ## @param style If None tries to guess it
-    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None, cellbycell=False):
+    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None):
         coord_start=C.assertCoord(coord_start) 
-        
-        if cellbycell is True:
-            if len(list_columns)>0:
-                columns=len(list_columns)
-                rows=len(list_columns[0])
-            else:
-                columns=0
-                rows=0
-            
-            for i, column in enumerate(list_columns):
-                self.addColumnWithStyle(coord_start.addColumnCopy(i), column, colors=colors,styles=styles)
-                return R.from_columns_rows(coord_start, columns, rows)
-        else:
-            list_rows=lor_transposed(list_columns)
-            return self.addListOfRowsWithStyle(coord_start, list_rows, colors, styles, cellbycell)
+        list_rows=lor_transposed(list_columns)
+        return self.addListOfRowsWithStyle(coord_start, list_rows, colors, styles)
             
     ## Making prints in each statement we can see that most of the time is interactuating with LibreOffice server (Times in a very fast machine)    ##A4999 Time after assert 0:00:00.000002
     ## Thats why we create adding all celss with range.setDataArray in addListOfRowsWithStyle
