@@ -560,6 +560,7 @@ class ODS(ODF):
     def setActiveSheet(self,  index):
         self.sheet_index=index
         self.sheet=self.document.getSheets().getByIndex(index)
+        debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
     
     ## l measures are in cm can be float
