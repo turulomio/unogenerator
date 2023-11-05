@@ -6,6 +6,18 @@ class TestRange:
         range_=Range("A1:C3")
         assert range_.c_start=="A1" 
         
+        range_=Range.from_coords_indexes(0, 0, 3, 3)
+        assert range_.string()=="A1:D4"
+        
+        range_=Range.from_coords("A1", "D4")
+        assert range_.string()=="A1:D4"
+        
+        range_=Range.from_start_coord_change(range_, "B2")
+        assert range_.string()=="B2:E5"
+        
+        range_=Range.from_iterable_object("A1", [[1, 2], [3, 4]])
+        assert range_.string()=="A1:B2"
+
     def test_operations(self):
         range_= Range("A2:C5")
         
