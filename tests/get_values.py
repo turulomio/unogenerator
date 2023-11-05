@@ -1,7 +1,7 @@
 from datetime import datetime
 from unogenerator import ODS_Standard, ODS, Coord, Range
 
-number=1000
+number=100
 range_=Range(f"A1:{Coord.from_index(number-1, number-1)}")
 print(range_)
 
@@ -26,8 +26,16 @@ with ODS("get_values.ods") as doc:
     print("getValueByPosition()", 1,   datetime.now()-start)
     
     start=datetime.now()
-    r=doc.getValues(skip_up=0, skip_down=0, skip_left=0, skip_right=0, cast=[str]*10, detailed=True)
-    print("getValues()", number*number,   datetime.now()-start)
+    r=doc.getValues(skip_up=0, skip_down=0, skip_left=0, skip_right=0)
+    print("getValues", number*number,   datetime.now()-start)
+    
+    start=datetime.now()
+    r=doc.getValues(skip_up=0, skip_down=0, skip_left=0, skip_right=0, detailed=True)
+    print("getValues with detail", number*number,   datetime.now()-start)
+    
+    start=datetime.now()
+    r=doc.getValues(skip_up=0, skip_down=0, skip_left=0, skip_right=0, cast=[str]*number)
+    print("getValues with cast", number*number,   datetime.now()-start)
     
     start=datetime.now()
     r=doc.getValuesByRange(range_)
