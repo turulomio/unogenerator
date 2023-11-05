@@ -60,11 +60,11 @@ def release():
   * Cambiar la versión y la fecha en commons.py
   * Cambiar la versión en pyproject.toml
   * Modificar el Changelog en README
+  * poe coverage
   * poe translate
   * linguist
   * poe translate
   * poe documentation
-  * poe doxygen
   * git commit -a -m 'unogenerator-{0}'
   * git push
   * Hacer un nuevo tag en GitHub
