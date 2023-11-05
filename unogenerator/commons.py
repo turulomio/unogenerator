@@ -384,10 +384,11 @@ class Range:
     def coords_list(self, plain=False):
         r=[]
         if plain is True:
-            for letter_index, number_index in self.indexes_list():
+            for letter_index, number_index in self.indexes_list(plain):
+                print (letter_index, number_index)
                 r.append(Coord.from_index(letter_index, number_index))
         else:
-            for row  in self.indexes_list():
+            for row  in self.indexes_list(plain):
                 r2=[]
                 for  letter_index , number_index  in row:
                     r2.append(Coord.from_index(letter_index, number_index))
