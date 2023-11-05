@@ -30,28 +30,27 @@ for i in range(number):
 with ODS_Standard() as doc:
     doc.createSheet("Row with list of colors and styles")
     start=datetime.now()
-    doc.addRowWithStyle("A1", row , [ColorsNamed.Orange, ColorsNamed.Yellow, ColorsNamed.Blue, ColorsNamed.Green]*250, ["BoldCenter", "Integer"]*500)
-    print(f"UnoGenerator creates {number} cells (cellbycell) in {datetime.now()-start}")
+    doc.addRowWithStyle("A1", row , [ColorsNamed.Orange, ColorsNamed.Yellow, ColorsNamed.Blue, ColorsNamed.Green]*int(number/4), ["BoldCenter", "Integer"]*int(number/2))
+    print(f"Row with {number } different colors and styles in {datetime.now()-start}")
     
 
     doc.createSheet("Row with one color and style")
     start=datetime.now()
     doc.addRowWithStyle("A1", row, ColorsNamed.Orange, "BoldCenter")
-    print(f"UnoGenerator creates {number} cells (cellbycell) in {datetime.now()-start}")
+    print(f"Row with {number} cells with one color and style in {datetime.now()-start}")
 
     doc.createSheet("Column with one color and style")
     start=datetime.now()
     doc.addColumnWithStyle("A1", row, ColorsNamed.Orange, "BoldCenter")
-    print(f"UnoGenerator creates {number} cells (cellbycell) in {datetime.now()-start}")
+    print(f"Column with {number} cells with one color and style in {datetime.now()-start}")
 
 
     doc.createSheet("List of rows")
     start=datetime.now()
     doc.addListOfRowsWithStyle(Coord("A2"), lor)
-    print(f"UnoGenerator creates {number} cells in {datetime.now()-start}")
+    print(f"List of {number} rows in {datetime.now()-start}")
 
     doc.createSheet("List of columns")
     start=datetime.now()
     doc.addListOfColumnsWithStyle(Coord("A2"), lor)
-    print(f"UnoGenerator creates {number} cells in {datetime.now()-start}")
-
+    print(f"List of {number} columns in {datetime.now()-start}")
