@@ -18,6 +18,8 @@ pytz = "^2023.3"
 [tool.poetry.group.dev.dependencies]
 poetry = "^1.7.0"
 poethepoet = "^0.24.2"
+pytest = "^7.4.3"
+coverage = "^7.3.2"
 
 [build-system]
 requires = ["poetry-core"]
@@ -32,7 +34,9 @@ unogenerator_monitor='unogenerator.server:monitor'
 unogenerator_translation='unogenerator.translation:main'
 
 [tool.poe.tasks]
+coverage = { script = "unogenerator.poethepoet:coverage" }
 documentation = { script = "unogenerator.poethepoet:documentation" }
+pytest = { script = "unogenerator.poethepoet:pytest" }
 release = { script = "unogenerator.poethepoet:release" }
 reusing = { script = "unogenerator.poethepoet:reusing" }
 translate = { script = "unogenerator.poethepoet:translate" }
