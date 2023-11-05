@@ -15,7 +15,7 @@ from logging import warning, debug
 from importlib.resources import files
 from shutil import copyfile
 from tempfile import TemporaryDirectory
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__, string_float2object
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__, string_float2object
 from unogenerator.reusing.casts import lor_transposed
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
@@ -881,11 +881,20 @@ class ODS(ODF):
         self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
         self.statistics.appendSheetFreezesCreationStartMoment(start)
         
+        
     def getValue(self, coord,  detailed=False):
+        """
+            Gets the value from a coord
+            If detailed is True returns a dict with detailed information
+        """
         coord=C.assertCoord(coord)
         return self.getValueByPosition(coord.letterIndex(), coord.numberIndex(), detailed)
         
     def getValueByPosition(self, letter_index, number_index,  detailed=False):
+        """
+            Gets the value from a position A1= (0,0)
+            If detailed is True returns a dict with detailed information
+        """
         start=datetime.now()
         r=self.__cell_to_object(self.sheet.getCellByPosition(letter_index, number_index), detailed)
         self.statistics.appendCellGetValuesStartMoment(start)
@@ -895,78 +904,102 @@ class ODS(ODF):
     ## @param sheet_index Integer index of the sheet
     ## @param skip_up int. Number of rows to skip at the begining of the list of rows (lor)
     ## @param skip_down int. Number of rows to skip at the end of the list of rows (lor)
+    ## @param detailed Returns a dict {'value': 'A1', 'string': 'A1', 'style': 'Normal', 'class': 'str', 'is_formula': False, 'formula': None}
+    ## @param casts List of strings with style names, to cast string and float to objects. Allowed values
+    ##      "int", "str", "Decimal", "float", "Percentage", "USD", "EUR",
+    ##      The cast columns, so you need to have the same cast items as columns in range
+    ## If detailed is True cast is ignored
     ## @return Returns a list of rows of object values
-    def getValues(self, skip_up=0, skip_down=0,  detailed=False):
-        range=self.getSheetRange()
+    def getValues(self, skip_up=0, skip_down=0, skip_left=0, skip_right=0, cast=None, detailed=False):
+        range_=self.getSheetRange()
         if skip_up>0:
-           range=range.addRowBefore(-skip_up)
+           range_=range_.addRowBefore(-skip_up)
         if skip_down>0:
-           range=range.addRowAfter(-skip_down)
-        return self.getValuesByRange(range, detailed)
+           range_=range_.addRowAfter(-skip_down)
+        if skip_left>0:
+           range_=range_.addColumnBefore(-skip_left)
+        if skip_right>0:
+           range_=range_.addColumnAfter(-skip_right)
+        return self.getValuesByRange(range_, cast,  detailed)
 
 
     ## @param sheet_index Integer index of the sheet
     ## @param range_ Range object to get values. If None returns all values from sheet
-    ## @return Returns a list of rows of object values
-    def getValuesByRange(self, range_,  detailed=False):
-        range_=R.assertRange(range_)
-        r=[]
-        for row_indexes in range_.indexes_list():
-            rrow=[]
-            for column_index,  row_index in row_indexes:
-                rrow.append(self.getValueByPosition(column_index, row_index, detailed))
-            r.append(rrow)
-        return r
-
-
-    ## Gets values by block, returns strings and floats only
-    ## @param range_ Range object to get values.
-    ## @return Returns a tuple of tuples of object values
-    def getBlockValuesByRange(self, range_):
-        range_=R.assertRange(range_)
-        range_uno=self.sheet.getCellRangeByPosition(range_.c_start.letterIndex(), range_.c_start.numberIndex(), range_.c_end.letterIndex(), range_.c_end.numberIndex())
-        return range_uno.getDataArray()
-    
-
-    ## Gets values by block, returns strings and floats only
-    ## @param range_ Range object to get values. If None returns all values from sheet
-    ## @param styles List of strings with style names, to cast string and float to objects. Allowed values
+    ## @param detailed Returns a dict {'value': 'A1', 'string': 'A1', 'style': 'Normal', 'class': 'str', 'is_formula': False, 'formula': None}
+    ## @param casts List of strings with style names, to cast string and float to objects. Allowed values
     ##      "int", "str", "Decimal", "float", "Percentage", "USD", "EUR",
     ##      The cast columns, so you need to have the same cast items as columns in range
-    ## @return Returns a tuple of tuples of object values
-    def getBlockValuesByRangeWithCast(self, range_,  cast):
-        tupleoftuples=self.getBlockValuesByRange(range_)
-        #Reads data fast
-        lor=[]
-        for tuple_ in tupleoftuples:
-            lor_row=[]
-            for i, tuple_value in enumerate(tuple_):
-                lor_row.append(string_float2object(tuple_value, cast[i]))
-            lor.append(lor_row)
-        return lor
+    ## If detailed is True cast is ignored
+    ## @return Returns a list of rows of object values
+    def getValuesByRange(self, range_,  cast=None, detailed=False):
+        range_=R.assertRange(range_)
         
-    
+        if detailed is True:#position by position
+            r=[]
+            for row_indexes in range_.indexes_list():
+                rrow=[]
+                for column_index,  row_index in row_indexes:
+                    rrow.append(self.getValueByPosition(column_index, row_index, detailed))
+                r.append(rrow)
+            return r
+        else:
+            range_=R.assertRange(range_)
+            range_uno=self.sheet.getCellRangeByPosition(range_.c_start.letterIndex(), range_.c_start.numberIndex(), range_.c_end.letterIndex(), range_.c_end.numberIndex())
+            tupleoftuples=range_uno.getDataArray()
+            if cast is not None:
+                #Reads data fast
+                lor=[]
+                for tuple_ in tupleoftuples:
+                    lor_row=[]
+                    for i, tuple_value in enumerate(tuple_):
+                        lor_row.append(string_float2object(tuple_value, cast[i]))
+                    lor.append(lor_row)
+                return lor
+            else: #cast false
+                return tupleoftuples
+       
     ## @param sheet_index Integer index of the sheet
     ## @param column_letter Letter of the column to get values
     ## @param skip Integer Number of top rows to skip in the result
+    ## @param detailed Returns a dict {'value': 'A1', 'string': 'A1', 'style': 'Normal', 'class': 'str', 'is_formula': False, 'formula': None}
+    ## @param casts List of strings with style names, to cast string and float to objects. Allowed values
+    ##      "int", "str", "Decimal", "float", "Percentage", "USD", "EUR",
+    ##      The cast columns, so you need to have the same cast items as columns in range
+    ## If detailed is True cast is ignored
     ## @return List of values
-    def getValuesByColumn(self, column_letter, skip_up=0, skip_down=0,  detailed=False):
-        columns,  rows=self.getSheetSize()
+    def getValuesByColumn(self, column_letter, skip_up=0, skip_down=0,  cast=None, detailed=False):
+        range_=self.getSheetRange()
+        range_.c_start.letter=column_letter
+        range_.c_end.letter=column_letter
+        if skip_up>0:
+           range_=range_.addRowBefore(-skip_up)
+        if skip_down>0:
+           range_=range_.addRowAfter(-skip_down)
+        lor=self.getValuesByRange(range_, cast, detailed)
+        #Transform to list
         r=[]
-        for row in range(skip_up, rows-skip_down+1):
-            r.append(self.getValueByPosition(column2index(column_letter), row, detailed))
-        return r    
+        for o in lor:
+            r.append(o[0])
+        return r
 
     ## @param sheet_index Integer index of the sheet
     ## @param row_number String Number of the row to get values
     ## @param skip Integer Number of top rows to skip in the result
+    ## @param detailed Returns a dict {'value': 'A1', 'string': 'A1', 'style': 'Normal', 'class': 'str', 'is_formula': False, 'formula': None}
+    ## @param casts List of strings with style names, to cast string and float to objects. Allowed values
+    ##      "int", "str", "Decimal", "float", "Percentage", "USD", "EUR",
+    ##      The cast columns, so you need to have the same cast items as columns in range
+    ## If detailed is True cast is ignored
     ## @return List of values
-    def getValuesByRow(self, row_number, skip_left=0, skip_right=0,  detailed=False):
-        columns,  rows=self.getSheetSize()
-        r=[]
-        for column in range(skip_left, columns-skip_right+1):
-            r.append(self.getValueByPosition(column, row2index(row_number), detailed))
-        return r    
+    def getValuesByRow(self, row_number, skip_left=0, skip_right=0,  cast=None,  detailed=False):
+        range_=self.getSheetRange()
+        if skip_left>0:
+           range_=range_.addColumnBefore(-skip_left)
+        if skip_right>0:
+           range_=range_.addColumnAfter(-skip_right)
+        lor=self.getValuesByRange(range_, cast, detailed)
+        return lor[0]
+
 
 
     ## If formula  or without known style returns a tuple (value, formula)
