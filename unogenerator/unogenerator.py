@@ -603,6 +603,10 @@ class ODS(ODF):
     ## @return range
     def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
         coord_start=C.assertCoord(coord_start)
+        
+        if len(list_o)==0:
+            debug(_("addRowWithStyle is empty. Nothing to write. Ignoring..."))
+            return
 
         #Convert list_rows to valid dataarray
         r=[]
