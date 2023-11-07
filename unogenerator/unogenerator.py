@@ -632,6 +632,7 @@ class ODS(ODF):
 
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
+    ## iF YOU NEED TO CREATE FORMULAS, USE A METHOD WITHOUT SET DATA ARRAY
     def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
         coord_start=C.assertCoord(coord_start)
         
@@ -733,6 +734,7 @@ class ODS(ODF):
 
     ## @param style If None tries to guess it
     ## @param rewritewrite If color is ColorsNamed.White, rewrites the color to White instead of ignoring it. Ignore it gains 0.200 ms
+    ## THIS IS THE WAY TO CREATE FORMULAS
     def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
         start=datetime.now()
         coord=C.assertCoord(coord)
