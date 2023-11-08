@@ -1,0 +1,31 @@
+from os import remove
+from unogenerator import helpers, ODS_Standard
+
+lor=[[1, 2, 3, 4], [5, 6, 7, 8]]
+
+def test_helper_totals_column():
+    with ODS_Standard() as doc:
+        doc.addListOfRowsWithStyle("A1", lor)
+        helpers.helper_totals_column(doc, "E1", ["#SUM"]*len(lor),column_from="A")
+        helpers.helper_totals_column(doc, "F1", ["#SUM"]*len(lor),column_from="B", column_to="C",styles=["BoldCenter"]*len(lor))
+        doc.export_pdf("helper_totals_column.pdf")
+    
+    remove("helper_totals_column.pdf")
+        
+def test_helper_list_of_ordereddicts():
+    with ODS_Standard() as doc:
+        helpers.helper_list_of_ordereddicts(doc, "A1", [])
+    
+
+def test_helper_split_big_listofrows():
+    r=[]
+    for i in range (100):
+        r.append([i, i+1])
+        
+    with ODS_Standard() as doc:
+        helpers.helper_split_big_listofrows(doc, "Big LOR", r, ["N", "N+1"])#, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575): 
+        helpers.helper_split_big_listofrows(doc, "Big LOR de 10", r, ["N", "N+1"], columns_width=3, max_rows=10)#, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575): 
+        
+        doc.export_xlsx("helper_split_big_listofrows.xlsx")
+    
+    remove("helper_split_big_listofrows.xlsx")

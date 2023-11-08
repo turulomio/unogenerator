@@ -126,7 +126,8 @@ def index2column(index):
 class Coord:
     def __init__(self, strcoord):
         if not strcoord.__class__==str:
-            error(f"strcoord should be a str and is a {strcoord.__class__}")
+            Exception(f"strcoord should be a str and is a {strcoord.__class__}")
+            return
         self.letter, self.number=self.__extract(strcoord)
         
         
