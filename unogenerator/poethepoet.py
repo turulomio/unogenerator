@@ -36,10 +36,10 @@ def reusing():
     replace_in_file("unogenerator/reusing/casts.py","from percentage","from unogenerator.reusing.percentage")
 
 def translate():
-        system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o locale/unogenerator.pot  unogenerator/*.py unogenerator/reusing/*.py ")
-        system("msgmerge -N --no-wrap -U locale/es.po locale/unogenerator.pot")
-        system("msgfmt -cv -o unogenerator/locale/es/LC_MESSAGES/unogenerator.mo locale/es.po")
-        system("msgfmt -cv -o unogenerator/locale/en/LC_MESSAGES/unogenerator.mo locale/en.po")
+        system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o unogenerator/locale/unogenerator.pot  unogenerator/*.py unogenerator/reusing/*.py ")
+        system("msgmerge -N --no-wrap -U unogenerator/locale/es.po unogenerator/locale/unogenerator.pot")
+        system("msgfmt -cv -o unogenerator/locale/es/LC_MESSAGES/unogenerator.mo unogenerator/locale/es.po")
+        system("msgfmt -cv -o unogenerator/locale/en/LC_MESSAGES/unogenerator.mo unogenerator/locale/en.po")
 
     
 def documentation():

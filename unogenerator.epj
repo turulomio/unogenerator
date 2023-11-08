@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project unogenerator",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-11-07, 05:38:21"
+    "saved": "2023-11-08, 19:47:39"
   },
   "project": {
     "AUTHOR": "",
@@ -78,6 +78,7 @@
       "tests/setcolorsincells.py",
       "tests/test_commons.py",
       "tests/test_demo.py",
+      "tests/test_helpers.py",
       "tests/test_server.py",
       "tests/test_statistics.py",
       "tests/test_unogenerator.py",
