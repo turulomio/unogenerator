@@ -37,6 +37,21 @@ def helper_totals_row(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, s
 
 
 def helper_totals_column(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, column_from="B", column_to=None):
+    """
+        Genera una columna de totales desde la coordenada pasado como parámetro
+        @param doc Documento ODS
+        @param coord Coordenada de inicio
+        @param list_of_totals List of values #SUM #AVG #MEDIAN
+        @type list
+        @param color DESCRIPTION (defaults to ColorsNamed.GrayLight)
+        @type TYPE (optional)
+        @param styles DESCRIPTION (defaults to None)
+        @type TYPE (optional)
+        @param column_from DESCRIPTION (defaults to "B")
+        @type TYPE (optional)
+        @param column_to DESCRIPTION (defaults to None)
+        @type TYPE (optional)
+    """
     coord=C.assertCoord(coord)
     for number, total in enumerate(list_of_totals):
         coord_total=coord.addRowCopy(number)
