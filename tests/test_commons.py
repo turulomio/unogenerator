@@ -1,6 +1,9 @@
-from unogenerator import Range, Coord
-from unogenerator.commons import get_from_process_numinstances_and_firstport
+from unogenerator import Range, Coord,  commons
 
+class TestCoord:
+    def test_constructors(self):
+        Coord(1)
+        
 class TestRange:
     def test_constructors(self):
         range_=Range("A1:C3")
@@ -75,7 +78,26 @@ class TestRange:
         
 
 
+def test_are_all_values_of_the_list_the_same():
+    assert commons.are_all_values_of_the_list_the_same([])==True
+    assert commons.are_all_values_of_the_list_the_same([1, 1, 1, 1])==True
+    assert commons.are_all_values_of_the_list_the_same([1, 2])==False
+
+def test_number2row():
+    assert commons.number2row(5)=="5"
+
 
 def test_get_from_process_numinstances_and_firstport():
-    r=get_from_process_numinstances_and_firstport()
+    r=commons.get_from_process_numinstances_and_firstport()
     assert len(r)==2
+
+def test_colorama():
+    commons.red("s")
+    commons.green("s")
+    commons.magenta("s")
+    
+def test_is_formula():
+    assert commons.is_formula(None) is False
+    assert commons.is_formula("s") is False
+    assert commons.is_formula("=SUM")
+    assert commons.is_formula("+SUM")
