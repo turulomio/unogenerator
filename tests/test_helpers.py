@@ -1,6 +1,6 @@
 from os import remove
-from unogenerator import helpers, ODS_Standard
-
+from unogenerator import helpers, ODS_Standard, ColorsNamed
+headers=["A", "B", "C", "D"]
 lor=[[1, 2, 3, 4], [5, 6, 7, 8]]
 
 def test_helper_totals_column():
@@ -11,6 +11,30 @@ def test_helper_totals_column():
         doc.export_pdf("helper_totals_column.pdf")
     
     remove("helper_totals_column.pdf")
+    
+def test_helper_totals_row():
+    with ODS_Standard() as doc:
+        doc.addListOfRowsWithStyle("A1", lor)
+        helpers.helper_totals_row(doc, "A3", ["#SUM"]*len(lor[0]),row_from="1")
+        doc.export_pdf("test_helper_totals_row.pdf")    
+    remove("test_helper_totals_row.pdf")
+    
+def test_helper_totals_from_range():
+    with ODS_Standard() as doc:
+        doc.createSheet("Both")
+        doc.addRowWithStyle("A1", headers, ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A2", lor)
+        helpers.helper_totals_from_range(doc, range_,)
+        doc.createSheet("Columns")
+        doc.addRowWithStyle("A1", headers, ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A2", lor)
+        helpers.helper_totals_from_range(doc, range_, totalcolumns=True, totalrows=False)
+        doc.createSheet("Rows")
+        doc.addRowWithStyle("B1", headers, ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("B2", lor)
+        helpers.helper_totals_from_range(doc, range_, totalcolumns=False, totalrows=True)
+        doc.export_pdf("test_helper_totals_from_range.pdf")
+    remove("test_helper_totals_from_range.pdf")
         
 def test_helper_list_of_ordereddicts():
     with ODS_Standard() as doc:
