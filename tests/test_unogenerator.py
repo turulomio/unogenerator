@@ -73,10 +73,19 @@ def test_ods_addCellMerged():
 def test_ods_addListOfRows():
     filename="test_ods_addListOfRows.pdf"
     with ODS("unogenerator/templates/colored.ods") as doc:
+        #Rows
         doc.addListOfRows("B1", lor)
+        doc.addListOfRows("A1", [])
+        #Rows with style
         doc.addListOfRowsWithStyle("B7", lor)
+        doc.addListOfRowsWithStyle("A1", [])
+        #Columns
         doc.addListOfColumns("H1", lor)
+        doc.addListOfColumns("A1", [])
+        #Columns with style
         doc.addListOfColumnsWithStyle("H7", lor)
+        doc.addListOfColumnsWithStyle("A1", [])
+        
         doc.export_pdf(filename)
     remove(filename)
 

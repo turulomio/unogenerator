@@ -748,6 +748,9 @@ class ODS(ODF):
         coord_start=C.assertCoord(coord_start) 
         
         range_=self.addListOfRows(coord_start, list_rows)
+        if range_ is None:
+            return
+        
         columns=range_.numColumns()
         rows=range_.numRows()
 

@@ -160,6 +160,8 @@ def lor_remove_rows(rows, listindex):
 
 ## Return a lor transposed. Changed rows by columns
 def lor_transposed(lor):
+    if len(lor)==0:
+        return []
     r=[]
     columns=len(lor[0])
     for column in range(columns):
