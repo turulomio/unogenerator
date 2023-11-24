@@ -1,5 +1,5 @@
 from os import remove
-from unogenerator import ODT_Standard, ODT, ODS_Standard, ODS, ColorsNamed
+from unogenerator import ODT_Standard, ODT, ODS_Standard, ODS, ColorsNamed, Range
 
 row=[1, 2, 3, 4, 5]
 
@@ -60,8 +60,15 @@ def test_ods_addListOfRows():
 
 def test_ods_addRow():
     with ODS("unogenerator/templates/colored.ods") as doc:
-        doc.addRow("B1", row)
-        doc.addRowWithStyle("B7", row)
+        #Checking range - range_uno conversions
+        range_=Range("B2:C3")
+        range_uno=range_.uno_range(doc)
+        range_2=Range.from_uno_range(range_uno)
+        assert range_==range_2
+#        
+#        
+#        doc.addRow("B1", row)
+#        doc.addRowWithStyle("B7", row)
 #        doc.addColumn("H1", lor)
 #        doc.addColumnWithStyle("H7", lor)
         doc.export_pdf("test_ods_addRow.pdf")

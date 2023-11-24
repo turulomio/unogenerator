@@ -239,12 +239,22 @@ class Range:
     def __init__(self,strrange):
         self.c_start, self.c_end=self.__extract(strrange)
 
+    def __eq__(self, b):
+        b=Range.assertRange(b)
+        if self.c_start==b.c_start and self.c_end==b.c_end:
+            return True
+        return False
+        
     def __repr__(self):
         return f"Range <{self}>"
         
     def __str__(self):
         return self.string()
         
+    @classmethod
+    def from_uno_range(cls, uno_range):
+        return cls.from_coords_indexes(uno_range.RangeAddress.StartColumn, uno_range.RangeAddress.StartRow, uno_range.RangeAddress.EndColumn, uno_range.RangeAddress.EndRow)
+    
     @classmethod
     def from_coords_indexes(cls, start_letter_index, start_number_index, end_letter_index, end_number_index):
         c_start=Coord.from_index(start_letter_index, start_number_index)
