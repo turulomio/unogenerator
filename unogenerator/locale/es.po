@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-08 21:33+0100\n"
+"POT-Creation-Date: 2023-11-24 08:20+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: turulomio@yahoo.es\n"
 "Language-Team: turulomio@yahoo.es\n"
@@ -299,7 +299,7 @@ msgid "This paragraph was set after a page break."
 msgstr "Este párrafo se añadió despues de un salto de página."
 
 msgid "This paragraph was set after a page break with Landscape style."
-msgstr ""
+msgstr "Este párrafo se redactó después de un salto de página con estilo Landscape."
 
 msgid "This is a pair of brackets ()."
 msgstr ""
@@ -514,7 +514,7 @@ msgstr ""
 msgid "ERROR: You can't create '{0}' sheet, because it already exists."
 msgstr "ERROR: No puedes crear la hoja '{0}', porque ya existe."
 
-msgid "addRowWithStyle is empty. Nothing to write. Ignoring..."
+msgid "addRow is empty. Nothing to write. Ignoring..."
 msgstr ""
 
 #, python-brace-format

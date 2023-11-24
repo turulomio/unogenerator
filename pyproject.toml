@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "unogenerator"
-version = "0.35.0"
+version = "0.36.0"
 description = "Libreoffice files generator programmatically with python and Libreoffice server instances"
 authors = ["turulomio <turulomio@yahoo.es>"]
 license = "GPL-3.0 license"
