@@ -614,10 +614,10 @@ class ODS(ODF):
             r.append(self.__object_to_dataarray_element(o))
         
         #Writes data fast
-#        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
-#        range_=self.sheet.getCellRangeByPosition(*range_indexes)
-        range_.uno_range().setDataArray([r, ])
-        return R.from_coords_indexes(*range_indexes)
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
+        range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
+        range_uno.setDataArray([r, ])
+        return R.from_uno_range(range_uno)
         
 
 
@@ -633,14 +633,14 @@ class ODS(ODF):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
                 cell.setPropertyValue("CellBackColor", colors[i])
         else:
-            range_.setPropertyValue("CellBackColor", colors)
+            range_.uno_range(self).setPropertyValue("CellBackColor", colors)
         #Fast style:
         if styles.__class__==list:
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
                 cell.setPropertyValue("CellStyle", styles[i])
         else:
-            range_.setPropertyValue("CellStyle", styles)
+            range_.uno_range(self).setPropertyValue("CellStyle", styles)
         return range_
             
 

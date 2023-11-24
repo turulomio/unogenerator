@@ -65,10 +65,9 @@ def test_ods_addRow():
         range_uno=range_.uno_range(doc)
         range_2=Range.from_uno_range(range_uno)
         assert range_==range_2
-#        
-#        
-#        doc.addRow("B1", row)
-#        doc.addRowWithStyle("B7", row)
+  
+        doc.addRow("B1", row)
+        doc.addRowWithStyle("B7", row)
 #        doc.addColumn("H1", lor)
 #        doc.addColumnWithStyle("H7", lor)
         doc.export_pdf("test_ods_addRow.pdf")
