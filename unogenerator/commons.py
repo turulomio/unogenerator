@@ -294,8 +294,11 @@ class Range:
                 b.numberIndex()<=self.c_end.numberIndex())==True:
             return True
         return False
-
-
+        
+    def uno_range(self, doc):
+        """Returns the uno range of the current sheet"""
+        range_indexes=[self.c_start.letterIndex(), self.c_start.numberIndex(), self.c_end.letterIndex(), self.c_end.numberIndex()]
+        return doc.sheet.getCellRangeByPosition(*range_indexes)
 
     ## Converts a string to a Range. Returns None if conversion can't be done
     def __extract(self,range):

@@ -601,11 +601,11 @@ class ODS(ODF):
     ## @param colors Color: Use color for all array, List of colors one for each cell
     ## @param styles If None uses guest style. Else an array of styles
     ## @return range
-    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+    def addRow(self, coord_start, list_o):
         coord_start=C.assertCoord(coord_start)
         
         if len(list_o)==0:
-            debug(_("addRowWithStyle is empty. Nothing to write. Ignoring..."))
+            debug(_("addRow is empty. Nothing to write. Ignoring..."))
             return
 
         #Convert list_rows to valid dataarray
@@ -614,9 +614,19 @@ class ODS(ODF):
             r.append(self.__object_to_dataarray_element(o))
         
         #Writes data fast
-        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
-        range_=self.sheet.getCellRangeByPosition(*range_indexes)
-        range_.setDataArray([r, ])
+#        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
+#        range_=self.sheet.getCellRangeByPosition(*range_indexes)
+        range_.uno_range().setDataArray([r, ])
+        return R.from_coords_indexes(*range_indexes)
+        
+
+
+    ## @param colors Color: Use color for all array, List of colors one for each cell
+    ## @param styles If None uses guest style. Else an array of styles
+    ## @return range
+    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+        coord_start=C.assertCoord(coord_start)        
+        range_=self.addRow(coord_start, list_o)
         #Fast color:
         if colors.__class__==list:
             for i in range(len(list_o)):
@@ -631,13 +641,13 @@ class ODS(ODF):
                 cell.setPropertyValue("CellStyle", styles[i])
         else:
             range_.setPropertyValue("CellStyle", styles)
-        return R.from_coords_indexes(*range_indexes)
+        return range_
             
 
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
     ## iF YOU NEED TO CREATE FORMULAS, USE A METHOD WITHOUT SET DATA ARRAY
-    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+    def addColumn(self, coord_start, list_o):
         coord_start=C.assertCoord(coord_start)
         
 
@@ -651,6 +661,15 @@ class ODS(ODF):
         range_=self.sheet.getCellRangeByPosition(*range_indexes)
         range_.setDataArray(r)
         
+        return R.from_coords_indexes(*range_indexes)
+            
+    ## @param colors If None uses Wh
+    ## @param styles If None uses guest style. Else an array of styles
+    ## iF YOU NEED TO CREATE FORMULAS, USE A METHOD WITHOUT SET DATA ARRAY
+    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+        coord_start=C.assertCoord(coord_start)
+        range_=self.addColumn(coord_start, list_o)
+        
         #Fast color:
         if colors.__class__==list:
             for i in range(len(list_o)):
@@ -665,7 +684,7 @@ class ODS(ODF):
                 cell.setPropertyValue("CellStyle", styles[i])
         else:
             range_.setPropertyValue("CellStyle", styles)
-        return R.from_coords_indexes(*range_indexes)
+        return range_
             
 
     def addListOfRows(self, coord_start, list_rows):
