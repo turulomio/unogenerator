@@ -659,6 +659,10 @@ class ODS(ODF):
     def addColumn(self, coord_start, list_o):
         coord_start=C.assertCoord(coord_start)
         
+        if len(list_o)==0:
+            return None
+            
+        
 
         #Convert list_o to valid dataarray
         r=[]
@@ -748,6 +752,9 @@ class ODS(ODF):
         coord_start=C.assertCoord(coord_start) 
         
         range_=self.addListOfRows(coord_start, list_rows)
+        if range_ is None:
+            return
+        
         columns=range_.numColumns()
         rows=range_.numRows()
 

@@ -73,10 +73,19 @@ def test_ods_addCellMerged():
 def test_ods_addListOfRows():
     filename="test_ods_addListOfRows.pdf"
     with ODS("unogenerator/templates/colored.ods") as doc:
+        #Rows
         doc.addListOfRows("B1", lor)
+        doc.addListOfRows("A1", [])
+        #Rows with style
         doc.addListOfRowsWithStyle("B7", lor)
+        doc.addListOfRowsWithStyle("A1", [])
+        #Columns
         doc.addListOfColumns("H1", lor)
+        doc.addListOfColumns("A1", [])
+        #Columns with style
         doc.addListOfColumnsWithStyle("H7", lor)
+        doc.addListOfColumnsWithStyle("A1", [])
+        
         doc.export_pdf(filename)
     remove(filename)
 
@@ -87,11 +96,18 @@ def test_ods_addRow():
         range_uno=range_.uno_range(doc.sheet)
         range_2=Range.from_uno_range(range_uno)
         assert range_==range_2
-  
+        #row
+        doc.addRow("A1", [])
         doc.addRow("B1", row)
+        #row with style
+        doc.addRowWithStyle("A1", [])
         doc.addRowWithStyle("B7", row)
         doc.addRowWithStyle("B8", row, ColorsNamed.Yellow, "Integer")
+        #Column
+        doc.addColumn("A1", [])
         doc.addColumn("H1", row)
+        #Column with style
+        doc.addColumnWithStyle("A1", [])
         doc.addColumnWithStyle("H7", row)
         doc.addColumnWithStyle("I7", row, ColorsNamed.Yellow, "Integer")
         doc.export_pdf("test_ods_addRow.pdf")
