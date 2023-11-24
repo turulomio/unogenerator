@@ -96,11 +96,18 @@ def test_ods_addRow():
         range_uno=range_.uno_range(doc.sheet)
         range_2=Range.from_uno_range(range_uno)
         assert range_==range_2
-  
+        #row
+        doc.addRow("A1", [])
         doc.addRow("B1", row)
+        #row with style
+        doc.addRowWithStyle("A1", [])
         doc.addRowWithStyle("B7", row)
         doc.addRowWithStyle("B8", row, ColorsNamed.Yellow, "Integer")
+        #Column
+        doc.addColumn("A1", [])
         doc.addColumn("H1", row)
+        #Column with style
+        doc.addColumnWithStyle("A1", [])
         doc.addColumnWithStyle("H7", row)
         doc.addColumnWithStyle("I7", row, ColorsNamed.Yellow, "Integer")
         doc.export_pdf("test_ods_addRow.pdf")
