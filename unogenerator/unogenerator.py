@@ -862,18 +862,22 @@ class ODS(ODF):
         # sort ...
         unorange.sort(sortDescr)
 
-    def addCellMergedWithStyle(self, range, o, color=ColorsNamed.White, style=None):
+    def addCellMerged(self, range, o):
         start=datetime.now()
         range=R.assertRange(range)
         cell=self.sheet.getCellByPosition(range.c_start.letterIndex(), range.c_start.numberIndex())
         cellrange=self.sheet.getCellRangeByName(range.string())
         cellrange.merge(True)
         self.__object_to_cell(cell, o)
+        self.statistics.appendCellMergedCreationStartMoment(start)
+        return cell
+
+    def addCellMergedWithStyle(self, range, o, color=ColorsNamed.White, style=None):
+        cell=self.addCellMerged(range, o)
         if style is None:
             style=guess_object_style(o)
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
-        self.statistics.appendCellMergedCreationStartMoment(start)
 
     def freezeAndSelect(self, freeze, selected=None, topleft=None):
         start=datetime.now()
