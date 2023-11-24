@@ -87,6 +87,11 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 
 ## Changelog
+### 0.36.0 (2023-11-24)
+- Improved test coverage to 81%
+- pydicts module is now used for list of dictionaries methods
+- Added new methods to add values without styles. They are used to edit styled templates files. New methods: addCell, addCellMerged, addRow, addColumn, addListOfRows, addListOfColumns
+
 ### 0.35.0 (2023-11-05)
 - Improved get_values speed
 
