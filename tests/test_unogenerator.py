@@ -1,6 +1,14 @@
 from os import remove
 from unogenerator import ODT_Standard, ODT, ODS_Standard, ODS, ColorsNamed
 
+row=[1, 2, 3, 4, 5]
+
+lor=[]
+for i in range(4):
+    lor.append(row)
+
+
+
 class TestODT():
     def test_metadata(self):
         with ODT_Standard() as doc:
@@ -41,3 +49,9 @@ class TestODS():
             assert r["value"]=="2"
             
         remove("calculate_all.ods")
+
+    def test_addListOfRows(self):
+        with ODS("unogenerator/templates/colored.ods") as doc:
+            doc.addListOfRows("B1", lor)
+            doc.addListOfRowsWithStyle("B7", lor)
+            doc.export_pdf("test_addListOfRows.pdf")

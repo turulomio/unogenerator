@@ -668,11 +668,13 @@ class ODS(ODF):
         return R.from_coords_indexes(*range_indexes)
             
 
-    ## Function used to add a big amount of cells to paste quickly
-    ## @param colors. List of column colors or None to use white
-    ## @param styles. List of styles (columns) or None to guess them from first row
-    ## @return range of the list_of_rows
-    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None):
+    def addListOfRows(self, coord_start, list_rows):
+        """
+            Function used to add a big amount of cells to paste quickly
+            This method is used when we want to add data without styles, or because we are using a styled template
+            
+            @return range of the list_of_rows
+        """
         coord_start=C.assertCoord(coord_start) 
         
         rows=len(list_rows)
@@ -685,8 +687,33 @@ class ODS(ODF):
         if rows==0 or columns==0:
             debug(_("addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring...").format(rows, columns))
             return 
+            
+        #Convert list_rows to valid dataarray
+        r=[]
+        for row in list_rows:
+            r_row=[]
+            for o in row:
+                r_row.append(self.__object_to_dataarray_element(o))
+            r.append(r_row)
 
-        #Calculates the number of rows and columns of list_rows
+        #Writes data fast
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
+        range=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
+        range.setDataArray(r)    
+        return R.from_coords_indexes(*range_indexes)
+        
+
+    ## Function used to add a big amount of cells to paste quickly
+    ## @param colors. List of column colors or None to use white
+    ## @param styles. List of styles (columns) or None to guess them from first row
+    ## @return range of the list_of_rows
+    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None):
+        coord_start=C.assertCoord(coord_start) 
+        
+        range_=self.addListOfRows(coord_start, list_rows)
+        columns=range_.numColumns()
+        rows=range_.numRows()
+
 
         #Sets colors and styles
         if colors.__class__.__name__!="list" and columns>0:
@@ -700,26 +727,13 @@ class ODS(ODF):
         if len(styles)!=columns:
             print(_("Styles must have the same number of items as data columns"))
             
-        #Convert list_rows to valid dataarray
-        r=[]
-        for row in list_rows:
-            r_row=[]
-            for o in row:
-                r_row.append(self.__object_to_dataarray_element(o))
-            r.append(r_row)
-
-        #Writes data fast
-        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
-        range=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
-        range.setDataArray(r)
-
         #Create styles by columns cellranges
         if rows>0:
             for c, o in enumerate(list_rows[0]):
                 columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
                 columnrange.setPropertyValue("CellStyle", styles[c])
                 columnrange.setPropertyValue("CellBackColor", colors[c])                    
-        return R.from_coords_indexes(*range_indexes)
+        return range_
 
     ## @param style If None tries to guess it
     def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None):
