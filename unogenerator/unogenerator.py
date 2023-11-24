@@ -606,7 +606,7 @@ class ODS(ODF):
         
         if len(list_o)==0:
             debug(_("addRow is empty. Nothing to write. Ignoring..."))
-            return
+            return None
 
         #Convert list_rows to valid dataarray
         r=[]
@@ -627,20 +627,29 @@ class ODS(ODF):
     def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
         coord_start=C.assertCoord(coord_start)        
         range_=self.addRow(coord_start, list_o)
+        if range_ is None:
+            return None
+        range_uno=range_.uno_range(self.sheet)
         #Fast color:
+        if styles is None:
+            styles=[]
+            for o in list_o:
+                styles.append(guess_object_style(o))
+            
+        
         if colors.__class__==list:
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
                 cell.setPropertyValue("CellBackColor", colors[i])
         else:
-            range_.uno_range(self).setPropertyValue("CellBackColor", colors)
+            range_uno.setPropertyValue("CellBackColor", colors)
         #Fast style:
         if styles.__class__==list:
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
                 cell.setPropertyValue("CellStyle", styles[i])
         else:
-            range_.uno_range(self).setPropertyValue("CellStyle", styles)
+            range_uno.setPropertyValue("CellStyle", styles)
         return range_
             
 
@@ -670,20 +679,29 @@ class ODS(ODF):
         coord_start=C.assertCoord(coord_start)
         range_=self.addColumn(coord_start, list_o)
         
+        if range_ is None:
+            return None
+            
+        range_uno=range_.uno_range(self.sheet)
+        # Guess styles if none
+        if styles is None:
+            styles=[]
+            for o in list_o:
+                styles.append(guess_object_style(o))
         #Fast color:
         if colors.__class__==list:
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
                 cell.setPropertyValue("CellBackColor", colors[i])
         else:
-            range_.setPropertyValue("CellBackColor", colors)
+            range_uno.setPropertyValue("CellBackColor", colors)
         #Fast style:
         if styles.__class__==list:
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
                 cell.setPropertyValue("CellStyle", styles[i])
         else:
-            range_.setPropertyValue("CellStyle", styles)
+            range_uno.setPropertyValue("CellStyle", styles)
         return range_
             
 
