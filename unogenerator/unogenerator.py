@@ -735,6 +735,12 @@ class ODS(ODF):
                 columnrange.setPropertyValue("CellBackColor", colors[c])                    
         return range_
 
+    def addListOfColumns(self, coord_start, list_columns):
+        coord_start=C.assertCoord(coord_start) 
+        list_rows=lor_transposed(list_columns)
+        return self.addListOfRows(coord_start, list_rows)
+
+
     ## @param style If None tries to guess it
     def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None):
         coord_start=C.assertCoord(coord_start) 

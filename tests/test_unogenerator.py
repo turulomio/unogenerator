@@ -54,4 +54,8 @@ class TestODS():
         with ODS("unogenerator/templates/colored.ods") as doc:
             doc.addListOfRows("B1", lor)
             doc.addListOfRowsWithStyle("B7", lor)
+            doc.addListOfColumns("H1", lor)
+            doc.addListOfColumnsWithStyle("H7", lor)
             doc.export_pdf("test_addListOfRows.pdf")
+            
+        remove("test_addListOfRows.pdf")
