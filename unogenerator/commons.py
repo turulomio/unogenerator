@@ -239,12 +239,22 @@ class Range:
     def __init__(self,strrange):
         self.c_start, self.c_end=self.__extract(strrange)
 
+    def __eq__(self, b):
+        b=Range.assertRange(b)
+        if self.c_start==b.c_start and self.c_end==b.c_end:
+            return True
+        return False
+        
     def __repr__(self):
         return f"Range <{self}>"
         
     def __str__(self):
         return self.string()
         
+    @classmethod
+    def from_uno_range(cls, uno_range):
+        return cls.from_coords_indexes(uno_range.RangeAddress.StartColumn, uno_range.RangeAddress.StartRow, uno_range.RangeAddress.EndColumn, uno_range.RangeAddress.EndRow)
+    
     @classmethod
     def from_coords_indexes(cls, start_letter_index, start_number_index, end_letter_index, end_number_index):
         c_start=Coord.from_index(start_letter_index, start_number_index)
@@ -294,8 +304,14 @@ class Range:
                 b.numberIndex()<=self.c_end.numberIndex())==True:
             return True
         return False
-
-
+        
+    def uno_range(self, sheet):
+        """
+            Returns the uno range of the current sheet
+            @param sheet is current sheet. ODS.sheet parameter
+        """
+        range_indexes=[self.c_start.letterIndex(), self.c_start.numberIndex(), self.c_end.letterIndex(), self.c_end.numberIndex()]
+        return sheet.getCellRangeByPosition(*range_indexes)
 
     ## Converts a string to a Range. Returns None if conversion can't be done
     def __extract(self,range):
