@@ -1,3 +1,4 @@
+from datetime import date
 from os import remove
 from unogenerator import ODT_Standard, ODT, ODS_Standard, ODS, ColorsNamed, Range
 
@@ -49,15 +50,35 @@ def test_ods_calculate_all():
         
     remove(filename)
 
+def test_ods_addCell():
+    filename="test_ods_addCell.pdf"
+    with ODS("unogenerator/templates/colored.ods") as doc:
+        doc.addCell("B1", 12.44)
+        doc.addCell("G1", date.today())
+        doc.addCellWithStyle("B7", 12.44, ColorsNamed.Yellow, "Float6")
+        doc.addCellWithStyle("G7", date.today(), ColorsNamed.Yellow, "Date")
+        doc.export_pdf(filename)
+    remove(filename)
+    
+def test_ods_addCellMerged():
+    filename="test_ods_addCellMerged.pdf"
+    with ODS("unogenerator/templates/colored.ods") as doc:
+        doc.addCellMerged("B1:C1", 12.44)
+        doc.addCellMerged("G1:H1", date.today())
+        doc.addCellMergedWithStyle("B7:B8", 12.44, ColorsNamed.Yellow, "Float6")
+        doc.addCellMergedWithStyle("G7:G8", date.today(), ColorsNamed.Yellow, "Date")
+        doc.export_pdf(filename)
+    remove(filename)
+
 def test_ods_addListOfRows():
+    filename="test_ods_addListOfRows.pdf"
     with ODS("unogenerator/templates/colored.ods") as doc:
         doc.addListOfRows("B1", lor)
         doc.addListOfRowsWithStyle("B7", lor)
         doc.addListOfColumns("H1", lor)
         doc.addListOfColumnsWithStyle("H7", lor)
-        doc.export_pdf("test_ods_addListOfRows.pdf")
-        
-    remove("test_ods_addListOfRows.pdf")
+        doc.export_pdf(filename)
+    remove(filename)
 
 def test_ods_addRow():
     with ODS("unogenerator/templates/colored.ods") as doc:
@@ -75,4 +96,4 @@ def test_ods_addRow():
         doc.addColumnWithStyle("I7", row, ColorsNamed.Yellow, "Integer")
         doc.export_pdf("test_ods_addRow.pdf")
         
-#    remove("test_ods_addRow.pdf")
+    remove("test_ods_addRow.pdf")

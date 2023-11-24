@@ -586,15 +586,15 @@ class ODS(ODF):
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__object_to_cell(cell, o)
         
-        if outlined is not None:
-            border_prop = createUnoStruct("com.sun.star.table.BorderLine2")
-            border_prop.LineWidth = outlined
-            cell.setPropertyValue("TopBorder", border_prop)
-            cell.setPropertyValue("LeftBorder", border_prop)
-            cell.setPropertyValue("RightBorder", border_prop)
-            cell.setPropertyValue("BottomBorder", border_prop)
-        if color is not None:
-            cell.setPropertyValue("CellBackColor", color)
+#        if outlined is not None:
+#            border_prop = createUnoStruct("com.sun.star.table.BorderLine2")
+#            border_prop.LineWidth = outlined
+#            cell.setPropertyValue("TopBorder", border_prop)
+#            cell.setPropertyValue("LeftBorder", border_prop)
+#            cell.setPropertyValue("RightBorder", border_prop)
+#            cell.setPropertyValue("BottomBorder", border_prop)
+#        if color is not None:
+#            cell.setPropertyValue("CellBackColor", color)
 
 
 
