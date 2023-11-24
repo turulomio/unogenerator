@@ -110,6 +110,8 @@ def test_ods_addRow():
         doc.addColumnWithStyle("A1", [])
         doc.addColumnWithStyle("H7", row)
         doc.addColumnWithStyle("I7", row, ColorsNamed.Yellow, "Integer")
+        # Replace colored cell
+        doc.addRowWithStyle("F4", ["Elvis", "Presley"], ColorsNamed.Orange, "BoldCenter")
         doc.export_pdf("test_ods_addRow.pdf")
         
-    remove("test_ods_addRow.pdf")
+    #remove("test_ods_addRow.pdf")
