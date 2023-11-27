@@ -130,6 +130,14 @@ class Coord:
             return
         self.letter, self.number=self.__extract(strcoord)
         
+    @staticmethod
+    def assertCoord(o):
+        print(o.__class__)
+        if o.__class__==Coord:
+            return o
+        elif o.__class__==str:
+            return Coord(o)
+        raise Exception(_("{} (class: {}) is not a Coord").format(o, o.__class__))
         
     ## Creates a Coord object from spreadsheet index coords
     @classmethod
@@ -222,13 +230,6 @@ class Coord:
     def numberPosition(self):
         return row2number(self.number)
 
-    @staticmethod
-    def assertCoord(o):
-        if o.__class__==Coord:
-            return o
-        elif o.__class__==str:
-            return Coord(o)
-        raise Exception(_("{} (class: {}) is not a Coord").format(o, o.__class__))
 
 ## Class that manages spreadsheet Ranges for ods and xlsx
 class Range:
