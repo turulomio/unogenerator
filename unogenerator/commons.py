@@ -3,7 +3,7 @@ from colorama import Fore, Style
 from datetime import datetime, date, timedelta
 from decimal import Decimal
 from gettext import translation
-from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error, debug
+from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, debug
 from importlib.resources import files
 from psutil import process_iter
 from pydicts import lod
@@ -130,6 +130,14 @@ class Coord:
             return
         self.letter, self.number=self.__extract(strcoord)
         
+    @staticmethod
+    def assertCoord(o):
+        print(o.__class__)
+        if o.__class__==Coord:
+            return o
+        elif o.__class__==str:
+            return Coord(o)
+        raise Exception(_("{} (class: {}) is not a Coord").format(o, o.__class__))
         
     ## Creates a Coord object from spreadsheet index coords
     @classmethod
@@ -221,17 +229,6 @@ class Coord:
     ## Returns the number/row position
     def numberPosition(self):
         return row2number(self.number)
-
-    @staticmethod
-    def assertCoord(o):
-        if o.__class__==Coord:
-            return o
-        elif o.__class__==str:
-            return Coord(o)
-        else:
-            error("{} is not a coord".format(o))
-            
-
 
 
 ## Class that manages spreadsheet Ranges for ods and xlsx

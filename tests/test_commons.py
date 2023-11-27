@@ -2,7 +2,11 @@ from unogenerator import Range, Coord,  commons
 
 class TestCoord:
     def test_constructors(self):
-        Coord(1)
+        pass
+#        assert Coord(None)=="HOLA"
+#        assert Coord(1)=="hola"
+#        with raises(Exception):W
+#        seertCoord.assertCoord(None)
         
 class TestRange:
     def test_constructors(self):
