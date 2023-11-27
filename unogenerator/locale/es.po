@@ -312,7 +312,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "unogenerator_documentation_{0}{1}.ods took {2} in {3}"
-msgstr ""
+msgstr "unogenerator_documentation_{0}{1}.ods tardó {2} en {3}"
 
 msgid "Total"
 msgstr "Total"
@@ -356,7 +356,7 @@ msgstr "Puedes ver registros de las instancias en /var/log/unogenerator"
 
 #, python-brace-format
 msgid "  - Launched LibreOffice headless instance in port {0}"
-msgstr ""
+msgstr "  - Lanzada instancia de servidor de LibreOffice en el puerto {0}"
 
 msgid "Stops LibreOffice server to finish using unogenerator code"
 msgstr ""
