@@ -87,6 +87,11 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 
 ## Changelog
+### 0.37.0 (2023-11-27)
+- Fixed bug with addListOfRows with empty lor. Removed innecesary reusing files
+- Fixed bug with addRow with empty row
+- Unogenerator now uses pydicts-0.8.0. Old casts and datetime_functions removed
+
 ### 0.36.0 (2023-11-24)
 - Improved test coverage to 81%
 - pydicts module is now used for list of dictionaries methods
