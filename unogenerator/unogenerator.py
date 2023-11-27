@@ -19,7 +19,6 @@ from tempfile import TemporaryDirectory
 from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__, string_float2object
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
-from unogenerator.statistics import StatisticsODS, StatisticsODT
 from sys import exit
 
 def createUnoService(serviceName):
@@ -36,6 +35,7 @@ except:
 
 class ODF:
     def __init__(self, template=None, loserver_port=2002):
+        self.start=datetime.now()
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
         self.loserver_port=loserver_port
         self.num_instances, self.first_port=get_from_process_numinstances_and_firstport()
@@ -52,14 +52,12 @@ class ODF:
                     PropertyValue('AsTemplate',0,True,0),
                 )
                 if self.__class__  in (ODS, ODS_Standard):
-                    self.statistics=StatisticsODS(self)
                     if self.template is None:
                         self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',8,())
                     else:
                         self.document=self.desktop.loadComponentFromURL(self.template,'_blank', 8, args)
                     self.sheet=self.setActiveSheet(0)
                 else: #ODT
-                    self.statistics=StatisticsODT(self)
                     if self.template is None:
                         self.document=self.desktop.loadComponentFromURL('private:factory/swriter','_blank', 8, ())
                     else:
@@ -537,7 +535,6 @@ class ODS(ODF):
     ## Creates a new sheet at the end of the sheets
     ## @param if index is None it creates sheet at the end of the existing sheets
     def createSheet(self, name, index=None):
-        start=datetime.now()
         for sheet in self.getSheetNames():
             if sheet.upper()==name.upper():
                 print(_("ERROR: You can't create '{0}' sheet, because it already exists.").format(name)) 
@@ -548,7 +545,6 @@ class ODS(ODF):
             index=len(sheets)
         sheets.insertNewByName(name, index)
         self.setActiveSheet(index)
-        self.statistics.appendSheetCreationsCreationStartMoment(start)
         
     def removeSheet(self, index):
         current=self.sheet.Name
@@ -790,20 +786,10 @@ class ODS(ODF):
         list_rows=lol.lol_transposed(list_columns)
         return self.addListOfRowsWithStyle(coord_start, list_rows, colors, styles)
             
-    ## Making prints in each statement we can see that most of the time is interactuating with LibreOffice server (Times in a very fast machine)    ##A4999 Time after assert 0:00:00.000002
-    ## Thats why we create adding all celss with range.setDataArray in addListOfRowsWithStyle
-    ##A4999 Time after guessing style 0:00:00.000001
-    ##A4999 Time after cellbyposition 0:00:00.000284
-    ##A4999 Time after object to cell 0:00:00.000099
-    ##A4999 Time after properties 0:00:00.000247
-    ##A4999 Time after statistics 0:00:00.000002
-    ##A4999 Total cell 0:00:00.000688
-
     ## @param style If None tries to guess it
     ## @param rewritewrite If color is ColorsNamed.White, rewrites the color to White instead of ignoring it. Ignore it gains 0.200 ms
     ## THIS IS THE WAY TO CREATE FORMULAS
     def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
-        start=datetime.now()
         coord=C.assertCoord(coord)
         
         if style is None:
@@ -813,7 +799,6 @@ class ODS(ODF):
         self.__object_to_cell(cell, o)
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
-        self.statistics.appendCellCreationStartMoment(start)
         
     ## All of this names are document names
     def setCellName(self, coord, name):
@@ -906,13 +891,11 @@ class ODS(ODF):
         unorange.sort(sortDescr)
 
     def addCellMerged(self, range, o):
-        start=datetime.now()
         range=R.assertRange(range)
         cell=self.sheet.getCellByPosition(range.c_start.letterIndex(), range.c_start.numberIndex())
         cellrange=self.sheet.getCellRangeByName(range.string())
         cellrange.merge(True)
         self.__object_to_cell(cell, o)
-        self.statistics.appendCellMergedCreationStartMoment(start)
         return cell
 
     def addCellMergedWithStyle(self, range, o, color=ColorsNamed.White, style=None):
@@ -923,7 +906,6 @@ class ODS(ODF):
         cell.setPropertyValue("CellBackColor", color)
 
     def freezeAndSelect(self, freeze, selected=None, topleft=None):
-        start=datetime.now()
         freeze=C.assertCoord(freeze) 
         num_columns, num_rows=self.getSheetSize()
         self.document.getCurrentController().setActiveSheet(self.sheet)
@@ -952,7 +934,6 @@ class ODS(ODF):
             topleft=C.assertCoord(topleft)
         self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
         self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
-        self.statistics.appendSheetFreezesCreationStartMoment(start)
         
         
     def getValue(self, coord,  detailed=False):
@@ -968,9 +949,7 @@ class ODS(ODF):
             Gets the value from a position A1= (0,0)
             If detailed is True returns a dict with detailed information
         """
-        start=datetime.now()
         r=self.__cell_to_object(self.sheet.getCellByPosition(letter_index, number_index), detailed)
-        self.statistics.appendCellGetValuesStartMoment(start)
         return r
 
     ## Returns a list of rows with the values of the sheet
