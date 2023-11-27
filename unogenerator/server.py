@@ -7,7 +7,6 @@ from os import system, makedirs
 from pydicts import lod
 from importlib.resources import files
 from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info, green, red, magenta
-from unogenerator.reusing.casts import list2string
 from unogenerator.reusing.percentage import Percentage
 from socket import socket, AF_INET, SOCK_STREAM
 from subprocess import run
@@ -117,8 +116,8 @@ def command_monitor(restart, recommended_memory):
     str_cpu_percentage= green(cpu_percentage) if cpu_percentage.value==0 else red(cpu_percentage)
 
     print(_("Instances: {0}").format(green(instances)))
-    print(_("Ports used: {0}").format(green(list2string(list_ports))))
-    print(_("CPU used: {0}").format(green(list2string(cpu_nums))))
+    print(_("Ports used: {0}").format(green(str(list_ports)[1:-1])))
+    print(_("CPU used: {0}").format(green(str(cpu_nums)[ 1:-1])))
     print(_("Memory used: {0}").format(str_mem_total))
     print(_("Max memory recommended: {0}".format(green(naturalsize(max_mem_recommended)))))    
     print(_("CPU percentage: {0}".format(str_cpu_percentage)))

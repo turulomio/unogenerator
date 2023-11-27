@@ -1,5 +1,4 @@
 from unogenerator.reusing.github import download_from_github
-from unogenerator.reusing.file_functions import replace_in_file
 from unogenerator import __version__
 from os import system
 from sys import argv
@@ -24,14 +23,10 @@ def reusing():
         print("Update code in local without downloading was selected with --local")
     if local==False:
         download_from_github('turulomio','reusingcode','python/github.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/casts.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/datetime_functions.py', 'unogenerator/reusing/')
         download_from_github('turulomio','reusingcode','python/file_functions.py', 'unogenerator/reusing/')
         download_from_github('turulomio','reusingcode','python/percentage.py', 'unogenerator/reusing/')
         download_from_github('turulomio','reusingcode','python/currency.py', 'unogenerator/reusing/')
     
-    replace_in_file("unogenerator/reusing/casts.py","from currency","from unogenerator.reusing.currency")
-    replace_in_file("unogenerator/reusing/casts.py","from percentage","from unogenerator.reusing.percentage")
 
 def translate():
         system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o unogenerator/locale/unogenerator.pot  unogenerator/*.py unogenerator/reusing/*.py ")

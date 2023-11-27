@@ -13,12 +13,11 @@ from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
 from gettext import translation
 from logging import warning, debug
 from importlib.resources import files
+from pydicts import lol, casts
 from shutil import copyfile
 from tempfile import TemporaryDirectory
 from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__, string_float2object
-from unogenerator.reusing.casts import lor_transposed
 from unogenerator.reusing.currency import Currency
-from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
 from unogenerator.reusing.percentage import Percentage
 from unogenerator.statistics import StatisticsODS, StatisticsODT
 from sys import exit
@@ -781,14 +780,14 @@ class ODS(ODF):
 
     def addListOfColumns(self, coord_start, list_columns):
         coord_start=C.assertCoord(coord_start) 
-        list_rows=lor_transposed(list_columns)
+        list_rows=lol.lol_transposed(list_columns)
         return self.addListOfRows(coord_start, list_rows)
 
 
     ## @param style If None tries to guess it
     def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None):
         coord_start=C.assertCoord(coord_start) 
-        list_rows=lor_transposed(list_columns)
+        list_rows=lol.lol_transposed(list_columns)
         return self.addListOfRowsWithStyle(coord_start, list_rows, colors, styles)
             
     ## Making prints in each statement we can see that most of the time is interactuating with LibreOffice server (Times in a very fast machine)    ##A4999 Time after assert 0:00:00.000002
@@ -1085,11 +1084,11 @@ class ODS(ODF):
         if cell.CellStyle=="Bool":
             value=bool(cell.getValue())
         elif cell.CellStyle in ["Datetime"]:
-            value=string2dtnaive(cell.getString(),"%Y-%m-%d %H:%M:%S.")
+            value=casts.str2dtnaive(cell.getString(),"%Y-%m-%d %H:%M:%S.")
         elif cell.CellStyle in ["Date"]:
-            value=string2date(cell.getString())
+            value=casts.str2date(cell.getString())
         elif cell.CellStyle in ["Time"]:
-            value=string2time(cell.getString(), "HH:MM:SS")
+            value=casts.str2time(cell.getString(), "HH:MM:SS")
         elif cell.CellStyle in ["Float2", "Float6"]:
             value=cell.getValue()
         elif cell.CellStyle in ["Integer"]:
