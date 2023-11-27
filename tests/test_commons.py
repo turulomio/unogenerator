@@ -3,6 +3,7 @@ from unogenerator import Range, Coord,  commons
 class TestCoord:
     def test_constructors(self):
         Coord(1)
+        Coord.assertCoord(None)
         
 class TestRange:
     def test_constructors(self):

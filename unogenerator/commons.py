@@ -3,7 +3,7 @@ from colorama import Fore, Style
 from datetime import datetime, date, timedelta
 from decimal import Decimal
 from gettext import translation
-from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error, debug
+from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, debug
 from importlib.resources import files
 from psutil import process_iter
 from pydicts import lod
@@ -228,11 +228,7 @@ class Coord:
             return o
         elif o.__class__==str:
             return Coord(o)
-        else:
-            error("{} is not a coord".format(o))
-            
-
-
+        raise Exception(_("{} (class: {}) is not a Coord").format(o, o.__class__))
 
 ## Class that manages spreadsheet Ranges for ods and xlsx
 class Range:

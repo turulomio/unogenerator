@@ -113,3 +113,39 @@ def test_ods_addRow():
         doc.export_pdf("test_ods_addRow.pdf")
         
     remove("test_ods_addRow.pdf")
+    
+def test_ods_freezeandselect():
+    filename="test_ods_freezeandselect.ods"
+    with ODS_Standard() as doc:
+        doc.createSheet("Outside range after")
+        doc.addCell("A1", "Hola")
+        doc.freezeAndSelect("C3")
+
+        doc.createSheet("Outside range before")
+        doc.freezeAndSelect("C3")
+        doc.addCell("A1", "Hola")
+
+        doc.createSheet("Header")
+        doc.freezeAndSelect("A2")
+        doc.addCell("A1", "Hola")
+
+        doc.createSheet("Lateral header")
+        doc.freezeAndSelect("B1")
+        doc.addCell("A1", "Hola")
+        
+        doc.createSheet("With selected")
+        doc.freezeAndSelect("B1", "G6")
+        doc.addCell("A1", "Hola")
+        
+        doc.createSheet("With selected and topleft")
+        doc.freezeAndSelect("B2", "G6",  "F5")
+        doc.addCell("A1", "Hola")
+        
+        doc.createSheet("With selected None")
+        doc.freezeAndSelect("B2", "G6",  "F5")
+        doc.addCell("A1", "Hola")
+        
+        doc.save(filename)
+    remove(filename)
+    
+    
