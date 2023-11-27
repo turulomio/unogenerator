@@ -253,13 +253,12 @@ def demo_ods_standard(language, port=2002, suffix="",):
         
         ## Sheet with all styles names
         helper_ods_sheet_stylenames(doc)
-        doc.statistics.ods_sheet_statistics()
 
         doc.save(f"unogenerator_example_{language}{suffix}.ods")
         doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
         doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
     
-    r= _("unogenerator_example_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.statistics.init, port)
+    r= _("unogenerator_example_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, port)
     info(r)
     return r
     
@@ -502,7 +501,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
         doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
         doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
 
-    r= _("unogenerator_documentation_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.statistics.init, port)
+    r= _("unogenerator_documentation_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, port)
     info(r)
     return r
 
