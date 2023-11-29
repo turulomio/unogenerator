@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project unogenerator",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-11-08, 19:47:39"
+    "saved": "2023-11-29, 19:39:01"
   },
   "project": {
     "AUTHOR": "",
@@ -80,25 +80,20 @@
       "tests/test_demo.py",
       "tests/test_helpers.py",
       "tests/test_server.py",
-      "tests/test_statistics.py",
       "tests/test_unogenerator.py",
       "tests/with.py",
       "unogenerator/__init__.py",
       "unogenerator/commons.py",
       "unogenerator/demo.py",
+      "unogenerator/exceptions.py",
       "unogenerator/helpers.py",
       "unogenerator/poethepoet.py",
       "unogenerator/reusing/__init__.py",
-      "unogenerator/reusing/casts.py",
       "unogenerator/reusing/currency.py",
-      "unogenerator/reusing/datetime_functions.py",
-      "unogenerator/reusing/decorators.py",
       "unogenerator/reusing/file_functions.py",
       "unogenerator/reusing/github.py",
-      "unogenerator/reusing/libmanagers.py",
       "unogenerator/reusing/percentage.py",
       "unogenerator/server.py",
-      "unogenerator/statistics.py",
       "unogenerator/translation.py",
       "unogenerator/unogenerator.py"
     ],
