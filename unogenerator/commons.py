@@ -148,7 +148,7 @@ class Coord:
             return o
         elif o.__class__==str:
             return Coord(o)
-        raise exceptions.CoordException(_("I can't covert {} (class: {}) to a Coord").format(o, o.__class__))
+        raise exceptions.CoordException(_("I can't convert {} (class: {}) to a Coord").format(o, o.__class__))
         
     ## Creates a Coord object from spreadsheet index coords
     @classmethod
@@ -336,12 +336,23 @@ class Range:
         return sheet.getCellRangeByPosition(*range_indexes)
 
     ## Converts a string to a Range. Returns None if conversion can't be done
-    def __extract(self,range):
-        if range.find(":")==-1:
-            print("I can't manage this range")
-            return
-        a=range.split(":")
-        return (Coord(a[0]), Coord(a[1]))
+    def __extract(self,strrange):
+        if not strrange.__class__==str:
+            raise exceptions.RangeException(_("Range constructor must receive a string but got: {0} ({1})").format(strrange, strrange.__class__))
+        
+        a=strrange.split(":")
+        if not len(a)==2:
+            raise exceptions.RangeException(_("This is not a range: {0}").format(strrange))
+            
+        try:
+            c_start=Coord(a[0])
+        except exceptions.CoordException:
+            raise exceptions.RangeException(_("Range start coord is wrong: {0}").format(a[0]))
+        try:
+            c_end=Coord(a[1])
+        except exceptions.CoordException:
+            raise exceptions.RangeException(_("Range end coord is wrong: {0}").format(a[1]))
+        return (c_start, c_end)
 
     ## String of a range in spreadsheets
     def string(self):
@@ -362,6 +373,7 @@ class Range:
             return o
         elif o.__class__==str:
             return Range(o)
+        raise exceptions.RangeException(_("I can't convert {} (class: {}) to a Range").format(o, o.__class__))
 
 
     ## Adds a row to the c_end Coord, so it adds a row to the range
