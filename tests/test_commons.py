@@ -1,12 +1,41 @@
-from unogenerator import Range, Coord,  commons
+from unogenerator import Range, Coord,  commons, exceptions
+from pytest import raises
 
-class TestCoord:
-    def test_constructors(self):
-        pass
-#        assert Coord(None)=="HOLA"
-#        assert Coord(1)=="hola"
-#        with raises(Exception):W
-#        seertCoord.assertCoord(None)
+def test_coord():
+    with raises(exceptions.CoordException):
+        Coord(None)
+    with raises(exceptions.CoordException):
+        Coord(1)
+    with raises(exceptions.CoordException):
+        Coord("A1A")
+    with raises(exceptions.CoordException):
+        Coord("1")
+    with raises(exceptions.CoordException):
+        Coord("1A1")
+    with raises(exceptions.CoordException):
+        Coord("")
+    with raises(exceptions.CoordException):
+        Coord("A1:A2")
+    Coord("A1")
+    Coord("AAAAA99999")
+
+def test_coord_assertcoord():
+    with raises(exceptions.CoordException):
+        Coord.assertCoord(None)
+    with raises(exceptions.CoordException):
+        Coord.assertCoord(1)
+    with raises(exceptions.CoordException):
+        Coord.assertCoord("A1A")
+    with raises(exceptions.CoordException):
+        Coord.assertCoord("1")
+    with raises(exceptions.CoordException):
+        Coord.assertCoord("1A1")
+    with raises(exceptions.CoordException):
+        Coord.assertCoord("")
+    with raises(exceptions.CoordException):
+        Coord.assertCoord("A1:A2")
+    Coord.assertCoord("A1")
+    Coord.assertCoord("AAAAA99999")
         
 class TestRange:
     def test_constructors(self):

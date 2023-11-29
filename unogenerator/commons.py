@@ -12,6 +12,7 @@ from tempfile import TemporaryDirectory
 from uno import createUnoStruct
 from unogenerator.reusing.currency import Currency
 from unogenerator.reusing.percentage import Percentage
+from unogenerator import exceptions
 from time import sleep
 
 __version__ = '0.37.0'
@@ -122,22 +123,32 @@ def index2row(index):
 def index2column(index):
     return number2column(index+1)
 
-## Class that manage spreadsheet coordinates (letter + number)
 class Coord:
-    def __init__(self, strcoord):
-        if not strcoord.__class__==str:
-            Exception(f"strcoord should be a str and is a {strcoord.__class__}")
-            return
-        self.letter, self.number=self.__extract(strcoord)
+    """
+        Class that manage spreadsheet coordinates (letter + number)
+    """
+    def __init__(self, value):
+        """
+            Coord constructor
+            
+            Value can be:
+            - String
+        """
+        self.letter=None
+        self.number=None
+        if value.__class__==str:
+            self.letter, self.number=self.__extract(value)
+        else:
+            raise exceptions.CoordException(_("Coord constructor must have a str or a Coord parameter and is a {0}").format(value.__class__))
+            
         
     @staticmethod
     def assertCoord(o):
-        print(o.__class__)
         if o.__class__==Coord:
             return o
         elif o.__class__==str:
             return Coord(o)
-        raise Exception(_("{} (class: {}) is not a Coord").format(o, o.__class__))
+        raise exceptions.CoordException(_("I can't covert {} (class: {}) to a Coord").format(o, o.__class__))
         
     ## Creates a Coord object from spreadsheet index coords
     @classmethod
@@ -151,7 +162,10 @@ class Coord:
         return cls(column+letter)
 
     def __repr__(self):
-        return f"Coord <{self}>"
+        if self.number and self.letter:
+            return f"Coord <{self.string()}>"
+        else:
+            return "Coord <Wrong>"
         
     def __str__(self):
         return self.string()
@@ -163,16 +177,27 @@ class Coord:
         return False
         
     def __extract(self, strcoord):
-        if strcoord.find(":")!=-1:
-            print("I can't manage range coord")
-            return
+        allowed="ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
         letter=""
         number=""
-        for l in strcoord:
+        for i, l in enumerate(strcoord):
+            if not l in allowed:
+                raise exceptions.CoordException(_("Coord can have this character: {0}").format(l))
+            
             if l.isdigit()==False:
                 letter=letter+l
             else:
-                number=number+l
+                number=strcoord[i:]
+                break
+                
+        if len(letter)==0:
+            raise exceptions.CoordException(_("Coord letter can't be empty"))
+                
+        try:
+            number=str(int(number))
+        except ValueError:
+            raise exceptions.CoordException(_("Coord couldn't be created with '{0}'").format(strcoord))
+        
         return (letter,number)
 
     ## Returns Coord string
