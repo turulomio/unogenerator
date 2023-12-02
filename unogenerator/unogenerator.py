@@ -974,7 +974,7 @@ class ODS(ODF):
            range_=range_.addColumnAfter(-skip_right)
         return self.getValuesByRange(range_, cast,  detailed)
 
-
+    ## Get values by range. If detailed is False, it uses getDataArray method: Dates and datetimes are float. You can convert them using commons.localc1989 methods
     ## @param sheet_index Integer index of the sheet
     ## @param range_ Range object to get values. If None returns all values from sheet
     ## @param detailed Returns a dict {'value': 'A1', 'string': 'A1', 'style': 'Normal', 'class': 'str', 'is_formula': False, 'formula': None}

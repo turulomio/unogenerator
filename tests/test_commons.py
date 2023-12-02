@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from unogenerator import Range, Coord,  commons, exceptions
 from pytest import raises
 
@@ -154,3 +155,16 @@ def test_is_formula():
     assert commons.is_formula("s") is False
     assert commons.is_formula("=SUM")
     assert commons.is_formula("+SUM")
+
+
+def test_localc1989():
+    filename="test_localc1989.pdf"
+    date_=date(2023,12,2)
+    datetime_=datetime(2023,12,2,12,0,0)
+    date_localc1989=45262.0
+    datetime_localc1989=45262.5
+
+    assert commons.datetime2localc1989(datetime_)==datetime_localc1989
+    assert commons.localc19892datetime(datetime_localc1989)==datetime_
+    assert commons.date2localc1989(date_)==date_localc1989
+    assert commons.localc19892date(date_localc1989)==date_

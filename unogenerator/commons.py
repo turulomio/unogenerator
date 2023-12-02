@@ -507,14 +507,22 @@ def guess_object_style(o):
         return "Bold"
         
 def datetime2localc1989(o):
+    """
+        Converts a datetime to a localc1989 values. Used with getValues with getDataArray method
+        datetime(2023,12,2,12,0,0) ==> 45262.5
+    """
     delta = o -  datetime(1899, 12, 30)
     return float(delta.days) + float(delta.seconds) / 86400
     
-def localc19892datetime(value):    
+def localc19892datetime(value):
     return  datetime(1899, 12, 30)+timedelta(days=int(value),  seconds=(value-int(value))*86400)
     
     
 def date2localc1989(o):
+    """
+        Converts a date to a localc1989 values. Used with getValues with getDataArray method
+        date(2023,12,2) ==> 45262.0
+    """
     delta = o -  date(1899, 12, 30)
     return float(delta.days) 
 
