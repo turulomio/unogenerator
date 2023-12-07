@@ -7,7 +7,7 @@ from os import system, makedirs
 from pydicts import lod
 from importlib.resources import files
 from unogenerator.commons import __version__, argparse_epilog, addDebugSystem, get_from_process_info, green, red, magenta
-from unogenerator.reusing.percentage import Percentage
+from unogenerator.percentage import Percentage
 from socket import socket, AF_INET, SOCK_STREAM
 from subprocess import run
 from time import sleep

@@ -10,8 +10,8 @@ from pydicts import lod
 from subprocess import run
 from tempfile import TemporaryDirectory
 from uno import createUnoStruct
-from unogenerator.reusing.currency import Currency
-from unogenerator.reusing.percentage import Percentage
+from unogenerator.currency import Currency
+from unogenerator.percentage import Percentage
 from unogenerator import exceptions
 from time import sleep
 

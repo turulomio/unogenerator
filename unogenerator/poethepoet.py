@@ -1,4 +1,3 @@
-from unogenerator.reusing.github import download_from_github
 from unogenerator import __version__
 from os import system
 from sys import argv
@@ -8,28 +7,10 @@ def pytest():
     system("pytest")
     
 def coverage():
-    system("coverage run --omit='*/reusing/*,*uno.py' -m pytest && coverage report && coverage html")
-
-
-def reusing():
-    """
-        Actualiza directorio reusing
-        poe reusing
-        poe reusing --local
-    """
-    local=False
-    if len(argv)==2 and argv[1]=="--local":
-        local=True
-        print("Update code in local without downloading was selected with --local")
-    if local==False:
-        download_from_github('turulomio','reusingcode','python/github.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/file_functions.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/percentage.py', 'unogenerator/reusing/')
-        download_from_github('turulomio','reusingcode','python/currency.py', 'unogenerator/reusing/')
-    
+    system("coverage run --omit='*uno.py' -m pytest && coverage report && coverage html")
 
 def translate():
-        system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o unogenerator/locale/unogenerator.pot  unogenerator/*.py unogenerator/reusing/*.py ")
+        system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o unogenerator/locale/unogenerator.pot  unogenerator/*.py")
         system("msgmerge -N --no-wrap -U unogenerator/locale/es.po unogenerator/locale/unogenerator.pot")
         system("msgfmt -cv -o unogenerator/locale/es/LC_MESSAGES/unogenerator.mo unogenerator/locale/es.po")
         system("msgfmt -cv -o unogenerator/locale/en/LC_MESSAGES/unogenerator.mo unogenerator/locale/en.po")

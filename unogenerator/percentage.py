@@ -1,7 +1,3 @@
-## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode/python/percentage.py
-## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
-## DO NOT UPDATE IT IN YOUR CODE
-
 from logging import warning
 from decimal import Decimal
 
@@ -9,9 +5,6 @@ from decimal import Decimal
 class Percentage:
     def __init__(self, numerator=None, denominator=None):
         self.setValue(self.toDecimal(numerator),self.toDecimal(denominator))
-
-
-
 
     def toDecimal(self, o):
         if o==None:
@@ -112,10 +105,6 @@ class Percentage:
         if self.isValid() and self.value<0:
             return True
         return False
-
-    def qtablewidgetitem(self, decimals=2):
-        from .. ui.myqtablewidget  import qpercentage
-        return qpercentage(self, decimals=2)
 
 ## Calculates porcentage to pass from a to b
 ## @param a. Can be an object divisible and that can be substracted
