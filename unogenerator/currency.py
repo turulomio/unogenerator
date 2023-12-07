@@ -1,7 +1,3 @@
-## THIS IS FILE IS FROM https://github.com/turulomio/reusingcode/python/currency.py
-## IF YOU NEED TO UPDATE IT PLEASE MAKE A PULL REQUEST IN THAT PROJECT AND DOWNLOAD FROM IT
-## DO NOT UPDATE IT IN YOUR CODE
-
 from logging import error
 from sys import exit
 from decimal import Decimal
@@ -112,9 +108,6 @@ class Currency:
     def round(self, digits=2):
         return round(self.amount, digits)
 
-    def qtablewidgetitem(self, decimals=2):
-        from .. ui.myqtablewidget import qcurrency
-        return qcurrency(self, decimals=2)
 
 ## Returns the symbol of the currency
 def currency_symbol(currency):
@@ -147,11 +140,4 @@ def currency_name(name):
 def MostCommonCurrencyTypes():
     return ['CNY', 'EUR', 'GBP', 'JPY', 'USD', 'u']
 
-## @param selectedcurrency is an currency
-def currencies_qcombobox(combo, selectedcurrency=None):
-    """Función que carga en un combo pasado como parámetro las currencies"""
-    for currency in MostCommonCurrencyTypes():
-        combo.addItem("{0} - {1} ({2})".format(currency, currency_name(currency), currency_symbol(currency)), currency)
-    if selectedcurrency!=None:
-            combo.setCurrentIndex(combo.findData(selectedcurrency))
 
