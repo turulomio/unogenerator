@@ -34,7 +34,8 @@ def release():
   * Cambiar la versión y la fecha en __init__.py
   * Cambiar la versión en pyproject.toml
   * Modificar el Changelog en README
-  * poe coverage
+  * poe coverage con pyvenv systempackages=false
+  * poe coverage con pyvenv systempackages=true
   * poe translate
   * linguist
   * poe translate
