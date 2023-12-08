@@ -49,58 +49,6 @@ def release():
 
 """.format(__version__))
 
-### Class to define doxygen command
-#class Doxygen(Command):
-#    description = "Create/update doxygen documentation in doc/html"
-#
-#    user_options = [
-#      # The format is (long option, short option, description).
-#      ( 'user=', None, 'Remote ssh user'),
-#      ( 'directory=', None, 'Remote ssh path'),
-#      ( 'port=', None, 'Remote ssh port'),
-#      ( 'server=', None, 'Remote ssh server'),
-#  ]
-#
-#    def initialize_options(self):
-#        self.user="root"
-#        self.directory="/var/www/html/doxygen/unogenerator/"
-#        self.port=22
-#        self.server="127.0.0.1"
-#
-#    def finalize_options(self):
-#        pass
-#
-#    def run(self):
-#        print("Creating Doxygen Documentation")
-#        os.system("""sed -i -e "41d" doc/Doxyfile""")#Delete line 41
-#        os.system("""sed -i -e "41iPROJECT_NUMBER         = {}" doc/Doxyfile""".format(__version__))#Insert line 41
-#        os.system("rm -Rf build")
-#        os.chdir("doc")
-#        os.system("doxygen Doxyfile")      
-#        command=f"""rsync -avzP -e 'ssh -l {self.user} -p {self.port} ' html/ {self.server}:{self.directory} --delete-after"""
-#        print(command)
-#        os.system(command)
-#        os.chdir("..")
-  
-### Class to define uninstall command
-#class Uninstall(Command):
-#    description = "Uninstall installed files with install"
-#    user_options = []
-#
-#    def initialize_options(self):
-#        pass
-#
-#    def finalize_options(self):
-#        pass
-#
-#    def run(self):
-#        if platform.system()=="Linux":
-#            os.system("rm -Rf {}/unogenerator*".format(site.getsitepackages()[0]))
-#            os.system("rm /usr/bin/unogenerator*")
-#        else:
-#            os.system("pip uninstall unogenerator")
-
-
 
 def docker_build():
     system("docker build --tag turulomio/unogenerator:latest .")

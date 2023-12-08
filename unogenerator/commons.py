@@ -10,8 +10,8 @@ from pydicts import lod
 from subprocess import run
 from tempfile import TemporaryDirectory
 from uno import createUnoStruct
-from unogenerator.currency import Currency
-from unogenerator.percentage import Percentage
+from pydicts.currency import Currency
+from pydicts.percentage import Percentage
 from unogenerator import exceptions, __versiondate__
 from time import sleep
 
