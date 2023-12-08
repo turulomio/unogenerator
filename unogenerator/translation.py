@@ -4,8 +4,8 @@ from os import path,  makedirs
 from polib import POEntry,  POFile, pofile
 from subprocess import run
 from importlib.resources import files
-from unogenerator.commons import __version__, argparse_epilog, red
-from unogenerator import ODT
+from unogenerator.commons import argparse_epilog, red
+from unogenerator import ODT, __version__
 
 
 try:

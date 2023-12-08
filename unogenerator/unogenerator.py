@@ -16,7 +16,8 @@ from importlib.resources import files
 from pydicts import lol, casts
 from shutil import copyfile
 from tempfile import TemporaryDirectory
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__, string_float2object
+from unogenerator import __version__
+from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, string_float2object
 from unogenerator.currency import Currency
 from unogenerator.percentage import Percentage
 from sys import exit

@@ -11,10 +11,10 @@ from logging import info
 from multiprocessing import cpu_count
 from importlib.resources import files
 
-from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port, get_from_process_numinstances_and_firstport, bytes_after_trim_image
+from unogenerator.commons import  addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port, get_from_process_numinstances_and_firstport, bytes_after_trim_image
 from unogenerator.currency import Currency
 from unogenerator.percentage import Percentage
-from unogenerator.unogenerator import ODT_Standard, ODS_Standard
+from unogenerator import ODT_Standard, ODS_Standard, __version__
 from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals, helper_ods_sheet_stylenames, helper_split_big_listofrows
 from os import remove
 from tqdm import tqdm
