@@ -12,12 +12,8 @@ from tempfile import TemporaryDirectory
 from uno import createUnoStruct
 from unogenerator.currency import Currency
 from unogenerator.percentage import Percentage
-from unogenerator import exceptions
+from unogenerator import exceptions, __versiondate__
 from time import sleep
-
-__version__ = '0.37.0'
-__versiondatetime__=datetime(2023, 11, 27, 7, 46)
-__versiondate__=__versiondatetime__.date()
 
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')

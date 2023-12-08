@@ -14,6 +14,8 @@ init()
 if can_import_uno():
     try:
         from .unogenerator import ODT, ODS, ODT_Standard, ODS_Standard
-        from .commons import __version__, __versiondate__,  __versiondatetime__,  Coord,  Range,  ColorsNamed
+        from .commons import Coord,  Range,  ColorsNamed
+        from .percentage import Percentage
+        from .currency import Currency
     except:
         pass
