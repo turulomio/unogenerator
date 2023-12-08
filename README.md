@@ -87,6 +87,13 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 
 ## Changelog
+### 0.38.0 (2023-12-08)
+- Removed statistics to improve speeds
+- Added new exceptions: CoordException, RangeException
+- Improve localc1989 methods and documentation
+- Removed all reusing references
+- Added method can_import_uno to allow programs to detect and ignore errors importing uno
+
 ### 0.37.0 (2023-11-27)
 - Fixed bug with addListOfRows with empty lor. Removed innecesary reusing files
 - Fixed bug with addRow with empty row
