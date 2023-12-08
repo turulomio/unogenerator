@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project unogenerator",
     "copyright": "Copyright (C) 2023 , ",
-    "saved": "2023-12-08, 08:34:24"
+    "saved": "2023-12-08, 12:26:53"
   },
   "project": {
     "AUTHOR": "",
@@ -85,11 +85,9 @@
       "unogenerator/__init__.py",
       "unogenerator/can_import_uno.py",
       "unogenerator/commons.py",
-      "unogenerator/currency.py",
       "unogenerator/demo.py",
       "unogenerator/exceptions.py",
       "unogenerator/helpers.py",
-      "unogenerator/percentage.py",
       "unogenerator/poethepoet.py",
       "unogenerator/server.py",
       "unogenerator/translation.py",
