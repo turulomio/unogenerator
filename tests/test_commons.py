@@ -19,8 +19,22 @@ if can_import_uno():
             Coord("")
         with raises(exceptions.CoordException):
             Coord("A1:A2")
+        with raises(exceptions.CoordException):
+            Coord("Ç1:A2")
+            
         Coord("A1")
         Coord("AAAAA99999")
+        
+        assert repr(Coord("A2"))=="Coord <A2>"
+        with raises(exceptions.CoordException):
+            repr(Coord(None))
+        
+        
+        assert Coord("A1")!=Coord("A2")
+        
+        
+        assert Coord("C3").letterPosition()==3
+        assert Coord("C3").numberPosition()==3
 
     def test_coord_assertcoord():
         with raises(exceptions.CoordException):
@@ -56,14 +70,27 @@ if can_import_uno():
         range_=Range.from_iterable_object("A1", [[1, 2], [3, 4]])
         assert range_.string()=="A1:B2"
         
+        range_=Range.from_iterable_object("A1", [])
+        assert range_.string()=="A1:A1"
+
+        range_=Range.from_iterable_object("A1", [1, 2, 3])
+        assert range_.string()=="A1:C1"
+        
         with raises(exceptions.RangeException):
             range_=Range("1A1:None")
+            
+        with raises(exceptions.RangeException):
+            range_=Range("A1:A1A")
         
         with raises(exceptions.RangeException):
             range_=Range(None)
         
         with raises(exceptions.RangeException):
             range_=Range("A1")
+            
+        assert not Range("A1:A2")==Range("A2:A2")
+        
+        assert repr(Range("A1:A2"))=="Range <A1:A2>"
             
     def test_range_assertrange():
         assert Range.assertRange("A1:C3").string()=="A1:C3"

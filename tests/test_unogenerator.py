@@ -3,7 +3,7 @@ from os import remove
 
 from unogenerator import can_import_uno
 if can_import_uno():
-    from unogenerator import ODT_Standard, ODT, ODS_Standard, ODS, ColorsNamed, Range
+    from unogenerator import ODT_Standard, ODT, ODS_Standard, ODS, ColorsNamed, Range, Coord
 
     row=[1, 2, 3, 4, 5]
 
@@ -151,4 +151,50 @@ if can_import_uno():
             doc.save(filename)
         remove(filename)
         
-    
+    def test_ods_getvalues():
+        filename="test_get_values.ods"
+
+        number=10
+        range_=Range(f"A1:{Coord.from_index(number-1, number-1)}")
+        print(range_)
+
+        with ODS_Standard() as doc:
+            doc.createSheet("Get Values")
+            lor=[]
+            for row in range(number):
+                lor_row=[]
+                for column in range(number):
+                    lor_row.append(str(Coord.from_index(column, row)))
+                lor.append(lor_row)
+            doc.addListOfRowsWithStyle("A1",  lor)
+            doc.save(filename)
+
+        with ODS(filename) as doc:
+            assert doc.getValue("A1", detailed=False)=="A1"
+            assert doc.getValue("A1", detailed=True)["string"]=="A1"
+            
+            assert doc.getValueByPosition(1, 1, detailed=False)=="B2"
+            assert doc.getValueByPosition(1, 1, detailed=True)["string"]=="B2"
+            
+            r=doc.getValues(skip_up=0, skip_down=0, skip_left=0, skip_right=0)
+            assert len(r)==number
+            
+            r=doc.getValues(skip_up=0, skip_down=0, skip_left=0, skip_right=0, detailed=True)
+            assert len(r)==number
+            
+            
+            r=doc.getValues(skip_up=0, skip_down=0, skip_left=0, skip_right=0, cast=[str]*number)
+            assert r[0][0]=="A1"
+            
+            r=doc.getValuesByRange(range_)
+            assert r[0].__class__==tuple
+            
+            r=doc.getValuesByColumn("A", skip_up=0, skip_down=0)
+            assert len(r)==number
+        
+            r=doc.getValuesByRow("1",  skip_left=0, skip_right=0)
+            assert len(r)==number
+            
+        remove(filename)
+
+
