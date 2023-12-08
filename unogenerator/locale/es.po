@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-24 08:20+0100\n"
+"POT-Creation-Date: 2023-12-08 08:51+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: turulomio@yahoo.es\n"
 "Language-Team: turulomio@yahoo.es\n"
@@ -24,6 +24,43 @@ msgstr "Hubo un problema al convertir com.sun.star.util.DateTime a datetime"
 
 msgid "Developed by Mariano Muñoz 2020-{}"
 msgstr "Desarrollado por Mariano Muñoz 2021-{}"
+
+#, python-brace-format
+msgid "Coord constructor must have a str or a Coord parameter and is a {0}"
+msgstr ""
+
+msgid "I can't convert {} (class: {}) to a Coord"
+msgstr ""
+
+#, python-brace-format
+msgid "Coord can have this character: {0}"
+msgstr ""
+
+msgid "Coord letter can't be empty"
+msgstr ""
+
+#, python-brace-format
+msgid "Coord couldn't be created with '{0}'"
+msgstr ""
+
+#, python-brace-format
+msgid "Range constructor must receive a string but got: {0} ({1})"
+msgstr ""
+
+#, python-brace-format
+msgid "This is not a range: {0}"
+msgstr ""
+
+#, python-brace-format
+msgid "Range start coord is wrong: {0}"
+msgstr ""
+
+#, python-brace-format
+msgid "Range end coord is wrong: {0}"
+msgstr ""
+
+msgid "I can't convert {} (class: {}) to a Range"
+msgstr ""
 
 #, python-brace-format
 msgid "I couldn't detect unogenerator process info ({0}/{1} attempts)"
@@ -307,7 +344,7 @@ msgstr ""
 msgid "NOW)("
 msgstr ""
 
-msgid "This is a set of symbols: .,:;?ºª\\_-/()."
+msgid "This is a set of symbols: .,:;?ºª-/()."
 msgstr ""
 
 #, python-brace-format
@@ -414,30 +451,6 @@ msgstr "El servidor no fue reiniciado porque está ocupado"
 msgid "Server doesn't need to be restarted"
 msgstr "El servidor no necesita ser reiniciado"
 
-msgid "Number"
-msgstr "Número"
-
-msgid "Total seconds"
-msgstr "Segundos totales"
-
-msgid "Average"
-msgstr "Media"
-
-msgid "Cells"
-msgstr "Celdas"
-
-msgid "Merged cells"
-msgstr "Celdas unidas"
-
-msgid "Cell gets"
-msgstr "Lectura de celdas"
-
-msgid "Sheet creations"
-msgstr "Nuevas hojas"
-
-msgid "Sheet freezes"
-msgstr "Inmovilizaciones de hoja"
-
 msgid "Generate a po and pot file from ODF"
 msgstr "Genera un fichero po y pot de un ODF"
 
@@ -508,7 +521,7 @@ msgid "Filename extension must be 'docx'."
 msgstr "La extensión del nombre del fichero debe ser 'docx'."
 
 msgid "Problems to detect size in 100thmm, I'm trying to calculate it"
-msgstr ""
+msgstr "Problemas al detectar el tamaño en 100thmm, estoy intentado calcularlo"
 
 #, python-brace-format
 msgid "ERROR: You can't create '{0}' sheet, because it already exists."
@@ -532,3 +545,27 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
+
+#~ msgid "Number"
+#~ msgstr "Número"
+
+#~ msgid "Total seconds"
+#~ msgstr "Segundos totales"
+
+#~ msgid "Average"
+#~ msgstr "Media"
+
+#~ msgid "Cells"
+#~ msgstr "Celdas"
+
+#~ msgid "Merged cells"
+#~ msgstr "Celdas unidas"
+
+#~ msgid "Cell gets"
+#~ msgstr "Lectura de celdas"
+
+#~ msgid "Sheet creations"
+#~ msgstr "Nuevas hojas"
+
+#~ msgid "Sheet freezes"
+#~ msgstr "Inmovilizaciones de hoja"
