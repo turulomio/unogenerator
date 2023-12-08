@@ -50,14 +50,6 @@ def uno2datetime(r):
     except:
         debug(_("There was a problem converting com.sun.star.util.DateTime to datetime."))
 
-def date2uno( dt):
-    r=createUnoStruct("com.sun.star.util.Date")
-    r.Year=dt.year
-    r.Month=dt.month
-    r.Day=dt.day
-    return r
-    
-
 ## Function used in argparse_epilog
 ## @return String
 def argparse_epilog():
@@ -158,10 +150,7 @@ class Coord:
         return cls(column+letter)
 
     def __repr__(self):
-        if self.number and self.letter:
-            return f"Coord <{self.string()}>"
-        else:
-            return "Coord <Wrong>"
+        return f"Coord <{self.string()}>"
         
     def __str__(self):
         return self.string()
