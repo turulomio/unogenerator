@@ -2,8 +2,8 @@ from datetime import datetime, timedelta, date
 from decimal import Decimal
 from unogenerator import ODS_Standard
 from unogenerator.commons import Coord, ColorsNamed
-from unogenerator.percentage import Percentage
-from unogenerator.currency import Currency
+from pydicts.percentage import Percentage
+from pydicts.currency import Currency
 
 
 number=2000

@@ -15,7 +15,5 @@ if can_import_uno():
     try:
         from .unogenerator import ODT, ODS, ODT_Standard, ODS_Standard
         from .commons import Coord,  Range,  ColorsNamed
-        from .percentage import Percentage
-        from .currency import Currency
     except:
         pass
