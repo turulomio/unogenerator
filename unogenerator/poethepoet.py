@@ -3,7 +3,7 @@ from os import system
 from sys import argv
 
 
-def pytest():
+def test():
     system("pytest")
     
 def coverage():

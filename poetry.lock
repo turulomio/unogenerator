@@ -367,13 +367,13 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "distlib"
-version = "0.3.7"
+version = "0.3.8"
 description = "Distribution utilities"
 optional = false
 python-versions = "*"
 files = [
-    {file = "distlib-0.3.7-py2.py3-none-any.whl", hash = "sha256:2e24928bc811348f0feb63014e97aaae3037f2cf48712d51ae61df7fd6075057"},
-    {file = "distlib-0.3.7.tar.gz", hash = "sha256:9dafe54b34a028eafd95039d5e5d4851a13734540f1331060d31c9916e7147a8"},
+    {file = "distlib-0.3.8-py2.py3-none-any.whl", hash = "sha256:034db59a0b96f8ca18035f36290806a9a6e6bd9d1ff91e45a7f172eb17e51784"},
+    {file = "distlib-0.3.8.tar.gz", hash = "sha256:1530ea13e350031b6312d8580ddb6b27a104275a31106523b8f123787f494f64"},
 ]
 
 [[package]]
@@ -962,13 +962,13 @@ files = [
 
 [[package]]
 name = "pydicts"
-version = "0.10.0"
+version = "0.11.0"
 description = "Module to use dictionaries in various situations"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pydicts-0.10.0-py3-none-any.whl", hash = "sha256:20abbeeb94bdb228b11f60d5f9ecae71f9375a6245be7cde92012dbcc462eb37"},
-    {file = "pydicts-0.10.0.tar.gz", hash = "sha256:c44e63bd40d83f1f4d0e609a82109f25664356358a043ae89bbf6dc9f1277f7d"},
+    {file = "pydicts-0.11.0-py3-none-any.whl", hash = "sha256:b29272ba6d9d561ff4dde421eaf36fe323f3806c8628ca840a8d5807648c3cdb"},
+    {file = "pydicts-0.11.0.tar.gz", hash = "sha256:80c7808e2016eb87cb316ac0e5213a9018c930ce0bd4cac68a60d7873928febe"},
 ]
 
 [package.dependencies]
