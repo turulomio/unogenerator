@@ -36,7 +36,7 @@ unogenerator_translation='unogenerator.translation:main'
 [tool.poe.tasks]
 coverage = { script = "unogenerator.poethepoet:coverage" }
 documentation = { script = "unogenerator.poethepoet:documentation" }
-pytest = { script = "unogenerator.poethepoet:pytest" }
+test = { script = "unogenerator.poethepoet:test" }
 release = { script = "unogenerator.poethepoet:release" }
 reusing = { script = "unogenerator.poethepoet:reusing" }
 translate = { script = "unogenerator.poethepoet:translate" }
