@@ -211,3 +211,20 @@ if can_import_uno():
             assert values[1][0]["value"]==4
             doc.save(filename)
         remove(filename)
+
+    def test_ods_toDictionaryOfDetailedValues():
+        filename="test_ods_toDictionaryOfDetailedValues.ods"
+        with ODS_Standard() as doc:
+            doc.createSheet("One")
+            #Rows
+            doc.setCellName("$One.$A$1", "hola")      
+            doc.addCellWithStyle("A1", 2, ColorsNamed.White, "Integer")
+            doc.addCellWithStyle("A3", "=2*hola", ColorsNamed.White, "Integer")
+            
+            doc.createSheet("Two")
+            doc.addCellWithStyle("A1", 5, ColorsNamed.White, "Integer")
+            doc.save(filename)
+            detailed_values=doc.toDictionaryOfDetailedValues()
+            print(detailed_values)
+        remove(filename)
+        assert False
