@@ -213,18 +213,22 @@ if can_import_uno():
         remove(filename)
 
     def test_ods_toDictionaryOfDetailedValues():
-        filename="test_ods_toDictionaryOfDetailedValues.ods"
         with ODS_Standard() as doc:
             doc.createSheet("One")
-            #Rows
+            #Adding values to document
             doc.setCellName("$One.$A$1", "hola")      
             doc.addCellWithStyle("A1", 2, ColorsNamed.White, "Integer")
             doc.addCellWithStyle("A3", "=2*hola", ColorsNamed.White, "Integer")
             
             doc.createSheet("Two")
             doc.addCellWithStyle("A1", 5, ColorsNamed.White, "Integer")
-            doc.save(filename)
+            
+            doc.removeSheet(0) #Removing default sheet
+            
+            #Export to dictionaryOfDetailedValues
             detailed_values=doc.toDictionaryOfDetailedValues()
-            print(detailed_values)
-        remove(filename)
-        assert False
+            
+            assert detailed_values["sheets"][1]["name"]=="Two"
+            assert detailed_values["sheets"][0]["rows"]==3
+            assert detailed_values["dictionary"][("One", "A3")]["is_formula"]==True
+            assert detailed_values["dictionary"][("One", "A3")]["value"]==4
