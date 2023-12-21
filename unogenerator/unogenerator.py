@@ -17,7 +17,7 @@ from pydicts import lol, casts
 from shutil import copyfile
 from tempfile import TemporaryDirectory
 from unogenerator import __version__
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, string_float2object
+from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, string_float2object
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 from sys import exit
@@ -568,7 +568,7 @@ class ODS(ODF):
             column.Width=width ## Are in 1/100th of mm
             
     def setComment(self, coord, comment):
-        coord=C.assertCoord(coord)
+        coord=Coord.assertCoord(coord)
         celladdress= createUnoStruct("com.sun.star.table.CellAddress")
         celladdress.Sheet=self.sheet_index
         celladdress.Column=coord.letterIndex()
@@ -578,7 +578,7 @@ class ODS(ODF):
     ## If addCell is used, preserves styles properties
     ## If you want to change these properties you must add parameters. Not developed
     def addCell(self, coord, o, color=None, outlined=None, alignment=None, decimals=None, bold=None):
-        coord=C.assertCoord(coord)
+        coord=Coord.assertCoord(coord)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__object_to_cell(cell, o)
         
@@ -598,7 +598,7 @@ class ODS(ODF):
     ## @param styles If None uses guest style. Else an array of styles
     ## @return range
     def addRow(self, coord_start, list_o):
-        coord_start=C.assertCoord(coord_start)
+        coord_start=Coord.assertCoord(coord_start)
         
         if len(list_o)==0:
             debug(_("addRow is empty. Nothing to write. Ignoring..."))
@@ -621,7 +621,7 @@ class ODS(ODF):
     ## @param styles If None uses guest style. Else an array of styles
     ## @return range
     def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
-        coord_start=C.assertCoord(coord_start)        
+        coord_start=Coord.assertCoord(coord_start)        
         range_=self.addRow(coord_start, list_o)
         if range_ is None:
             return None
@@ -653,7 +653,7 @@ class ODS(ODF):
     ## @param styles If None uses guest style. Else an array of styles
     ## iF YOU NEED TO CREATE FORMULAS, USE A METHOD WITHOUT SET DATA ARRAY
     def addColumn(self, coord_start, list_o):
-        coord_start=C.assertCoord(coord_start)
+        coord_start=Coord.assertCoord(coord_start)
         
         if len(list_o)==0:
             return None
@@ -676,7 +676,7 @@ class ODS(ODF):
     ## @param styles If None uses guest style. Else an array of styles
     ## iF YOU NEED TO CREATE FORMULAS, USE A METHOD WITHOUT SET DATA ARRAY
     def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
-        coord_start=C.assertCoord(coord_start)
+        coord_start=Coord.assertCoord(coord_start)
         range_=self.addColumn(coord_start, list_o)
         
         if range_ is None:
@@ -712,7 +712,7 @@ class ODS(ODF):
             
             @return range of the list_of_rows
         """
-        coord_start=C.assertCoord(coord_start) 
+        coord_start=Coord.assertCoord(coord_start) 
         
         rows=len(list_rows)
         if rows==0:
@@ -745,7 +745,7 @@ class ODS(ODF):
     ## @param styles. List of styles (columns) or None to guess them from first row
     ## @return range of the list_of_rows
     def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None):
-        coord_start=C.assertCoord(coord_start) 
+        coord_start=Coord.assertCoord(coord_start) 
         
         range_=self.addListOfRows(coord_start, list_rows)
         if range_ is None:
@@ -776,14 +776,14 @@ class ODS(ODF):
         return range_
 
     def addListOfColumns(self, coord_start, list_columns):
-        coord_start=C.assertCoord(coord_start) 
+        coord_start=Coord.assertCoord(coord_start) 
         list_rows=lol.lol_transposed(list_columns)
         return self.addListOfRows(coord_start, list_rows)
 
 
     ## @param style If None tries to guess it
     def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None):
-        coord_start=C.assertCoord(coord_start) 
+        coord_start=Coord.assertCoord(coord_start) 
         list_rows=lol.lol_transposed(list_columns)
         return self.addListOfRowsWithStyle(coord_start, list_rows, colors, styles)
             
@@ -791,7 +791,7 @@ class ODS(ODF):
     ## @param rewritewrite If color is ColorsNamed.White, rewrites the color to White instead of ignoring it. Ignore it gains 0.200 ms
     ## THIS IS THE WAY TO CREATE FORMULAS
     def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
-        coord=C.assertCoord(coord)
+        coord=Coord.assertCoord(coord)
         
         if style is None:
             style=guess_object_style(o)
@@ -910,15 +910,15 @@ class ODS(ODF):
         cell.setPropertyValue("CellBackColor", color)
 
     def freezeAndSelect(self, freeze, selected=None, topleft=None):
-        freeze=C.assertCoord(freeze) 
+        freeze=Coord.assertCoord(freeze) 
         num_columns, num_rows=self.getSheetSize()
         self.document.getCurrentController().setActiveSheet(self.sheet)
         self.document.getCurrentController().freezeAtPosition(freeze.letterIndex(), freeze.numberIndex())
 
         if selected is None:
-            selected=C.from_index(num_columns-1, num_rows-1)
+            selected=Coord.from_index(num_columns-1, num_rows-1)
         else:
-            selected=C.assertCoord(selected)
+            selected=Coord.assertCoord(selected)
         selectedcell=self.sheet.getCellByPosition(selected.letterIndex(), selected.numberIndex())
         self.document.getCurrentController().select(selectedcell)
         
@@ -933,9 +933,9 @@ class ODS(ODF):
                 number=freeze.number
             else:
                 number=minus_coord.number
-            topleft=C.from_letters(letter, number)
+            topleft=Coord.from_letters(letter, number)
         else:
-            topleft=C.assertCoord(topleft)
+            topleft=Coord.assertCoord(topleft)
         self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
         self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
         
@@ -945,7 +945,7 @@ class ODS(ODF):
             Gets the value from a coord
             If detailed is True returns a dict with detailed information
         """
-        coord=C.assertCoord(coord)
+        coord=Coord.assertCoord(coord)
         return self.getValueByPosition(coord.letterIndex(), coord.numberIndex(), detailed)
         
     def getValueByPosition(self, letter_index, number_index,  detailed=False):
@@ -1092,7 +1092,7 @@ class ODS(ODF):
     ## Return a Range object with the limits of the index sheet
     def getSheetRange(self):
         columns,  rows=self.getSheetSize()
-        endcoord=C("A1").addRow(rows-1).addColumn(columns-1)
+        endcoord=Coord("A1").addRow(rows-1).addColumn(columns-1)
         return R("A1:" + endcoord.string())
         
 
@@ -1210,6 +1210,38 @@ class ODS(ODF):
 #                                                end_type='percentile', end_value=100, end_color='FF0000'
 #                                                )
 #                                            )
+
+    def toDictionaryOfDetailedValues(self):
+        """
+            Converts document to a dictionary with detailed values of every sheets
+            Has two keys:
+                - sheets. A list of dictionaries
+                - dictionary. A dictionary with keys (sheet_name, coord_string)
+            
+            For example: {
+                'dictionary': {
+                    ('One', 'A1'): {'value': 2, 'string': '2', 'style': 'Integer', 'class': 'int', 'is_formula': False, 'formula': None}, 
+                    ('One', 'A2'): {'value': '', 'string': '', 'style': 'Default', 'class': 'str', 'is_formula': False, 'formula': None}, 
+                    ('One', 'A3'): {'value': 4, 'string': '4', 'style': 'Integer', 'class': 'int', 'is_formula': True, 'formula': '=2*hola'}, 
+                    ('Two', 'A1'): {'value': 5, 'string': '5', 'style': 'Integer', 'class': 'int', 'is_formula': False, 'formula': None}
+                }, 
+                'sheets': [
+                    {'name': 'One', 'columns': 1, 'rows': 3}, 
+                    {'name': 'Two', 'columns': 1, 'rows': 1}
+                ]
+            }
+
+            This method retains more exact values (types) with ODS_Standard although woks fine with ODS
+        """
+        r={"dictionary":{}, "sheets":[]}
+        for i, sheet_name in enumerate(self.getSheetNames()):
+            self.setActiveSheet(i)
+            sheet_values=self.getValues(detailed=True)
+            for number_index, row in enumerate(sheet_values):
+                for letter_index, cell in enumerate(row):
+                    r["dictionary"][(sheet_name, Coord.from_index(letter_index, number_index).string())]=cell
+            r["sheets"].append({"name":sheet_name, "columns": letter_index+1,  "rows": number_index+1})
+        return r
 
 class ODS_Standard(ODS):
     def __init__(self, loserver_port=2002):
