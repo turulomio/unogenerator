@@ -801,11 +801,14 @@ class ODS(ODF):
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
         
-    ## All of this names are document names
-    def setCellName(self, coord, name):
-        coord=C.assertCoord(coord)
-        cell=self.sheet.getCellRangeByName(coord.string()).getCellAddress()
-        self.document.NamedRanges.addNewByName(name, coord.string(), cell, 0)
+    def setCellName(self, reference, name):
+        """
+            All of this names are document names
+            Parameters:
+                - reference -> str: Examples:   $Sheet2.$A$1 
+        """
+        cell=self.sheet.getCellRangeByName(reference).getCellAddress()
+        self.document.NamedRanges.addNewByName(name, reference, cell, 0)
         
     def __object_to_cell(self, cell, o):
         if o.__class__.__name__ in ("int", ):

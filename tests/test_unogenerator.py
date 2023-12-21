@@ -198,3 +198,16 @@ if can_import_uno():
         remove(filename)
 
 
+
+    def test_ods_setCellName():
+        filename="test_ods_setCellName.ods"
+        with ODS_Standard() as doc:
+            doc.createSheet("Sheet")
+            #Rows
+            doc.setCellName("$Sheet.$A$1", "hola")      
+            doc.addCellWithStyle("A1", 2, ColorsNamed.White, "Integer")
+            doc.addCellWithStyle("A2", "=2*hola", ColorsNamed.White, "Integer")
+            values=doc.getValues(detailed=True)
+            assert values[1][0]["value"]==4
+            doc.save(filename)
+        remove(filename)
