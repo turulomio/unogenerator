@@ -281,6 +281,9 @@ def demo_odt_standard(language, port=2002, suffix=""):
         doc.addParagraph(_("UnoGenerator documentation"), "Title")
         doc.addParagraph(_("Version: {0}").format(__version__), "Subtitle")
         
+        doc.addImageParagraph([files('unogenerator') / 'images/unogenerator_alpha.png', ], 4, 4, "Illustration", linked=False)
+
+        
         doc.addParagraph(_("Introduction"),  "Heading 1")
         
         doc.addParagraph(
@@ -303,13 +306,12 @@ def demo_odt_standard(language, port=2002, suffix=""):
         doc.addParagraph(_("ODT 'Hello World' example"), "Heading 2")
         doc.addParagraph(_("This is a Hello World example. You get the example in odt, docx and pdf formats:") ,  "Standard")
         doc.addParagraph("""from unogenerator import ODT_Standard
-    doc=ODT_Standard()
+with ODT_Standard() as doc:
     doc.addParagraph("Hello World", "Heading 1")
     doc.addParagraph("Easy, isn't it","Standard")
     doc.save("hello_world.odt")
     doc.export_docx("hello_world.docx")
-    doc.export_pdf("hello_world.pdf")
-    doc.close()"""    , "Code")
+    doc.export_pdf("hello_world.pdf")"""    , "Code")
         doc.pageBreak()
         
         doc.addParagraph(_("ODT"), "Heading 1")
@@ -331,7 +333,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
         )
         
         doc.addParagraph("""from unogenerator import ODT_Standard
-    doc=ODT_Standard()"""    , "Code")
+doc=ODT_Standard()"""    , "Code")
 
         doc.addParagraph(
             _("ODT with template or file (Recomended).") + " " + 
@@ -340,7 +342,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
         )
         
         doc.addParagraph("""from unogenerator import ODT
-    doc=ODT('yourdocument.odt')"""    , "Code")
+doc=ODT('yourdocument.odt')"""    , "Code")
         
         doc.addParagraph(
             _("ODT without template.") + " " + 
@@ -351,7 +353,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
         
         
         doc.addParagraph("""from unogenerator import ODT
-    doc=ODT()"""    , "Code")
+doc=ODT()"""    , "Code")
         
         doc.addParagraph(_("Styles"), "Heading 2")
         doc.addParagraph(
@@ -469,12 +471,11 @@ def demo_odt_standard(language, port=2002, suffix=""):
         doc.addParagraph(_("ODS 'Hello World' example"), "Heading 2")
         doc.addParagraph(_("This is a Hello World example. You'll get the example in ods, xlsx and pdf formats:") ,  "Standard")
         doc.addParagraph("""from unogenerator import ODS_Standard
-    doc=ODS_Standard()
+with ODS_Standard() as doc:
     doc.addCellMergedWithStyle("A1:E1", "Hello world", style="BoldCenter")
     doc.save("hello_world.ods")
     doc.export_xlsx("hello_world.xlsx")
-    doc.export_pdf("hello_world.pdf")
-    doc.close()"""    , "Code")
+    doc.export_pdf("hello_world.pdf")"""    , "Code")
         
         doc.find_and_replace("%REPLACEME%", _("This paragraph was set at the end of the code after a find and replace command."))
         doc.paragraphBreak()
