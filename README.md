@@ -4,7 +4,9 @@
     <img src="unogenerator/images/unogenerator.png?raw=true" width="150" title="Unogenerator logo">
   </div>
 </div>
+
 ## Description
+
 Python module to generate Libreoffice documents (ODT and ODS) programatically.
 
 Morever, you can export them to (.xlsx, .docx, .pdf) easyly.
