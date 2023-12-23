@@ -1,5 +1,12 @@
 # UnoGenerator [![PyPI - Downloads](https://img.shields.io/pypi/dm/unogenerator?label=Pypi%20downloads)](https://pypi.org/project/unogenerator/) [![Github - Downloads](https://shields.io/github/downloads/turulomio/unogenerator/total?label=Github%20downloads )](https://github.com/turulomio/unogenerator/)
+<div align="center">
+  <div style="display: flex; align-items: flex-start;">
+    <img src="unogenerator/images/unogenerator.png?raw=true" width="150" title="Unogenerator logo">
+  </div>
+</div>
+
 ## Description
+
 Python module to generate Libreoffice documents (ODT and ODS) programatically.
 
 Morever, you can export them to (.xlsx, .docx, .pdf) easyly.
