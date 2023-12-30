@@ -5,7 +5,7 @@ from decimal import Decimal
 from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, debug
 from importlib.resources import files
-from os import geteuid
+from os import geteuid, remove
 from psutil import process_iter
 from pydicts import lod
 from subprocess import run
@@ -694,4 +694,8 @@ def are_all_values_of_the_list_the_same(list_):
             return False
     return True
     
-    
+def remove_without_errors(filename): 
+    try: 
+        remove(filename) 
+    except OSError as e: 
+        print(_("Error deleting: {0} -> {1}").format(filename, e.strerror)) 

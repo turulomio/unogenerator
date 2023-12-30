@@ -10,13 +10,10 @@ from gettext import translation
 from logging import info
 from multiprocessing import cpu_count
 from importlib.resources import files
-
-from unogenerator.commons import  addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port, get_from_process_numinstances_and_firstport, bytes_after_trim_image
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
-from unogenerator import ODT_Standard, ODS_Standard, __version__
+from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord
 from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals, helper_ods_sheet_stylenames, helper_split_big_listofrows
-from os import remove
 from tqdm import tqdm
 
 try:
@@ -25,33 +22,27 @@ try:
 except:
     _=str
 
-def remove_without_errors(filename):
-    try:
-        remove(filename)
-    except OSError as e:
-        print(_("Error deleting: {0} -> {1}").format(filename, e.strerror))
-
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
 ## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
 def main(arguments=None):
-    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
+    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
     group= parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
     args=parser.parse_args(arguments)
-    addDebugSystem(args.debug)
+    commons.addDebugSystem(args.debug)
         
     if args.remove==True:
             for language in ['es', 'en']:
-                remove_without_errors(f"unogenerator_documentation_{language}.odt")
-                remove_without_errors(f"unogenerator_documentation_{language}.docx")
-                remove_without_errors(f"unogenerator_documentation_{language}.pdf")
-                remove_without_errors(f"unogenerator_example_{language}.ods")
-                remove_without_errors(f"unogenerator_example_{language}.xlsx")
-                remove_without_errors(f"unogenerator_example_{language}.pdf")
+                commons.remove_without_errors(f"unogenerator_documentation_{language}.odt")
+                commons.remove_without_errors(f"unogenerator_documentation_{language}.docx")
+                commons.remove_without_errors(f"unogenerator_documentation_{language}.pdf")
+                commons.remove_without_errors(f"unogenerator_example_{language}.ods")
+                commons.remove_without_errors(f"unogenerator_example_{language}.xlsx")
+                commons.remove_without_errors(f"unogenerator_example_{language}.pdf")
 
     if args.create==True:
         start=datetime.now()
@@ -67,7 +58,7 @@ def main(arguments=None):
 
 
 def main_concurrent(arguments=None):
-    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
+    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
     group= parser.add_mutually_exclusive_group(required=True)
@@ -76,18 +67,18 @@ def main_concurrent(arguments=None):
     parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
     args=parser.parse_args(arguments)
 
-    num_instances, first_port=get_from_process_numinstances_and_firstport()
-    addDebugSystem(args.debug)
+    num_instances, first_port=commons.get_from_process_numinstances_and_firstport()
+    commons.addDebugSystem(args.debug)
 
     if args.remove==True:
             for i in range(args.loops):
                 for language in ['es', 'en']:
-                    remove_without_errors(f"unogenerator_documentation_{language}.{i}.odt")
-                    remove_without_errors(f"unogenerator_documentation_{language}.{i}.docx")
-                    remove_without_errors(f"unogenerator_documentation_{language}.{i}.pdf")
-                    remove_without_errors(f"unogenerator_example_{language}.{i}.ods")
-                    remove_without_errors(f"unogenerator_example_{language}.{i}.xlsx")
-                    remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
+                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.odt")
+                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.docx")
+                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.pdf")
+                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.ods")
+                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.xlsx")
+                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
 
     if args.create==True:
         print(_("Launching concurrent demo with {0} workers to a daemon with {0} instances from {1} port").format(num_instances, first_port))
@@ -99,11 +90,11 @@ def main_concurrent(arguments=None):
             with tqdm(total=args.loops*4) as progress:
                 for i in range(args.loops):
                     for language in ['es', 'en']:
-                        port=next_port(port, first_port, num_instances)
+                        port=commons.next_port(port, first_port, num_instances)
                         future=executor.submit(demo_ods_standard, language, port, f".{i}")
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
-                        port=next_port(port, first_port, num_instances)
+                        port=commons.next_port(port, first_port, num_instances)
                         future=executor.submit(demo_odt_standard, language, port, f".{i}")
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
@@ -153,19 +144,19 @@ def demo_ods_standard(language, port=2002, suffix="",):
         colors_list=([a for a in dir(ColorsNamed()) if not a.startswith('__')])
         for row, color_str in enumerate(colors_list):
             color_key=getattr(ColorsNamed(), color_str)
-            doc.addCellWithStyle(C("A2").addRow(row), color_str, color_key, "Bold")
-            doc.addCellWithStyle(C("B2").addRow(row), datetime.now(), color_key, "Datetime")
-            doc.addCellWithStyle(C("C2").addRow(row), date.today(), color_key, "Date")
-            doc.addCellWithStyle(C("D2").addRow(row), pow(-1, row)*-10000000, color_key, "Integer")
-            doc.addCellWithStyle(C("E2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), color_key, "EUR")
-            doc.addCellWithStyle(C("F2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), color_key, "USD")
-            doc.addCellWithStyle(C("G2").addRow(row), Percentage(pow(-1, row)*1, 3), color_key,  "Percentage")
-            doc.addCellWithStyle(C("H2").addRow(row), pow(-1, row)*123456789.121212, color_key, "Float6")
-            doc.addCellWithStyle(C("I2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
-            doc.addCellWithStyle(C("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
-            doc.addCellWithStyle(C("K2").addRow(row), bool(row%2), color_key, "Bool")
+            doc.addCellWithStyle(Coord("A2").addRow(row), color_str, color_key, "Bold")
+            doc.addCellWithStyle(Coord("B2").addRow(row), datetime.now(), color_key, "Datetime")
+            doc.addCellWithStyle(Coord("C2").addRow(row), date.today(), color_key, "Date")
+            doc.addCellWithStyle(Coord("D2").addRow(row), pow(-1, row)*-10000000, color_key, "Integer")
+            doc.addCellWithStyle(Coord("E2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), color_key, "EUR")
+            doc.addCellWithStyle(Coord("F2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), color_key, "USD")
+            doc.addCellWithStyle(Coord("G2").addRow(row), Percentage(pow(-1, row)*1, 3), color_key,  "Percentage")
+            doc.addCellWithStyle(Coord("H2").addRow(row), pow(-1, row)*123456789.121212, color_key, "Float6")
+            doc.addCellWithStyle(Coord("I2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
+            doc.addCellWithStyle(Coord("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
+            doc.addCellWithStyle(Coord("K2").addRow(row), bool(row%2), color_key, "Bool")
 
-        doc.addCellWithStyle(C("E2").addRow(row+1),f"=sum(E2:{C('E2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR" )
+        doc.addCellWithStyle(Coord("E2").addRow(row+1),f"=sum(E2:{Coord('E2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR" )
         doc.addCellMergedWithStyle("E15:K15", "Merge proof", ColorsNamed.Yellow, style="BoldCenter")
         doc.setComment("B14", "This is nice comment")
         
@@ -458,7 +449,7 @@ doc=ODT()"""    , "Code")
         l.append(doc.textcontentImage(files('unogenerator') / 'images/Imagewithborder.png', 1, None))
         l.append(". ")
         l.append(_("You can trim that gray space when needed with 'bytes_after_trim_image' method. To use this method you need Imagemagick installed to use 'convert' command. This is the result: "))
-        bytes_=bytes_after_trim_image(files('unogenerator') / 'images/Imagewithborder.png', "png")
+        bytes_=commons.bytes_after_trim_image(files('unogenerator') / 'images/Imagewithborder.png', "png")
         l.append(doc.textcontentImage(bytes_, 1, None,))
         doc.addParagraphComplex(l, "Standard")
         
