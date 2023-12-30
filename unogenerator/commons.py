@@ -5,6 +5,7 @@ from decimal import Decimal
 from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, debug
 from importlib.resources import files
+from os import geteuid, remove
 from psutil import process_iter
 from pydicts import lod
 from subprocess import run
@@ -636,6 +637,10 @@ def get_from_process_numinstances_and_firstport():
         print(_("I couldn't detect unogenerator instances"))
     return len(ld), lod.lod_min_value(ld,"port")
    
+
+def is_root():
+    return geteuid() == 0
+   
 def is_formula(s):
     if s is None:
         return False
@@ -689,4 +694,8 @@ def are_all_values_of_the_list_the_same(list_):
             return False
     return True
     
-    
+def remove_without_errors(filename): 
+    try: 
+        remove(filename) 
+    except OSError as e: 
+        print(_("Error deleting: {0} -> {1}").format(filename, e.strerror)) 

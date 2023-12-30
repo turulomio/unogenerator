@@ -16,11 +16,10 @@ from importlib.resources import files
 from pydicts import lol, casts
 from shutil import copyfile
 from tempfile import TemporaryDirectory
-from unogenerator import __version__
+from unogenerator import __version__, exceptions
 from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, string_float2object
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
-from sys import exit
 
 def createUnoService(serviceName):
 #        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
@@ -538,8 +537,7 @@ class ODS(ODF):
     def createSheet(self, name, index=None):
         for sheet in self.getSheetNames():
             if sheet.upper()==name.upper():
-                print(_("ERROR: You can't create '{0}' sheet, because it already exists.").format(name)) 
-                exit(4)
+                raise exceptions.UnogeneratorException(_("ERROR: You can't create '{0}' sheet, because it already exists.").format(name)) 
         
         sheets=self.document.getSheets()
         if index is None:

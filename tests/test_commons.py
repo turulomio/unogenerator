@@ -196,3 +196,6 @@ if can_import_uno():
         assert commons.localc19892datetime(datetime_localc1989)==datetime_
         assert commons.date2localc1989(date_)==date_localc1989
         assert commons.localc19892date(date_localc1989)==date_
+        
+    def test_remove_without_errors():
+        commons.remove_without_errors("I don't exit.pdf")
