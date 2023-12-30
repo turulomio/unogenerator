@@ -10,6 +10,6 @@ class RangeException(Exception):
     """
     pass
 
-class UnoException(Exception): 
+class UnogeneratorException(Exception): 
     pass
   

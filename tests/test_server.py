@@ -1,13 +1,10 @@
-from os import geteuid
-from unogenerator import can_import_uno
+from unogenerator import can_import_uno, commons
 if can_import_uno():
     from unogenerator.server import command_monitor,  is_port_opened, is_server_working, command_stop, command_start
 
-    def is_root():
-        return geteuid() == 0
 
-    def test_get_command_monitor():
-        if is_root():
+    def test_command_monitor():
+        if commons.is_root():
             command_monitor(True,  1024)
         
     def test_is_server_working():
@@ -18,10 +15,10 @@ if can_import_uno():
         is_port_opened("localhost",  90)
         
     def test_command_start():
-        if is_root():
+        if commons.is_root():
             command_start(1,  45000)
         
     def test_command_stop():
-        if is_root():
+        if commons.is_root():
             command_stop()
         

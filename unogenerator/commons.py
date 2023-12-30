@@ -5,6 +5,7 @@ from decimal import Decimal
 from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, debug
 from importlib.resources import files
+from os import geteuid
 from psutil import process_iter
 from pydicts import lod
 from subprocess import run
@@ -635,6 +636,10 @@ def get_from_process_numinstances_and_firstport():
     if len(ld)==0:
         print(_("I couldn't detect unogenerator instances"))
     return len(ld), lod.lod_min_value(ld,"port")
+   
+
+def is_root():
+    return geteuid() == 0
    
 def is_formula(s):
     if s is None:

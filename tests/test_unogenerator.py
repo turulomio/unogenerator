@@ -1,9 +1,10 @@
 from datetime import date
 from os import remove
+from pytest import raises
 
 from unogenerator import can_import_uno
 if can_import_uno():
-    from unogenerator import ODT_Standard, ODT, ODS_Standard, ODS, ColorsNamed, Range, Coord
+    from unogenerator import ODT_Standard, ODT, ODS_Standard, ODS, ColorsNamed, Range, Coord, exceptions
 
     row=[1, 2, 3, 4, 5]
 
@@ -33,6 +34,13 @@ if can_import_uno():
         remove("delete_metadata.odt")
 
 
+
+    def test_odt_export():
+        with ODT_Standard() as doc:
+            doc.addParagraph("Hello")
+            doc.save("test_odt_export.doc")
+            doc.export_docx("test_odt_export.doc")
+            doc.export_pdf("test_odt_export.odt")
 
     def test_ods_calculate_all():
         filename="test_ods_calculate_all.ods"
@@ -150,6 +158,22 @@ if can_import_uno():
             
             doc.save(filename)
         remove(filename)
+        
+    def test_ods_createSheet():
+        # Bad extensions
+        with ODS_Standard() as doc:
+            with raises(exceptions.UnogeneratorException):
+                doc.createSheet("Same name")
+                doc.createSheet("Same name")
+            
+
+    def test_ods_export():
+        # Bad extensions
+        with ODS_Standard() as doc:
+            doc.addCellWithStyle("A1", "test_ods_export")
+            doc.export_xlsx("test_ods_export.xls")
+            doc.export_pdf("test_ods_export.ods")
+            doc.save("test_ods_export.xlsx")
         
     def test_ods_getvalues():
         filename="test_get_values.ods"
