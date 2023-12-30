@@ -280,8 +280,9 @@ def demo_odt_standard(language, port=2002, suffix=""):
         
         doc.addParagraph(_("UnoGenerator documentation"), "Title")
         doc.addParagraph(_("Version: {0}").format(__version__), "Subtitle")
-        
+
         doc.addImageParagraph([files('unogenerator') / 'images/unogenerator.png', ], 4, 4, "Illustration", linked=False)
+
 
         
         doc.addParagraph(_("Introduction"),  "Heading 1")
