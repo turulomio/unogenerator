@@ -23,21 +23,21 @@ msgid "There was a problem converting com.sun.star.util.DateTime to datetime."
 msgstr "Hubo un problema al convertir com.sun.star.util.DateTime a datetime"
 
 msgid "Developed by Mariano Muñoz 2020-{}"
-msgstr "Desarrollado por Mariano Muñoz 2021-{}"
+msgstr "Desarrollado por Mariano Muñoz 2020-{}"
 
 #, python-brace-format
 msgid "Coord constructor must have a str or a Coord parameter and is a {0}"
 msgstr ""
 
 msgid "I can't convert {} (class: {}) to a Coord"
-msgstr ""
+msgstr "No puedo convertir {} (class: {}) en un Coord"
 
 #, python-brace-format
 msgid "Coord can have this character: {0}"
 msgstr ""
 
 msgid "Coord letter can't be empty"
-msgstr ""
+msgstr "La letra de la coordenada no puede estar vacía"
 
 #, python-brace-format
 msgid "Coord couldn't be created with '{0}'"
@@ -49,7 +49,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "This is not a range: {0}"
-msgstr ""
+msgstr "Esto no es un rango: {0}"
 
 #, python-brace-format
 msgid "Range start coord is wrong: {0}"
@@ -546,26 +546,3 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
 
-#~ msgid "Number"
-#~ msgstr "Número"
-
-#~ msgid "Total seconds"
-#~ msgstr "Segundos totales"
-
-#~ msgid "Average"
-#~ msgstr "Media"
-
-#~ msgid "Cells"
-#~ msgstr "Celdas"
-
-#~ msgid "Merged cells"
-#~ msgstr "Celdas unidas"
-
-#~ msgid "Cell gets"
-#~ msgstr "Lectura de celdas"
-
-#~ msgid "Sheet creations"
-#~ msgstr "Nuevas hojas"
-
-#~ msgid "Sheet freezes"
-#~ msgstr "Inmovilizaciones de hoja"

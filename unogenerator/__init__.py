@@ -4,8 +4,8 @@ from colorama import init
 from datetime import datetime
 
 
-__version__ = '0.38.0'
-__versiondatetime__=datetime(2023, 12, 8, 8, 38)
+__version__ = '0.39.0'
+__versiondatetime__=datetime(2024, 1, 2, 12, 57)
 __versiondate__=__versiondatetime__.date()
 
 

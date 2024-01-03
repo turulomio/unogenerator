@@ -94,6 +94,13 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 
 ## Changelog
+### 0.39.0 (2024-01-03)
+- Currency and Percentage classes are now defined in pydicts project
+- Tests coverage is now 87%
+- Unogenerator now needs pydicts-0.11.0
+- Ods.SetCellName now accepts a coord reference instead of a Coord Object
+- Created ODS.toDictionaryOfDetailedValues method to get a python dictionary of the whole calc document
+
 ### 0.38.0 (2023-12-08)
 - Removed statistics to improve speeds
 - Added new exceptions: CoordException, RangeException
