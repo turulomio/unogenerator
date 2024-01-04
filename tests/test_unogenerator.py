@@ -123,7 +123,12 @@ if can_import_uno():
             doc.addColumnWithStyle("I7", row, ColorsNamed.Yellow, "Integer")
             doc.export_pdf("test_ods_addRow.pdf")
             
-        remove("test_ods_addRow.pdf")
+            # Replace colored cell
+            doc.addRowWithStyle("F4", ["Elvis", "Presley"], ColorsNamed.Orange, "BoldCenter")
+            doc.export_pdf("test_ods_addRow.pdf")
+        #remove("test_ods_addRow.pdf")
+
+
         
     def test_ods_freezeandselect():
         filename="test_ods_freezeandselect.ods"
@@ -139,7 +144,6 @@ if can_import_uno():
             doc.createSheet("Header")
             doc.freezeAndSelect("A2")
             doc.addCell("A1", "Hola")
-
             doc.createSheet("Lateral header")
             doc.freezeAndSelect("B1")
             doc.addCell("A1", "Hola")
