@@ -736,10 +736,9 @@ class ODS(ODF):
         range=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
         range.setDataArray(r)    
         return R.from_coords_indexes(*range_indexes)
-        
 
     ## Function used to add a big amount of cells to paste quickly
-    ## @param colors. List of column colors or None to use white
+    ## @param colors. List of column colors, one color, or None to use white
     ## @param styles. List of styles (columns) or None to guess them from first row
     ## @return range of the list_of_rows
     def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None):
@@ -752,18 +751,29 @@ class ODS(ODF):
         columns=range_.numColumns()
         rows=range_.numRows()
 
-
-        #Sets colors and styles
-        if colors.__class__.__name__!="list" and columns>0:
+        # Parse colors.
+        if colors.__class__.__name__=="list":
+            colors=colors
+        elif colors is None:
             colors=[ColorsNamed.White]*columns
+        else: #one ColorsNamed
+            colors=[colors]*columns
+        
+        # Parse styles
         if styles is None and rows>0:
             styles=[]
             for o in list_rows[0]:
                 styles.append(guess_object_style(o))
+        elif styles.__class__.__name__=="list":
+            styles=styles
+        else:
+            styles=[styles]*columns
+                
+                
         if len(colors)!=columns:
-            print(_("Colors must have the same number of items as data columns"))
+            raise exceptions.UnogeneratorException(_("Colors must have the same number of items as data columns"))
         if len(styles)!=columns:
-            print(_("Styles must have the same number of items as data columns"))
+            raise exceptions.UnogeneratorException(_("Styles must have the same number of items as data columns"))
             
         #Create styles by columns cellranges
         if rows>0:

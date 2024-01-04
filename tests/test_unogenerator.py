@@ -1,6 +1,7 @@
-from datetime import date
+from datetime import date, time
 from os import remove
 from pytest import raises
+from pydicts import casts, currency, percentage, lod
 
 from unogenerator import can_import_uno
 if can_import_uno():
@@ -11,8 +12,34 @@ if can_import_uno():
     lor=[]
     for i in range(4):
         lor.append(row)
+        
+    now=casts.dtnaive_now()
+    lod_types=[
+    {
+        "datetime": casts.dtnaive_now(), 
+        "date":date.today(), 
+        "integer":10000, 
+        "currency": currency.Currency(12, "EUR"), 
+        "percentage": percentage.Percentage(1, 2), 
+        "float": 12.24, 
+        "timedelta": casts.dtnaive_now()-now, 
+        "time":time(12, 12, 12), 
+        "bool":True
+    }, 
+    {
+        "datetime": casts.dtnaive_now(), 
+        "date":date.today(), 
+        "integer":-10000, 
+        "currency": currency.Currency(-12, "EUR"), 
+        "percentage": percentage.Percentage(-1, 2), 
+        "float": -12.24, 
+        "timedelta": casts.dtnaive_now()-now, 
+        "time":time(12, 12, 12), 
+        "bool":False
+    }
+    ]
 
-
+    lor_types=lod.lod2lol(lod_types)
 
     def test_odt_metadata():
         with ODT_Standard() as doc:
@@ -102,6 +129,7 @@ if can_import_uno():
 
     def test_ods_addRow():
         with ODS("unogenerator/templates/colored.ods") as doc:
+            doc.setColumnsWidth([4]*20)
             #Checking range - range_uno conversions
             range_=Range("B2:C3")
             range_uno=range_.uno_range(doc.sheet)
@@ -125,8 +153,10 @@ if can_import_uno():
             
             # Replace colored cell
             doc.addRowWithStyle("F4", ["Elvis", "Presley"], ColorsNamed.Orange, "BoldCenter")
+            doc.addListOfRowsWithStyle("J1", lor_types, ColorsNamed.Orange, None)
+            doc.addListOfRows("J4", lor_types)
             doc.export_pdf("test_ods_addRow.pdf")
-        #remove("test_ods_addRow.pdf")
+        remove("test_ods_addRow.pdf")
 
 
         
