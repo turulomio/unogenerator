@@ -46,21 +46,6 @@ filecache = ["filelock (>=3.8.0)"]
 redis = ["redis (>=2.10.5)"]
 
 [[package]]
-name = "ccy"
-version = "1.3.1"
-description = "Python currencies"
-optional = false
-python-versions = ">=3.8,<3.12"
-files = [
-    {file = "ccy-1.3.1-py3-none-any.whl", hash = "sha256:361d240d06bfcc5c5e08b75af220fa5a10b8b7c1f5f2886821694bff48815cfe"},
-    {file = "ccy-1.3.1.tar.gz", hash = "sha256:c19462565798a120e5819d704b3ce8df6ac9b0248e0ebb086cbc5d58468f968e"},
-]
-
-[package.dependencies]
-python-dateutil = ">=2.8.2,<3.0.0"
-pytz = ">=2022.5"
-
-[[package]]
 name = "certifi"
 version = "2023.11.17"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -1000,18 +985,17 @@ files = [
 
 [[package]]
 name = "pydicts"
-version = "0.12.0"
+version = "0.13.0"
 description = "Module to use dictionaries in various situations"
 optional = false
-python-versions = ">=3.8,<3.12"
+python-versions = ">=3.8,<4"
 files = [
-    {file = "pydicts-0.12.0-py3-none-any.whl", hash = "sha256:eb6337cf33718c97237176c51e089bae0e6ef89d13c1b253bdb2fdca9b060ab8"},
-    {file = "pydicts-0.12.0.tar.gz", hash = "sha256:63c73bd637e5a6cbd44be76786b1599a12a781721fb11e4b41e1392348c052fc"},
+    {file = "pydicts-0.13.0-py3-none-any.whl", hash = "sha256:caf353b25b1906c6f19ba857a4b575bbddeba78923fe96ba956dbc9dd553f521"},
+    {file = "pydicts-0.13.0.tar.gz", hash = "sha256:f67788facf774494eef520a45b040d47c13e856156c243e0d451e1bf92b517d3"},
 ]
 
 [package.dependencies]
-ccy = ">=1.3.1,<2.0.0"
-isodate = ">=0.6.1,<0.7.0"
+isodate = ">=0.6.1"
 pylatex = ">=1.4.1"
 tabulate = ">=0.9.0"
 
@@ -1072,31 +1056,6 @@ tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 
 [package.extras]
 testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
-
-[[package]]
-name = "python-dateutil"
-version = "2.8.2"
-description = "Extensions to the standard Python datetime module"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-files = [
-    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
-    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
-]
-
-[package.dependencies]
-six = ">=1.5"
-
-[[package]]
-name = "pytz"
-version = "2023.3.post1"
-description = "World timezone definitions, modern and historical"
-optional = false
-python-versions = "*"
-files = [
-    {file = "pytz-2023.3.post1-py2.py3-none-any.whl", hash = "sha256:ce42d816b81b68506614c11e8937d3aa9e41007ceb50bfdcb0749b921bf646c7"},
-    {file = "pytz-2023.3.post1.tar.gz", hash = "sha256:7b4fddbeb94a1eba4b557da24f19fdf9db575192544270a9101d8509f9f43d7b"},
-]
 
 [[package]]
 name = "pywin32-ctypes"
@@ -1487,5 +1446,5 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">3.8,<3.12"
-content-hash = "a08720068392d9e999f7e7a195e51c99c9137d4661ab03b2d555b346d82d7c14"
+python-versions = ">3.8,<4"
+content-hash = "55e57d5dce5998c4fe34d9728cf6a937f8be12bf3d3a6a058806a8374e5accea"
