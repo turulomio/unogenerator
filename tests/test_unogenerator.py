@@ -42,6 +42,7 @@ if can_import_uno():
     ]
 
     lor_types=lod.lod2lol(lod_types)
+    lor_types_styles=["Datetime", "Date", "Integer", "EUR", "Percentage", "Float2",  "Normal", "Time", "Bool", "Integer"]
 
     def test_odt_metadata():
         with ODT_Standard() as doc:
@@ -113,6 +114,7 @@ if can_import_uno():
     def test_ods_addListOfRows():
         filename="test_ods_addListOfRows.pdf"
         with ODS("unogenerator/templates/colored.ods") as doc:
+            doc.setColumnsWidth([5]*20)
             #Rows
             doc.addListOfRows("B1", lor)
             doc.addListOfRows("A1", [])
@@ -126,8 +128,15 @@ if can_import_uno():
             doc.addListOfColumnsWithStyle("H7", lor)
             doc.addListOfColumnsWithStyle("A1", [])
             
+            # Checks with formulas in array
+            doc.addListOfRows("A15", [["=2+2", "=3+3"], ], formulas=False)
+            doc.addListOfRows("E15", [["=2+2", "=3+3"], ], formulas=True)
+            doc.addListOfRowsWithStyle("A17",  lor_types, formulas=False, styles=lor_types_styles)
+            doc.addListOfRowsWithStyle("A20",  lor_types, formulas=True, styles=lor_types_styles)
+            
             doc.export_pdf(filename)
-        remove(filename)
+            assert False
+        #remove(filename)
 
     def test_ods_addRow():
         with ODS("unogenerator/templates/colored.ods") as doc:
