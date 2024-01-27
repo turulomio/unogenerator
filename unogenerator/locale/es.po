@@ -538,7 +538,7 @@ msgid "Colors must have the same number of items as data columns"
 msgstr ""
 
 msgid "Styles must have the same number of items as data columns"
-msgstr ""
+msgstr "Los estilos deben tener el mismo número de elementos que las columnas de datos"
 
 msgid "Filename extension must be 'ods'."
 msgstr "La extensión del nombre del fichero debe ser 'ods'."
