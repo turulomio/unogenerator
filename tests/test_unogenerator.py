@@ -153,6 +153,26 @@ if can_import_uno():
             assert k3["value"]!=k6["value"]#0,4
             assert k3["string"]=="=2+2"
             assert k6["string"]=="4"
+            
+            #Check with addRow
+            doc.addRow("A9", ["=2+2", "=3+3"], formulas=False)
+            doc.addRow("D9", ["=2+2", "=3+3"], formulas=True)
+            doc.addRowWithStyle("A11",  lor_types[0], formulas=False, styles=lor_types_styles)
+            doc.addRowWithStyle("A12",  lor_types[0], formulas=True, styles=lor_types_styles)
+            
+            #Check with addColumn
+            doc.addColumn("A14", ["=2+2", "=3+3"], formulas=False)
+            doc.addColumn("B14", ["=2+2", "=3+3"], formulas=True)
+            doc.addColumnWithStyle("D14",  lor_types[0], formulas=False, styles=lor_types_styles)
+            doc.addColumnWithStyle("E14",  lor_types[0], formulas=True, styles=lor_types_styles)
+            
+            
+            # Checks with List of Columns
+            doc.addListOfColumns("G14", [["=2+2", "=3+3"], ], formulas=False)
+            doc.addListOfColumns("H14", [["=2+2", "=3+3"], ], formulas=True)
+            doc.addListOfColumnsWithStyle("J14",  lor_types, formulas=False, styles=lor_types_styles)
+            doc.addListOfColumnsWithStyle("M14",  lor_types, formulas=True, styles=lor_types_styles)
+            
             doc.export_pdf(filename)
         remove(filename)
 

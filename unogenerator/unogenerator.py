@@ -530,8 +530,7 @@ class ODS(ODF):
         
     def getSheetNames(self):        
         return self.document.Sheets.ElementNames
-        
-        
+
     ## Creates a new sheet at the end of the sheets
     ## @param if index is None it creates sheet at the end of the existing sheets
     def createSheet(self, name, index=None):
@@ -579,23 +578,11 @@ class ODS(ODF):
         coord=Coord.assertCoord(coord)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__object_to_cell(cell, o)
-        
-#        if outlined is not None:
-#            border_prop = createUnoStruct("com.sun.star.table.BorderLine2")
-#            border_prop.LineWidth = outlined
-#            cell.setPropertyValue("TopBorder", border_prop)
-#            cell.setPropertyValue("LeftBorder", border_prop)
-#            cell.setPropertyValue("RightBorder", border_prop)
-#            cell.setPropertyValue("BottomBorder", border_prop)
-#        if color is not None:
-#            cell.setPropertyValue("CellBackColor", color)
-
-
 
     ## @param colors Color: Use color for all array, List of colors one for each cell
     ## @param styles If None uses guest style. Else an array of styles
     ## @return range
-    def addRow(self, coord_start, list_o):
+    def addRow(self, coord_start, list_o, formulas=True):
         coord_start=Coord.assertCoord(coord_start)
         
         if len(list_o)==0:
@@ -610,17 +597,19 @@ class ODS(ODF):
         #Writes data fast
         range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
         range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
-        self.__setDataArray(range_uno, [r, ])
+        if formulas is True:
+            self.__setFormulaArray(range_uno, [r, ])
+        else:
+            self.__setDataArray(range_uno, [r, ])
         return R.from_uno_range(range_uno)
-        
 
 
     ## @param colors Color: Use color for all array, List of colors one for each cell
     ## @param styles If None uses guest style. Else an array of styles
     ## @return range
-    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True):
         coord_start=Coord.assertCoord(coord_start)        
-        range_=self.addRow(coord_start, list_o)
+        range_=self.addRow(coord_start, list_o, formulas)
         if range_ is None:
             return None
         range_uno=range_.uno_range(self.sheet)
@@ -650,13 +639,11 @@ class ODS(ODF):
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
     ## iF YOU NEED TO CREATE FORMULAS, USE A METHOD WITHOUT SET DATA ARRAY
-    def addColumn(self, coord_start, list_o):
+    def addColumn(self, coord_start, list_o, formulas=True):
         coord_start=Coord.assertCoord(coord_start)
         
         if len(list_o)==0:
             return None
-            
-        
 
         #Convert list_o to valid dataarray
         r=[]
@@ -666,15 +653,18 @@ class ODS(ODF):
         #Writes data fast
         range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex(), coord_start.numberIndex()+len(list_o)-1]
         range_=self.sheet.getCellRangeByPosition(*range_indexes)
-        self.__setDataArray(range_, r)        
+        if formulas is True:
+            self.__setFormulaArray(range_, r)
+        else:
+            self.__setDataArray(range_, r)
         return R.from_coords_indexes(*range_indexes)
             
     ## @param colors If None uses Wh
     ## @param styles If None uses guest style. Else an array of styles
     ## iF YOU NEED TO CREATE FORMULAS, USE A METHOD WITHOUT SET DATA ARRAY
-    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
+    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True):
         coord_start=Coord.assertCoord(coord_start)
-        range_=self.addColumn(coord_start, list_o)
+        range_=self.addColumn(coord_start, list_o, formulas)
         
         if range_ is None:
             return None
@@ -726,26 +716,6 @@ class ODS(ODF):
 
 
     def __setFormulaArray(self,  unorange,  array_):
-#        def contains_not_special_start(iterable, special_chars=('+', '=')):
-#            if isinstance(iterable, str):
-#                # Check if the string starts with any of the special characters
-#                return not any(iterable.startswith(char) for char in special_chars)
-#            try:
-#                # Try iterating over the iterable
-#                for item in iterable:
-#                    if contains_not_special_start(item, special_chars):
-#                        return True
-#            except TypeError:
-#                # Non-iterable item, check if it's a string and doesn't start with special chars
-#                if isinstance(iterable, str):
-#                    return not any(iterable.startswith(char) for char in special_chars)
-#                # If it's not a string, it's considered as not starting with special chars
-#                return True
-#            return False
-#            
-#        if contains_not_special_start(array_):
-#            debug(_("You're trying to add normal cells using setFormulaArray and they will be treated as errors. Use setDataArray for these cells."))
-#            debug(_("  + Range: {0}").format(unorange.AbsoluteName))
         unorange.setFormulaArray(array_)
 
 
@@ -833,17 +803,57 @@ class ODS(ODF):
         return range_
 
 
-    def addListOfColumns(self, coord_start, list_columns):
+    def addListOfColumns(self, coord_start, list_columns, formulas=True):
         coord_start=Coord.assertCoord(coord_start) 
         list_rows=lol.lol_transposed(list_columns)
-        return self.addListOfRows(coord_start, list_rows)
+        return self.addListOfRows(coord_start, list_rows, formulas)
 
 
     ## @param style If None tries to guess it
-    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None):
+    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None,  formulas=True):
+        """
+            Colors and styles are the colors of the first column. Code is different
+        """
         coord_start=Coord.assertCoord(coord_start) 
-        list_rows=lol.lol_transposed(list_columns)
-        return self.addListOfRowsWithStyle(coord_start, list_rows, colors, styles)
+        
+        range_=self.addListOfColumns(coord_start, list_columns, formulas)
+        if range_ is None:
+            return
+        
+        columns=range_.numColumns()
+        rows=range_.numRows()
+
+        # Parse colors.
+        if colors.__class__.__name__=="list":
+            colors=colors
+        elif colors is None:
+            colors=[ColorsNamed.White]*rows
+        else: #one ColorsNamed
+            colors=[colors]*rows
+        
+        # Parse styles
+        if styles is None and rows>0:
+            styles=[]
+            for o in list_columns[0]:
+                styles.append(guess_object_style(o))
+        elif styles.__class__.__name__=="list":
+            styles=styles
+        else:
+            styles=[styles]*rows
+                
+                
+        if len(colors)!=rows:
+            raise exceptions.UnogeneratorException(_("Colors must have the same number of items as data columns"))
+        if len(styles)!=rows:
+            raise exceptions.UnogeneratorException(_("Styles must have the same number of items as data columns"))
+            
+        #Create styles by columns cellranges
+        if rows>0:
+            for c, o in enumerate(list_columns[0]):
+                columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex()+c, coord_start.letterIndex()+columns-1, coord_start.numberIndex()+c)
+                columnrange.setPropertyValue("CellStyle", styles[c])
+                columnrange.setPropertyValue("CellBackColor", colors[c])                    
+        return range_
             
     ## @param style If None tries to guess it
     ## @param rewritewrite If color is ColorsNamed.White, rewrites the color to White instead of ignoring it. Ignore it gains 0.200 ms
