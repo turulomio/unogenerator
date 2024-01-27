@@ -94,6 +94,11 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 
 ## Changelog
+### 0.40.0 (2024-01-27)
+- Added to ODS.addRow, ODS.addListOfRows... a formulas parameter. By default is True and formulas are stored as formulas. If False formulas are written as text
+- Coverage is 88%
+- Unogenerator now needs pydicts-0.13.0
+
 ### 0.39.0 (2024-01-03)
 - Currency and Percentage classes are now defined in pydicts project
 - Tests coverage is now 87%
