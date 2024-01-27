@@ -720,14 +720,36 @@ class ODS(ODF):
             return False
         
         if contains_special_start(array_):
-            print(_("You're trying to add formulas to cells using setDataArray and they will be treated as strings. Use addFormulasInListOfRows after these command to overwrite them."))
-            print(_("  + Range: {0}").format(unorange.AbsoluteName))
+            debug(_("You're trying to add formulas to cells using setDataArray and they will be treated as strings. If you want formula's value use formulas=True in ODS methods"))
+            debug(_("  + Range: {0}").format(unorange.AbsoluteName))
         unorange.setDataArray(array_)
 
 
+    def __setFormulaArray(self,  unorange,  array_):
+#        def contains_not_special_start(iterable, special_chars=('+', '=')):
+#            if isinstance(iterable, str):
+#                # Check if the string starts with any of the special characters
+#                return not any(iterable.startswith(char) for char in special_chars)
+#            try:
+#                # Try iterating over the iterable
+#                for item in iterable:
+#                    if contains_not_special_start(item, special_chars):
+#                        return True
+#            except TypeError:
+#                # Non-iterable item, check if it's a string and doesn't start with special chars
+#                if isinstance(iterable, str):
+#                    return not any(iterable.startswith(char) for char in special_chars)
+#                # If it's not a string, it's considered as not starting with special chars
+#                return True
+#            return False
+#            
+#        if contains_not_special_start(array_):
+#            debug(_("You're trying to add normal cells using setFormulaArray and they will be treated as errors. Use setDataArray for these cells."))
+#            debug(_("  + Range: {0}").format(unorange.AbsoluteName))
+        unorange.setFormulaArray(array_)
 
 
-    def addListOfRows(self, coord_start, list_rows, formulas=False):
+    def addListOfRows(self, coord_start, list_rows, formulas=True):
         """
             Function used to add a big amount of cells to paste quickly
             This method is used when we want to add data without styles, or because we are using a styled template
@@ -768,7 +790,7 @@ class ODS(ODF):
     ## @param colors. List of column colors, one color, or None to use white
     ## @param styles. List of styles (columns) or None to guess them from first row
     ## @return range of the list_of_rows
-    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None,  formulas=False):
+    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None,  formulas=True):
         coord_start=Coord.assertCoord(coord_start) 
         
         range_=self.addListOfRows(coord_start, list_rows, formulas)
@@ -810,31 +832,6 @@ class ODS(ODF):
                 columnrange.setPropertyValue("CellBackColor", colors[c])                    
         return range_
 
-    def __setFormulaArray(self,  unorange,  array_):
-        def contains_not_special_start(iterable, special_chars=('+', '=')):
-            if isinstance(iterable, str):
-                # Check if the string starts with any of the special characters
-                return not any(iterable.startswith(char) for char in special_chars)
-            try:
-                # Try iterating over the iterable
-                for item in iterable:
-                    if contains_not_special_start(item, special_chars):
-                        return True
-            except TypeError:
-                # Non-iterable item, check if it's a string and doesn't start with special chars
-                if isinstance(iterable, str):
-                    return not any(iterable.startswith(char) for char in special_chars)
-                # If it's not a string, it's considered as not starting with special chars
-                return True
-            return False
-        print(array_)
-        print(contains_not_special_start(array_))
-        print(unorange.AbsoluteName)
-        
-        if contains_not_special_start(array_):
-            print(_("You're trying to add normal cells using setFormulaArray and they will be treated as errors. Use setDataArray for these cells."))
-            print(_("  + Range: {0}").format(unorange.AbsoluteName))
-        unorange.setFormulaArray(array_)
 
     def addListOfColumns(self, coord_start, list_columns):
         coord_start=Coord.assertCoord(coord_start) 
@@ -897,7 +894,7 @@ class ODS(ODF):
         elif o.__class__.__name__ in ("bool", ):
             cell.setValue(int(o))
         elif o.__class__.__name__ in ("timedelta", ):
-            cell.setString(str(o))
+            cell.setValue(o.total_seconds())
         elif o is None:
             cell.setString("")
         else:
@@ -908,6 +905,8 @@ class ODS(ODF):
     def __object_to_dataarray_element(self, o):
         if o.__class__.__name__ in ("int", "float"):
             return o
+        elif o.__class__.__name__ in ("timedelta", ):
+            return o.total_seconds()
         elif o.__class__.__name__ in ("str", ):
             if is_formula(o):
                 return o
@@ -930,8 +929,6 @@ class ODS(ODF):
             return float(o)
         elif o.__class__.__name__ in ("bool", ):
             return int(o)
-        elif o.__class__.__name__ in ("timedelta", ):
-            return str(o)
         elif o is None:
             return ""
         else:

@@ -1,4 +1,4 @@
-from datetime import date, time
+from datetime import date, time, timedelta
 from os import remove
 from pytest import raises
 from pydicts import casts, currency, percentage, lod
@@ -22,7 +22,8 @@ if can_import_uno():
         "currency": currency.Currency(12, "EUR"), 
         "percentage": percentage.Percentage(1, 2), 
         "float": 12.24, 
-        "timedelta": casts.dtnaive_now()-now, 
+        "timedelta_seconds": casts.dtnaive_now()-(now-timedelta(seconds=6000)), 
+        "timedelta_iso": casts.timedelta2str(casts.dtnaive_now()-(now-timedelta(seconds=6000))), 
         "time":time(12, 12, 12), 
         "bool":True, 
         "formula":"=2+2"
@@ -34,7 +35,8 @@ if can_import_uno():
         "currency": currency.Currency(-12, "EUR"), 
         "percentage": percentage.Percentage(-1, 2), 
         "float": -12.24, 
-        "timedelta": casts.dtnaive_now()-now, 
+        "timedelta_seconds": casts.dtnaive_now()-now, 
+        "timedelta_iso": casts.timedelta2str(casts.dtnaive_now()-now), 
         "time":time(12, 12, 12), 
         "bool":False, 
         "formula":"=2+2"
@@ -42,7 +44,7 @@ if can_import_uno():
     ]
 
     lor_types=lod.lod2lol(lod_types)
-    lor_types_styles=["Datetime", "Date", "Integer", "EUR", "Percentage", "Float2",  "Normal", "Time", "Bool", "Integer"]
+    lor_types_styles=["Datetime", "Date", "Integer", "EUR", "Percentage", "Float2",  "TimedeltaSeconds","TimedeltaISO", "Time", "Bool", "Integer"]
 
     def test_odt_metadata():
         with ODT_Standard() as doc:
@@ -143,8 +145,15 @@ if can_import_uno():
             doc.addListOfRowsWithStyle("A3",  lor_types, formulas=False, styles=lor_types_styles)
             doc.addListOfRowsWithStyle("A6",  lor_types, formulas=True, styles=lor_types_styles)
             
+            d3=doc.getValue("D3", detailed=True)
+            d6=doc.getValue("D6", detailed=True)
+            assert d3["value"]==d6["value"]
+            k3=doc.getValue("K3", detailed=True)
+            k6=doc.getValue("K6", detailed=True)
+            assert k3["value"]!=k6["value"]#0,4
+            assert k3["string"]=="=2+2"
+            assert k6["string"]=="4"
             doc.export_pdf(filename)
-            assert False
         remove(filename)
 
     def test_ods_addRow():
