@@ -610,7 +610,7 @@ class ODS(ODF):
         #Writes data fast
         range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
         range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
-        range_uno.setDataArray([r, ])
+        self.__setDataArray(range_uno, [r, ])
         return R.from_uno_range(range_uno)
         
 
@@ -666,8 +666,7 @@ class ODS(ODF):
         #Writes data fast
         range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex(), coord_start.numberIndex()+len(list_o)-1]
         range_=self.sheet.getCellRangeByPosition(*range_indexes)
-        range_.setDataArray(r)
-        
+        self.__setDataArray(range_, r)        
         return R.from_coords_indexes(*range_indexes)
             
     ## @param colors If None uses Wh
@@ -701,7 +700,29 @@ class ODS(ODF):
         else:
             range_uno.setPropertyValue("CellStyle", styles)
         return range_
+        
+        
+    
             
+    def __setDataArray(self,  unorange,  array_,  ignore_error=False):
+        def contains_special_start(iterable, special_chars=('+', '=')):
+            if isinstance(iterable, str):
+                # Check if the string starts with any of the special characters
+                return any(iterable.startswith(char) for char in special_chars)
+            try:
+                # Try iterating over the iterable
+                for item in iterable:
+                    if contains_special_start(item, special_chars):
+                        return True
+            except TypeError:
+                # Not an iterable
+                pass
+            return False
+        
+        if contains_special_start(array_):
+            print(_("You're trying to add formulas to cells using setDataArray and they will be treated as strings. Use setFormulaArray for these cells."))
+        unorange.setDataArray(array_)
+
 
     def addListOfRows(self, coord_start, list_rows):
         """
@@ -734,7 +755,7 @@ class ODS(ODF):
         #Writes data fast
         range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
         range=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
-        range.setDataArray(r)    
+        self.__setDataArray(range, r)
         return R.from_coords_indexes(*range_indexes)
 
     ## Function used to add a big amount of cells to paste quickly

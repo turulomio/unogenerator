@@ -24,7 +24,8 @@ if can_import_uno():
         "float": 12.24, 
         "timedelta": casts.dtnaive_now()-now, 
         "time":time(12, 12, 12), 
-        "bool":True
+        "bool":True, 
+        "formula":"=2+2"
     }, 
     {
         "datetime": casts.dtnaive_now(), 
@@ -35,7 +36,8 @@ if can_import_uno():
         "float": -12.24, 
         "timedelta": casts.dtnaive_now()-now, 
         "time":time(12, 12, 12), 
-        "bool":False
+        "bool":False, 
+        "formula":"=2+2"
     }
     ]
 
