@@ -1,4 +1,4 @@
-from datetime import date, time
+from datetime import date, time, timedelta
 from os import remove
 from pytest import raises
 from pydicts import casts, currency, percentage, lod
@@ -22,9 +22,11 @@ if can_import_uno():
         "currency": currency.Currency(12, "EUR"), 
         "percentage": percentage.Percentage(1, 2), 
         "float": 12.24, 
-        "timedelta": casts.dtnaive_now()-now, 
+        "timedelta_seconds": casts.dtnaive_now()-(now-timedelta(seconds=6000)), 
+        "timedelta_iso": casts.timedelta2str(casts.dtnaive_now()-(now-timedelta(seconds=6000))), 
         "time":time(12, 12, 12), 
-        "bool":True
+        "bool":True, 
+        "formula":"=2+2"
     }, 
     {
         "datetime": casts.dtnaive_now(), 
@@ -33,13 +35,16 @@ if can_import_uno():
         "currency": currency.Currency(-12, "EUR"), 
         "percentage": percentage.Percentage(-1, 2), 
         "float": -12.24, 
-        "timedelta": casts.dtnaive_now()-now, 
+        "timedelta_seconds": casts.dtnaive_now()-now, 
+        "timedelta_iso": casts.timedelta2str(casts.dtnaive_now()-now), 
         "time":time(12, 12, 12), 
-        "bool":False
+        "bool":False, 
+        "formula":"=2+2"
     }
     ]
 
     lor_types=lod.lod2lol(lod_types)
+    lor_types_styles=["Datetime", "Date", "Integer", "EUR", "Percentage", "Float2",  "TimedeltaSeconds","TimedeltaISO", "Time", "Bool", "Integer"]
 
     def test_odt_metadata():
         with ODT_Standard() as doc:
@@ -111,6 +116,7 @@ if can_import_uno():
     def test_ods_addListOfRows():
         filename="test_ods_addListOfRows.pdf"
         with ODS("unogenerator/templates/colored.ods") as doc:
+            doc.setColumnsWidth([5]*20)
             #Rows
             doc.addListOfRows("B1", lor)
             doc.addListOfRows("A1", [])
@@ -123,6 +129,49 @@ if can_import_uno():
             #Columns with style
             doc.addListOfColumnsWithStyle("H7", lor)
             doc.addListOfColumnsWithStyle("A1", [])
+                        
+            doc.export_pdf(filename)
+        remove(filename)
+        
+
+    def test_ods_addFormulaArray():
+        filename="test_ods_addFormulaArray.pdf"
+        with ODS_Standard() as doc:
+            doc.setColumnsWidth([5]*20)
+           
+            # Checks with List of Rows
+            doc.addListOfRows("A1", [["=2+2", "=3+3"], ], formulas=False)
+            doc.addListOfRows("D1", [["=2+2", "=3+3"], ], formulas=True)
+            doc.addListOfRowsWithStyle("A3",  lor_types, formulas=False, styles=lor_types_styles)
+            doc.addListOfRowsWithStyle("A6",  lor_types, formulas=True, styles=lor_types_styles)
+            
+            d3=doc.getValue("D3", detailed=True)
+            d6=doc.getValue("D6", detailed=True)
+            assert d3["value"]==d6["value"]
+            k3=doc.getValue("K3", detailed=True)
+            k6=doc.getValue("K6", detailed=True)
+            assert k3["value"]!=k6["value"]#0,4
+            assert k3["string"]=="=2+2"
+            assert k6["string"]=="4"
+            
+            #Check with addRow
+            doc.addRow("A9", ["=2+2", "=3+3"], formulas=False)
+            doc.addRow("D9", ["=2+2", "=3+3"], formulas=True)
+            doc.addRowWithStyle("A11",  lor_types[0], formulas=False, styles=lor_types_styles)
+            doc.addRowWithStyle("A12",  lor_types[0], formulas=True, styles=lor_types_styles)
+            
+            #Check with addColumn
+            doc.addColumn("A14", ["=2+2", "=3+3"], formulas=False)
+            doc.addColumn("B14", ["=2+2", "=3+3"], formulas=True)
+            doc.addColumnWithStyle("D14",  lor_types[0], formulas=False, styles=lor_types_styles)
+            doc.addColumnWithStyle("E14",  lor_types[0], formulas=True, styles=lor_types_styles)
+            
+            
+            # Checks with List of Columns
+            doc.addListOfColumns("G14", [["=2+2", "=3+3"], ], formulas=False)
+            doc.addListOfColumns("H14", [["=2+2", "=3+3"], ], formulas=True)
+            doc.addListOfColumnsWithStyle("J14",  lor_types, formulas=False, styles=lor_types_styles)
+            doc.addListOfColumnsWithStyle("M14",  lor_types, formulas=True, styles=lor_types_styles)
             
             doc.export_pdf(filename)
         remove(filename)
