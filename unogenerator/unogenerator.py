@@ -579,10 +579,14 @@ class ODS(ODF):
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__object_to_cell(cell, o)
 
-    ## @param colors Color: Use color for all array, List of colors one for each cell
-    ## @param styles If None uses guest style. Else an array of styles
-    ## @return range
-    def addRow(self, coord_start, list_o, formulas=True):
+    def addRow(self, coord_start, list_o, formulas=True):        
+        """
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                - colors Color: Use color for all array, List of colors one for each cell
+                - styles If None uses guest style. Else an array of styles
+            Return: Range
+        """
         coord_start=Coord.assertCoord(coord_start)
         
         if len(list_o)==0:
@@ -604,10 +608,14 @@ class ODS(ODF):
         return R.from_uno_range(range_uno)
 
 
-    ## @param colors Color: Use color for all array, List of colors one for each cell
-    ## @param styles If None uses guest style. Else an array of styles
-    ## @return range
-    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True):
+    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True):        
+        """
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                - colors Color: Use color for all array, List of colors one for each cell
+                - styles If None uses guest style. Else an array of styles
+            Return: Range
+        """
         coord_start=Coord.assertCoord(coord_start)        
         range_=self.addRow(coord_start, list_o, formulas)
         if range_ is None:
@@ -636,10 +644,15 @@ class ODS(ODF):
         return range_
             
 
-    ## @param colors If None uses Wh
-    ## @param styles If None uses guest style. Else an array of styles
-    ## iF YOU NEED TO CREATE FORMULAS, USE A METHOD WITHOUT SET DATA ARRAY
+
     def addColumn(self, coord_start, list_o, formulas=True):
+        """
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                - colors If None uses Wh
+                - styles If None uses guest style. Else an array of styles
+            Return: Range
+        """
         coord_start=Coord.assertCoord(coord_start)
         
         if len(list_o)==0:
@@ -659,10 +672,14 @@ class ODS(ODF):
             self.__setDataArray(range_, r)
         return R.from_coords_indexes(*range_indexes)
             
-    ## @param colors If None uses Wh
-    ## @param styles If None uses guest style. Else an array of styles
-    ## iF YOU NEED TO CREATE FORMULAS, USE A METHOD WITHOUT SET DATA ARRAY
     def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True):
+        """
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                - colors Color: Use color for all array, List of colors one for each cell
+                - styles If None uses guest style. Else an array of styles
+            Return: Range
+        """
         coord_start=Coord.assertCoord(coord_start)
         range_=self.addColumn(coord_start, list_o, formulas)
         
@@ -723,8 +740,11 @@ class ODS(ODF):
         """
             Function used to add a big amount of cells to paste quickly
             This method is used when we want to add data without styles, or because we are using a styled template
-            
-            @return range of the list_of_rows
+
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+
+            Return: Range
         """
         coord_start=Coord.assertCoord(coord_start) 
         
@@ -761,6 +781,16 @@ class ODS(ODF):
     ## @param styles. List of styles (columns) or None to guess them from first row
     ## @return range of the list_of_rows
     def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None,  formulas=True):
+        """
+            Function used to add a big amount of cells to paste quickly
+            
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                - colors. List of column colors, one color, or None to use white
+                - styles. List of styles (columns) or None to guess them from first row
+                
+            Return: Range
+        """
         coord_start=Coord.assertCoord(coord_start) 
         
         range_=self.addListOfRows(coord_start, list_rows, formulas)
@@ -804,6 +834,12 @@ class ODS(ODF):
 
 
     def addListOfColumns(self, coord_start, list_columns, formulas=True):
+        """
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                
+            Return: Range
+        """
         coord_start=Coord.assertCoord(coord_start) 
         list_rows=lol.lol_transposed(list_columns)
         return self.addListOfRows(coord_start, list_rows, formulas)
@@ -813,6 +849,11 @@ class ODS(ODF):
     def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None,  formulas=True):
         """
             Colors and styles are the colors of the first column. Code is different
+            
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+            
+            Return: Range
         """
         coord_start=Coord.assertCoord(coord_start) 
         
