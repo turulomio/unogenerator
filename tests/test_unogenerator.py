@@ -127,16 +127,25 @@ if can_import_uno():
             #Columns with style
             doc.addListOfColumnsWithStyle("H7", lor)
             doc.addListOfColumnsWithStyle("A1", [])
-            
-            # Checks with formulas in array
-            doc.addListOfRows("A15", [["=2+2", "=3+3"], ], formulas=False)
-            doc.addListOfRows("E15", [["=2+2", "=3+3"], ], formulas=True)
-            doc.addListOfRowsWithStyle("A17",  lor_types, formulas=False, styles=lor_types_styles)
-            doc.addListOfRowsWithStyle("A20",  lor_types, formulas=True, styles=lor_types_styles)
+                        
+            doc.export_pdf(filename)
+        remove(filename)
+        
+
+    def test_ods_addFormulaArray():
+        filename="test_ods_addFormulaArray.pdf"
+        with ODS_Standard() as doc:
+            doc.setColumnsWidth([5]*20)
+           
+            # Checks with List of Rows
+            doc.addListOfRows("A1", [["=2+2", "=3+3"], ], formulas=False)
+            doc.addListOfRows("D1", [["=2+2", "=3+3"], ], formulas=True)
+            doc.addListOfRowsWithStyle("A3",  lor_types, formulas=False, styles=lor_types_styles)
+            doc.addListOfRowsWithStyle("A6",  lor_types, formulas=True, styles=lor_types_styles)
             
             doc.export_pdf(filename)
             assert False
-        #remove(filename)
+        remove(filename)
 
     def test_ods_addRow():
         with ODS("unogenerator/templates/colored.ods") as doc:
