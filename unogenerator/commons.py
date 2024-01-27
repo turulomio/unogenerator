@@ -13,6 +13,7 @@ from tempfile import TemporaryDirectory
 from uno import createUnoStruct
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
+from pydicts import casts
 from unogenerator import exceptions, __versiondate__
 from time import sleep
 
@@ -422,7 +423,6 @@ class Range:
         r=[]
         if plain is True:
             for letter_index, number_index in self.indexes_list(plain):
-                print (letter_index, number_index)
                 r.append(Coord.from_index(letter_index, number_index))
         else:
             for row  in self.indexes_list(plain):
@@ -470,6 +470,8 @@ def guess_object_style(o):
         return "Normal"
     elif o.__class__.__name__=="int":
         return "Integer"
+    elif o.__class__.__name__=="timedelta":
+        return "TimedeltaSeconds"#TimedeltaISO exits but you can't add or supr
     elif o.__class__.__name__=="str":
         return "Normal"
     elif o.__class__.__name__ in ["Currency", "Money" ]:
@@ -482,8 +484,6 @@ def guess_object_style(o):
         return "Datetime"
     elif o.__class__.__name__=="date":
         return "Date"
-    elif o.__class__.__name__=="timedelta":
-        return "Normal"
     elif o.__class__.__name__=="time":
         return "Time"
     elif o.__class__.__name__=="bool":
@@ -603,6 +603,11 @@ def string_float2object(string_float, cast):
             return localc19892time(string_float)
         except:
             return string_float
+    elif cast=="timedelta":
+        if string_float.__class__== str:
+            return casts.str2timedelta(string_float)
+        else:
+            return timedelta(seconds=string_float)
         
     elif cast=="bool":
         if string_float==0:
