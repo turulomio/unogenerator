@@ -37,7 +37,7 @@ jobs:
         sudo unogenerator_monitor
     - name: Run pytest
       run: |
-        sudo pytest -k currency
+        sudo pytest -k helper
     - name: Monitor things
       run: |
         sudo netstat -nputa
