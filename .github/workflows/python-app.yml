@@ -49,9 +49,13 @@ jobs:
       run: |
         sudo netstat -nputa
         sudo unogenerator_monitor
+    - name: Launch unogenerator_restart
+      run: |
+        sudo unogenerator_stop 
+        sudo unogenerator_start --instances 4
     - name: Run pytest
       run: |
-        sudo pytest -k odsgenerator
+        sudo pytest -k odt_
     - name: Monitor things
       run: |
         sudo netstat -nputa
