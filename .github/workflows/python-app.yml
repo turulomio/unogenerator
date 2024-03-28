@@ -10,7 +10,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
         sudo pip install .
     - name: Launch unogenerator_start
       run: |
-        sudo unogenerator_start --instances 20
+        sudo unogenerator_start
     - name: Monitor things
       run: |
         sudo netstat -nputa
