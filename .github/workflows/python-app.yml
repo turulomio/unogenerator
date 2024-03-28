@@ -19,10 +19,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-#    - name: Set up Python 3.10
-#      uses: actions/setup-python@v3
-#      with:
-#        python-version: "3.10"
     - name: Install Libreoffice and uno dependencies
       run: |
         sudo apt-get update
@@ -30,13 +26,9 @@ jobs:
         sudo dpkg -L libreoffice-script-provider-python
         python --version
         python -m uno
-        python3 -c "import uno"
-#    - name: Install python dependencies
-#      run: |
+        python -c "import uno"
         python -m pip install --upgrade pip
         pip install pytest
         pip install .
-#    - name: Test with pytest
-#      run: |
         python -c "import uno"
         pytest
