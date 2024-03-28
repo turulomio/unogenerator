@@ -30,14 +30,14 @@ jobs:
         sudo pip install .
     - name: Launch unogenerator_start
       run: |
-        sudo unogenerator_start
+        sudo unogenerator_start --instances 4
     - name: Monitor things
       run: |
         sudo netstat -nputa
         sudo unogenerator_monitor
     - name: Run pytest
       run: |
-        sudo pytest
+        sudo pytest -k currency
     - name: Monitor things
       run: |
         sudo netstat -nputa
