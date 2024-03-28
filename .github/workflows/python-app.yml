@@ -25,14 +25,16 @@ jobs:
         python-version: '3.10'
     - name: Install Libreoffice and uno dependencies
       run: |
-        sudo apt-get update
         sudo apt-get install libreoffice python3-uno
-        sudo python -m pip install --upgrade pip
         sudo pip install pytest
         sudo pip install .
     - name: Launch unogenerator_start
       run: |
         sudo unogenerator_start --instances 8
+    - name: Monitor things
+      run: |
+        sudo netstat -nputa
+        sudo unogenerator_monitor
     - name: Run pytest
       run: |
         sudo pytest
