@@ -22,8 +22,8 @@ jobs:
     - name: Install Libreoffice and uno dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install python3-uno
-        sudo dpkg -L python3-uno
+        sudo apt-get install libreoffice libreoffice-script-provider-python
+        sudo dpkg -L libreoffice-script-provider-python
         python --version
         python -m uno
         python3 -c "import uno"
