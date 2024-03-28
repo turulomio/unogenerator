@@ -37,14 +37,7 @@ jobs:
         sudo unogenerator_monitor
     - name: Run pytest
       run: |
-        sudo pytest -k helper
-    - name: Monitor things
-      run: |
-        sudo netstat -nputa
-        sudo unogenerator_monitor
-    - name: Run pytest
-      run: |
-        sudo pytest -k demo
+        sudo pytest tests/test_commons.py tests/test_demo.py tests/test_helpers.py tests/test_server.py 
     - name: Monitor things
       run: |
         sudo netstat -nputa
@@ -55,7 +48,7 @@ jobs:
         sudo unogenerator_start --instances 4
     - name: Run pytest
       run: |
-        sudo pytest -k odt_
+        sudo pytest tests/test_unogenerator.py
     - name: Monitor things
       run: |
         sudo netstat -nputa
