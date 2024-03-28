@@ -23,12 +23,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install libreoffice libreoffice-script-provider-python python3-uno
-        sudo dpkg -L libreoffice-script-provider-python
-        python --version
-        python -m uno
-        python -c "import uno"
-        python -m pip install --upgrade pip
-        pip install pytest
-        pip install .
-        python -c "import uno"
-        pytest
+        sudo python --version
+        sudo python -m uno
+        sudo python -c "import uno"
+        sudo python -m pip install --upgrade pip
+        sudo pip install pytest
+        sudo pip install .
+        sudo python -c "import uno"
+        sudo unogenerator_start
+        sudo pytest
