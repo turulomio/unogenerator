@@ -26,7 +26,7 @@ jobs:
         sudo dpkg -L python3-uno
         python --version
         python -m uno
-
+        python3 -c "import uno"
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
@@ -38,4 +38,5 @@ jobs:
         pip install .
     - name: Test with pytest
       run: |
+        python -c "import uno"
         pytest
