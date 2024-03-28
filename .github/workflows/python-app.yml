@@ -30,7 +30,7 @@ jobs:
         sudo pip install .
     - name: Launch unogenerator_start
       run: |
-        sudo unogenerator_start --instances 8
+        sudo unogenerator_start --instances 20
     - name: Monitor things
       run: |
         sudo netstat -nputa
