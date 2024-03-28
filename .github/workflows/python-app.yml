@@ -28,28 +28,12 @@ jobs:
         sudo apt-get install libreoffice python3-uno
         sudo pip install pytest
         sudo pip install .
-    - name: Launch unogenerator_start
+    - name: Launch unogenerator_start testing all commands
       run: |
-        sudo unogenerator_start --instances 4
-    - name: Monitor things
-      run: |
-        sudo netstat -nputa
+        sudo unogenerator_start --instances 1
         sudo unogenerator_monitor
-    - name: Run pytest
-      run: |
-        sudo pytest tests/test_commons.py tests/test_demo.py tests/test_helpers.py tests/test_server.py 
-    - name: Monitor things
-      run: |
-        sudo netstat -nputa
-        sudo unogenerator_monitor
-    - name: Launch unogenerator_restart
-      run: |
         sudo unogenerator_stop 
         sudo unogenerator_start --instances 4
     - name: Run pytest
       run: |
-        sudo pytest tests/test_unogenerator.py
-    - name: Monitor things
-      run: |
-        sudo netstat -nputa
-        sudo unogenerator_monitor
+        sudo pytest
