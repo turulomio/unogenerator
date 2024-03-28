@@ -38,3 +38,7 @@ jobs:
     - name: Run pytest
       run: |
         sudo pytest
+    - name: Monitor things
+      run: |
+        sudo netstat -nputa
+        sudo unogenerator_monitor
