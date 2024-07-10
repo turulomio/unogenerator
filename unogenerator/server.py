@@ -3,14 +3,14 @@ from colorama import init as colorama_init
 from gettext import translation
 from humanize import naturalsize
 from multiprocessing import cpu_count
-from os import system, makedirs
+from os import makedirs
 from pydicts import lod
 from importlib.resources import files
 from unogenerator import __version__
 from unogenerator.commons import argparse_epilog, addDebugSystem, get_from_process_info, green, red, magenta
 from pydicts.percentage import Percentage
 from socket import socket, AF_INET, SOCK_STREAM
-from subprocess import run
+from subprocess import run,  Popen
 from time import sleep
 
 try:
@@ -59,13 +59,14 @@ def command_start(instances, first_port=2002, backtrace=False):
     for i in range(instances):
         port=first_port+i
         if backtrace is True:
-            command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless {backtrace} > /var/log/unogenerator/unogenerator.{port}.log 2>&1 &'
+            command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless {backtrace} > /var/log/unogenerator/unogenerator.{port}.log'
         else:
-            command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless &'
+            command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless'
         sleep(0.4)
-
         print(_("  - Launched LibreOffice headless instance in port {0}").format(port))
-        system(command)
+        Popen(command,  shell=True) #To run process in background
+        
+        
 
 def server_stop():
     parser=ArgumentParser(
@@ -80,6 +81,7 @@ def server_stop():
 
     addDebugSystem(args.debug)
     command_stop()
+
 def command_stop():
     command="pkill -c -f ';urp;StarOffice.ServiceManager'"
     s=run(command ,shell=True, capture_output=True)
