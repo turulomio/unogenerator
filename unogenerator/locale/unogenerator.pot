@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-27 21:32+0100\n"
+"POT-Creation-Date: 2024-07-10 21:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -526,6 +526,13 @@ msgid "ERROR: You can't create '{0}' sheet, because it already exists."
 msgstr ""
 
 msgid "addRow is empty. Nothing to write. Ignoring..."
+msgstr ""
+
+msgid "You're trying to add formulas to cells using setDataArray and they will be treated as strings. If you want formula's value use formulas=True in ODS methods"
+msgstr ""
+
+#, python-brace-format
+msgid "  + Range: {0}"
 msgstr ""
 
 #, python-brace-format
