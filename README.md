@@ -94,6 +94,10 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 
 
 ## Changelog
+### 0.41.0 (2024-07-10)
+- unogenerator_start now launches libreoffice instances silently
+- Github actions work
+
 ### 0.40.0 (2024-01-27)
 - Added to ODS.addRow, ODS.addListOfRows... a formulas parameter. By default is True and formulas are stored as formulas. If False formulas are written as text
 - Coverage is 88%

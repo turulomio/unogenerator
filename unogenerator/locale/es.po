@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-08 08:51+0100\n"
+"POT-Creation-Date: 2024-07-10 21:12+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: turulomio@yahoo.es\n"
 "Language-Team: turulomio@yahoo.es\n"
@@ -530,6 +530,13 @@ msgstr "ERROR: No puedes crear la hoja '{0}', porque ya existe."
 msgid "addRow is empty. Nothing to write. Ignoring..."
 msgstr ""
 
+msgid "You're trying to add formulas to cells using setDataArray and they will be treated as strings. If you want formula's value use formulas=True in ODS methods"
+msgstr ""
+
+#, python-brace-format
+msgid "  + Range: {0}"
+msgstr ""
+
 #, python-brace-format
 msgid "addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring..."
 msgstr ""
@@ -545,4 +552,3 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
-
