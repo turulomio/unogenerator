@@ -406,7 +406,11 @@ doc=ODT()"""    , "Code")
         
         l=[]
         l.append( _("This is an image loaded from bytes: "))
-        l.append(doc.textcontentImage(open(files('unogenerator') / 'images/crown.png', "rb").read(), 1, 1, "AS_CHARACTER", "d", linked=False))
+        
+        with open(files('unogenerator') / 'images/crown.png', "rb") as f:
+            bytes_crown=f.read()
+        
+        l.append(doc.textcontentImage(bytes_crown, 1, 1, "AS_CHARACTER", "d", linked=False))
         doc.addParagraphComplex(l, "Standard")
 
         l=[]

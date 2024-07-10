@@ -4,7 +4,7 @@ from sys import argv
 
 
 def test():
-    system("pytest")
+    system("pytest -W error")
     
 def coverage():
     system("coverage run --omit='*uno.py' -m pytest && coverage report && coverage html")

@@ -127,7 +127,7 @@ def command_monitor(restart, recommended_memory):
     
     total_cons=0
     for d in ld:
-        for con in  d["object"].connections():
+        for con in  d["object"].net_connections():
             if con.status=="ESTABLISHED":
                 total_cons=total_cons+1
     
