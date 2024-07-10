@@ -28,12 +28,13 @@ def documentation():
         system("cp -f unogenerator_example_es.pdf doc/")
         system("unogenerator_demo --remove")
 
-
 def release():
     print("""Nueva versión:
   * Cambiar la versión y la fecha en __init__.py
   * Cambiar la versión en pyproject.toml
-  * Modificar el Changelog en README
+  * Ejecutar otra vez poe release
+  * git checkout -b unogenerator-{0}
+  * Modificar el Changelog en README.md
   * poe coverage con pyvenv systempackages=false
   * poe coverage con pyvenv systempackages=true
   * poe translate
@@ -42,14 +43,16 @@ def release():
   * poe documentation
   * git commit -a -m 'unogenerator-{0}'
   * git push
+  * Hacer un pull request con los cambios a main
   * Hacer un nuevo tag en GitHub
+  * git checkout main
+  * git pull
   * poetry build
   * poetry publish --username --password  
   * Crea un nuevo ebuild de UNOGENERATOR Gentoo con la nueva versión
   * Subelo al repositorio del portage
 
 """.format(__version__))
-
 
 def docker_build():
     system("docker build --tag turulomio/unogenerator:latest .")
