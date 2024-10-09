@@ -46,11 +46,11 @@ class ODF:
             @type string
         """
         self.start=datetime.now()
+        self.libreoffice_process=None
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
         
         self.loserver_port= self.launch_disposable_libreoffice_server_instance()
         maxtries=300
-        self.libreoffice_process=None
         
         for i in range(maxtries):
             try:
@@ -78,7 +78,7 @@ class ODF:
                 self.dict_stylenames=self.dictionary_of_stylenames()
                 break
             except Exception as e:
-                sleep(0.1)
+                sleep(0.25)
                 if i==maxtries - 1:
                     print(_("This process died after trying to connect to port {0} during {1} seconds").format(self.loserver_port, maxtries*0.1))
                     print(e)
@@ -91,8 +91,8 @@ class ODF:
             port=s.getsockname()[1]
 
         
-        command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless'
-        self.disposable_libreoffice_process= Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
+        command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless  --nologo  --norestore --nolockcheck'
+        self.libreoffice_process= Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
         return port
         
 
@@ -119,7 +119,7 @@ class ODF:
             self.kill_disposable_libreoffice_instance()
         
     def kill_disposable_libreoffice_instance(self):
-        if self.disposable_libreoffice_process is not None:
+        if self.libreoffice_process is not None:
             system(f'pkill -f socket,host=localhost,port={self.loserver_port};urp;StarOffice.ServiceManager')
             system(f'rm -Rf /tmp/unogenerator{self.loserver_port}')
 

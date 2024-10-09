@@ -6,8 +6,6 @@ from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, debug
 from importlib.resources import files
 from os import geteuid, remove
-from psutil import process_iter
-from pydicts import lod
 from subprocess import run
 from tempfile import TemporaryDirectory
 from uno import createUnoStruct
@@ -16,7 +14,6 @@ from pydicts.percentage import Percentage
 from pydicts import casts
 from socket import socket, AF_INET, SOCK_STREAM
 from unogenerator import exceptions, __versiondate__
-from time import sleep
 
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
@@ -548,34 +545,6 @@ def next_port(last,  first_port,  instances):
     else:
         return last+1
 
-
-## @param attempts (Integer). Sometimes when server is busy this method fails to detect info. So I make several attempts with a time interval
-## @return listdict with process info
-def get_from_process_info(cpu_percentage=False, attempts=10):
-    for attempt in range(attempts):
-        try:
-            r=[]
-            for p in process_iter(['name','cmdline', 'pid']): 
-                d={}
-                if p.info['name']=='soffice.bin':
-                    if  'file:///tmp/unogenerator'  in ' '.join(p.info['cmdline']):
-                        d["port"]=int(p.info['cmdline'][1][-4:])
-                        d["pid"]=p.pid
-                        d["mem"]=p.memory_info().rss
-                        d["cpu_number"]=p.cpu_num()
-                        if cpu_percentage is True:
-                            d["cpu_percentage"]=p.cpu_percent(interval=0.01)
-                            d["object"]=p
-                        r.append(d)
-            if len(r)==0:
-                raise
-            return r
-        except:
-            print(_("I couldn't detect unogenerator process info ({0}/{1} attempts)").format(attempt, attempts))
-            sleep(5)
-            continue
-    print(_("Have you launched unogenerator instances?. Please run unogenerator_start"))
-    return []
     
         
 ## Converts an string or a float to an object.
@@ -647,14 +616,6 @@ def string_float2object(string_float, cast):
         except:
             return string_float
     return string_float
-
-
-def get_from_process_numinstances_and_firstport():        
-    ld=get_from_process_info()
-    if len(ld)==0:
-        print(_("I couldn't detect unogenerator instances"))
-    return len(ld), lod.lod_min_value(ld,"port")
-   
 
 def is_root():
     return geteuid() == 0
