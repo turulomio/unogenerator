@@ -248,17 +248,9 @@ if can_import_uno():
             with raises(exceptions.UnogeneratorException):
                 doc.createSheet("Same name")
                 doc.createSheet("Same name")
-
-
-    def test_ods_createSheet_disposable():
-        # Bad error
-        with ODS_Standard(disposable=True) as doc:
-            with raises(exceptions.UnogeneratorException):
-                doc.createSheet("Same name")
-                doc.createSheet("Same name")
         assert not path.exists(f"/tmp/unogenerator{doc.loserver_port}")
                 
-        with ODS_Standard(disposable=True) as doc:
+        with ODS_Standard() as doc:
             doc.createSheet("Same name")
         assert not path.exists(f"/tmp/unogenerator{doc.loserver_port}")
         

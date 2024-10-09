@@ -8,9 +8,10 @@ from humanize import naturalsize
 from psutil import process_iter
 from unogenerator import __version__
 from unogenerator.commons import argparse_epilog, addDebugSystem, green, red
-from os import system, path, scandir
+from os import system, scandir
 from pydicts.percentage import Percentage
 from time import sleep
+from sys import stdout
 
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
@@ -35,12 +36,15 @@ def monitor():
     addDebugSystem(args.debug)
     command_monitor()
     
+def clear_screen():
+    stdout.write("\033[H\033[J")  # Move cursor to top-left and clear screen
+    stdout.flush()
    
 ## @param restart boolean. To restart unogenerator server when idle and used memory above recommended memory
 ## @param recommended. Integer. Recomended memory in Mb
 def command_monitor():
     while True:
-        system("clear")
+        clear_screen()
         
         directorios_deben=set()
         
@@ -57,7 +61,8 @@ def command_monitor():
                         d["cpu_percentage"]=Percentage(p.cpu_percent(interval=0.01), 100)
                         d["status"]=p.status()
                         d["duration"]=datetime.now()-datetime.fromtimestamp(p.create_time())
-                        d["conexiones"]=len(p.connections())
+                        connections=len(p.connections())
+                        d["conexiones"]=green(connections )if connections==0 else red(connections)
                         r.append(d)
             except:
                 pass
@@ -74,32 +79,7 @@ def command_monitor():
                 directorios_existen.add(entry.name)
         print(directorios_existen-directorios_deben)
        
-        sleep(1)
-    #    instances=len(ld)
-#    list_ports=lod.lod2list(ld, 'port', True)
-#    cpu_nums=lod.lod2list(ld, 'cpu_number', True)
-#    cpu_percentage=Percentage(lod.lod_average(ld, "cpu_percentage"), 100)
-#    mem_total=lod.lod_sum(ld, "mem")
-#    str_mem_total=green(naturalsize(mem_total)) if mem_total<max_mem_recommended else red(naturalsize(mem_total))
-#    str_cpu_percentage= green(cpu_percentage) if cpu_percentage.value==0 else red(cpu_percentage)
-#
-#    print(_("Instances: {0}").format(green(instances)))
-#    print(_("Ports used: {0}").format(green(str(list_ports)[1:-1])))
-#    print(_("CPU used: {0}").format(green(str(cpu_nums)[ 1:-1])))
-#    print(_("Memory used: {0}").format(str_mem_total))
-#    print(_("Max memory recommended: {0}".format(green(naturalsize(max_mem_recommended)))))    
-#    print(_("CPU percentage: {0}".format(str_cpu_percentage)))
-#    
-#    total_cons=0
-#    for d in ld:
-#        for con in  d["object"].net_connections():
-#            if con.status=="ESTABLISHED":
-#                total_cons=total_cons+1
-#    
-#    str_connections= green(total_cons) if total_cons==0 else red(total_cons)
-#    print(_("Connections: {0}").format(str_connections))
-
-    
+        sleep(1)    
     
 def cleaner():    
     colorama_init()
