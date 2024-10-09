@@ -13,6 +13,7 @@ from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
 from gettext import translation
 from logging import warning, debug
 from importlib.resources import files
+from os import system
 from pydicts import lol, casts
 from shutil import copyfile
 from socket import socket, AF_INET, SOCK_STREAM
@@ -106,7 +107,7 @@ class ODF:
 
         
         command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless'
-        self.disposable_libreoffice_process= Popen(command, shell=True)
+        self.disposable_libreoffice_process= Popen(command,  shell=True)
         return port
         
 
@@ -125,9 +126,17 @@ class ODF:
         self.document.calculateAll()
 
     def close(self):
-        self.document.dispose()
-        print(self.disposable_libreoffice_process)
-        self.disposable_libreoffice_process.kill()
+        try:
+            self.document.dispose()
+        except:
+            print ("Error closing ODF instance, but used pkill")
+        finally:
+            self.kill_disposable_libreoffice_instance()
+        
+    def kill_disposable_libreoffice_instance(self):
+        if self.disposable_libreoffice_process is not None:
+            system(f'pkill -f socket,host=localhost,port={self.loserver_port};urp;StarOffice.ServiceManager')
+
         
     ## Generate a dictionary_of_styles with families as key, and a list of string styles as value
     def dictionary_of_stylenames(self):
