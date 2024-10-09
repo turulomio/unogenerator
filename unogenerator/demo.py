@@ -65,7 +65,7 @@ def main_concurrent(arguments=None):
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
     parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
-    parser.add_argument('--instances', help="Loops of documentation jobs", action="store", default=cpu_count(),  type=int)
+    parser.add_argument('--instances', help="Loops of documentation jobs", action="store", default=4,  type=int)
     args=parser.parse_args(arguments)
 
     commons.addDebugSystem(args.debug)
