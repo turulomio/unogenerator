@@ -57,6 +57,7 @@ def command_monitor():
                         d["cpu_percentage"]=Percentage(p.cpu_percent(interval=0.01), 100)
                         d["status"]=p.status()
                         d["duration"]=datetime.now()-datetime.fromtimestamp(p.create_time())
+                        d["conexiones"]=len(p.connections())
                         r.append(d)
             except:
                 pass
@@ -72,6 +73,7 @@ def command_monitor():
             if entry.is_dir() and entry.name.startswith("unogenerator"):
                 directorios_existen.add(entry.name)
         print(directorios_existen-directorios_deben)
+       
         sleep(1)
     #    instances=len(ld)
 #    list_ports=lod.lod2list(ld, 'port', True)
