@@ -88,12 +88,11 @@ def command_monitor(seconds):
         last_dod_=deepcopy(dod_)
         
         result_dod=deepcopy(dod_)
-        result_lod=lod.lod_order_by(result_dod.values(), "Last CPU",  reverse=True)
+        result_lod=lod.lod_order_by(result_dod.values(), "duration",  reverse=True)
         lod.lod_remove_key(result_lod,"last_cpu_percentage_datetime")
         
         #Change color on Last CPU
         for d in result_lod:
-            
             d["duration"]=red(d["duration"] )if d["duration"].total_seconds()>seconds else green(d["duration"])
             d["Last CPU"]=red(d["Last CPU"] )if d["Last CPU"].total_seconds()>seconds else green(d["Last CPU"])
         
