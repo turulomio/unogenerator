@@ -15,7 +15,10 @@ from logging import warning, debug
 from importlib.resources import files
 from pydicts import lol, casts
 from shutil import copyfile
+from socket import socket, AF_INET, SOCK_STREAM
+from subprocess import Popen
 from tempfile import TemporaryDirectory
+from time import sleep
 from unogenerator import __version__, exceptions
 from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, string_float2object
 from pydicts.currency import Currency
@@ -34,18 +37,35 @@ except:
 
 
 class ODF:
-    def __init__(self, template=None, loserver_port=2002):
+    def __init__(self, template=None, loserver_port=2002,  disposable=False):
+        """
+            Common class for ODF instances
+
+            @param template path to template
+            @type string
+            @param loserver_port port to use
+            @type int
+            @param disposable Sets if libreoffice server instance will be of a single use
+            @type bool
+        """
         self.start=datetime.now()
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
-        self.loserver_port=loserver_port
-        self.num_instances, self.first_port=get_from_process_numinstances_and_firstport()
-        maxtries=self.num_instances*3
+        
+        if disposable is True:
+            self.loserver_port= self.launch_disposable_libreoffice_server_instance()
+            maxtries=10
+        else:
+            self.loserver_port=loserver_port    
+            self.num_instances, self.first_port=get_from_process_numinstances_and_firstport()
+            maxtries=self.num_instances*3
+        self.disposable_process=None
+        
         for i in range(maxtries):
             try:
                 localContext = getComponentContext()
                 resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
                 ## self.ctx parece que es mi contexto para servicios
-                self.ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
+                self.ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={self.loserver_port};urp;StarOffice.ComponentContext')
                 self.desktop = self.ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
                 self.graphicsprovider=self.ctx.ServiceManager.createInstance("com.sun.star.graphic.GraphicProvider")                   
                 args=(
@@ -67,12 +87,29 @@ class ODF:
                 break
             except Exception as e:
                 print(e)
-                old=self.loserver_port
-                self.loserver_port=next_port(self.loserver_port, self.first_port, self.num_instances)
-                print(_("Changing port {0} to {1} {2} times").format(old, self.loserver_port, i))
+                if disposable is False:
+                    old=self.loserver_port
+                    self.loserver_port=next_port(self.loserver_port, self.first_port, self.num_instances)
+                    print(_("Changing port {0} to {1} {2} times").format(old, self.loserver_port, i))
+                else:#disposable True
+                    sleep(1)
                 if i==maxtries - 1:
                     print(_("This process died"))
+                    
         
+    def launch_disposable_libreoffice_server_instance(self):
+        # Gets an unued port
+        with socket(AF_INET, SOCK_STREAM) as s:
+            s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
+            port=s.getsockname()[1]
+        print("Disposable port",  port)
+
+        
+        command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless'
+        self.disposable_libreoffice_process= Popen(command, shell=True)
+        return port
+        
+
     ## This method allows to use with statement. 
     ## with ODS() as doc:
     ##      doc.createSheet("WITH")
@@ -89,6 +126,8 @@ class ODF:
 
     def close(self):
         self.document.dispose()
+        print(self.disposable_libreoffice_process)
+        self.disposable_libreoffice_process.kill()
         
     ## Generate a dictionary_of_styles with families as key, and a list of string styles as value
     def dictionary_of_stylenames(self):
@@ -164,8 +203,8 @@ class ODF:
         
                    
 class ODT(ODF):
-    def __init__(self, template=None, loserver_port=2002):
-        ODF.__init__(self, template, loserver_port)
+    def __init__(self, template=None, loserver_port=2002,  disposable=False):
+        ODF.__init__(self, template, loserver_port, disposable)
 
     def save(self, filename, overwrite_template=False):
         if filename==self.template and overwrite_template is False:
@@ -512,8 +551,8 @@ class ODT(ODF):
 
 
 class ODS(ODF):
-    def __init__(self, template=None, loserver_port=2002):
-        ODF.__init__(self, template, loserver_port)
+    def __init__(self, template=None, loserver_port=2002, disposable=False):
+        ODF.__init__(self, template, loserver_port, disposable)
         self._remove_default_sheet=True
 
     def getRemoveDefaultSheet(self):
@@ -1353,12 +1392,12 @@ class ODS(ODF):
         return r
 
 class ODS_Standard(ODS):
-    def __init__(self, loserver_port=2002):
-        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', loserver_port)
+    def __init__(self, loserver_port=2002, disposable=False):
+        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', loserver_port, disposable)
 
 class ODT_Standard(ODT):
-    def __init__(self, loserver_port=2002):
-        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', loserver_port)
+    def __init__(self, loserver_port=2002, disposable=False):
+        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', loserver_port,  disposable)
         self.deleteAll()
 
 
