@@ -1,5 +1,5 @@
 from datetime import date, time, timedelta
-from os import remove
+from os import remove, path
 from pytest import raises
 from pydicts import casts, currency, percentage, lod
 
@@ -251,10 +251,17 @@ if can_import_uno():
 
 
     def test_ods_createSheet_disposable():
-        # Bad extensions
+        # Bad error
         with ODS_Standard(disposable=True) as doc:
+            with raises(exceptions.UnogeneratorException):
                 doc.createSheet("Same name")
                 doc.createSheet("Same name")
+        assert not path.exists(f"/tmp/unogenerator{doc.loserver_port}")
+                
+        with ODS_Standard(disposable=True) as doc:
+            doc.createSheet("Same name")
+        assert not path.exists(f"/tmp/unogenerator{doc.loserver_port}")
+        
     
 
     def test_ods_export():

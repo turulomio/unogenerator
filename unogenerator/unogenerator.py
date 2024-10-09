@@ -54,7 +54,7 @@ class ODF:
         
         if disposable is True:
             self.loserver_port= self.launch_disposable_libreoffice_server_instance()
-            maxtries=10
+            maxtries=100
         else:
             self.loserver_port=loserver_port    
             self.num_instances, self.first_port=get_from_process_numinstances_and_firstport()
@@ -93,7 +93,7 @@ class ODF:
                     self.loserver_port=next_port(self.loserver_port, self.first_port, self.num_instances)
                     print(_("Changing port {0} to {1} {2} times").format(old, self.loserver_port, i))
                 else:#disposable True
-                    sleep(1)
+                    sleep(0.1)
                 if i==maxtries - 1:
                     print(_("This process died"))
                     
@@ -136,6 +136,7 @@ class ODF:
     def kill_disposable_libreoffice_instance(self):
         if self.disposable_libreoffice_process is not None:
             system(f'pkill -f socket,host=localhost,port={self.loserver_port};urp;StarOffice.ServiceManager')
+            system(f'rm -Rf /tmp/unogenerator{self.loserver_port}')
 
         
     ## Generate a dictionary_of_styles with families as key, and a list of string styles as value
