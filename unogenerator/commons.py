@@ -14,6 +14,7 @@ from uno import createUnoStruct
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 from pydicts import casts
+from socket import socket, AF_INET, SOCK_STREAM
 from unogenerator import exceptions, __versiondate__
 from time import sleep
 
@@ -44,6 +45,18 @@ def datetime2uno( dt):
     r.Minutes=dt.minute
     r.Seconds=dt.second
     return r
+
+
+def is_port_opened(host, port):
+    sock = socket(AF_INET, SOCK_STREAM)
+    result = sock.connect_ex((host,port))
+    sock.close()
+    if result == 0:
+       return False
+    else:
+       return True
+
+
 
 ## Converts a com.sun.star.util.DateTime to datetime
 def uno2datetime(r):
@@ -675,7 +688,7 @@ def bytes_after_trim_image(filename_or_bytessequence, type):
             filename_to_trim=filename_or_bytessequence
 
         #Trims white space
-        p=run(f"convert -trim +repage '{filename_to_trim}' '{filename_trimed}'",  shell=True)
+        p=run(f"magick '{filename_to_trim}' -trim +repage '{filename_trimed}'",  shell=True)
         if p.returncode==0:
             #Alter bytes if converted
             with open(filename_trimed, "r+b") as f:

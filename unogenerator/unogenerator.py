@@ -21,7 +21,7 @@ from subprocess import Popen
 from tempfile import TemporaryDirectory
 from time import sleep
 from unogenerator import __version__, exceptions
-from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, string_float2object
+from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989,  is_formula, uno2datetime, string_float2object
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 
@@ -38,28 +38,19 @@ except:
 
 
 class ODF:
-    def __init__(self, template=None, loserver_port=2002,  disposable=False):
+    def __init__(self, template=None):
         """
             Common class for ODF instances
 
             @param template path to template
             @type string
-            @param loserver_port port to use
-            @type int
-            @param disposable Sets if libreoffice server instance will be of a single use
-            @type bool
         """
         self.start=datetime.now()
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
         
-        if disposable is True:
-            self.loserver_port= self.launch_disposable_libreoffice_server_instance()
-            maxtries=100
-        else:
-            self.loserver_port=loserver_port    
-            self.num_instances, self.first_port=get_from_process_numinstances_and_firstport()
-            maxtries=self.num_instances*3
-        self.disposable_process=None
+        self.loserver_port= self.launch_disposable_libreoffice_server_instance()
+        maxtries=300
+        self.libreoffice_process=None
         
         for i in range(maxtries):
             try:
@@ -87,15 +78,10 @@ class ODF:
                 self.dict_stylenames=self.dictionary_of_stylenames()
                 break
             except Exception as e:
-                print(e)
-                if disposable is False:
-                    old=self.loserver_port
-                    self.loserver_port=next_port(self.loserver_port, self.first_port, self.num_instances)
-                    print(_("Changing port {0} to {1} {2} times").format(old, self.loserver_port, i))
-                else:#disposable True
-                    sleep(0.1)
+                sleep(0.1)
                 if i==maxtries - 1:
-                    print(_("This process died"))
+                    print(_("This process died after trying to connect to port {0} during {1} seconds").format(self.loserver_port, maxtries*0.1))
+                    print(e)
                     
         
     def launch_disposable_libreoffice_server_instance(self):
@@ -103,7 +89,6 @@ class ODF:
         with socket(AF_INET, SOCK_STREAM) as s:
             s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
             port=s.getsockname()[1]
-        print("Disposable port",  port)
 
         
         command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless'
@@ -213,8 +198,8 @@ class ODF:
         
                    
 class ODT(ODF):
-    def __init__(self, template=None, loserver_port=2002,  disposable=False):
-        ODF.__init__(self, template, loserver_port, disposable)
+    def __init__(self, template=None):
+        ODF.__init__(self, template)
 
     def save(self, filename, overwrite_template=False):
         if filename==self.template and overwrite_template is False:
@@ -561,8 +546,8 @@ class ODT(ODF):
 
 
 class ODS(ODF):
-    def __init__(self, template=None, loserver_port=2002, disposable=False):
-        ODF.__init__(self, template, loserver_port, disposable)
+    def __init__(self, template=None):
+        ODF.__init__(self, template)
         self._remove_default_sheet=True
 
     def getRemoveDefaultSheet(self):
@@ -1402,12 +1387,12 @@ class ODS(ODF):
         return r
 
 class ODS_Standard(ODS):
-    def __init__(self, loserver_port=2002, disposable=False):
-        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', loserver_port, disposable)
+    def __init__(self):
+        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods')
 
 class ODT_Standard(ODT):
-    def __init__(self, loserver_port=2002, disposable=False):
-        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', loserver_port,  disposable)
+    def __init__(self):
+        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt')
         self.deleteAll()
 
 

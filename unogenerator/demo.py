@@ -67,7 +67,6 @@ def main_concurrent(arguments=None):
     parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
     args=parser.parse_args(arguments)
 
-    num_instances, first_port=commons.get_from_process_numinstances_and_firstport()
     commons.addDebugSystem(args.debug)
 
     if args.remove==True:
@@ -81,21 +80,19 @@ def main_concurrent(arguments=None):
                     commons.remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
 
     if args.create==True:
-        print(_("Launching concurrent demo with {0} workers to a daemon with {0} instances from {1} port").format(num_instances, first_port))
+        instances=8
+        print(_("Launching concurrent demo with {0} workers").format(instances))
 
         start=datetime.now()
         futures=[]
-        port=first_port
-        with ProcessPoolExecutor(max_workers=num_instances) as executor:
+        with ProcessPoolExecutor(max_workers=instances) as executor:
             with tqdm(total=args.loops*4) as progress:
                 for i in range(args.loops):
                     for language in ['es', 'en']:
-                        port=commons.next_port(port, first_port, num_instances)
-                        future=executor.submit(demo_ods_standard, language, port, f".{i}")
+                        future=executor.submit(demo_ods_standard, language, f".{i}")
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
-                        port=commons.next_port(port, first_port, num_instances)
-                        future=executor.submit(demo_odt_standard, language, port, f".{i}")
+                        future=executor.submit(demo_odt_standard, language, f".{i}")
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 
@@ -111,12 +108,12 @@ def main_concurrent(arguments=None):
         print(_("All process took {}".format(datetime.now()-start)))
 
        
-def demo_ods_standard(language, port=2002, suffix="",):
+def demo_ods_standard(language,  suffix="",):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
     
-    with ODS_Standard(port) as doc:
+    with ODS_Standard() as doc:
         doc.setMetadata(
             _("UnoGenerator ODS example"),  
             _("Demo with ODS class"), 
@@ -249,17 +246,17 @@ def demo_ods_standard(language, port=2002, suffix="",):
         doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
         doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
     
-    r= _("unogenerator_example_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, port)
+    r= _("unogenerator_example_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, doc.loserver_port)
     info(r)
     return r
     
     
-def demo_odt_standard(language, port=2002, suffix=""):
+def demo_odt_standard(language, suffix=""):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
 
-    with ODT_Standard(port) as doc:
+    with ODT_Standard() as doc:
         doc.setMetadata(
             _("UnoGenerator documentation"),  
             _("UnoGenerator python module documentation"), 
@@ -498,7 +495,7 @@ with ODS_Standard() as doc:
         doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
         doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
 
-    r= _("unogenerator_documentation_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, port)
+    r= _("unogenerator_documentation_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, doc.loserver_port)
     info(r)
     return r
 
