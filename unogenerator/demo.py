@@ -65,6 +65,7 @@ def main_concurrent(arguments=None):
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
     parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
+    parser.add_argument('--instances', help="Loops of documentation jobs", action="store", default=cpu_count(),  type=int)
     args=parser.parse_args(arguments)
 
     commons.addDebugSystem(args.debug)
@@ -80,12 +81,11 @@ def main_concurrent(arguments=None):
                     commons.remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
 
     if args.create==True:
-        instances=8
-        print(_("Launching concurrent demo with {0} workers").format(instances))
+        print(_("Launching concurrent demo with {0} workers").format(args.instances))
 
         start=datetime.now()
         futures=[]
-        with ProcessPoolExecutor(max_workers=instances) as executor:
+        with ProcessPoolExecutor(max_workers=args.instances) as executor:
             with tqdm(total=args.loops*4) as progress:
                 for i in range(args.loops):
                     for language in ['es', 'en']:

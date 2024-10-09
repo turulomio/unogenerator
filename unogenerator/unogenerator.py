@@ -17,7 +17,7 @@ from os import system
 from pydicts import lol, casts
 from shutil import copyfile
 from socket import socket, AF_INET, SOCK_STREAM
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from tempfile import TemporaryDirectory
 from time import sleep
 from unogenerator import __version__, exceptions
@@ -92,7 +92,7 @@ class ODF:
 
         
         command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless'
-        self.disposable_libreoffice_process= Popen(command,  shell=True)
+        self.disposable_libreoffice_process= Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
         return port
         
 
