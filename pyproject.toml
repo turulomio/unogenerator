@@ -27,7 +27,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 unogenerator_demo='unogenerator.demo:main'
-unogenerator_demo_concurrent='unogenerator.demo:main_concurrent'
 unogenerator_cleaner='unogenerator.monitor:cleaner'
 unogenerator_monitor='unogenerator.monitor:monitor'
 unogenerator_translation='unogenerator.translation:main'

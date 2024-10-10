@@ -13,7 +13,7 @@ from unogenerator.can_import_uno import can_import_uno
 init()
 if can_import_uno():
     try:
-        from .unogenerator import ODT, ODS, ODT_Standard, ODS_Standard
+        from .unogenerator import ODT, ODS, ODT_Standard, ODS_Standard, LibreofficeServer
         from .commons import Coord,  Range,  ColorsNamed
     except:
         pass

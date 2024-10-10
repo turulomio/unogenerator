@@ -12,7 +12,7 @@ from multiprocessing import cpu_count
 from importlib.resources import files
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
-from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord
+from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer
 from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals, helper_ods_sheet_stylenames, helper_split_big_listofrows
 from tqdm import tqdm
 
@@ -32,6 +32,7 @@ def main(arguments=None):
     group= parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
+    parser.add_argument('--type', help="Debug program information", choices=["COMMONSERVER_SEQUENTIAL","COMMONSERVER_CONCURRENT_PROCESS","COMMONSERVER_CONCURRENT_THREADS",  "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS"],  default="COMMONSERVER_CONCURRENT_PROCESS")
     args=parser.parse_args(arguments)
     commons.addDebugSystem(args.debug)
         
@@ -44,76 +45,90 @@ def main(arguments=None):
                 commons.remove_without_errors(f"unogenerator_example_{language}.xlsx")
                 commons.remove_without_errors(f"unogenerator_example_{language}.pdf")
 
+#    if args.create==True:
+#        start=datetime.now()
+#        futures=[]
+#        with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
+#            for language in ['es', 'en']:
+#                futures.append(executor.submit(demo_ods_standard, language))
+#                futures.append(executor.submit(demo_odt_standard, language))
+#
+#        for future in as_completed(futures):
+#            future.result()
+#        print(_("All process took {}").format(datetime.now()-start))
+#
+#
+#def main_concurrent(arguments=None):
+#    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
+#    parser.add_argument('--version', action='version', version=__version__)
+#    parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
+#    group= parser.add_mutually_exclusive_group(required=True)
+#    group.add_argument('--create', help="Create demo files", action="store_true",default=False)
+#    group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
+#    parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
+#    parser.add_argument('--instances', help="Loops of documentation jobs", action="store", default=4,  type=int)
+#    parser.add_argument('--nocommonserver', help="If true launches a server for each document", action="store_true", default=False)
+#    args=parser.parse_args(arguments)
+#
+#    commons.addDebugSystem(args.debug)
+#
+#    if args.remove==True:
+#            for i in range(args.loops):
+#                for language in ['es', 'en']:
+#                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.odt")
+#                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.docx")
+#                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.pdf")
+#                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.ods")
+#                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.xlsx")
+#                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
+
     if args.create==True:
         start=datetime.now()
-        futures=[]
-        with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
-            for language in ['es', 'en']:
-                futures.append(executor.submit(demo_ods_standard, language))
-                futures.append(executor.submit(demo_odt_standard, language))
+        instances=3
+        languages=['es', 'en', 'es', 'en']
+        total_documents=len(languages)*2
+        
+        if args.type=="CONCURRENT_PROCESS":            
+            futures=[]
+            print(_("Launching demo with {0} workers without common server using concurrent processes").format(instances))
 
-        for future in as_completed(futures):
-            future.result()
-        print(_("All process took {}").format(datetime.now()-start))
-
-
-def main_concurrent(arguments=None):
-    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--version', action='version', version=__version__)
-    parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
-    group= parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--create', help="Create demo files", action="store_true",default=False)
-    group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
-    parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
-    parser.add_argument('--instances', help="Loops of documentation jobs", action="store", default=4,  type=int)
-    args=parser.parse_args(arguments)
-
-    commons.addDebugSystem(args.debug)
-
-    if args.remove==True:
-            for i in range(args.loops):
-                for language in ['es', 'en']:
-                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.odt")
-                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.docx")
-                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.pdf")
-                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.ods")
-                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.xlsx")
-                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
-
-    if args.create==True:
-        print(_("Launching concurrent demo with {0} workers").format(args.instances))
-
-        start=datetime.now()
-        futures=[]
-        with ProcessPoolExecutor(max_workers=args.instances) as executor:
-            with tqdm(total=args.loops*4) as progress:
-                for i in range(args.loops):
-                    for language in ['es', 'en']:
-                        future=executor.submit(demo_ods_standard, language, f".{i}")
+            with ProcessPoolExecutor(max_workers=instances) as executor:
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        future=executor.submit(demo_ods_standard, language, "", None)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
-                        future=executor.submit(demo_odt_standard, language, f".{i}")
+                        future=executor.submit(demo_odt_standard, language, "",  None)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 
-                for future in as_completed(futures):
-                    future.result()
+                    for future in as_completed(futures):
+                        future.result()
+
+            results = []
+            for future in futures:
+                result = future.result()
+                results.append(result)
+                
+        elif args.type=="COMMONSERVER_SEQUENTIAL":
+            with LibreofficeServer() as server:
+                print(_("Launching concurrent demo with one commons server sequentially").format(args.instances))
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        demo_ods_standard(language, "", server)
+                        progress.update()
+                        demo_odt_standard(language, "",  server)       
+                        progress.update()     
             
-
-
-        results = []
-        for future in futures:
-            result = future.result()
-            results.append(result)
         print(_("All process took {}".format(datetime.now()-start)))
 
        
-def demo_ods_standard(language,  suffix="",):
+def demo_ods_standard(language, suffix="", server=None):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
     
-    with ODS_Standard() as doc:
+    with ODS_Standard(server=server) as doc:
         doc.setMetadata(
             _("UnoGenerator ODS example"),  
             _("Demo with ODS class"), 
@@ -246,17 +261,17 @@ def demo_ods_standard(language,  suffix="",):
         doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
         doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
     
-    r= _("unogenerator_example_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, doc.loserver_port)
+    r= _("unogenerator_example_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, doc.server.port)
     info(r)
     return r
     
     
-def demo_odt_standard(language, suffix=""):
+def demo_odt_standard(language, suffix="", server=None):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
 
-    with ODT_Standard() as doc:
+    with ODT_Standard(server=server) as doc:
         doc.setMetadata(
             _("UnoGenerator documentation"),  
             _("UnoGenerator python module documentation"), 
@@ -495,7 +510,7 @@ with ODS_Standard() as doc:
         doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
         doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
 
-    r= _("unogenerator_documentation_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, doc.loserver_port)
+    r= _("unogenerator_documentation_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, doc.server.port)
     info(r)
     return r
 

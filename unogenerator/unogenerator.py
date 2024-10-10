@@ -38,6 +38,17 @@ except:
 class LibreofficeServer:
     def __init__(self):
         self.start()
+        
+    ## This method allows to use with statement. 
+    ## with LibreofficeServer() as server:
+    ##      with ODS_Standard
+    ## First calls __init__ with None and 2002, then enter, then exit
+    def __enter__(self):
+        return self
+        
+    ## Exit function to use with with statement. __enter__ defines enter in with
+    def __exit__(self, *args, **kwargs):
+        self.stop()
 
     def start(self):
         # Gets an unued port
@@ -49,7 +60,7 @@ class LibreofficeServer:
         self.process= Popen(command, stdout=PIPE, stderr=PIPE, shell=True)        
         
     def stop(self):
-        if self.libreoffice_process is not None:
+        if self.process is not None:
             system(f'pkill -f socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager')
             system(f'rm -Rf /tmp/unogenerator{self.port}')
 
@@ -63,9 +74,10 @@ class ODF:
             @type string
             @param server Server object to use
             @type LibreofficeServer
-        """
+        """        
         self.start=datetime.now()
         self.server=LibreofficeServer() if server is None else server #Assigns server or auto launch if None
+        self.autoserver=server==None
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
         maxtries=300
         
@@ -118,10 +130,10 @@ class ODF:
         try:
             self.document.dispose()
         except:
-            print ("Error closing ODF instance, but used pkill")
+            print (_("Error closing ODF instance"))
         finally:
-            self.server.stop()
-        
+            if self.autoserver is True:
+                self.server.stop()
 
     ## Generate a dictionary_of_styles with families as key, and a list of string styles as value
     def dictionary_of_stylenames(self):
