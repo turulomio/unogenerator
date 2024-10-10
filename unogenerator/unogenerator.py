@@ -28,28 +28,45 @@ from pydicts.percentage import Percentage
 def createUnoService(serviceName):
 #        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
   return getComponentContext().ServiceManager.createInstance(serviceName)
-
-        
+  
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
 except:
     _=str
 
+class LibreofficeServer:
+    def __init__(self):
+        self.start()
 
+    def start(self):
+        # Gets an unued port
+        with socket(AF_INET, SOCK_STREAM) as s:
+            s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
+            self.port=s.getsockname()[1]
+
+        command=f'loffice --accept="socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{self.port} --headless  --nologo  --norestore --nolockcheck'
+        self.process= Popen(command, stdout=PIPE, stderr=PIPE, shell=True)        
+        
+    def stop(self):
+        if self.libreoffice_process is not None:
+            system(f'pkill -f socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager')
+            system(f'rm -Rf /tmp/unogenerator{self.port}')
+
+        
 class ODF:
-    def __init__(self, template=None):
+    def __init__(self, template=None,  server=None):
         """
             Common class for ODF instances
 
             @param template path to template
             @type string
+            @param server Server object to use
+            @type LibreofficeServer
         """
         self.start=datetime.now()
-        self.libreoffice_process=None
+        self.server=LibreofficeServer() if server is None else server #Assigns server or auto launch if None
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
-        
-        self.loserver_port= self.launch_disposable_libreoffice_server_instance()
         maxtries=300
         
         for i in range(maxtries):
@@ -57,7 +74,7 @@ class ODF:
                 localContext = getComponentContext()
                 resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
                 ## self.ctx parece que es mi contexto para servicios
-                self.ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={self.loserver_port};urp;StarOffice.ComponentContext')
+                self.ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={self.server.port};urp;StarOffice.ComponentContext')
                 self.desktop = self.ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
                 self.graphicsprovider=self.ctx.ServiceManager.createInstance("com.sun.star.graphic.GraphicProvider")                   
                 args=(
@@ -78,23 +95,10 @@ class ODF:
                 self.dict_stylenames=self.dictionary_of_stylenames()
                 break
             except Exception as e:
-                sleep(0.25)
+                sleeptime=0.25
+                sleep(sleeptime)
                 if i==maxtries - 1:
-                    print(_("This process died after trying to connect to port {0} during {1} seconds").format(self.loserver_port, maxtries*0.1))
-                    print(e)
-                    
-        
-    def launch_disposable_libreoffice_server_instance(self):
-        # Gets an unued port
-        with socket(AF_INET, SOCK_STREAM) as s:
-            s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
-            port=s.getsockname()[1]
-
-        
-        command=f'loffice --accept="socket,host=localhost,port={port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{port} --headless  --nologo  --norestore --nolockcheck'
-        self.libreoffice_process= Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
-        return port
-        
+                    print(_("This process died after trying to connect to port {0} during {1} seconds. Error: {2}").format(self.loserver_port, maxtries*sleeptime, e))
 
     ## This method allows to use with statement. 
     ## with ODS() as doc:
@@ -116,14 +120,9 @@ class ODF:
         except:
             print ("Error closing ODF instance, but used pkill")
         finally:
-            self.kill_disposable_libreoffice_instance()
+            self.server.stop()
         
-    def kill_disposable_libreoffice_instance(self):
-        if self.libreoffice_process is not None:
-            system(f'pkill -f socket,host=localhost,port={self.loserver_port};urp;StarOffice.ServiceManager')
-            system(f'rm -Rf /tmp/unogenerator{self.loserver_port}')
 
-        
     ## Generate a dictionary_of_styles with families as key, and a list of string styles as value
     def dictionary_of_stylenames(self):
         stylefam=self.document.StyleFamilies
@@ -198,8 +197,8 @@ class ODF:
         
                    
 class ODT(ODF):
-    def __init__(self, template=None):
-        ODF.__init__(self, template)
+    def __init__(self, template=None, server=None):
+        ODF.__init__(self, template, server)
 
     def save(self, filename, overwrite_template=False):
         if filename==self.template and overwrite_template is False:
@@ -546,8 +545,8 @@ class ODT(ODF):
 
 
 class ODS(ODF):
-    def __init__(self, template=None):
-        ODF.__init__(self, template)
+    def __init__(self, template=None, server=None):
+        ODF.__init__(self, template, server)
         self._remove_default_sheet=True
 
     def getRemoveDefaultSheet(self):
@@ -1387,12 +1386,12 @@ class ODS(ODF):
         return r
 
 class ODS_Standard(ODS):
-    def __init__(self):
-        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods')
+    def __init__(self, server=None):
+        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', server)
 
 class ODT_Standard(ODT):
-    def __init__(self):
-        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt')
+    def __init__(self, server=None):
+        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', server)
         self.deleteAll()
 
 
