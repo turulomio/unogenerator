@@ -108,16 +108,47 @@ def main(arguments=None):
             results = []
             for future in futures:
                 result = future.result()
+                results.append(result)        
+        elif args.type=="COMMONSERVER_CONCURRENT_PROCESS":            
+            futures=[]
+            print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
+
+            with LibreofficeServer() as server: #FALLA POR PICCKING
+                with ProcessPoolExecutor(max_workers=instances) as executor:
+                    with tqdm(total=total_documents) as progress:
+                            for language in languages:
+                                future=executor.submit(demo_ods_standard, language, "", server)
+                                future.add_done_callback(lambda p: progress.update())
+                                futures.append(future)
+                                future=executor.submit(demo_odt_standard, language, "",  server)
+                                future.add_done_callback(lambda p: progress.update())
+                                futures.append(future)
+
+                            for future in as_completed(futures):
+                                future.result()
+
+            results = []
+            for future in futures:
+                result = future.result()
                 results.append(result)
                 
         elif args.type=="COMMONSERVER_SEQUENTIAL":
             with LibreofficeServer() as server:
-                print(_("Launching concurrent demo with one commons server sequentially").format(args.instances))
+                print(_("Launching concurrent demo with one commons server sequentially"))
                 with tqdm(total=total_documents) as progress:
                     for language in languages:
                         demo_ods_standard(language, "", server)
                         progress.update()
                         demo_odt_standard(language, "",  server)       
+                        progress.update()
+                        
+        elif args.type=="SEQUENTIAL":
+                print(_("Launching demo sequentially"))
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        demo_ods_standard(language, "", None)
+                        progress.update()
+                        demo_odt_standard(language, "",  None)       
                         progress.update()     
             
         print(_("All process took {}".format(datetime.now()-start)))
