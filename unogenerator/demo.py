@@ -4,11 +4,10 @@ from uno import getComponentContext
 getComponentContext()
 import argparse
 from collections import OrderedDict
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, as_completed,  ThreadPoolExecutor
 from datetime import datetime, date, timedelta
 from gettext import translation
 from logging import info
-from multiprocessing import cpu_count
 from importlib.resources import files
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
@@ -85,7 +84,7 @@ def main(arguments=None):
     if args.create==True:
         start=datetime.now()
         instances=3
-        languages=['es', 'en', 'es', 'en']
+        languages=['es', 'en']
         total_documents=len(languages)*2
         
         if args.type=="CONCURRENT_PROCESS":            
@@ -131,7 +130,51 @@ def main(arguments=None):
             for future in futures:
                 result = future.result()
                 results.append(result)
-                
+        elif args.type=="CONCURRENT_THREADS":            
+            futures=[]
+            print(_("Launching demo with {0} workers without common server using concurrent processes").format(instances))
+
+            with ThreadPoolExecutor(max_workers=instances) as executor:
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        future=executor.submit(demo_ods_standard, language, "", None)
+                        future.add_done_callback(lambda p: progress.update())
+                        futures.append(future)
+                        future=executor.submit(demo_odt_standard, language, "",  None)
+                        future.add_done_callback(lambda p: progress.update())
+                        futures.append(future)
+
+                    for future in as_completed(futures):
+                        future.result()
+
+            results = []
+            for future in futures:
+                result = future.result()
+                results.append(result)        
+        elif args.type=="COMMONSERVER_CONCURRENT_THREADS":            
+            futures=[]
+            print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
+
+            with LibreofficeServer() as server: #FALLA POR PICCKING
+                with ThreadPoolExecutor(max_workers=instances) as executor:
+                    with tqdm(total=total_documents) as progress:
+                            for language in languages:
+                                future=executor.submit(demo_ods_standard, language, "", server)
+                                future.add_done_callback(lambda p: progress.update())
+                                futures.append(future)
+                                future=executor.submit(demo_odt_standard, language, "",  server)
+                                future.add_done_callback(lambda p: progress.update())
+                                futures.append(future)
+
+                            for future in as_completed(futures):
+                                future.result()
+
+            results = []
+            for future in futures:
+                result = future.result()
+                results.append(result)
+
+
         elif args.type=="COMMONSERVER_SEQUENTIAL":
             with LibreofficeServer() as server:
                 print(_("Launching concurrent demo with one commons server sequentially"))
