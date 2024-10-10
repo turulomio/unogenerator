@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-10 21:12+0200\n"
+"POT-Creation-Date: 2024-10-10 15:45+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: turulomio@yahoo.es\n"
 "Language-Team: turulomio@yahoo.es\n"
@@ -62,16 +62,6 @@ msgstr ""
 msgid "I can't convert {} (class: {}) to a Range"
 msgstr ""
 
-#, python-brace-format
-msgid "I couldn't detect unogenerator process info ({0}/{1} attempts)"
-msgstr "No he podido conseguir información del proceso de unogenerator ({0}/{1} attempts)"
-
-msgid "Have you launched unogenerator instances?. Please run unogenerator_start"
-msgstr "¿Has iniciado las instancias de unogenerator?. Por favor ejecute unogenerator_start"
-
-msgid "I couldn't detect unogenerator instances"
-msgstr "No pude detectar las instancias de unogenerator"
-
 msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
 msgstr "Hubo un error al eliminar espacio innecesario de la imagen. ¿Está el comando 'convert' de Imagemagick instalado?"
 
@@ -85,12 +75,22 @@ msgstr "Crea ficheros de ejemplo usando el módulo de unogenerator"
 msgid "Debug program information"
 msgstr "Información de depuración del programa"
 
-msgid "All process took {}"
-msgstr "Todos los procesos tardaron {}"
+#, python-brace-format
+msgid "Launching demo with {0} workers without common server using concurrent processes"
+msgstr ""
 
 #, python-brace-format
-msgid "Launching concurrent demo with {0} workers to a daemon with {0} instances from {1} port"
-msgstr "Lanzando demo concurrente con {0} procesos a un demonio con {0} instancias desde el puerto {1}"
+msgid "Launching demo with {0} workers with common server using concurrent processes"
+msgstr ""
+
+msgid "Launching concurrent demo with one commons server sequentially"
+msgstr ""
+
+msgid "Launching demo sequentially"
+msgstr ""
+
+msgid "All process took {}"
+msgstr "Todos los procesos tardaron {}"
 
 msgid "UnoGenerator ODS example"
 msgstr "Ejemplo ODS con UnoGenerator"
@@ -368,88 +368,14 @@ msgstr "{0} ({1} de {2})"
 msgid "More than {0} rows. Spliting {1} of {2} sheets"
 msgstr "Más de {0} filas. Dividiendo {1} de {2} hojas"
 
-msgid "Launches LibreOffice server to run unogenerator code"
-msgstr ""
-
-msgid "Number of concurrent LibreOffice instances"
-msgstr "Número de instancias concurrentes de LibreOffice"
-
-msgid "First port assigned to server"
-msgstr "Primer puerto asignado al servidor"
-
-msgid "Backtrace logs"
-msgstr "Logs de registro"
-
-#, python-brace-format
-msgid "It seems that server is already launched in port {0}"
-msgstr "Parece que el servidor ya está lanzado en el puerto {0}"
-
-#, python-brace-format
-msgid "Preparing {0} LibreOffice server instances from port {1}:"
-msgstr "Preparando {0} instancias de servidor de LibreOffice desde el puerto {1}:"
-
-msgid "You can see instances output in /var/log/unogenerator"
-msgstr "Puedes ver registros de las instancias en /var/log/unogenerator"
-
-#, python-brace-format
-msgid "  - Launched LibreOffice headless instance in port {0}"
-msgstr "  - Lanzada instancia de servidor de LibreOffice en el puerto {0}"
-
-msgid "Stops LibreOffice server to finish using unogenerator code"
-msgstr ""
-
-#, python-brace-format
-msgid "  - Server was stopped killing {0} processes"
-msgstr "  - El servidor se ha parado matando {0} procesos"
-
 msgid "UnoGenerator monitor"
 msgstr "Monitor de UnoGenerator"
 
-msgid "Restart server when idle"
-msgstr "Reiniciar el servidor cuando esté inactivo"
+msgid "Seconds to color Last CPU variation"
+msgstr ""
 
-msgid "Recommended max memory (Mb) to restart server when idle. By default: 600Mb per instance"
-msgstr "Máxima memoria recomendadada (Mb) para reiniciar el servidor cuando esté inactivo. Por defecto: 600Mb por instancia"
-
-#, python-brace-format
-msgid "Instances: {0}"
-msgstr "Instancias: {0}"
-
-#, python-brace-format
-msgid "Ports used: {0}"
-msgstr "Puertos usados: {0}"
-
-#, python-brace-format
-msgid "CPU used: {0}"
-msgstr "CPU usadas: {0}"
-
-#, python-brace-format
-msgid "Memory used: {0}"
-msgstr "Memoria usada: {0}"
-
-#, python-brace-format
-msgid "Max memory recommended: {0}"
-msgstr "Máxima memoria recomendada: {0}"
-
-#, python-brace-format
-msgid "CPU percentage: {0}"
-msgstr "Porcentage de uso de CPU: {0}"
-
-#, python-brace-format
-msgid "Connections: {0}"
-msgstr "Conexiones: {0}"
-
-msgid "Restarting server"
-msgstr "Reiniciando servidor"
-
-msgid "Server restarted"
-msgstr "Servidor reiniciado"
-
-msgid "Server wasn't restarted because it's busy"
-msgstr "El servidor no fue reiniciado porque está ocupado"
-
-msgid "Server doesn't need to be restarted"
-msgstr "El servidor no necesita ser reiniciado"
+msgid "UnoGenerator cleaner"
+msgstr ""
 
 msgid "Generate a po and pot file from ODF"
 msgstr "Genera un fichero po y pot de un ODF"
@@ -496,11 +422,11 @@ msgid "Translating files to:"
 msgstr "Traduciendo ficheros a:"
 
 #, python-brace-format
-msgid "Changing port {0} to {1} {2} times"
-msgstr "Cambiando el puerto {0} a {1} {2} veces"
+msgid "This process died after trying to connect to port {0} during {1} seconds. Error: {2}"
+msgstr ""
 
-msgid "This process died"
-msgstr "Este proceso murió"
+msgid "Error closing ODF instance"
+msgstr ""
 
 msgid "You can't use the same filename as your template or you will overwrite it."
 msgstr ""
@@ -552,3 +478,98 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
+
+#, python-brace-format
+#~ msgid "I couldn't detect unogenerator process info ({0}/{1} attempts)"
+#~ msgstr "No he podido conseguir información del proceso de unogenerator ({0}/{1} attempts)"
+
+#~ msgid "Have you launched unogenerator instances?. Please run unogenerator_start"
+#~ msgstr "¿Has iniciado las instancias de unogenerator?. Por favor ejecute unogenerator_start"
+
+#~ msgid "I couldn't detect unogenerator instances"
+#~ msgstr "No pude detectar las instancias de unogenerator"
+
+#, python-brace-format
+#~ msgid "Launching concurrent demo with {0} workers to a daemon with {0} instances from {1} port"
+#~ msgstr "Lanzando demo concurrente con {0} procesos a un demonio con {0} instancias desde el puerto {1}"
+
+#~ msgid "Number of concurrent LibreOffice instances"
+#~ msgstr "Número de instancias concurrentes de LibreOffice"
+
+#~ msgid "First port assigned to server"
+#~ msgstr "Primer puerto asignado al servidor"
+
+#~ msgid "Backtrace logs"
+#~ msgstr "Logs de registro"
+
+#, python-brace-format
+#~ msgid "It seems that server is already launched in port {0}"
+#~ msgstr "Parece que el servidor ya está lanzado en el puerto {0}"
+
+#, python-brace-format
+#~ msgid "Preparing {0} LibreOffice server instances from port {1}:"
+#~ msgstr "Preparando {0} instancias de servidor de LibreOffice desde el puerto {1}:"
+
+#~ msgid "You can see instances output in /var/log/unogenerator"
+#~ msgstr "Puedes ver registros de las instancias en /var/log/unogenerator"
+
+#, python-brace-format
+#~ msgid "  - Launched LibreOffice headless instance in port {0}"
+#~ msgstr "  - Lanzada instancia de servidor de LibreOffice en el puerto {0}"
+
+#, python-brace-format
+#~ msgid "  - Server was stopped killing {0} processes"
+#~ msgstr "  - El servidor se ha parado matando {0} procesos"
+
+#~ msgid "Restart server when idle"
+#~ msgstr "Reiniciar el servidor cuando esté inactivo"
+
+#~ msgid "Recommended max memory (Mb) to restart server when idle. By default: 600Mb per instance"
+#~ msgstr "Máxima memoria recomendadada (Mb) para reiniciar el servidor cuando esté inactivo. Por defecto: 600Mb por instancia"
+
+#, python-brace-format
+#~ msgid "Instances: {0}"
+#~ msgstr "Instancias: {0}"
+
+#, python-brace-format
+#~ msgid "Ports used: {0}"
+#~ msgstr "Puertos usados: {0}"
+
+#, python-brace-format
+#~ msgid "CPU used: {0}"
+#~ msgstr "CPU usadas: {0}"
+
+#, python-brace-format
+#~ msgid "Memory used: {0}"
+#~ msgstr "Memoria usada: {0}"
+
+#, python-brace-format
+#~ msgid "Max memory recommended: {0}"
+#~ msgstr "Máxima memoria recomendada: {0}"
+
+#, python-brace-format
+#~ msgid "CPU percentage: {0}"
+#~ msgstr "Porcentage de uso de CPU: {0}"
+
+#, python-brace-format
+#~ msgid "Connections: {0}"
+#~ msgstr "Conexiones: {0}"
+
+#~ msgid "Restarting server"
+#~ msgstr "Reiniciando servidor"
+
+#~ msgid "Server restarted"
+#~ msgstr "Servidor reiniciado"
+
+#~ msgid "Server wasn't restarted because it's busy"
+#~ msgstr "El servidor no fue reiniciado porque está ocupado"
+
+#~ msgid "Server doesn't need to be restarted"
+#~ msgstr "El servidor no necesita ser reiniciado"
+
+#, python-brace-format
+#~ msgid "Changing port {0} to {1} {2} times"
+#~ msgstr "Cambiando el puerto {0} a {1} {2} veces"
+
+#~ msgid "This process died"
+#~ msgstr "Este proceso murió"

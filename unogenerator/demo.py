@@ -34,9 +34,10 @@ def main(arguments=None):
     parser.add_argument('--type', help="Debug program information", choices=["COMMONSERVER_SEQUENTIAL","COMMONSERVER_CONCURRENT_PROCESS","COMMONSERVER_CONCURRENT_THREADS",  "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS"],  default="COMMONSERVER_CONCURRENT_PROCESS")
     args=parser.parse_args(arguments)
     commons.addDebugSystem(args.debug)
+    languages=['es', 'en',  'ro',  'fr']
         
     if args.remove==True:
-            for language in ['es', 'en']:
+            for language in languages:
                 commons.remove_without_errors(f"unogenerator_documentation_{language}.odt")
                 commons.remove_without_errors(f"unogenerator_documentation_{language}.docx")
                 commons.remove_without_errors(f"unogenerator_documentation_{language}.pdf")
@@ -44,47 +45,9 @@ def main(arguments=None):
                 commons.remove_without_errors(f"unogenerator_example_{language}.xlsx")
                 commons.remove_without_errors(f"unogenerator_example_{language}.pdf")
 
-#    if args.create==True:
-#        start=datetime.now()
-#        futures=[]
-#        with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
-#            for language in ['es', 'en']:
-#                futures.append(executor.submit(demo_ods_standard, language))
-#                futures.append(executor.submit(demo_odt_standard, language))
-#
-#        for future in as_completed(futures):
-#            future.result()
-#        print(_("All process took {}").format(datetime.now()-start))
-#
-#
-#def main_concurrent(arguments=None):
-#    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
-#    parser.add_argument('--version', action='version', version=__version__)
-#    parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
-#    group= parser.add_mutually_exclusive_group(required=True)
-#    group.add_argument('--create', help="Create demo files", action="store_true",default=False)
-#    group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
-#    parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
-#    parser.add_argument('--instances', help="Loops of documentation jobs", action="store", default=4,  type=int)
-#    parser.add_argument('--nocommonserver', help="If true launches a server for each document", action="store_true", default=False)
-#    args=parser.parse_args(arguments)
-#
-#    commons.addDebugSystem(args.debug)
-#
-#    if args.remove==True:
-#            for i in range(args.loops):
-#                for language in ['es', 'en']:
-#                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.odt")
-#                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.docx")
-#                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.pdf")
-#                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.ods")
-#                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.xlsx")
-#                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
-
     if args.create==True:
         start=datetime.now()
         instances=3
-        languages=['es', 'en']
         total_documents=len(languages)*2
         
         if args.type=="CONCURRENT_PROCESS":            
