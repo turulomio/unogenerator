@@ -56,7 +56,7 @@ class LibreofficeServer:
             s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
             self.port=s.getsockname()[1]
 
-        command=f'loffice --accept="socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{self.port} --headless  --nologo  --norestore --nolockcheck'
+        command=f'loffice --accept="socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{self.port} --headless  --nologo  --norestore'
         self.process= Popen(command, stdout=PIPE, stderr=PIPE, shell=True)        
         
     def stop(self):

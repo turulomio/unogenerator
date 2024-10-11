@@ -43,7 +43,7 @@ def demo(arguments=None):
 def demo_command(create, remove, benchmark, type):
     languages=['es', 'en',  'ro',  'fr']
         
-    if all is True:
+    if benchmark is True:
         for type in type_choices:
             #demo_command(True, False,  False,  type)
             system(f"unogenerator_demo --create --type {type}")
