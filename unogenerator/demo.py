@@ -9,6 +9,7 @@ from datetime import datetime, date, timedelta
 from gettext import translation
 from logging import info
 from importlib.resources import files
+from os import system
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer
@@ -21,6 +22,8 @@ try:
 except:
     _=str
 
+type_choices=[ "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS", "COMMONSERVER_SEQUENTIAL","COMMONSERVER_CONCURRENT_PROCESS","COMMONSERVER_CONCURRENT_THREADS" ]
+
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
 ## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
@@ -31,15 +34,20 @@ def demo(arguments=None):
     group= parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
-    parser.add_argument('--type', help="Debug program information", choices=["COMMONSERVER_SEQUENTIAL","COMMONSERVER_CONCURRENT_PROCESS","COMMONSERVER_CONCURRENT_THREADS",  "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS"],  default="COMMONSERVER_CONCURRENT_PROCESS")
+    group.add_argument('--benchmark', help="Executes all types to compare its benchmark", action="store_true", default=False)
+    parser.add_argument('--type', help="Debug program information", choices=type_choices,  default="COMMONSERVER_CONCURRENT_PROCESS")
     args=parser.parse_args(arguments)
     commons.addDebugSystem(args.debug)
-    demo_command(args.create, args.remove, args.type)
-    
-    
-def demo_command(create, remove, type):
+    demo_command(args.create, args.remove, args.benchmark, args.type)
+
+def demo_command(create, remove, benchmark, type):
     languages=['es', 'en',  'ro',  'fr']
         
+    if all is True:
+        for type in type_choices:
+            #demo_command(True, False,  False,  type)
+            system(f"unogenerator_demo --create --type {type}")
+
     if remove==True:
             for language in languages:
                 commons.remove_without_errors(f"unogenerator_documentation_{language}.odt")
@@ -61,10 +69,10 @@ def demo_command(create, remove, type):
             with ProcessPoolExecutor(max_workers=instances) as executor:
                 with tqdm(total=total_documents) as progress:
                     for language in languages:
-                        future=executor.submit(demo_ods_standard, language, "", None)
+                        future=executor.submit(demo_ods_standard, language, None)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
-                        future=executor.submit(demo_odt_standard, language, "",  None)
+                        future=executor.submit(demo_odt_standard, language,  None)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 
@@ -74,7 +82,8 @@ def demo_command(create, remove, type):
             results = []
             for future in futures:
                 result = future.result()
-                results.append(result)        
+                results.append(result)    
+
         elif type=="COMMONSERVER_CONCURRENT_PROCESS":            
             futures=[]
             print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
@@ -83,88 +92,89 @@ def demo_command(create, remove, type):
                 with ProcessPoolExecutor(max_workers=instances) as executor:
                     with tqdm(total=total_documents) as progress:
                             for language in languages:
-                                future=executor.submit(demo_ods_standard, language, "", server)
+                                future=executor.submit(demo_ods_standard, language, server.pickleable())
                                 future.add_done_callback(lambda p: progress.update())
                                 futures.append(future)
-                                future=executor.submit(demo_odt_standard, language, "",  server)
+                                future=executor.submit(demo_odt_standard, language,  server.pickleable())
                                 future.add_done_callback(lambda p: progress.update())
                                 futures.append(future)
 
                             for future in as_completed(futures):
                                 future.result()
 
-            results = []
-            for future in futures:
-                result = future.result()
-                results.append(result)
+                results = []
+                for future in futures:
+                    result = future.result()
+                    results.append(result)
+
         elif type=="CONCURRENT_THREADS":            
             futures=[]
-            print(_("Launching demo with {0} workers without common server using concurrent processes").format(instances))
+            print(_("Launching demo with {0} workers without common server using concurrent threads").format(instances))
 
             with ThreadPoolExecutor(max_workers=instances) as executor:
                 with tqdm(total=total_documents) as progress:
                     for language in languages:
-                        future=executor.submit(demo_ods_standard, language, "", None)
+                        future=executor.submit(demo_ods_standard, language, None)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
-                        future=executor.submit(demo_odt_standard, language, "",  None)
+                        future=executor.submit(demo_odt_standard, language,  None)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 
                     for future in as_completed(futures):
                         future.result()
 
-            results = []
-            for future in futures:
-                result = future.result()
-                results.append(result)        
+                results = []
+                for future in futures:
+                    result = future.result()
+                    results.append(result)
+
         elif type=="COMMONSERVER_CONCURRENT_THREADS":            
             futures=[]
-            print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
+            print(_("Launching demo with {0} workers with common server using concurrent threads").format(instances))
 
             with LibreofficeServer() as server: #FALLA POR PICCKING
                 with ThreadPoolExecutor(max_workers=instances) as executor:
                     with tqdm(total=total_documents) as progress:
-                            for language in languages:
-                                future=executor.submit(demo_ods_standard, language, "", server)
-                                future.add_done_callback(lambda p: progress.update())
-                                futures.append(future)
-                                future=executor.submit(demo_odt_standard, language, "",  server)
-                                future.add_done_callback(lambda p: progress.update())
-                                futures.append(future)
+                        for language in languages:
+                            future=executor.submit(demo_ods_standard, language, server.pickleable())
+                            future.add_done_callback(lambda p: progress.update())
+                            futures.append(future)
+                            future=executor.submit(demo_odt_standard, language,  server.pickleable())
+                            future.add_done_callback(lambda p: progress.update())
+                            futures.append(future)
 
-                            for future in as_completed(futures):
-                                future.result()
+                        for future in as_completed(futures):
+                            future.result()
 
-            results = []
-            for future in futures:
-                result = future.result()
-                results.append(result)
-
+                results = []
+                for future in futures:
+                    result = future.result()
+                    results.append(result)
 
         elif type=="COMMONSERVER_SEQUENTIAL":
             with LibreofficeServer() as server:
                 print(_("Launching concurrent demo with one commons server sequentially"))
                 with tqdm(total=total_documents) as progress:
                     for language in languages:
-                        demo_ods_standard(language, "", server)
+                        demo_ods_standard(language, server)
                         progress.update()
-                        demo_odt_standard(language, "",  server)       
+                        demo_odt_standard(language,  server)       
                         progress.update()
                         
         elif type=="SEQUENTIAL":
                 print(_("Launching demo sequentially"))
                 with tqdm(total=total_documents) as progress:
                     for language in languages:
-                        demo_ods_standard(language, "", None)
+                        demo_ods_standard(language, None)
                         progress.update()
-                        demo_odt_standard(language, "",  None)       
+                        demo_odt_standard(language,  None)       
                         progress.update()     
             
         print(_("All process took {}".format(datetime.now()-start)))
 
        
-def demo_ods_standard(language, server=None):
+def demo_ods_standard(language, server):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
@@ -307,7 +317,7 @@ def demo_ods_standard(language, server=None):
     return r
     
     
-def demo_odt_standard(language, server=None):
+def demo_odt_standard(language, server):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext

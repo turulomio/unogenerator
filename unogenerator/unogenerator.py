@@ -63,6 +63,18 @@ class LibreofficeServer:
         if self.process is not None:
             system(f'pkill -f socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager')
             system(f'rm -Rf /tmp/unogenerator{self.port}')
+            
+    def pickleable(self):
+        """ 
+            When using concurrent process, can pass this method to a pickleable class
+            Remember to stop original server
+        """
+        return LibreofficeServerPickleable(self.port)
+
+
+class LibreofficeServerPickleable:
+    def __init__(self, port):
+        self.port=port
 
         
 class ODF:
@@ -176,19 +188,22 @@ class ODF:
         
     ##Only sets a value when it's different of [] or ""
     def setMetadata(self, title="",  subject="", author="", description="", keywords=[], creationdate=datetime.now()):
-        if author!="":
-            self.document.DocumentProperties.Author=author
-        self.document.DocumentProperties.Generator=f"UnoGenerator-{__version__}"
-        if description!="":
-            self.document.DocumentProperties.Description=description
-        if subject!="":
-            self.document.DocumentProperties.Subject=subject
-        if keywords!="":
-            self.document.DocumentProperties.Keywords=keywords
-        self.document.DocumentProperties.CreationDate=datetime2uno(creationdate)
-        self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
-        if title!="":
-            self.document.DocumentProperties.Title=title
+        try:
+            if author!="":
+                self.document.DocumentProperties.Author=author
+            self.document.DocumentProperties.Generator=f"UnoGenerator-{__version__}"
+            if description!="":
+                self.document.DocumentProperties.Description=description
+            if subject!="":
+                self.document.DocumentProperties.Subject=subject
+            if keywords!="":
+                self.document.DocumentProperties.Keywords=keywords
+            self.document.DocumentProperties.CreationDate=datetime2uno(creationdate)
+            self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
+            if title!="":
+                self.document.DocumentProperties.Title=title
+        except:
+            print("Error setting metadata. Sometimes fails with concurrent process")
 
     def deleteAll(self):
         self.executeDispatch(".uno:SelectAll")
