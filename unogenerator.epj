@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project unogenerator",
     "copyright": "Copyright (C) 2024 , ",
-    "saved": "2024-10-11, 12:38:34"
+    "saved": "2024-10-11, 20:47:11"
   },
   "project": {
     "AUTHOR": "",
@@ -72,6 +72,7 @@
     "RESOURCES": [],
     "SOURCES": [
       "tests/benchmark.py",
+      "tests/conftest.py",
       "tests/get_values.py",
       "tests/pregunta.py",
       "tests/pruebasetcolors.py",
