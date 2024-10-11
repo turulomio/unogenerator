@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project unogenerator",
     "copyright": "Copyright (C) 2024 , ",
-    "saved": "2024-10-10, 20:47:39"
+    "saved": "2024-10-11, 12:38:34"
   },
   "project": {
     "AUTHOR": "",
@@ -90,7 +90,6 @@
       "unogenerator/helpers.py",
       "unogenerator/monitor.py",
       "unogenerator/poethepoet.py",
-      "unogenerator/server.py",
       "unogenerator/translation.py",
       "unogenerator/unogenerator.py"
     ],

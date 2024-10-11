@@ -1,21 +1,23 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# French translations for PACKAGE package.
+# Copyright (C) 2024 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#  <turulomio@yahoo.es>, 2024.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-10 15:45+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2024-10-11 19:27+0200\n"
+"PO-Revision-Date: 2024-10-11 19:29+0200\n"
+"Last-Translator: <turulomio@yahoo.es>\n"
+"Language-Team: French <traduc@traduc.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Language: fr\n"
+"X-Source-Language: en\n"
 
 msgid "There was a problem converting com.sun.star.util.DateTime to datetime."
 msgstr ""
@@ -60,7 +62,9 @@ msgstr ""
 msgid "I can't convert {} (class: {}) to a Range"
 msgstr ""
 
-msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
+msgid ""
+"There was an error triming image. Is convert command (from Imagemagick) "
+"installed?"
 msgstr ""
 
 #, python-brace-format
@@ -74,17 +78,31 @@ msgid "Debug program information"
 msgstr ""
 
 #, python-brace-format
-msgid "Launching demo with {0} workers without common server using concurrent processes"
+msgid ""
+"Launching demo with {0} workers without common server using concurrent "
+"processes"
 msgstr ""
 
 #, python-brace-format
-msgid "Launching demo with {0} workers with common server using concurrent processes"
+msgid ""
+"Launching demo with {0} workers with common server using concurrent processes"
 msgstr ""
 
-msgid "Launching concurrent demo with one commons server sequentially"
+#, python-brace-format
+msgid ""
+"Launching demo with {0} workers without common server using concurrent "
+"threads"
 msgstr ""
 
-msgid "Launching demo sequentially"
+#, python-brace-format
+msgid ""
+"Launching demo with {0} workers with common server using concurrent threads"
+msgstr ""
+
+msgid "Launching demo with one common server sequentially"
+msgstr ""
+
+msgid "Launching demo without one common server sequentially"
 msgstr ""
 
 msgid "All process took {}"
@@ -97,7 +115,9 @@ msgid "Demo with ODS class"
 msgstr ""
 
 #, python-brace-format
-msgid "This file have been generated with UnoGenerator-{0}. You can see UnoGenerator main page in https://github.com/turulomio/unogenerator"
+msgid ""
+"This file have been generated with UnoGenerator-{0}. You can see "
+"UnoGenerator main page in https://github.com/turulomio/unogenerator"
 msgstr ""
 
 msgid "Style name"
@@ -137,7 +157,7 @@ msgid "String"
 msgstr ""
 
 #, python-brace-format
-msgid "unogenerator_example_{0}{1}.ods took {2} in {3}"
+msgid "unogenerator_example_{0}.ods took {1} in {2}"
 msgstr ""
 
 msgid "UnoGenerator documentation"
@@ -153,22 +173,28 @@ msgstr ""
 msgid "Introduction"
 msgstr ""
 
-msgid "UnoGenerator uses Libreoffice UNO API python bindings to generate documents."
+msgid ""
+"UnoGenerator uses Libreoffice UNO API python bindings to generate documents."
 msgstr ""
 
-msgid "So in order to use, you need to launch a --headless LibreOffice instance."
+msgid ""
+"So in order to use, you need to launch a --headless LibreOffice instance."
 msgstr ""
 
 msgid "We recomend to launch then easily with 'unogenerator_start' script."
 msgstr ""
 
-msgid "UnoGenerator has standard templates to help you with edition, although you can use your own templates."
+msgid ""
+"UnoGenerator has standard templates to help you with edition, although you "
+"can use your own templates."
 msgstr ""
 
 msgid "You can edit this one or create your own."
 msgstr ""
 
-msgid "This document has been created with 'standard.odt' files that you can find inside this python module."
+msgid ""
+"This document has been created with 'standard.odt' files that you can find "
+"inside this python module."
 msgstr ""
 
 msgid "Installation"
@@ -180,7 +206,9 @@ msgstr ""
 msgid "ODT 'Hello World' example"
 msgstr ""
 
-msgid "This is a Hello World example. You get the example in odt, docx and pdf formats:"
+msgid ""
+"This is a Hello World example. You get the example in odt, docx and pdf "
+"formats:"
 msgstr ""
 
 msgid "ODT"
@@ -189,7 +217,9 @@ msgstr ""
 msgid "ODT files can be quickly generated with UnoGenerator."
 msgstr ""
 
-msgid "There is a predefined template in code called 'standard.odt' to help you with edition."
+msgid ""
+"There is a predefined template in code called 'standard.odt' to help you "
+"with edition."
 msgstr ""
 
 msgid "Calling the ODT constructor"
@@ -201,7 +231,9 @@ msgstr ""
 msgid "ODT with standard template (Recomended)."
 msgstr ""
 
-msgid "There is a predefined template in code called 'standard.odt', inside this python module, to help you with edition, although you can use your own ones."
+msgid ""
+"There is a predefined template in code called 'standard.odt', inside this "
+"python module, to help you with edition, although you can use your own ones."
 msgstr ""
 
 msgid "With this mode you can create new documents"
@@ -210,22 +242,28 @@ msgstr ""
 msgid "ODT with template or file (Recomended)."
 msgstr ""
 
-msgid "With this mode you can read your files to overwrite them or use your file as a new template to create new documents"
+msgid ""
+"With this mode you can read your files to overwrite them or use your file as "
+"a new template to create new documents"
 msgstr ""
 
 msgid "ODT without template."
 msgstr ""
 
-msgid "With this mode you can write your files with Libreoffice default styles."
+msgid ""
+"With this mode you can write your files with Libreoffice default styles."
 msgstr ""
 
-msgid "If you want to create new ones, you should write them using Libreoffice API code"
+msgid ""
+"If you want to create new ones, you should write them using Libreoffice API "
+"code"
 msgstr ""
 
 msgid "Styles"
 msgstr ""
 
-msgid "To call default Libreoffice paragraph styles you must use their english name."
+msgid ""
+"To call default Libreoffice paragraph styles you must use their english name."
 msgstr ""
 
 msgid "You can see their names with this method:"
@@ -294,7 +332,9 @@ msgstr ""
 msgid "This is an image loaded from bytes: "
 msgstr ""
 
-msgid "As you can see, I can reuse it one hundred times. File size will not be increased because I used reference names."
+msgid ""
+"As you can see, I can reuse it one hundred times. File size will not be "
+"increased because I used reference names."
 msgstr ""
 
 msgid "The next paragraph is generated with the illustration method"
@@ -306,13 +346,19 @@ msgstr ""
 msgid "You can trim image border white space when needed:"
 msgstr ""
 
-msgid "You can trim that gray space when needed with 'bytes_after_trim_image' method. To use this method you need Imagemagick installed to use 'convert' command. This is the result: "
+msgid ""
+"You can trim that gray space when needed with 'bytes_after_trim_image' "
+"method. To use this method you need Imagemagick installed to use 'convert' "
+"command. This is the result: "
 msgstr ""
 
 msgid "Search and Replace"
 msgstr ""
 
-msgid "Below this paragraph is a paragraph with a % REPLACEME % (Without white spaces) text and it's going to be replaced after all document is been generated"
+msgid ""
+"Below this paragraph is a paragraph with a % REPLACEME % (Without white "
+"spaces) text and it's going to be replaced after all document is been "
+"generated"
 msgstr ""
 
 msgid "ODS"
@@ -321,10 +367,14 @@ msgstr ""
 msgid "ODS 'Hello World' example"
 msgstr ""
 
-msgid "This is a Hello World example. You'll get the example in ods, xlsx and pdf formats:"
+msgid ""
+"This is a Hello World example. You'll get the example in ods, xlsx and pdf "
+"formats:"
 msgstr ""
 
-msgid "This paragraph was set at the end of the code after a find and replace command."
+msgid ""
+"This paragraph was set at the end of the code after a find and replace "
+"command."
 msgstr ""
 
 msgid "This paragraph was set after replacement."
@@ -346,7 +396,7 @@ msgid "This is a set of symbols: .,:;?ºª-/()."
 msgstr ""
 
 #, python-brace-format
-msgid "unogenerator_documentation_{0}{1}.ods took {2} in {3}"
+msgid "unogenerator_documentation_{0}.ods took {1} in {2}"
 msgstr ""
 
 msgid "Total"
@@ -369,7 +419,20 @@ msgstr ""
 msgid "UnoGenerator monitor"
 msgstr ""
 
+msgid "Seconds until next refresh"
+msgstr ""
+
 msgid "Seconds to color Last CPU variation"
+msgstr ""
+
+#, python-brace-format
+msgid "Unogenerator version: {0}. Hora actual: {1}. Refresh time: {2} seconds"
+msgstr ""
+
+msgid "Active soffice.bin processes number:"
+msgstr ""
+
+msgid "Temporal directories with asociated soffice.bin process: "
 msgstr ""
 
 msgid "UnoGenerator cleaner"
@@ -387,7 +450,9 @@ msgstr ""
 msgid "Files to translate. You can set several files."
 msgstr ""
 
-msgid "Output directory with results and catalogues. Default: ./unogenerator_translation/"
+msgid ""
+"Output directory with results and catalogues. Default: "
+"./unogenerator_translation/"
 msgstr ""
 
 msgid "Undetected strings to append to translation. Default: []"
@@ -420,13 +485,16 @@ msgid "Translating files to:"
 msgstr ""
 
 #, python-brace-format
-msgid "This process died after trying to connect to port {0} during {1} seconds. Error: {2}"
+msgid ""
+"This process died after trying to connect to port {0} during {1} seconds. "
+"Error: {2}"
 msgstr ""
 
 msgid "Error closing ODF instance"
 msgstr ""
 
-msgid "You can't use the same filename as your template or you will overwrite it."
+msgid ""
+"You can't use the same filename as your template or you will overwrite it."
 msgstr ""
 
 msgid "You can force it, setting overwrite_template paramter to True"
@@ -454,7 +522,10 @@ msgstr ""
 msgid "addRow is empty. Nothing to write. Ignoring..."
 msgstr ""
 
-msgid "You're trying to add formulas to cells using setDataArray and they will be treated as strings. If you want formula's value use formulas=True in ODS methods"
+msgid ""
+"You're trying to add formulas to cells using setDataArray and they will be "
+"treated as strings. If you want formula's value use formulas=True in ODS "
+"methods"
 msgstr ""
 
 #, python-brace-format
@@ -462,7 +533,9 @@ msgid "  + Range: {0}"
 msgstr ""
 
 #, python-brace-format
-msgid "addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring..."
+msgid ""
+"addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. "
+"Ignoring..."
 msgstr ""
 
 msgid "Colors must have the same number of items as data columns"

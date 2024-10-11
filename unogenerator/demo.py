@@ -154,7 +154,7 @@ def demo_command(create, remove, benchmark, type):
 
         elif type=="COMMONSERVER_SEQUENTIAL":
             with LibreofficeServer() as server:
-                print(_("Launching concurrent demo with one commons server sequentially"))
+                print(_("Launching demo with one common server sequentially"))
                 with tqdm(total=total_documents) as progress:
                     for language in languages:
                         demo_ods_standard(language, server)
@@ -163,7 +163,7 @@ def demo_command(create, remove, benchmark, type):
                         progress.update()
                         
         elif type=="SEQUENTIAL":
-                print(_("Launching demo sequentially"))
+                print(_("Launching demo without one common server sequentially"))
                 with tqdm(total=total_documents) as progress:
                     for language in languages:
                         demo_ods_standard(language, None)

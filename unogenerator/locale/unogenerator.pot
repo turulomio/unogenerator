@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-10 15:48+0200\n"
+"POT-Creation-Date: 2024-10-11 19:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,10 +81,18 @@ msgstr ""
 msgid "Launching demo with {0} workers with common server using concurrent processes"
 msgstr ""
 
-msgid "Launching concurrent demo with one commons server sequentially"
+#, python-brace-format
+msgid "Launching demo with {0} workers without common server using concurrent threads"
 msgstr ""
 
-msgid "Launching demo sequentially"
+#, python-brace-format
+msgid "Launching demo with {0} workers with common server using concurrent threads"
+msgstr ""
+
+msgid "Launching demo with one common server sequentially"
+msgstr ""
+
+msgid "Launching demo without one common server sequentially"
 msgstr ""
 
 msgid "All process took {}"
@@ -137,7 +145,7 @@ msgid "String"
 msgstr ""
 
 #, python-brace-format
-msgid "unogenerator_example_{0}{1}.ods took {2} in {3}"
+msgid "unogenerator_example_{0}.ods took {1} in {2}"
 msgstr ""
 
 msgid "UnoGenerator documentation"
@@ -346,7 +354,7 @@ msgid "This is a set of symbols: .,:;?ºª-/()."
 msgstr ""
 
 #, python-brace-format
-msgid "unogenerator_documentation_{0}{1}.ods took {2} in {3}"
+msgid "unogenerator_documentation_{0}.ods took {1} in {2}"
 msgstr ""
 
 msgid "Total"
@@ -369,7 +377,20 @@ msgstr ""
 msgid "UnoGenerator monitor"
 msgstr ""
 
+msgid "Seconds until next refresh"
+msgstr ""
+
 msgid "Seconds to color Last CPU variation"
+msgstr ""
+
+#, python-brace-format
+msgid "Unogenerator version: {0}. Hora actual: {1}. Refresh time: {2} seconds"
+msgstr ""
+
+msgid "Active soffice.bin processes number:"
+msgstr ""
+
+msgid "Temporal directories with asociated soffice.bin process: "
 msgstr ""
 
 msgid "UnoGenerator cleaner"
