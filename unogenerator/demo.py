@@ -92,10 +92,10 @@ def demo_command(create, remove, benchmark, type):
                 with ProcessPoolExecutor(max_workers=instances) as executor:
                     with tqdm(total=total_documents) as progress:
                             for language in languages:
-                                future=executor.submit(demo_ods_standard, language, server.pickleable())
+                                future=executor.submit(demo_ods_standard, language, server)
                                 future.add_done_callback(lambda p: progress.update())
                                 futures.append(future)
-                                future=executor.submit(demo_odt_standard, language,  server.pickleable())
+                                future=executor.submit(demo_odt_standard, language,  server)
                                 future.add_done_callback(lambda p: progress.update())
                                 futures.append(future)
 
@@ -137,10 +137,10 @@ def demo_command(create, remove, benchmark, type):
                 with ThreadPoolExecutor(max_workers=instances) as executor:
                     with tqdm(total=total_documents) as progress:
                         for language in languages:
-                            future=executor.submit(demo_ods_standard, language, server.pickleable())
+                            future=executor.submit(demo_ods_standard, language, server)
                             future.add_done_callback(lambda p: progress.update())
                             futures.append(future)
-                            future=executor.submit(demo_odt_standard, language,  server.pickleable())
+                            future=executor.submit(demo_odt_standard, language,  server)
                             future.add_done_callback(lambda p: progress.update())
                             futures.append(future)
 

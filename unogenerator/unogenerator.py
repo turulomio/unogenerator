@@ -37,6 +37,7 @@ except:
 
 class LibreofficeServer:
     def __init__(self):
+        self.pid=None
         self.start()
         
     ## This method allows to use with statement. 
@@ -57,26 +58,13 @@ class LibreofficeServer:
             self.port=s.getsockname()[1]
 
         command=f'loffice --accept="socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{self.port} --headless  --nologo  --norestore'
-        self.process= Popen(command, stdout=PIPE, stderr=PIPE, shell=True)        
+        process=Popen(command, stdout=PIPE, stderr=PIPE, shell=True)       
+        self.pid=process.pid
         
     def stop(self):
-        if self.process is not None:
-            system(f'pkill -f socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager')
-            system(f'rm -Rf /tmp/unogenerator{self.port}')
-            
-    def pickleable(self):
-        """ 
-            When using concurrent process, can pass this method to a pickleable class
-            Remember to stop original server
-        """
-        return LibreofficeServerPickleable(self.port)
+        system(f'pkill -f socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager')
+        system(f'rm -Rf /tmp/unogenerator{self.port}')
 
-
-class LibreofficeServerPickleable:
-    def __init__(self, port):
-        self.port=port
-
-        
 class ODF:
     def __init__(self, template=None,  server=None):
         """

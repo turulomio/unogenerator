@@ -95,7 +95,7 @@ msgid "Launching demo with one common server sequentially"
 msgstr "Lanzando la demo de forma secuencial con un servidor común"
 
 msgid "Launching demo without one common server sequentially"
-msgstr "Lanzando la demo de forma secuancial sin un servidor común"
+msgstr "Lanzando la demo de forma secuencial sin un servidor común"
 
 msgid "All process took {}"
 msgstr "Todos los procesos tardaron {}"
