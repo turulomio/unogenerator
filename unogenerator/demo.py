@@ -160,7 +160,7 @@ def main(arguments=None):
         print(_("All process took {}".format(datetime.now()-start)))
 
        
-def demo_ods_standard(language, suffix="", server=None):
+def demo_ods_standard(language, server=None):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
@@ -294,16 +294,16 @@ def demo_ods_standard(language, suffix="", server=None):
         ## Sheet with all styles names
         helper_ods_sheet_stylenames(doc)
 
-        doc.save(f"unogenerator_example_{language}{suffix}.ods")
-        doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
-        doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
+        doc.save(f"unogenerator_example_{language}.ods")
+        doc.export_xlsx(f"unogenerator_example_{language}.xlsx")
+        doc.export_pdf(f"unogenerator_example_{language}.pdf")
     
-    r= _("unogenerator_example_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, doc.server.port)
+    r= _("unogenerator_example_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port)
     info(r)
     return r
     
     
-def demo_odt_standard(language, suffix="", server=None):
+def demo_odt_standard(language, server=None):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
@@ -543,11 +543,11 @@ with ODS_Standard() as doc:
         
         
         
-        doc.save(f"unogenerator_documentation_{language}{suffix}.odt")
-        doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
-        doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
+        doc.save(f"unogenerator_documentation_{language}.odt")
+        doc.export_docx(f"unogenerator_documentation_{language}.docx")
+        doc.export_pdf(f"unogenerator_documentation_{language}.pdf")
 
-    r= _("unogenerator_documentation_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, doc.server.port)
+    r= _("unogenerator_documentation_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port)
     info(r)
     return r
 

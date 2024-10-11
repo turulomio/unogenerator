@@ -6,7 +6,8 @@ from pydicts import casts, currency, percentage, lod
 from unogenerator import can_import_uno
 if can_import_uno():
     from unogenerator import ODT_Standard, ODT, ODS_Standard, ODS, ColorsNamed, Range, Coord, exceptions
-
+    
+    
     row=[1, 2, 3, 4, 5]
 
     lor=[]
@@ -46,8 +47,8 @@ if can_import_uno():
     lor_types=lod.lod2lol(lod_types)
     lor_types_styles=["Datetime", "Date", "Integer", "EUR", "Percentage", "Float2",  "TimedeltaSeconds","TimedeltaISO", "Time", "Bool", "Integer"]
 
-    def test_odt_metadata():
-        with ODT_Standard() as doc:
+    def test_odt_metadata(libreoffice_server):
+        with ODT_Standard(server=libreoffice_server) as doc:
             doc.setMetadata(
                 title="Metadata example",
                 subject="UnoGenerator testing",
@@ -67,16 +68,16 @@ if can_import_uno():
 
 
 
-    def test_odt_export():
-        with ODT_Standard() as doc:
+    def test_odt_export(libreoffice_server):
+        with ODT_Standard(server=libreoffice_server) as doc:
             doc.addParagraph("Hello")
             doc.save("test_odt_export.doc")
             doc.export_docx("test_odt_export.doc")
             doc.export_pdf("test_odt_export.odt")
 
-    def test_ods_calculate_all():
+    def test_ods_calculate_all(libreoffice_server):
         filename="test_ods_calculate_all.ods"
-        with ODS_Standard() as doc:
+        with ODS_Standard(server=libreoffice_server) as doc:
             #Addrow with one color and style
             doc.addRowWithStyle("A1", [1, 1])
             #Add row with list of colors and styles
@@ -93,9 +94,9 @@ if can_import_uno():
             
         remove(filename)
 
-    def test_ods_addCell():
+    def test_ods_addCell(libreoffice_server):
         filename="test_ods_addCell.pdf"
-        with ODS("unogenerator/templates/colored.ods") as doc:
+        with ODS("unogenerator/templates/colored.ods", server=libreoffice_server) as doc:
             doc.addCell("B1", 12.44)
             doc.addCell("G1", date.today())
             doc.addCellWithStyle("B7", 12.44, ColorsNamed.Yellow, "Float6")
@@ -103,9 +104,9 @@ if can_import_uno():
             doc.export_pdf(filename)
         remove(filename)
         
-    def test_ods_addCellMerged():
+    def test_ods_addCellMerged(libreoffice_server):
         filename="test_ods_addCellMerged.pdf"
-        with ODS("unogenerator/templates/colored.ods") as doc:
+        with ODS("unogenerator/templates/colored.ods", server=libreoffice_server) as doc:
             doc.addCellMerged("B1:C1", 12.44)
             doc.addCellMerged("G1:H1", date.today())
             doc.addCellMergedWithStyle("B7:B8", 12.44, ColorsNamed.Yellow, "Float6")
@@ -113,9 +114,9 @@ if can_import_uno():
             doc.export_pdf(filename)
         remove(filename)
 
-    def test_ods_addListOfRows():
+    def test_ods_addListOfRows(libreoffice_server):
         filename="test_ods_addListOfRows.pdf"
-        with ODS("unogenerator/templates/colored.ods") as doc:
+        with ODS("unogenerator/templates/colored.ods", server=libreoffice_server) as doc:
             doc.setColumnsWidth([5]*20)
             #Rows
             doc.addListOfRows("B1", lor)
@@ -134,9 +135,9 @@ if can_import_uno():
         remove(filename)
         
 
-    def test_ods_addFormulaArray():
+    def test_ods_addFormulaArray(libreoffice_server):
         filename="test_ods_addFormulaArray.pdf"
-        with ODS_Standard() as doc:
+        with ODS_Standard(server=libreoffice_server) as doc:
             doc.setColumnsWidth([5]*20)
            
             # Checks with List of Rows
@@ -176,8 +177,8 @@ if can_import_uno():
             doc.export_pdf(filename)
         remove(filename)
 
-    def test_ods_addRow():
-        with ODS("unogenerator/templates/colored.ods") as doc:
+    def test_ods_addRow(libreoffice_server):
+        with ODS("unogenerator/templates/colored.ods", server=libreoffice_server) as doc:
             doc.setColumnsWidth([4]*20)
             #Checking range - range_uno conversions
             range_=Range("B2:C3")
@@ -209,9 +210,9 @@ if can_import_uno():
 
 
         
-    def test_ods_freezeandselect():
+    def test_ods_freezeandselect(libreoffice_server):
         filename="test_ods_freezeandselect.ods"
-        with ODS_Standard() as doc:
+        with ODS_Standard(server=libreoffice_server) as doc:
             doc.createSheet("Outside range after")
             doc.addCell("A1", "Hola")
             doc.freezeAndSelect("C3")
@@ -242,7 +243,7 @@ if can_import_uno():
             doc.save(filename)
         remove(filename)
         
-    def test_ods_createSheet():
+    def test_ods_createSheet_nocommonserver():
         # Bad extensions
         with ODS_Standard() as doc:
             with raises(exceptions.UnogeneratorException):
@@ -256,22 +257,22 @@ if can_import_uno():
         
     
 
-    def test_ods_export():
+    def test_ods_export(libreoffice_server):
         # Bad extensions
-        with ODS_Standard() as doc:
+        with ODS_Standard(server=libreoffice_server) as doc:
             doc.addCellWithStyle("A1", "test_ods_export")
             doc.export_xlsx("test_ods_export.xls")
             doc.export_pdf("test_ods_export.ods")
             doc.save("test_ods_export.xlsx")
         
-    def test_ods_getvalues():
+    def test_ods_getvalues(libreoffice_server):
         filename="test_get_values.ods"
 
         number=10
         range_=Range(f"A1:{Coord.from_index(number-1, number-1)}")
         print(range_)
 
-        with ODS_Standard() as doc:
+        with ODS_Standard(server=libreoffice_server) as doc:
             doc.createSheet("Get Values")
             lor=[]
             for row in range(number):
@@ -312,9 +313,9 @@ if can_import_uno():
 
 
 
-    def test_ods_setCellName():
+    def test_ods_setCellName(libreoffice_server):
         filename="test_ods_setCellName.ods"
-        with ODS_Standard() as doc:
+        with ODS_Standard(server=libreoffice_server) as doc:
             doc.createSheet("Sheet")
             #Rows
             doc.setCellName("$Sheet.$A$1", "hola")      
@@ -325,8 +326,8 @@ if can_import_uno():
             doc.save(filename)
         remove(filename)
 
-    def test_ods_toDictionaryOfDetailedValues():
-        with ODS_Standard() as doc:
+    def test_ods_toDictionaryOfDetailedValues(libreoffice_server):
+        with ODS_Standard(server=libreoffice_server) as doc:
             doc.createSheet("One")
             #Adding values to document
             doc.setCellName("$One.$A$1", "hola")      
