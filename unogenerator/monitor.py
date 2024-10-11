@@ -8,11 +8,10 @@ from importlib.resources import files
 from humanize import naturalsize
 from psutil import process_iter
 from unogenerator import __version__
-from unogenerator.commons import argparse_epilog, addDebugSystem, green, red
+from unogenerator.commons import argparse_epilog, addDebugSystem, green, red, yellow, white
 from os import system, scandir
 from pydicts.percentage import Percentage
 from time import sleep
-from sys import stdout
 
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
@@ -32,23 +31,31 @@ def monitor():
     )
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
+    parser.add_argument('--refresh', help=_('Seconds until next refresh'), action="store",  type=int,  default=1)
     parser.add_argument('--seconds', help=_('Seconds to color Last CPU variation'), action="store",  type=int,  default=60)
     
     args=parser.parse_args()
 
     addDebugSystem(args.debug)
-    command_monitor(args.seconds)
-    
-def clear_screen():
-    stdout.write("\033[H\033[J")  # Move cursor to top-left and clear screen
-    stdout.flush()
-   
+    command_monitor(args.seconds, args.refresh)
+
 ## @param restart boolean. To restart unogenerator server when idle and used memory above recommended memory
 ## @param recommended. Integer. Recomended memory in Mb
-def command_monitor(seconds):
+def command_monitor(seconds, refresh):
     last_dod_=None
     while True:
-        clear_screen()
+        
+        
+        
+        system("reset")
+
+        print (_("Unogenerator version: {0}. Hora actual: {1}. Refresh time: {2} seconds").format(yellow(__version__), white(datetime.now()),  green(refresh)))
+        print ()
+
+      
+        
+        
+        
         directorios_deben=set()
         dod_={}
         for p in process_iter(['name','cmdline', 'pid']): 
@@ -98,16 +105,16 @@ def command_monitor(seconds):
         
         lod.lod_print(result_lod)
         
-        print("Número de procesos activos:",  len(result_lod))
+        print(green(_("Active soffice.bin processes number:")),  white(len(result_lod)))
         
-        print("Directorios que no tienen proceso")
         directorios_existen=set()
         for entry in scandir("/tmp"):
             if entry.is_dir() and entry.name.startswith("unogenerator"):
                 directorios_existen.add(entry.name)
-        print(directorios_existen-directorios_deben)
+        
+        print(green(_("Temporal directories with asociated soffice.bin process: ")),  yellow(list(directorios_existen-directorios_deben)))
        
-        sleep(1)    
+        sleep(float(refresh))    
     
 def cleaner():    
     colorama_init()

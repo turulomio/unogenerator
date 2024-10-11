@@ -634,6 +634,10 @@ def green(s):
     return Style.BRIGHT + Fore.GREEN + str(s) + Style.RESET_ALL
 def magenta(s):
     return Style.BRIGHT + Fore.MAGENTA + str(s) + Style.RESET_ALL
+def yellow(s):
+    return Style.BRIGHT + Fore.YELLOW + str(s) + Style.RESET_ALL
+def white(s):
+    return Style.BRIGHT + str(s) + Style.RESET_ALL
     
 ## Removes border white space from a path or a byte array of a image. It uses convert from imagemagick
 ## @param type Image extension
