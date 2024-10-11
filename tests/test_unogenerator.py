@@ -254,8 +254,6 @@ if can_import_uno():
         with ODS_Standard() as doc:
             doc.createSheet("Same name")
         assert not path.exists(f"/tmp/unogenerator{doc.server.port}")
-        
-    
 
     def test_ods_export(libreoffice_server):
         # Bad extensions
@@ -264,7 +262,7 @@ if can_import_uno():
             doc.export_xlsx("test_ods_export.xls")
             doc.export_pdf("test_ods_export.ods")
             doc.save("test_ods_export.xlsx")
-        
+
     def test_ods_getvalues(libreoffice_server):
         filename="test_get_values.ods"
 

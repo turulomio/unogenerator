@@ -24,7 +24,7 @@ except:
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
 ## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
-def main(arguments=None):
+def demo(arguments=None):
     parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
@@ -34,9 +34,13 @@ def main(arguments=None):
     parser.add_argument('--type', help="Debug program information", choices=["COMMONSERVER_SEQUENTIAL","COMMONSERVER_CONCURRENT_PROCESS","COMMONSERVER_CONCURRENT_THREADS",  "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS"],  default="COMMONSERVER_CONCURRENT_PROCESS")
     args=parser.parse_args(arguments)
     commons.addDebugSystem(args.debug)
+    demo_command(args.create, args.remove, args.type)
+    
+    
+def demo_command(create, remove, type):
     languages=['es', 'en',  'ro',  'fr']
         
-    if args.remove==True:
+    if remove==True:
             for language in languages:
                 commons.remove_without_errors(f"unogenerator_documentation_{language}.odt")
                 commons.remove_without_errors(f"unogenerator_documentation_{language}.docx")
@@ -45,12 +49,12 @@ def main(arguments=None):
                 commons.remove_without_errors(f"unogenerator_example_{language}.xlsx")
                 commons.remove_without_errors(f"unogenerator_example_{language}.pdf")
 
-    if args.create==True:
+    if create==True:
         start=datetime.now()
         instances=3
         total_documents=len(languages)*2
         
-        if args.type=="CONCURRENT_PROCESS":            
+        if type=="CONCURRENT_PROCESS":            
             futures=[]
             print(_("Launching demo with {0} workers without common server using concurrent processes").format(instances))
 
@@ -71,7 +75,7 @@ def main(arguments=None):
             for future in futures:
                 result = future.result()
                 results.append(result)        
-        elif args.type=="COMMONSERVER_CONCURRENT_PROCESS":            
+        elif type=="COMMONSERVER_CONCURRENT_PROCESS":            
             futures=[]
             print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
 
@@ -93,7 +97,7 @@ def main(arguments=None):
             for future in futures:
                 result = future.result()
                 results.append(result)
-        elif args.type=="CONCURRENT_THREADS":            
+        elif type=="CONCURRENT_THREADS":            
             futures=[]
             print(_("Launching demo with {0} workers without common server using concurrent processes").format(instances))
 
@@ -114,7 +118,7 @@ def main(arguments=None):
             for future in futures:
                 result = future.result()
                 results.append(result)        
-        elif args.type=="COMMONSERVER_CONCURRENT_THREADS":            
+        elif type=="COMMONSERVER_CONCURRENT_THREADS":            
             futures=[]
             print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
 
@@ -138,7 +142,7 @@ def main(arguments=None):
                 results.append(result)
 
 
-        elif args.type=="COMMONSERVER_SEQUENTIAL":
+        elif type=="COMMONSERVER_SEQUENTIAL":
             with LibreofficeServer() as server:
                 print(_("Launching concurrent demo with one commons server sequentially"))
                 with tqdm(total=total_documents) as progress:
@@ -148,7 +152,7 @@ def main(arguments=None):
                         demo_odt_standard(language, "",  server)       
                         progress.update()
                         
-        elif args.type=="SEQUENTIAL":
+        elif type=="SEQUENTIAL":
                 print(_("Launching demo sequentially"))
                 with tqdm(total=total_documents) as progress:
                     for language in languages:

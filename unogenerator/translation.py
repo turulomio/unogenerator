@@ -26,7 +26,7 @@ def run_check(command, shell=False):
         exit(2)
 
             
-def main():
+def translation():
     parser=ArgumentParser(prog='unogenerator', description=_('Generate a po and pot file from ODF'), epilog=argparse_epilog(), formatter_class=RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--from_language', action='store', help=_('Language to translate from. Example codes: es, fr, en, md'), required=True, metavar="CODE")
@@ -38,7 +38,7 @@ def main():
     parser.add_argument('--pdf', action='store_true', help=_('Creates translated file in pdf. Default: False'), default=False)
     args=parser.parse_args()
     
-    command(args.from_language, args.to_language, args.input, args.output_directory, args.undetected, args.fake, args.pdf)
+    command_translation(args.from_language, args.to_language, args.input, args.output_directory, args.undetected, args.fake, args.pdf)
 
 def same_entries_to_ocurrences(l):
     l= sorted(l, key=lambda x: (x[0], x[1], x[2], x[3]))
@@ -128,7 +128,7 @@ def generate_pot_file(potfilename, set_strings, entries):
         file_pot.append(entry)
     file_pot.save(potfilename)
 
-def command(from_language, to_language, input, output_directory="./unogenerator_translation/", undetected_strings=[], fake=False, pdf=False):   
+def command_translation(from_language, to_language, input, output_directory="./unogenerator_translation/", undetected_strings=[], fake=False, pdf=False):   
     makedirs(output_directory, exist_ok=True)
     makedirs(f"{output_directory}/{to_language}", exist_ok=True)
     

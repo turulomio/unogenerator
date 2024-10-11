@@ -26,10 +26,10 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-unogenerator_demo='unogenerator.demo:main'
+unogenerator_demo='unogenerator.demo:demo'
 unogenerator_cleaner='unogenerator.monitor:cleaner'
 unogenerator_monitor='unogenerator.monitor:monitor'
-unogenerator_translation='unogenerator.translation:main'
+unogenerator_translation='unogenerator.translation:translation'
 
 [tool.poe.tasks]
 coverage = { script = "unogenerator.poethepoet:coverage" }

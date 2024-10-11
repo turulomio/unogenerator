@@ -6,8 +6,8 @@ if can_import_uno():
     headers=["A", "B", "C", "D"]
     lor=[[1, 2, 3, 4], [5, 6, 7, 8]]
 
-    def test_helper_totals_column():
-        with ODS_Standard() as doc:
+    def test_helper_totals_column(libreoffice_server):
+        with ODS_Standard(server=libreoffice_server) as doc:
             doc.addListOfRowsWithStyle("A1", lor)
             helpers.helper_totals_column(doc, "E1", ["#SUM"]*len(lor),column_from="A")
             helpers.helper_totals_column(doc, "F1", ["#SUM"]*len(lor),column_from="B", column_to="C",styles=["BoldCenter"]*len(lor))
@@ -15,15 +15,15 @@ if can_import_uno():
         
         remove("helper_totals_column.pdf")
         
-    def test_helper_totals_row():
-        with ODS_Standard() as doc:
+    def test_helper_totals_row(libreoffice_server):
+        with ODS_Standard(server=libreoffice_server) as doc:
             doc.addListOfRowsWithStyle("A1", lor)
             helpers.helper_totals_row(doc, "A3", ["#SUM"]*len(lor[0]),row_from="1")
             doc.export_pdf("test_helper_totals_row.pdf")    
         remove("test_helper_totals_row.pdf")
         
-    def test_helper_totals_from_range():
-        with ODS_Standard() as doc:
+    def test_helper_totals_from_range(libreoffice_server):
+        with ODS_Standard(server=libreoffice_server) as doc:
             doc.createSheet("Both")
             doc.addRowWithStyle("A1", headers, ColorsNamed.Orange, "BoldCenter")
             range_=doc.addListOfRowsWithStyle("A2", lor)
@@ -39,17 +39,17 @@ if can_import_uno():
             doc.export_pdf("test_helper_totals_from_range.pdf")
         remove("test_helper_totals_from_range.pdf")
             
-    def test_helper_list_of_ordereddicts():
-        with ODS_Standard() as doc:
+    def test_helper_list_of_ordereddicts(libreoffice_server):
+        with ODS_Standard(server=libreoffice_server) as doc:
             helpers.helper_list_of_ordereddicts(doc, "A1", [])
         
 
-    def test_helper_split_big_listofrows():
+    def test_helper_split_big_listofrows(libreoffice_server):
         r=[]
         for i in range (100):
             r.append([i, i+1])
             
-        with ODS_Standard() as doc:
+        with ODS_Standard(server=libreoffice_server) as doc:
             helpers.helper_split_big_listofrows(doc, "Big LOR", r, ["N", "N+1"])#, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575): 
             helpers.helper_split_big_listofrows(doc, "Big LOR de 10", r, ["N", "N+1"], columns_width=3, max_rows=10)#, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575): 
             
