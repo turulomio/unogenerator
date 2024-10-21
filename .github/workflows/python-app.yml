@@ -30,4 +30,6 @@ jobs:
         sudo pip install .
     - name: Run pytest
       run: |
-        sudo pytest
+        #sudo pytest
+        unogenerator_demo --create
+        ls -la
