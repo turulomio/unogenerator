@@ -12,6 +12,7 @@ from uno import createUnoStruct
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 from pydicts import casts
+from shutil import which
 from socket import socket, AF_INET, SOCK_STREAM
 from unogenerator import exceptions, __versiondate__
 
@@ -653,12 +654,20 @@ def bytes_after_trim_image(filename_or_bytessequence, type):
             filename_to_trim=filename_or_bytessequence
 
         #Trims white space
-        p=run(f"magick '{filename_to_trim}' -trim +repage '{filename_trimed}'",  shell=True)
-        if p.returncode==0:
-            #Alter bytes if converted
-            with open(filename_trimed, "r+b") as f:
-                bytes_=f.read()
-                return bytes_
+        if which("magick") is not None:
+            p=run(f"magick '{filename_to_trim}' -trim +repage '{filename_trimed}'",  shell=True)
+            if p.returncode==0:
+                #Alter bytes if converted
+                with open(filename_trimed, "r+b") as f:
+                    bytes_=f.read()
+                    return bytes_
+        elif which("convert") is not None:
+            p=run(f"convert -trim +repage '{filename_to_trim}' '{filename_trimed}'",  shell=True)
+            if p.returncode==0:
+                #Alter bytes if converted
+                with open(filename_trimed, "r+b") as f:
+                    bytes_=f.read()
+                    return bytes_
         else:
             print(_("There was an error triming image. Is convert command (from Imagemagick) installed?"))
 
