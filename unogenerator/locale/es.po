@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-11 12:38+0200\n"
+"POT-Creation-Date: 2024-10-21 09:27+0200\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: turulomio@yahoo.es\n"
 "Language-Team: turulomio@yahoo.es\n"
@@ -169,8 +169,11 @@ msgstr "UnoGenerator usa la API de python de Libreoffice para generar documentos
 msgid "So in order to use, you need to launch a --headless LibreOffice instance."
 msgstr "Por lo que para usarlo, necesitas lanzar una instancia --headless de LibreOffice."
 
-msgid "We recomend to launch then easily with 'unogenerator_start' script."
-msgstr "Recomendamos lanzarlo facilmente con el script 'unogenerator_start'."
+msgid "UnoGenerator make this unattended for you in each ODF (ODS and ODT) instance."
+msgstr ""
+
+msgid "However if you wish, you can do this programmatically using LibreofficeServer class to reuse it in serveral ODF instances to improve documents generation speed."
+msgstr ""
 
 msgid "UnoGenerator has standard templates to help you with edition, although you can use your own templates."
 msgstr "UnoGenerator tiene plantillas estándar para ayudarte con la edición, aunque puedes usar tus propias plantillas."
@@ -500,3 +503,5 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
 
+#~ msgid "We recomend to launch then easily with 'unogenerator_start' script."
+#~ msgstr "Recomendamos lanzarlo facilmente con el script 'unogenerator_start'."
