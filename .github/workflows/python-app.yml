@@ -5,7 +5,7 @@ name: Python application
 
 on:
   push:
-    branches: [ "169-standalone-executions", "main" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
