@@ -25,7 +25,7 @@ jobs:
         python-version: '3.12'
     - name: Install Libreoffice and uno dependencies
       run: |
-        sudo apt-get install libreoffice python3-uno
+        sudo apt-get install libreoffice python3-uno imagemagick
         sudo pip install pytest
         sudo pip install .
     - name: Run pytest
