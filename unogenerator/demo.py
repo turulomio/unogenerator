@@ -344,7 +344,8 @@ def demo_odt_standard(language, server):
         doc.addParagraph(
             _("UnoGenerator uses Libreoffice UNO API python bindings to generate documents.") +" " +
             _("So in order to use, you need to launch a --headless LibreOffice instance.") + " "+
-            _("We recomend to launch then easily with 'unogenerator_start' script."), 
+            _("UnoGenerator make this unattended for you in each ODF (ODS and ODT) instance.") + " " +
+            _("However if you wish, you can do this programmatically using LibreofficeServer class to reuse it in serveral ODF instances to improve documents generation speed."),
             "Standard"
         )
 
