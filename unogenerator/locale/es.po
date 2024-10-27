@@ -27,21 +27,21 @@ msgstr "Desarrollado por Mariano Muñoz 2020-{}"
 
 #, python-brace-format
 msgid "Coord constructor must have a str or a Coord parameter and is a {0}"
-msgstr ""
+msgstr "El constructor de Coord debe tener un str o un Coord como parámetro y es un {0}"
 
 msgid "I can't convert {} (class: {}) to a Coord"
 msgstr "No puedo convertir {} (class: {}) en un Coord"
 
 #, python-brace-format
 msgid "Coord can have this character: {0}"
-msgstr ""
+msgstr "Coord no puede tener este carácter: {0}"
 
 msgid "Coord letter can't be empty"
 msgstr "La letra de la coordenada no puede estar vacía"
 
 #, python-brace-format
 msgid "Coord couldn't be created with '{0}'"
-msgstr ""
+msgstr "Coord no pudo ser creado con '{0}'"
 
 #, python-brace-format
 msgid "Range constructor must receive a string but got: {0} ({1})"
@@ -450,7 +450,7 @@ msgid "This process died after trying to connect to port {0} during {1} seconds.
 msgstr ""
 
 msgid "Error closing ODF instance"
-msgstr ""
+msgstr "Error al cerrar la instancia ODF"
 
 msgid "You can't use the same filename as your template or you will overwrite it."
 msgstr ""

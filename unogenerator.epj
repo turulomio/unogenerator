@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project unogenerator",
     "copyright": "Copyright (C) 2024 , ",
-    "saved": "2024-10-11, 20:47:11"
+    "saved": "2024-10-27, 16:13:50"
   },
   "project": {
     "AUTHOR": "",
@@ -52,7 +52,6 @@
     },
     "MIXEDLANGUAGE": false,
     "OTHERS": [
-      "DOCKER.md",
       "INSTALL.md",
       "README.md",
       "unogenerator.epj"

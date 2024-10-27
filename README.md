@@ -77,6 +77,11 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 - [UnoGenerator API](https://coolnewton.mooo.com/doxygen/unogenerator/)
 
 ## Changelog
+### 1.0.0 (2024-10-27)
+- Removed unogenerator_start and unogenerator_stop commands
+- Now Libreoffice server instances are launch unattended by default
+- Libreoffice server instances can be launched programatically
+
 ### 0.41.0 (2024-07-10)
 - unogenerator_start now launches libreoffice instances silently
 - Github actions work
