@@ -13,39 +13,80 @@ from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
 from gettext import translation
 from logging import warning, debug
 from importlib.resources import files
+from os import system
 from pydicts import lol, casts
 from shutil import copyfile
+from socket import socket, AF_INET, SOCK_STREAM
+from subprocess import Popen, PIPE
 from tempfile import TemporaryDirectory
+from time import sleep
 from unogenerator import __version__, exceptions
-from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, string_float2object
+from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989,  is_formula, uno2datetime, string_float2object
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 
 def createUnoService(serviceName):
 #        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
   return getComponentContext().ServiceManager.createInstance(serviceName)
-
-        
+  
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
 except:
     _=str
 
+class LibreofficeServer:
+    def __init__(self):
+        self.pid=None
+        self.start()
+        
+    ## This method allows to use with statement. 
+    ## with LibreofficeServer() as server:
+    ##      with ODS_Standard
+    ## First calls __init__ with None and 2002, then enter, then exit
+    def __enter__(self):
+        return self
+        
+    ## Exit function to use with with statement. __enter__ defines enter in with
+    def __exit__(self, *args, **kwargs):
+        self.stop()
+
+    def start(self):
+        # Gets an unued port
+        with socket(AF_INET, SOCK_STREAM) as s:
+            s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
+            self.port=s.getsockname()[1]
+
+        command=f'loffice --accept="socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{self.port} --headless  --nologo  --norestore'
+        process=Popen(command, stdout=PIPE, stderr=PIPE, shell=True)       
+        self.pid=process.pid
+        
+    def stop(self):
+        system(f'pkill -f socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager')
+        system(f'rm -Rf /tmp/unogenerator{self.port}')
 
 class ODF:
-    def __init__(self, template=None, loserver_port=2002):
+    def __init__(self, template=None,  server=None):
+        """
+            Common class for ODF instances
+
+            @param template path to template
+            @type string
+            @param server Server object to use
+            @type LibreofficeServer
+        """        
         self.start=datetime.now()
+        self.server=LibreofficeServer() if server is None else server #Assigns server or auto launch if None
+        self.autoserver=server==None
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
-        self.loserver_port=loserver_port
-        self.num_instances, self.first_port=get_from_process_numinstances_and_firstport()
-        maxtries=self.num_instances*3
+        maxtries=300
+        
         for i in range(maxtries):
             try:
                 localContext = getComponentContext()
                 resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
                 ## self.ctx parece que es mi contexto para servicios
-                self.ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
+                self.ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={self.server.port};urp;StarOffice.ComponentContext')
                 self.desktop = self.ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
                 self.graphicsprovider=self.ctx.ServiceManager.createInstance("com.sun.star.graphic.GraphicProvider")                   
                 args=(
@@ -66,13 +107,11 @@ class ODF:
                 self.dict_stylenames=self.dictionary_of_stylenames()
                 break
             except Exception as e:
-                print(e)
-                old=self.loserver_port
-                self.loserver_port=next_port(self.loserver_port, self.first_port, self.num_instances)
-                print(_("Changing port {0} to {1} {2} times").format(old, self.loserver_port, i))
+                sleeptime=0.25
+                sleep(sleeptime)
                 if i==maxtries - 1:
-                    print(_("This process died"))
-        
+                    print(_("This process died after trying to connect to port {0} during {1} seconds. Error: {2}").format(self.loserver_port, maxtries*sleeptime, e))
+
     ## This method allows to use with statement. 
     ## with ODS() as doc:
     ##      doc.createSheet("WITH")
@@ -88,8 +127,14 @@ class ODF:
         self.document.calculateAll()
 
     def close(self):
-        self.document.dispose()
-        
+        try:
+            self.document.dispose()
+        except:
+            print (_("Error closing ODF instance"))
+        finally:
+            if self.autoserver is True:
+                self.server.stop()
+
     ## Generate a dictionary_of_styles with families as key, and a list of string styles as value
     def dictionary_of_stylenames(self):
         stylefam=self.document.StyleFamilies
@@ -131,19 +176,22 @@ class ODF:
         
     ##Only sets a value when it's different of [] or ""
     def setMetadata(self, title="",  subject="", author="", description="", keywords=[], creationdate=datetime.now()):
-        if author!="":
-            self.document.DocumentProperties.Author=author
-        self.document.DocumentProperties.Generator=f"UnoGenerator-{__version__}"
-        if description!="":
-            self.document.DocumentProperties.Description=description
-        if subject!="":
-            self.document.DocumentProperties.Subject=subject
-        if keywords!="":
-            self.document.DocumentProperties.Keywords=keywords
-        self.document.DocumentProperties.CreationDate=datetime2uno(creationdate)
-        self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
-        if title!="":
-            self.document.DocumentProperties.Title=title
+        try:
+            if author!="":
+                self.document.DocumentProperties.Author=author
+            self.document.DocumentProperties.Generator=f"UnoGenerator-{__version__}"
+            if description!="":
+                self.document.DocumentProperties.Description=description
+            if subject!="":
+                self.document.DocumentProperties.Subject=subject
+            if keywords!="":
+                self.document.DocumentProperties.Keywords=keywords
+            self.document.DocumentProperties.CreationDate=datetime2uno(creationdate)
+            self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
+            if title!="":
+                self.document.DocumentProperties.Title=title
+        except:
+            print("Error setting metadata. Sometimes fails with concurrent process")
 
     def deleteAll(self):
         self.executeDispatch(".uno:SelectAll")
@@ -164,8 +212,8 @@ class ODF:
         
                    
 class ODT(ODF):
-    def __init__(self, template=None, loserver_port=2002):
-        ODF.__init__(self, template, loserver_port)
+    def __init__(self, template=None, server=None):
+        ODF.__init__(self, template, server)
 
     def save(self, filename, overwrite_template=False):
         if filename==self.template and overwrite_template is False:
@@ -512,8 +560,8 @@ class ODT(ODF):
 
 
 class ODS(ODF):
-    def __init__(self, template=None, loserver_port=2002):
-        ODF.__init__(self, template, loserver_port)
+    def __init__(self, template=None, server=None):
+        ODF.__init__(self, template, server)
         self._remove_default_sheet=True
 
     def getRemoveDefaultSheet(self):
@@ -1353,12 +1401,12 @@ class ODS(ODF):
         return r
 
 class ODS_Standard(ODS):
-    def __init__(self, loserver_port=2002):
-        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', loserver_port)
+    def __init__(self, server=None):
+        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', server)
 
 class ODT_Standard(ODT):
-    def __init__(self, loserver_port=2002):
-        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', loserver_port)
+    def __init__(self, server=None):
+        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', server)
         self.deleteAll()
 
 

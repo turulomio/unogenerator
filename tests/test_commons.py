@@ -169,11 +169,6 @@ if can_import_uno():
     def test_number2row():
         assert commons.number2row(5)=="5"
 
-
-    def test_get_from_process_numinstances_and_firstport():
-        r=commons.get_from_process_numinstances_and_firstport()
-        assert len(r)==2
-
     def test_colorama():
         commons.red("s")
         commons.green("s")

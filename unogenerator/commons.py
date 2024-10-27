@@ -6,16 +6,15 @@ from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, debug
 from importlib.resources import files
 from os import geteuid, remove
-from psutil import process_iter
-from pydicts import lod
 from subprocess import run
 from tempfile import TemporaryDirectory
 from uno import createUnoStruct
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 from pydicts import casts
+from shutil import which
+from socket import socket, AF_INET, SOCK_STREAM
 from unogenerator import exceptions, __versiondate__
-from time import sleep
 
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
@@ -44,6 +43,18 @@ def datetime2uno( dt):
     r.Minutes=dt.minute
     r.Seconds=dt.second
     return r
+
+
+def is_port_opened(host, port):
+    sock = socket(AF_INET, SOCK_STREAM)
+    result = sock.connect_ex((host,port))
+    sock.close()
+    if result == 0:
+       return False
+    else:
+       return True
+
+
 
 ## Converts a com.sun.star.util.DateTime to datetime
 def uno2datetime(r):
@@ -535,34 +546,6 @@ def next_port(last,  first_port,  instances):
     else:
         return last+1
 
-
-## @param attempts (Integer). Sometimes when server is busy this method fails to detect info. So I make several attempts with a time interval
-## @return listdict with process info
-def get_from_process_info(cpu_percentage=False, attempts=10):
-    for attempt in range(attempts):
-        try:
-            r=[]
-            for p in process_iter(['name','cmdline', 'pid']): 
-                d={}
-                if p.info['name']=='soffice.bin':
-                    if  'file:///tmp/unogenerator'  in ' '.join(p.info['cmdline']):
-                        d["port"]=int(p.info['cmdline'][1][-4:])
-                        d["pid"]=p.pid
-                        d["mem"]=p.memory_info().rss
-                        d["cpu_number"]=p.cpu_num()
-                        if cpu_percentage is True:
-                            d["cpu_percentage"]=p.cpu_percent(interval=0.01)
-                            d["object"]=p
-                        r.append(d)
-            if len(r)==0:
-                raise
-            return r
-        except:
-            print(_("I couldn't detect unogenerator process info ({0}/{1} attempts)").format(attempt, attempts))
-            sleep(5)
-            continue
-    print(_("Have you launched unogenerator instances?. Please run unogenerator_start"))
-    return []
     
         
 ## Converts an string or a float to an object.
@@ -635,14 +618,6 @@ def string_float2object(string_float, cast):
             return string_float
     return string_float
 
-
-def get_from_process_numinstances_and_firstport():        
-    ld=get_from_process_info()
-    if len(ld)==0:
-        print(_("I couldn't detect unogenerator instances"))
-    return len(ld), lod.lod_min_value(ld,"port")
-   
-
 def is_root():
     return geteuid() == 0
    
@@ -660,6 +635,10 @@ def green(s):
     return Style.BRIGHT + Fore.GREEN + str(s) + Style.RESET_ALL
 def magenta(s):
     return Style.BRIGHT + Fore.MAGENTA + str(s) + Style.RESET_ALL
+def yellow(s):
+    return Style.BRIGHT + Fore.YELLOW + str(s) + Style.RESET_ALL
+def white(s):
+    return Style.BRIGHT + str(s) + Style.RESET_ALL
     
 ## Removes border white space from a path or a byte array of a image. It uses convert from imagemagick
 ## @param type Image extension
@@ -675,12 +654,20 @@ def bytes_after_trim_image(filename_or_bytessequence, type):
             filename_to_trim=filename_or_bytessequence
 
         #Trims white space
-        p=run(f"convert -trim +repage '{filename_to_trim}' '{filename_trimed}'",  shell=True)
-        if p.returncode==0:
-            #Alter bytes if converted
-            with open(filename_trimed, "r+b") as f:
-                bytes_=f.read()
-                return bytes_
+        if which("magick") is not None:
+            p=run(f"magick '{filename_to_trim}' -trim +repage '{filename_trimed}'",  shell=True)
+            if p.returncode==0:
+                #Alter bytes if converted
+                with open(filename_trimed, "r+b") as f:
+                    bytes_=f.read()
+                    return bytes_
+        elif which("convert") is not None:
+            p=run(f"convert -trim +repage '{filename_to_trim}' '{filename_trimed}'",  shell=True)
+            if p.returncode==0:
+                #Alter bytes if converted
+                with open(filename_trimed, "r+b") as f:
+                    bytes_=f.read()
+                    return bytes_
         else:
             print(_("There was an error triming image. Is convert command (from Imagemagick) installed?"))
 

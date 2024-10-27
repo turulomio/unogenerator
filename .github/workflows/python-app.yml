@@ -5,7 +5,7 @@ name: Python application
 
 on:
   push:
-    branches: [ "158-create-github-action-testing", "main" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -22,18 +22,15 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11'
     - name: Install Libreoffice and uno dependencies
       run: |
-        sudo apt-get install libreoffice python3-uno
-        sudo pip install pytest
-        sudo pip install .
-    - name: Launch unogenerator_start testing all commands
+        sudo apt-get install libreoffice python3-uno imagemagick python3.11 python3.11-venv
+    - name: Install python environment ${{ matrix.python-version }}
       run: |
-        sudo unogenerator_start --instances 1
-        sudo unogenerator_monitor
-        sudo unogenerator_stop 
-        sudo unogenerator_start --instances 4
-    - name: Run pytest
+        sudo python3.11 -m venv .python3.11 --system-site-packages
+        sudo .python3.11/bin/pip install .
+        sudo .python3.11/bin/pip install pytest
+    - name: Run Tests
       run: |
-        sudo pytest
+        sudo .python3.11/bin/pytest -v

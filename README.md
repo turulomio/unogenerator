@@ -22,8 +22,6 @@ Only Linux is supported. I'm going to write unogenerator [installation methods](
 
 This is a Hello World example. You get the example in odt, docx and pdf formats:
 
-First you have to launch libreoffice as a service. Run `unogenerator_start`.
-
 ```python
 from unogenerator import ODT_Standard
 with ODT_Standard() as doc:
@@ -38,8 +36,6 @@ with ODT_Standard() as doc:
 
 This is a Hello World example. You'll get example files in ods, xlsx and pdf formats:
 
-You don't have to relaunch `unogenerator_start` if you did before
-
 ```python
 from unogenerator import ODS_Standard
 with ODS_Standard() as doc:
@@ -52,14 +48,6 @@ with ODS_Standard() as doc:
 ## Unogenerator scripts
 
 Python unogenerator package has the following scripts:
-
-### unogenerator_start
-
-Launch libreoffice server, as many process as cpus in your computer.
-
-### unogenerator_stop
-
-Stops libreoffice server instances
 
 ### unogenerator_monitor
 
@@ -75,11 +63,7 @@ You can use --fake to see simulation of your translation
 
 ### unogenerator_demo
 
-With this tool you can generate a demo
-
-### unogenerator_demo_concurrent
-
-With this tool you can generate a demo with a lot of files to benchmark your unogenerator serve
+With this tool you can generate a demo, remove its result files and make benchmark comparations in your system
 
 ## Documentation
 You can read [documentation](https://github.com/turulomio/unogenerator/blob/main/doc/unogenerator_documentation_en.odt?raw=true) in doc directory. It has been created with unogenerator.
@@ -91,7 +75,6 @@ You can read [documentation](https://github.com/turulomio/unogenerator/blob/main
 - [OpenOffice Forums](https://forum.openoffice.org/en/forum/viewforum.php?f=20)
 - [LibreOffice Forums](https://ask.libreoffice.org/)
 - [UnoGenerator API](https://coolnewton.mooo.com/doxygen/unogenerator/)
-
 
 ## Changelog
 ### 0.41.0 (2024-07-10)

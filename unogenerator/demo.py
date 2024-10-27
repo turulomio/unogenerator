@@ -4,15 +4,15 @@ from uno import getComponentContext
 getComponentContext()
 import argparse
 from collections import OrderedDict
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, as_completed,  ThreadPoolExecutor
 from datetime import datetime, date, timedelta
 from gettext import translation
 from logging import info
-from multiprocessing import cpu_count
 from importlib.resources import files
+from os import system
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
-from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord
+from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer
 from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals, helper_ods_sheet_stylenames, helper_split_big_listofrows
 from tqdm import tqdm
 
@@ -22,21 +22,34 @@ try:
 except:
     _=str
 
+type_choices=[ "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS", "COMMONSERVER_SEQUENTIAL","COMMONSERVER_CONCURRENT_PROCESS","COMMONSERVER_CONCURRENT_THREADS" ]
+
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
 ## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
-def main(arguments=None):
+def demo(arguments=None):
     parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
     group= parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
+    group.add_argument('--benchmark', help="Executes all types to compare its benchmark", action="store_true", default=False)
+    parser.add_argument('--type', help="Debug program information", choices=type_choices,  default="COMMONSERVER_CONCURRENT_PROCESS")
     args=parser.parse_args(arguments)
     commons.addDebugSystem(args.debug)
+    demo_command(args.create, args.remove, args.benchmark, args.type)
+
+def demo_command(create, remove, benchmark, type):
+    languages=['es', 'en',  'ro',  'fr']
         
-    if args.remove==True:
-            for language in ['es', 'en']:
+    if benchmark is True:
+        for type in type_choices:
+            #demo_command(True, False,  False,  type)
+            system(f"unogenerator_demo --create --type {type}")
+
+    if remove==True:
+            for language in languages:
                 commons.remove_without_errors(f"unogenerator_documentation_{language}.odt")
                 commons.remove_without_errors(f"unogenerator_documentation_{language}.docx")
                 commons.remove_without_errors(f"unogenerator_documentation_{language}.pdf")
@@ -44,79 +57,129 @@ def main(arguments=None):
                 commons.remove_without_errors(f"unogenerator_example_{language}.xlsx")
                 commons.remove_without_errors(f"unogenerator_example_{language}.pdf")
 
-    if args.create==True:
+    if create==True:
         start=datetime.now()
-        futures=[]
-        with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
-            for language in ['es', 'en']:
-                futures.append(executor.submit(demo_ods_standard, language))
-                futures.append(executor.submit(demo_odt_standard, language))
+        instances=3
+        total_documents=len(languages)*2
+        
+        if type=="CONCURRENT_PROCESS":            
+            futures=[]
+            print(_("Launching demo with {0} workers without common server using concurrent processes").format(instances))
 
-        for future in as_completed(futures):
-            future.result()
-        print(_("All process took {}").format(datetime.now()-start))
-
-
-def main_concurrent(arguments=None):
-    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--version', action='version', version=__version__)
-    parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
-    group= parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--create', help="Create demo files", action="store_true",default=False)
-    group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
-    parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
-    args=parser.parse_args(arguments)
-
-    num_instances, first_port=commons.get_from_process_numinstances_and_firstport()
-    commons.addDebugSystem(args.debug)
-
-    if args.remove==True:
-            for i in range(args.loops):
-                for language in ['es', 'en']:
-                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.odt")
-                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.docx")
-                    commons.remove_without_errors(f"unogenerator_documentation_{language}.{i}.pdf")
-                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.ods")
-                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.xlsx")
-                    commons.remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
-
-    if args.create==True:
-        print(_("Launching concurrent demo with {0} workers to a daemon with {0} instances from {1} port").format(num_instances, first_port))
-
-        start=datetime.now()
-        futures=[]
-        port=first_port
-        with ProcessPoolExecutor(max_workers=num_instances) as executor:
-            with tqdm(total=args.loops*4) as progress:
-                for i in range(args.loops):
-                    for language in ['es', 'en']:
-                        port=commons.next_port(port, first_port, num_instances)
-                        future=executor.submit(demo_ods_standard, language, port, f".{i}")
+            with ProcessPoolExecutor(max_workers=instances) as executor:
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        future=executor.submit(demo_ods_standard, language, None)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
-                        port=commons.next_port(port, first_port, num_instances)
-                        future=executor.submit(demo_odt_standard, language, port, f".{i}")
+                        future=executor.submit(demo_odt_standard, language,  None)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 
-                for future in as_completed(futures):
-                    future.result()
+                    for future in as_completed(futures):
+                        future.result()
+
+            results = []
+            for future in futures:
+                result = future.result()
+                results.append(result)    
+
+        elif type=="COMMONSERVER_CONCURRENT_PROCESS":            
+            futures=[]
+            print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
+
+            with LibreofficeServer() as server: #FALLA POR PICCKING
+                with ProcessPoolExecutor(max_workers=instances) as executor:
+                    with tqdm(total=total_documents) as progress:
+                            for language in languages:
+                                future=executor.submit(demo_ods_standard, language, server)
+                                future.add_done_callback(lambda p: progress.update())
+                                futures.append(future)
+                                future=executor.submit(demo_odt_standard, language,  server)
+                                future.add_done_callback(lambda p: progress.update())
+                                futures.append(future)
+
+                            for future in as_completed(futures):
+                                future.result()
+
+                results = []
+                for future in futures:
+                    result = future.result()
+                    results.append(result)
+
+        elif type=="CONCURRENT_THREADS":            
+            futures=[]
+            print(_("Launching demo with {0} workers without common server using concurrent threads").format(instances))
+
+            with ThreadPoolExecutor(max_workers=instances) as executor:
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        future=executor.submit(demo_ods_standard, language, None)
+                        future.add_done_callback(lambda p: progress.update())
+                        futures.append(future)
+                        future=executor.submit(demo_odt_standard, language,  None)
+                        future.add_done_callback(lambda p: progress.update())
+                        futures.append(future)
+
+                    for future in as_completed(futures):
+                        future.result()
+
+                results = []
+                for future in futures:
+                    result = future.result()
+                    results.append(result)
+
+        elif type=="COMMONSERVER_CONCURRENT_THREADS":            
+            futures=[]
+            print(_("Launching demo with {0} workers with common server using concurrent threads").format(instances))
+
+            with LibreofficeServer() as server: #FALLA POR PICCKING
+                with ThreadPoolExecutor(max_workers=instances) as executor:
+                    with tqdm(total=total_documents) as progress:
+                        for language in languages:
+                            future=executor.submit(demo_ods_standard, language, server)
+                            future.add_done_callback(lambda p: progress.update())
+                            futures.append(future)
+                            future=executor.submit(demo_odt_standard, language,  server)
+                            future.add_done_callback(lambda p: progress.update())
+                            futures.append(future)
+
+                        for future in as_completed(futures):
+                            future.result()
+
+                results = []
+                for future in futures:
+                    result = future.result()
+                    results.append(result)
+
+        elif type=="COMMONSERVER_SEQUENTIAL":
+            with LibreofficeServer() as server:
+                print(_("Launching demo with one common server sequentially"))
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        demo_ods_standard(language, server)
+                        progress.update()
+                        demo_odt_standard(language,  server)       
+                        progress.update()
+                        
+        elif type=="SEQUENTIAL":
+                print(_("Launching demo without one common server sequentially"))
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        demo_ods_standard(language, None)
+                        progress.update()
+                        demo_odt_standard(language,  None)       
+                        progress.update()     
             
-
-
-        results = []
-        for future in futures:
-            result = future.result()
-            results.append(result)
         print(_("All process took {}".format(datetime.now()-start)))
 
        
-def demo_ods_standard(language, port=2002, suffix="",):
+def demo_ods_standard(language, server):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
     
-    with ODS_Standard(port) as doc:
+    with ODS_Standard(server=server) as doc:
         doc.setMetadata(
             _("UnoGenerator ODS example"),  
             _("Demo with ODS class"), 
@@ -245,21 +308,21 @@ def demo_ods_standard(language, port=2002, suffix="",):
         ## Sheet with all styles names
         helper_ods_sheet_stylenames(doc)
 
-        doc.save(f"unogenerator_example_{language}{suffix}.ods")
-        doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
-        doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
+        doc.save(f"unogenerator_example_{language}.ods")
+        doc.export_xlsx(f"unogenerator_example_{language}.xlsx")
+        doc.export_pdf(f"unogenerator_example_{language}.pdf")
     
-    r= _("unogenerator_example_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, port)
+    r= _("unogenerator_example_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port)
     info(r)
     return r
     
     
-def demo_odt_standard(language, port=2002, suffix=""):
+def demo_odt_standard(language, server):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
 
-    with ODT_Standard(port) as doc:
+    with ODT_Standard(server=server) as doc:
         doc.setMetadata(
             _("UnoGenerator documentation"),  
             _("UnoGenerator python module documentation"), 
@@ -281,7 +344,8 @@ def demo_odt_standard(language, port=2002, suffix=""):
         doc.addParagraph(
             _("UnoGenerator uses Libreoffice UNO API python bindings to generate documents.") +" " +
             _("So in order to use, you need to launch a --headless LibreOffice instance.") + " "+
-            _("We recomend to launch then easily with 'unogenerator_start' script."), 
+            _("UnoGenerator make this unattended for you in each ODF (ODS and ODT) instance.") + " " +
+            _("However if you wish, you can do this programmatically using LibreofficeServer class to reuse it in serveral ODF instances to improve documents generation speed."),
             "Standard"
         )
 
@@ -494,11 +558,11 @@ with ODS_Standard() as doc:
         
         
         
-        doc.save(f"unogenerator_documentation_{language}{suffix}.odt")
-        doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
-        doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
+        doc.save(f"unogenerator_documentation_{language}.odt")
+        doc.export_docx(f"unogenerator_documentation_{language}.docx")
+        doc.export_pdf(f"unogenerator_documentation_{language}.pdf")
 
-    r= _("unogenerator_documentation_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.start, port)
+    r= _("unogenerator_documentation_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port)
     info(r)
     return r
 

@@ -8,8 +8,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">3.9,<4"
-tqdm = ">=4.66.2"
-humanize = ">=4.10.0"
+tqdm = ">=4.66.5"
+humanize = ">=4.11.0"
 colorama = ">=0.4.6"
 polib = ">=1.2.0"
 psutil = ">=6.0.0"
@@ -17,21 +17,19 @@ pydicts = ">=0.16.0"
 
 [tool.poetry.group.dev.dependencies]
 poetry = ">=1.8.3"
-poethepoet = ">=0.27.0"
-pytest = ">=8.2.2"
-coverage = ">=7.5.4"
+poethepoet = ">=0.29.0"
+pytest = ">=8.3.3"
+coverage = ">=7.6.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-unogenerator_demo='unogenerator.demo:main'
-unogenerator_demo_concurrent='unogenerator.demo:main_concurrent'
-unogenerator_start='unogenerator.server:server_start'
-unogenerator_stop='unogenerator.server:server_stop'
-unogenerator_monitor='unogenerator.server:monitor'
-unogenerator_translation='unogenerator.translation:main'
+unogenerator_demo='unogenerator.demo:demo'
+unogenerator_cleaner='unogenerator.monitor:cleaner'
+unogenerator_monitor='unogenerator.monitor:monitor'
+unogenerator_translation='unogenerator.translation:translation'
 
 [tool.poe.tasks]
 coverage = { script = "unogenerator.poethepoet:coverage" }

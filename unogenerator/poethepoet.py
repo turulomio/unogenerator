@@ -14,6 +14,8 @@ def translate():
         system("msgmerge -N --no-wrap -U unogenerator/locale/es.po unogenerator/locale/unogenerator.pot")
         system("msgfmt -cv -o unogenerator/locale/es/LC_MESSAGES/unogenerator.mo unogenerator/locale/es.po")
         system("msgfmt -cv -o unogenerator/locale/en/LC_MESSAGES/unogenerator.mo unogenerator/locale/en.po")
+        system("msgfmt -cv -o unogenerator/locale/fr/LC_MESSAGES/unogenerator.mo unogenerator/locale/fr.po")
+        system("msgfmt -cv -o unogenerator/locale/ro/LC_MESSAGES/unogenerator.mo unogenerator/locale/ro.po")
 
     
 def documentation():
@@ -34,6 +36,8 @@ def release():
   * Cambiar la versión en pyproject.toml
   * Ejecutar otra vez poe release
   * git checkout -b unogenerator-{0}
+  * pytest
+  * unogenerator_demo --benchmark
   * Modificar el Changelog en README.md
   * poe coverage con pyvenv systempackages=false
   * poe coverage con pyvenv systempackages=true
