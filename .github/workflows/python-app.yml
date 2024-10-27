@@ -28,7 +28,7 @@ jobs:
         sudo apt-get install libreoffice python3-uno imagemagick python3.11 python3.11-venv
     - name: Install python environment ${{ matrix.python-version }}
       run: |
-        sudo python3.11 -m venv .python3.11  --system-site-packages
+        sudo python3.11 -m venv .python3.11 --system-site-packages
         sudo .python3.11/bin/pip install .
         sudo .python3.11/bin/pip install pytest
     - name: Run Tests
