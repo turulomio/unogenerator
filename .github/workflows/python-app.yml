@@ -31,6 +31,7 @@ jobs:
         sudo python3.12 -m venv .python3.12
         sudo .python3.12/bin/pip install .
         sudo .python3.12/bin/pip install pytest
+        sudo ls -la
     - name: Run Tests
       run: |
         sudo .python3.12/bin/pytest
