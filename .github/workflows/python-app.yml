@@ -33,4 +33,4 @@ jobs:
         sudo .python3.11/bin/pip install pytest
     - name: Run Tests
       run: |
-        sudo .python3.11/bin/pytest
+        sudo .python3.11/bin/pytest -v
