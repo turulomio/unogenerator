@@ -22,12 +22,14 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.12'
     - name: Install Libreoffice and uno dependencies
       run: |
-        sudo apt-get install libreoffice python3-uno imagemagick
-        sudo pip install pytest
-        sudo pip install .
-    - name: Run pytest
+        sudo apt-get install libreoffice python3-uno imagemagick python3.11 python3.11-venv
+    - name: Install python environment ${{ matrix.python-version }}
       run: |
-        sudo pytest -v
+        sudo python3.11 -m venv .python3.11
+        sudo .python3.11/bin/pip install .
+    - name: Run Tests
+      run: |
+        sudo .python3.11/bin/pytest
