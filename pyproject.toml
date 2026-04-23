@@ -1,35 +1,42 @@
-[tool.poetry]
+[project]
 name = "unogenerator"
 version = "1.0.0"
 description = "Libreoffice files generator programmatically with python and Libreoffice server instances"
-authors = ["turulomio <turulomio@yahoo.es>"]
-license = "GPL-3.0 license"
+authors = [
+    { name = "turulomio", email = "turulomio@yahoo.es" }
+]
+license = { text = "GPL-3.0-or-later" }
 readme = "README.md"
+requires-python = ">=3.10,<4"
+dependencies = [
+    "tqdm>=4.67.3",
+    "humanize>=4.15.0",
+    "colorama>=0.4.6",
+    "polib>=1.2.0",
+    "psutil>=7.2.2",
+    "pydicts>=1.1.0",
+]
 
-[tool.poetry.dependencies]
-python = ">3.9,<4"
-tqdm = ">=4.66.5"
-humanize = ">=4.11.0"
-colorama = ">=0.4.6"
-polib = ">=1.2.0"
-psutil = ">=6.0.0"
-pydicts = ">=0.16.0"
+[project.urls]
+homepage = "https://github.com/turulomio/unogenerator/"
+repository = "https://github.com/turulomio/unogenerator/"
+changelog = "https://github.com/turulomio/unogenerator#changelog"
+
+[project.scripts]
+unogenerator_demo = "unogenerator.demo:demo"
+unogenerator_cleaner = "unogenerator.monitor:cleaner"
+unogenerator_monitor = "unogenerator.monitor:monitor"
+unogenerator_translation = "unogenerator.translation:translation"
+
+[tool.poetry]
+# Only Poetry-specific configuration stays here
+packages = [{ include = "unogenerator" }]
 
 [tool.poetry.group.dev.dependencies]
-poetry = ">=1.8.3"
-poethepoet = ">=0.29.0"
-pytest = ">=8.3.3"
-coverage = ">=7.6.1"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-unogenerator_demo='unogenerator.demo:demo'
-unogenerator_cleaner='unogenerator.monitor:cleaner'
-unogenerator_monitor='unogenerator.monitor:monitor'
-unogenerator_translation='unogenerator.translation:translation'
+poetry = ">=2.3.4"
+poethepoet = ">=0.44.0"
+pytest = ">=9.0.3"
+coverage = ">=7.13.5"
 
 [tool.poe.tasks]
 coverage = { script = "unogenerator.poethepoet:coverage" }
@@ -41,7 +48,6 @@ translate = { script = "unogenerator.poethepoet:translate" }
 docker = { script = "unogenerator.poethepoet:docker" }
 docker_build = { script = "unogenerator.poethepoet:docker_build" }
 
-[project.urls]
-homepage = "https://github.com/turulomio/unogenerator/"
-repository = "https://github.com/turulomio/unogenerator/"
-changelog = "https://github.com/turulomio/unogenerator#changelog"
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
