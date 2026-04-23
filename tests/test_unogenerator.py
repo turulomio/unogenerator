@@ -2,6 +2,7 @@ from datetime import date, time, timedelta
 from os import remove, path
 from pytest import raises
 from pydicts import casts, currency, percentage, lod
+from importlib.resources import files
 
 from unogenerator import can_import_uno
 if can_import_uno():
@@ -344,3 +345,10 @@ if can_import_uno():
             assert detailed_values["sheets"][0]["rows"]==3
             assert detailed_values["dictionary"][("One", "A3")]["is_formula"]==True
             assert detailed_values["dictionary"][("One", "A3")]["value"]==4
+
+
+    def test_ods_template_with_importlib_resources_files():
+        with ODS(files("unogenerator")/"templates/colored.ods") as doc:
+            doc.addCell("A1", "Hola")
+            doc.export_pdf("test_ods_template_with_importlib_resources_files.pdf")
+        remove("test_ods_template_with_importlib_resources_files.pdf")
