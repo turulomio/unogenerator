@@ -13,11 +13,11 @@ from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
 from gettext import translation
 from logging import warning, debug
 from importlib.resources import files
-from os import system
+from os import path, makedirs # Removed 'system' as it's no longer used in this file
 from pydicts import lol, casts
-from shutil import copyfile
+from shutil import copyfile, rmtree # Added rmtree for directory removal
 from socket import socket, AF_INET, SOCK_STREAM
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, run # Added run for executing external commands
 from tempfile import TemporaryDirectory
 from time import sleep
 from unogenerator import __version__, exceptions
@@ -37,7 +37,7 @@ except:
 
 class LibreofficeServer:
     def __init__(self):
-        self.pid=None
+        self.process=None # Store the Popen object
         self.start()
         
     ## This method allows to use with statement. 
@@ -57,13 +57,31 @@ class LibreofficeServer:
             s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
             self.port=s.getsockname()[1]
 
-        command=f'loffice --accept="socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager" -env:UserInstallation=file:///tmp/unogenerator{self.port} --headless  --nologo  --norestore'
-        process=Popen(command, stdout=PIPE, stderr=PIPE, shell=True)       
-        self.pid=process.pid
+        command_args = [
+            'loffice',
+            f'--accept=socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager',
+            f'-env:UserInstallation=file:///tmp/unogenerator{self.port}',
+            '--headless',
+            '--nologo',
+            '--norestore'
+        ]
+        # Store process object, passing command as a list and shell=False
+        self.process = Popen(command_args, stdout=PIPE, stderr=PIPE, shell=False)
+
         
     def stop(self):
-        system(f'pkill -f socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager')
-        system(f'rm -Rf /tmp/unogenerator{self.port}')
+        if self.process:
+            # Close stdout and stderr pipes
+            if self.process.stdout:
+                self.process.stdout.close()
+            if self.process.stderr:
+                self.process.stderr.close()
+            if self.process.poll() is None: # Check if process is still alive
+                self.process.terminate()
+                self.process.wait(timeout=5) # Wait for it to terminate
+            self.process = None # Clear reference
+        run(['pkill', '-f', f'socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager'], check=False)
+        rmtree(f'/tmp/unogenerator{self.port}', ignore_errors=True)
 
 class ODF:
     def __init__(self, template=None,  server=None):
@@ -1408,5 +1426,3 @@ class ODT_Standard(ODT):
     def __init__(self, server=None):
         ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', server)
         self.deleteAll()
-
-
