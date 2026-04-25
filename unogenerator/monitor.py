@@ -5,11 +5,13 @@ from datetime import datetime, timedelta
 from gettext import translation
 from pydicts import lod
 from importlib.resources import files
+from os import scandir, remove # Removed 'system', added 'remove'
 from humanize import naturalsize
 from psutil import process_iter
-from unogenerator import __version__
+from unogenerator import __version__ # Added 'run' for subprocess, 'rmtree' for directory removal
 from unogenerator.commons import argparse_epilog, addDebugSystem, green, red, yellow, white
-from os import system, scandir
+from shutil import rmtree
+from subprocess import run
 from pydicts.percentage import Percentage
 from time import sleep
 
@@ -133,5 +135,16 @@ def cleaner():
 ## @param restart boolean. To restart unogenerator server when idle and used memory above recommended memory
 ## @param recommended. Integer. Recomended memory in Mb
 def command_cleaner():
-    system("killall -9 soffice.bin")
-    system("rm -Rf /tmp/unogenerator*")
+    # Kill all soffice.bin processes
+    # Using check=False because killall might exit with 1 if no processes are found,
+    # which is not necessarily an error in this context.
+    run(['killall', '-9', 'soffice.bin'], check=False)
+
+    # Remove /tmp/unogenerator* directories/files
+    for entry in scandir("/tmp"):
+        if entry.name.startswith("unogenerator"):
+            full_path = f"/tmp/{entry.name}"
+            if entry.is_dir():
+                rmtree(full_path, ignore_errors=True)
+            else:
+                remove(full_path)
