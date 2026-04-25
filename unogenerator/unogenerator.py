@@ -40,10 +40,6 @@ except:
     _=str
 
 class LibreofficeServer:
-    def __init__(self):
-        self.process=None # Store the Popen object
-        self.start()
-        
     ## This method allows to use with statement. 
     ## with LibreofficeServer() as server:
     ##      with ODS_Standard
@@ -55,26 +51,31 @@ class LibreofficeServer:
     def __exit__(self, *args, **kwargs):
         self.stop()
 
-    def start(self):
-        # Gets an unued port
-        with socket(AF_INET, SOCK_STREAM) as s:
-            s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
-            self.port=s.getsockname()[1]
-
-        command_args = [
-            'loffice',
-            f'--accept=socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager',
-            f'-env:UserInstallation=file:///tmp/unogenerator{self.port}',
-            '--headless',
-            '--nologo',
-            '--norestore'
-        ]
-        # Store process object, passing command as a list and shell=False
-        self.process = Popen(command_args, stdout=PIPE, stderr=PIPE, shell=False)
-
+    def __init__(self, port=None):
+        self.process = None
+        self.port = port
+        self.started_by_me = False # Flag to indicate if this instance started the LO process
         
+        if self.port is None: # If no port is provided, start a new process
+            with socket(AF_INET, SOCK_STREAM) as s:
+                s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
+                self.port = s.getsockname()[1]
+            command_args = [
+                'loffice',
+                f'--accept=socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager',
+                f'-env:UserInstallation=file:///tmp/unogenerator{self.port}',
+                '--headless',
+                '--nologo',
+                '--norestore'
+            ]
+            self.process = Popen(command_args, stdout=PIPE, stderr=PIPE, shell=False)
+            self.started_by_me = True
+            logger.debug(f"LibreOffice server started on port {self.port}")
+        else: # If a port is provided, assume an external server is running, and this instance is just a connector
+            logger.debug(f"LibreOffice server connecting to existing instance on port {self.port}")
+
     def stop(self):
-        if self.process:
+        if self.started_by_me and self.process:
             # Close stdout and stderr pipes
             if self.process.stdout:
                 self.process.stdout.close()
@@ -94,7 +95,7 @@ class LibreofficeServer:
                     except subprocess.TimeoutExpired:
                         logger.warning(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} could not be forcefully killed within 5 seconds.")
             self.process = None # Clear reference
-
+            
         # Secondary fallback: use system-specific kill command for any lingering processes
         try:
             if sys.platform.startswith('linux') or sys.platform == 'darwin': # Linux and macOS
@@ -105,9 +106,10 @@ class LibreofficeServer:
                 logger.debug(f"Process termination for LibreOffice on port {self.port} is not explicitly handled on this operating system ({sys.platform}).")
         except subprocess.TimeoutExpired:
             logger.warning(f"System kill command timed out while trying to kill LibreOffice process on port {self.port}. Process might still be running.")
-        except Exception as e:
+        except Exception as e: # Catch a broader exception for robustness
             logger.warning(f"Error during system kill command for LibreOffice on port {self.port}: {e}")
-        rmtree(f'/tmp/unogenerator{self.port}', ignore_errors=True)
+        if self.started_by_me: # Only remove temp dir if this instance started the process
+            rmtree(f'/tmp/unogenerator{self.port}', ignore_errors=True)
 
 class ODF:
     maxtries = 200 # Define as a class attribute with a default value
@@ -122,8 +124,17 @@ class ODF:
         """        
 
         self.start=datetime.now()
-        self.server=LibreofficeServer() if server is None else server #Assigns server or auto launch if None
-        self.autoserver=server==None
+        if isinstance(server, LibreofficeServer):
+            self.server = server
+            self.autoserver = False # Not auto-managed by ODF, but by the passed server object
+        elif isinstance(server, int): # If an integer (port) is passed, create a connector LibreofficeServer
+            self.server = LibreofficeServer(port=server)
+            self.autoserver = False # Not auto-managed, it's connecting to an external one
+        elif server is None: # If None, ODF manages its own server
+            self.server = LibreofficeServer() # ODF manages its own server, starts a new LO process
+            self.autoserver = True
+        else:
+            raise TypeError("Invalid 'server' argument. Must be None, a LibreofficeServer instance, or an integer port.")
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
         # Initialize ctx and desktop to None, so they always exist even if connection fails
         self.ctx = None
