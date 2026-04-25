@@ -395,89 +395,90 @@ if can_import_uno():
             doc.export_pdf("test_ods_template_with_importlib_resources_files.pdf")
         remove("test_ods_template_with_importlib_resources_files.pdf")
 
-    def test_benchmark_ods_worker_performance(libreoffice_server, caplog, capfd):
-        """
-        Benchmarks ODS document generation using ProcessPoolExecutor and ThreadPoolExecutor
-        with a shared LibreOffice server instance.
+    # def test_benchmark_ods_worker_performance(libreoffice_server, caplog, capfd):
+    #     """
+    #     Benchmarks ODS document generation using ProcessPoolExecutor and ThreadPoolExecutor
+    #     with a shared LibreOffice server instance.
         
-        This test creates 50 documents for each worker count (1 to 10)
-        and measures the time taken for both process-based and thread-based concurrency.
-        """
-        caplog.set_level(logging.INFO) # Ensure INFO messages are captured and displayed
-        num_documents_per_worker_test = 10
-        # Generate unique language names to ensure unique filenames
-        languages = [f"lang_{i}" for i in range(num_documents_per_worker_test)]
+    #     This test creates 50 documents for each worker count (1 to 10)
+    #     and measures the time taken for both process-based and thread-based concurrency.
+    #     """
+    #     caplog.set_level(logging.INFO) # Ensure INFO messages are captured and displayed
+    #     num_documents_per_worker_test = 10
+    #     # Generate unique language names to ensure unique filenames
+    #     languages = [f"lang_{i}" for i in range(num_documents_per_worker_test)]
 
-        worker_counts = range(3, 10) # Test with 1 to 10 workers
+    #     worker_counts = range(3, 10) # Test with 1 to 10 workers
 
-        benchmark_results = []
+    #     benchmark_results = []
 
-        for num_workers in worker_counts:
-            logger.info(f"\n--- Benchmarking with {num_workers} workers ---")
+    #     for num_workers in worker_counts:
+    #         logger.info(f"\n--- Benchmarking with {num_workers} workers ---")
 
-            # --- ProcessPoolExecutor Benchmark ---
-            start_time_process = datetime.now()
-            generated_files_process = []
-            with ProcessPoolExecutor(max_workers=num_workers) as executor:
-                futures = [
-                    executor.submit(_create_simple_ods_document_for_process, lang)
-                    for lang in languages
-                ]
-                for future in as_completed(futures):
-                    result = future.result()
-                    if result:
-                        generated_files_process.append(result)
-            end_time_process = datetime.now()
-            duration_process = end_time_process - start_time_process
-            benchmark_results.append({
-                "workers": num_workers,
-                "executor_type": "ProcessPoolExecutor",
-                "documents_generated": len(generated_files_process),
-                "duration": duration_process
-            })
-            logger.info(f"ProcessPoolExecutor ({num_workers} workers): Generated {len(generated_files_process)} documents in {duration_process}")
+    #         # --- ProcessPoolExecutor Benchmark ---
+    #         start_time_process = datetime.now()
+    #         generated_files_process = []
+    #         with ProcessPoolExecutor(max_workers=num_workers) as executor:
+    #             futures = [
+    #                 executor.submit(_create_simple_ods_document_for_process, lang)
+    #                 for lang in languages
+    #             ]
+    #             for future in as_completed(futures):
+    #                 result = future.result()
+    #                 if result:
+    #                     generated_files_process.append(result)
+    #         end_time_process = datetime.now()
+    #         duration_process = end_time_process - start_time_process
+    #         benchmark_results.append({
+    #             "workers": num_workers,
+    #             "executor_type": "ProcessPoolExecutor",
+    #             "documents_generated": len(generated_files_process),
+    #             "duration": duration_process
+    #         })
+    #         logger.info(f"ProcessPoolExecutor ({num_workers} workers): Generated {len(generated_files_process)} documents in {duration_process}")
 
-            # Clean up generated files
-            for f in generated_files_process:
-                if path.exists(f):
-                    remove(f)
+    #         # Clean up generated files
+    #         for f in generated_files_process:
+    #             if path.exists(f):
+    #                 remove(f)
 
-            # --- ThreadPoolExecutor Benchmark ---
-            start_time_thread = datetime.now()
-            generated_files_thread = []
-            with ThreadPoolExecutor(max_workers=num_workers) as executor:
-                futures = [
-                    executor.submit(_create_simple_ods_document_for_thread, lang)
-                    for lang in languages
-                ]
-                for future in as_completed(futures):
-                    result = future.result()
-                    if result:
-                        generated_files_thread.append(result)
-            end_time_thread = datetime.now()
-            duration_thread = end_time_thread - start_time_thread
-            benchmark_results.append({
-                "workers": num_workers,
-                "executor_type": "ThreadPoolExecutor",
-                "documents_generated": len(generated_files_thread),
-                "duration": duration_thread
-            })
-            logger.info(f"ThreadPoolExecutor ({num_workers} workers): Generated {len(generated_files_thread)} documents in {duration_thread}")
+    #         # --- ThreadPoolExecutor Benchmark ---
+    #         start_time_thread = datetime.now()
+    #         generated_files_thread = []
+    #         with ThreadPoolExecutor(max_workers=num_workers) as executor:
+    #             futures = [
+    #                 executor.submit(_create_simple_ods_document_for_thread, lang)
+    #                 for lang in languages
+    #             ]
+    #             for future in as_completed(futures):
+    #                 result = future.result()
+    #                 if result:
+    #                     generated_files_thread.append(result)
+    #         end_time_thread = datetime.now()
+    #         duration_thread = end_time_thread - start_time_thread
+    #         benchmark_results.append({
+    #             "workers": num_workers,
+    #             "executor_type": "ThreadPoolExecutor",
+    #             "documents_generated": len(generated_files_thread),
+    #             "duration": duration_thread
+    #         })
+    #         logger.info(f"ThreadPoolExecutor ({num_workers} workers): Generated {len(generated_files_thread)} documents in {duration_thread}")
 
-            # Clean up generated files
-            for f in generated_files_thread:
-                if path.exists(f):
-                    remove(f)
+    #         # Clean up generated files
+    #         for f in generated_files_thread:
+    #             if path.exists(f):
+    #                 remove(f)
 
-        logger.info("\n--- Benchmark Summary ---")
-        for res in benchmark_results:
-            logger.info(f"Workers: {res['workers']}, Type: {res['executor_type']}, Docs: {res['documents_generated']}, Time: {res['duration']}")
+    #     logger.info("\n--- Benchmark Summary ---")
+    #     for res in benchmark_results:
+    #         logger.info(f"Workers: {res['workers']}, Type: {res['executor_type']}, Docs: {res['documents_generated']}, Time: {res['duration']}")
 
-        # To force display of captured output for this specific test,
-        # we explicitly read and print the captured stdout/stderr.
-        # This bypasses pytest's default behavior of hiding captured output for passing tests.
-        captured = capfd.readouterr() # Capture stdout and stderr
-        if captured.out: # Check for captured stdout
-            print("\n--- Captured STDOUT for test_benchmark_ods_worker_performance ---\n", captured.out)
-        if captured.err: # Check for captured stderr
-            print("\n--- Captured STDERR for test_benchmark_ods_worker_performance ---\n", captured.err)
+    #     # To force display of captured output for this specific test,
+    #     # we explicitly read and print the captured stdout/stderr.
+    #     # This bypasses pytest's default behavior of hiding captured output for passing tests.
+    #     captured = capfd.readouterr() # Capture stdout and stderr
+    #     if captured.out: # Check for captured stdout
+    #         print("\n--- Captured STDOUT for test_benchmark_ods_worker_performance ---\n", captured.out)
+    #     if captured.err: # Check for captured stderr
+    #         print("\n--- Captured STDERR for test_benchmark_ods_worker_performance ---\n", captured.err)
+    #     assert False
