@@ -97,7 +97,7 @@ class ODF:
         self.server=LibreofficeServer() if server is None else server #Assigns server or auto launch if None
         self.autoserver=server==None
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
-        maxtries=300
+        maxtries=200
         
         for i in range(maxtries):
             try:
@@ -125,10 +125,10 @@ class ODF:
                 self.dict_stylenames=self.dictionary_of_stylenames()
                 break
             except Exception as e:
-                sleeptime=0.25
+                sleeptime=0.20
                 sleep(sleeptime)
                 if i==maxtries - 1:
-                    print(_("This process died after trying to connect to port {0} during {1} seconds. Error: {2}").format(self.loserver_port, maxtries*sleeptime, e))
+                    print(_("This process died after trying to connect to port {0} during {1} seconds. Error: {2}").format(self.server.port, maxtries*sleeptime, e))
 
     ## This method allows to use with statement. 
     ## with ODS() as doc:
