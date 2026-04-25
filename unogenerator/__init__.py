@@ -1,6 +1,6 @@
 ## @package unogenerator.objects
 ## @brief Objects for unogenerator package
-from colorama import init
+from colorama import init # Keep init for colorama setup
 from datetime import datetime # Removed 'logging'
 import logging # Import logging module
 

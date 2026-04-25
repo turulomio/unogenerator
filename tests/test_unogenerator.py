@@ -1,12 +1,18 @@
-from datetime import date, time, timedelta
+from datetime import date, datetime, time, timedelta
 from os import remove, path
 from pytest import raises
+from concurrent.futures import ProcessPoolExecutor, as_completed, ThreadPoolExecutor # Keep for benchmark tests
 from pydicts import casts, currency, percentage, lod
 from importlib.resources import files
+import logging
 
 from unogenerator import can_import_uno
+
+logger = logging.getLogger(__name__) # Get logger for this module
+
 if can_import_uno():
     from unogenerator import ODT_Standard, ODT, ODS_Standard, ODS, ColorsNamed, Range, Coord, exceptions
+    from unogenerator import LibreofficeServer # Explicitly import LibreofficeServer
     
     
     row=[1, 2, 3, 4, 5]
@@ -47,6 +53,42 @@ if can_import_uno():
 
     lor_types=lod.lod2lol(lod_types)
     lor_types_styles=["Datetime", "Date", "Integer", "EUR", "Percentage", "Float2",  "TimedeltaSeconds","TimedeltaISO", "Time", "Bool", "Integer"]
+
+
+    # Helper function for ProcessPoolExecutor
+    def _create_simple_ods_document_for_process(language):
+        """
+        A simplified ODS creation function for benchmarking with ProcessPoolExecutor,
+        connecting to an existing LibreOffice server via its port.
+        """
+        filename = f"benchmark_test_ods_process_{language}.ods"
+        try:
+            with ODS_Standard() as doc:
+                doc.addCellWithStyle("A1", f"Hello World in {language}", ColorsNamed.Blue, "BoldCenter")
+                doc.addCellWithStyle("A2", f"Generated at {datetime.now()}", ColorsNamed.White, "Normal")
+                doc.save(filename)
+            return filename
+        except Exception as e:
+            logger.error(f"Error generating ODS for {language}: {e}")
+            return None # Indicate failure
+
+    # Helper function for ThreadPoolExecutor
+    def _create_simple_ods_document_for_thread(language):
+        """
+        A simplified ODS creation function for benchmarking with ThreadPoolExecutor,
+        directly using the LibreofficeServer object.
+        """
+        filename = f"benchmark_test_ods_thread_{language}.ods"
+        try:
+            with ODS_Standard() as doc:
+                doc.addCellWithStyle("A1", f"Hello World in {language}", ColorsNamed.Blue, "BoldCenter")
+                doc.addCellWithStyle("A2", f"Generated at {datetime.now()}", ColorsNamed.White, "Normal")
+                doc.save(filename)
+            return filename
+        except Exception as e:
+            logger.error(f"Error generating ODS for {language}: {e}")
+            return None
+
 
     def test_odt_metadata(libreoffice_server):
         with ODT_Standard(server=libreoffice_server) as doc:
@@ -352,3 +394,90 @@ if can_import_uno():
             doc.addCell("A1", "Hola")
             doc.export_pdf("test_ods_template_with_importlib_resources_files.pdf")
         remove("test_ods_template_with_importlib_resources_files.pdf")
+
+    def test_benchmark_ods_worker_performance(libreoffice_server, caplog, capfd):
+        """
+        Benchmarks ODS document generation using ProcessPoolExecutor and ThreadPoolExecutor
+        with a shared LibreOffice server instance.
+        
+        This test creates 50 documents for each worker count (1 to 10)
+        and measures the time taken for both process-based and thread-based concurrency.
+        """
+        caplog.set_level(logging.INFO) # Ensure INFO messages are captured and displayed
+        num_documents_per_worker_test = 10
+        # Generate unique language names to ensure unique filenames
+        languages = [f"lang_{i}" for i in range(num_documents_per_worker_test)]
+
+        worker_counts = range(3, 10) # Test with 1 to 10 workers
+
+        benchmark_results = []
+
+        for num_workers in worker_counts:
+            logger.info(f"\n--- Benchmarking with {num_workers} workers ---")
+
+            # --- ProcessPoolExecutor Benchmark ---
+            start_time_process = datetime.now()
+            generated_files_process = []
+            with ProcessPoolExecutor(max_workers=num_workers) as executor:
+                futures = [
+                    executor.submit(_create_simple_ods_document_for_process, lang)
+                    for lang in languages
+                ]
+                for future in as_completed(futures):
+                    result = future.result()
+                    if result:
+                        generated_files_process.append(result)
+            end_time_process = datetime.now()
+            duration_process = end_time_process - start_time_process
+            benchmark_results.append({
+                "workers": num_workers,
+                "executor_type": "ProcessPoolExecutor",
+                "documents_generated": len(generated_files_process),
+                "duration": duration_process
+            })
+            logger.info(f"ProcessPoolExecutor ({num_workers} workers): Generated {len(generated_files_process)} documents in {duration_process}")
+
+            # Clean up generated files
+            for f in generated_files_process:
+                if path.exists(f):
+                    remove(f)
+
+            # --- ThreadPoolExecutor Benchmark ---
+            start_time_thread = datetime.now()
+            generated_files_thread = []
+            with ThreadPoolExecutor(max_workers=num_workers) as executor:
+                futures = [
+                    executor.submit(_create_simple_ods_document_for_thread, lang)
+                    for lang in languages
+                ]
+                for future in as_completed(futures):
+                    result = future.result()
+                    if result:
+                        generated_files_thread.append(result)
+            end_time_thread = datetime.now()
+            duration_thread = end_time_thread - start_time_thread
+            benchmark_results.append({
+                "workers": num_workers,
+                "executor_type": "ThreadPoolExecutor",
+                "documents_generated": len(generated_files_thread),
+                "duration": duration_thread
+            })
+            logger.info(f"ThreadPoolExecutor ({num_workers} workers): Generated {len(generated_files_thread)} documents in {duration_thread}")
+
+            # Clean up generated files
+            for f in generated_files_thread:
+                if path.exists(f):
+                    remove(f)
+
+        logger.info("\n--- Benchmark Summary ---")
+        for res in benchmark_results:
+            logger.info(f"Workers: {res['workers']}, Type: {res['executor_type']}, Docs: {res['documents_generated']}, Time: {res['duration']}")
+
+        # To force display of captured output for this specific test,
+        # we explicitly read and print the captured stdout/stderr.
+        # This bypasses pytest's default behavior of hiding captured output for passing tests.
+        captured = capfd.readouterr() # Capture stdout and stderr
+        if captured.out: # Check for captured stdout
+            print("\n--- Captured STDOUT for test_benchmark_ods_worker_performance ---\n", captured.out)
+        if captured.err: # Check for captured stderr
+            print("\n--- Captured STDERR for test_benchmark_ods_worker_performance ---\n", captured.err)

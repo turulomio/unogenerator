@@ -1,7 +1,7 @@
 ## @namespace unogenerator.commons
 from colorama import Fore, Style
 from datetime import datetime, date, timedelta # Removed 'info', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'CRITICAL', 'basicConfig', 'debug'
-from decimal import Decimal
+from decimal import Decimal # Keep Decimal for string_float2object
 from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, debug
 from importlib.resources import files
