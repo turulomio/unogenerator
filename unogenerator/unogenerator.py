@@ -108,6 +108,7 @@ class LibreofficeServer:
         rmtree(f'/tmp/unogenerator{self.port}', ignore_errors=True)
 
 class ODF:
+    maxtries = 200 # Define as a class attribute with a default value
     def __init__(self, template=None,  server=None):
         """
             Common class for ODF instances
@@ -117,13 +118,15 @@ class ODF:
             @param server Server object to use
             @type LibreofficeServer
         """        
+
         self.start=datetime.now()
         self.server=LibreofficeServer() if server is None else server #Assigns server or auto launch if None
         self.autoserver=server==None
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
-        maxtries=200
-        
-        for i in range(maxtries):
+        # Initialize ctx and desktop to None, so they always exist even if connection fails
+        self.ctx = None
+        self.desktop = None
+        for i in range(self.maxtries): # Access as self.maxtries, which will use the class attribute
             try:
                 localContext = getComponentContext()
                 resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
@@ -151,8 +154,8 @@ class ODF:
             except Exception as e:
                 sleeptime=0.20
                 sleep(sleeptime)
-                if i==maxtries - 1:
-                    print(_("This process died after trying to connect to port {0} during {1} seconds. Error: {2}").format(self.server.port, maxtries*sleeptime, e))
+                if i == self.maxtries - 1:
+                    print(_("This process died after trying to connect to port {0} during {1} seconds. Error: {2}").format(self.server.port, self.maxtries * sleeptime, e))
 
     ## This method allows to use with statement. 
     ## with ODS() as doc:
