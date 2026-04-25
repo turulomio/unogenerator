@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-27 16:20+0100\n"
+"POT-Creation-Date: 2026-04-25 16:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -60,11 +60,11 @@ msgstr ""
 msgid "I can't convert {} (class: {}) to a Range"
 msgstr ""
 
-msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
+msgid "There was an error trimming image. Is 'magick' or 'convert' command (from ImageMagick) installed and in PATH?"
 msgstr ""
 
 #, python-brace-format
-msgid "Error deleting: {0} -> {1}"
+msgid "Error deleting: {0} -> {1} -> {2}"
 msgstr ""
 
 msgid "Create example files using unogenerator module"

@@ -91,14 +91,22 @@ def demo_command(create, remove, benchmark, type):
             futures=[]
             print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
 
-            with LibreofficeServer() as server: #FALLA POR PICCKING
+            # Start a single LibreofficeServer in the main process.
+            # This instance will manage the actual LibreOffice process.
+            main_server = LibreofficeServer()
+            main_server_port = main_server.port
+
+            try:
                 with ProcessPoolExecutor(max_workers=instances) as executor:
                     with tqdm(total=total_documents) as progress:
                             for language in languages:
-                                future=executor.submit(demo_ods_standard, language, server)
+                                # Pass only the port to the child processes.
+                                # Each child process will create a new LibreofficeServer(port=main_server_port)
+                                # which will connect to the main_server_port without starting a new LO process.
+                                future=executor.submit(demo_ods_standard, language, main_server_port)
                                 future.add_done_callback(lambda p: progress.update())
                                 futures.append(future)
-                                future=executor.submit(demo_odt_standard, language,  server)
+                                future=executor.submit(demo_odt_standard, language,  main_server_port)
                                 future.add_done_callback(lambda p: progress.update())
                                 futures.append(future)
 
@@ -109,6 +117,8 @@ def demo_command(create, remove, benchmark, type):
                 for future in futures:
                     result = future.result()
                     results.append(result)
+            finally:
+                main_server.stop() # Ensure the main server is stopped when done
 
         elif type=="CONCURRENT_THREADS":            
             futures=[]

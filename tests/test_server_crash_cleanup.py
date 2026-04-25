@@ -20,11 +20,13 @@ if can_import_uno():
         mock_process.terminate = MagicMock()
         mock_process.wait = MagicMock()
 
-        def mock_libreoffice_server_start(self):
+        # This mock will replace LibreofficeServer.__init__
+        def mock_libreoffice_server_init(self, port=None):
             self.port = 2002  # Use a fixed port for predictability
             self.process = mock_process
+            self.started_by_me = True # Crucial for stop() logic in LibreofficeServer
 
-        monkeypatch.setattr(LibreofficeServer, 'start', mock_libreoffice_server_start)
+        monkeypatch.setattr(LibreofficeServer, '__init__', mock_libreoffice_server_init)
 
         # 2. Mock socket.socket to simulate connection refusal
         def mock_socket_init(*args, **kwargs):

@@ -3,13 +3,13 @@
 # Copyright (C) 2015 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
-# root <turulomio@yahoo.es>, 2015, 2020.
+# Mariano Muñoz <turulomio@yahoo.es>, 2015, 2020, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-21 09:27+0200\n"
-"PO-Revision-Date: 2020-04-03 08:54+0200\n"
+"POT-Creation-Date: 2026-04-25 16:30+0200\n"
+"PO-Revision-Date: 2024-07-30 15:30+0000\n"
 "Last-Translator: turulomio@yahoo.es\n"
 "Language-Team: turulomio@yahoo.es\n"
 "Language: es\n"
@@ -45,7 +45,7 @@ msgstr "Coord no pudo ser creado con '{0}'"
 
 #, python-brace-format
 msgid "Range constructor must receive a string but got: {0} ({1})"
-msgstr ""
+msgstr "El constructor de Range debe recibir una cadena pero se obtuvo: {0} ({1})"
 
 #, python-brace-format
 msgid "This is not a range: {0}"
@@ -53,21 +53,21 @@ msgstr "Esto no es un rango: {0}"
 
 #, python-brace-format
 msgid "Range start coord is wrong: {0}"
-msgstr ""
+msgstr "La coordenada de inicio del rango es incorrecta: {0}"
 
 #, python-brace-format
 msgid "Range end coord is wrong: {0}"
-msgstr ""
+msgstr "La coordenada final del rango es incorrecta: {0}"
 
 msgid "I can't convert {} (class: {}) to a Range"
-msgstr ""
+msgstr "No puedo convertir {} (clase: {}) en un Range"
 
-msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
-msgstr "Hubo un error al eliminar espacio innecesario de la imagen. ¿Está el comando 'convert' de Imagemagick instalado?"
+msgid "There was an error trimming image. Is 'magick' or 'convert' command (from ImageMagick) installed and in PATH?"
+msgstr "Hubo un error al recortar la imagen. ¿Está instalado 'magick' o 'convert' (de ImageMagick) y en el PATH?"
 
 #, python-brace-format
-msgid "Error deleting: {0} -> {1}"
-msgstr "Error al borrar: {0} -> {1}"
+msgid "Error deleting: {0} -> {1} -> {2}"
+msgstr "Error al eliminar: {0} -> {1} -> {2}"
 
 msgid "Create example files using unogenerator module"
 msgstr "Crea ficheros de ejemplo usando el módulo de unogenerator"
@@ -148,7 +148,7 @@ msgstr "Cadena"
 
 #, python-brace-format
 msgid "unogenerator_example_{0}.ods took {1} in {2}"
-msgstr ""
+msgstr "unogenerator_example_{0}.ods tardó {1} en {2}"
 
 msgid "UnoGenerator documentation"
 msgstr "Documentación de UnoGenerator"
@@ -170,10 +170,10 @@ msgid "So in order to use, you need to launch a --headless LibreOffice instance.
 msgstr "Por lo que para usarlo, necesitas lanzar una instancia --headless de LibreOffice."
 
 msgid "UnoGenerator make this unattended for you in each ODF (ODS and ODT) instance."
-msgstr ""
+msgstr "UnoGenerator hace esto de forma desatendida por ti en cada instancia ODF (ODS y ODT)."
 
 msgid "However if you wish, you can do this programmatically using LibreofficeServer class to reuse it in serveral ODF instances to improve documents generation speed."
-msgstr ""
+msgstr "Sin embargo, si lo deseas, puedes hacerlo programáticamente usando la clase LibreofficeServer para reutilizarla en varias instancias ODF y mejorar la velocidad de generación de documentos."
 
 msgid "UnoGenerator has standard templates to help you with edition, although you can use your own templates."
 msgstr "UnoGenerator tiene plantillas estándar para ayudarte con la edición, aunque puedes usar tus propias plantillas."
@@ -224,7 +224,7 @@ msgid "ODT with template or file (Recomended)."
 msgstr "ODT con plantilla o fichero (Recomendado)."
 
 msgid "With this mode you can read your files to overwrite them or use your file as a new template to create new documents"
-msgstr ""
+msgstr "Con este modo puedes leer tus ficheros para sobrescribirlos o usar tu fichero como una nueva plantilla para crear nuevos documentos."
 
 msgid "ODT without template."
 msgstr "ODT sin plantilla"
@@ -320,13 +320,13 @@ msgid "You can trim image border white space when needed:"
 msgstr "Puedes recortar el espacio blanco alrededor de la imagen cuando lo necesites:"
 
 msgid "You can trim that gray space when needed with 'bytes_after_trim_image' method. To use this method you need Imagemagick installed to use 'convert' command. This is the result: "
-msgstr ""
+msgstr "Puedes recortar ese espacio gris cuando sea necesario con el método 'bytes_after_trim_image'. Para usar este método necesitas tener Imagemagick instalado para usar el comando 'convert'. Este es el resultado: "
 
 msgid "Search and Replace"
 msgstr "Buscar y reemplazar"
 
 msgid "Below this paragraph is a paragraph with a % REPLACEME % (Without white spaces) text and it's going to be replaced after all document is been generated"
-msgstr ""
+msgstr "Debajo de este párrafo hay un párrafo con un texto % REPLACEME % (Sin espacios en blanco) y será reemplazado después de que se haya generado todo el documento."
 
 msgid "ODS"
 msgstr "ODS"
@@ -350,17 +350,17 @@ msgid "This paragraph was set after a page break with Landscape style."
 msgstr "Este párrafo se redactó después de un salto de página con estilo Landscape."
 
 msgid "This is a pair of brackets ()."
-msgstr ""
+msgstr "Esto es un par de corchetes ()."
 
 msgid "NOW)("
-msgstr ""
+msgstr "AHORA)("
 
 msgid "This is a set of symbols: .,:;?ºª-/()."
-msgstr ""
+msgstr "Esto es un conjunto de símbolos: .,:;?ºª-/()."
 
 #, python-brace-format
 msgid "unogenerator_documentation_{0}.ods took {1} in {2}"
-msgstr ""
+msgstr "unogenerator_documentation_{0}.ods tardó {1} en {2}"
 
 msgid "Total"
 msgstr "Total"
@@ -383,44 +383,44 @@ msgid "UnoGenerator monitor"
 msgstr "Monitor de UnoGenerator"
 
 msgid "Seconds until next refresh"
-msgstr ""
+msgstr "Segundos hasta la próxima actualización"
 
 msgid "Seconds to color Last CPU variation"
-msgstr ""
+msgstr "Segundos para colorear la última variación de CPU"
 
 #, python-brace-format
 msgid "Unogenerator version: {0}. Hora actual: {1}. Refresh time: {2} seconds"
-msgstr ""
+msgstr "Versión de Unogenerator: {0}. Hora actual: {1}. Tiempo de actualización: {2} segundos"
 
 msgid "Active soffice.bin processes number:"
 msgstr "Número de procesos activos de soffice.bin"
 
 msgid "Temporal directories with asociated soffice.bin process: "
-msgstr ""
+msgstr "Directorios temporales con proceso soffice.bin asociado: "
 
 msgid "UnoGenerator cleaner"
-msgstr "Limpiador de Unogenerator"
+msgstr "Limpiador de UnoGenerator"
 
 msgid "Generate a po and pot file from ODF"
 msgstr "Genera un fichero po y pot de un ODF"
 
 msgid "Language to translate from. Example codes: es, fr, en, md"
-msgstr ""
+msgstr "Idioma desde el que traducir. Códigos de ejemplo: es, fr, en, md"
 
 msgid "Language to translate to. Example codes: es, fr, en, md"
-msgstr ""
+msgstr "Idioma al que traducir. Códigos de ejemplo: es, fr, en, md"
 
 msgid "Files to translate. You can set several files."
 msgstr "Ficheros a traducir. Puedes añadir varios ficheros."
 
 msgid "Output directory with results and catalogues. Default: ./unogenerator_translation/"
-msgstr ""
+msgstr "Directorio de salida con resultados y catálogos. Por defecto: ./unogenerator_translation/"
 
 msgid "Undetected strings to append to translation. Default: []"
-msgstr ""
+msgstr "Cadenas no detectadas para añadir a la traducción. Por defecto: []"
 
 msgid "Sets a fake translation to all strings. Default: False"
-msgstr ""
+msgstr "Establece una traducción falsa para todas las cadenas. Por defecto: Falso"
 
 msgid "Creates translated file in pdf. Default: False"
 msgstr "Crea el fichero traducido en pdf. Por defecto: Falso"
@@ -440,23 +440,23 @@ msgstr "Generando {0}"
 
 #, python-brace-format
 msgid "   - {0} different strings detected"
-msgstr ""
+msgstr "   - {0} cadenas diferentes detectadas"
 
 msgid "Translating files to:"
 msgstr "Traduciendo ficheros a:"
 
 #, python-brace-format
 msgid "This process died after trying to connect to port {0} during {1} seconds. Error: {2}"
-msgstr ""
+msgstr "Este proceso murió después de intentar conectarse al puerto {0} durante {1} segundos. Error: {2}"
 
 msgid "Error closing ODF instance"
 msgstr "Error al cerrar la instancia ODF"
 
 msgid "You can't use the same filename as your template or you will overwrite it."
-msgstr ""
+msgstr "No puedes usar el mismo nombre de archivo que tu plantilla o lo sobrescribirás."
 
 msgid "You can force it, setting overwrite_template paramter to True"
-msgstr ""
+msgstr "Puedes forzarlo, estableciendo el parámetro overwrite_template a True"
 
 msgid "Document hasn't been saved."
 msgstr "El documento no ha sido guardado."
@@ -471,28 +471,28 @@ msgid "Filename extension must be 'docx'."
 msgstr "La extensión del nombre del fichero debe ser 'docx'."
 
 msgid "Problems to detect size in 100thmm, I'm trying to calculate it"
-msgstr "Problemas al detectar el tamaño en 100thmm, estoy intentado calcularlo"
+msgstr "Problemas al detectar el tamaño en 100thmm, estoy intentando calcularlo"
 
 #, python-brace-format
 msgid "ERROR: You can't create '{0}' sheet, because it already exists."
 msgstr "ERROR: No puedes crear la hoja '{0}', porque ya existe."
 
 msgid "addRow is empty. Nothing to write. Ignoring..."
-msgstr ""
+msgstr "addRow está vacío. Nada que escribir. Ignorando..."
 
 msgid "You're trying to add formulas to cells using setDataArray and they will be treated as strings. If you want formula's value use formulas=True in ODS methods"
-msgstr ""
+msgstr "Estás intentando añadir fórmulas a celdas usando setDataArray y serán tratadas como cadenas. Si quieres el valor de la fórmula usa formulas=True en los métodos ODS."
 
 #, python-brace-format
 msgid "  + Range: {0}"
-msgstr "  + Rango: {0}"
+msgstr ""
 
 #, python-brace-format
 msgid "addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring..."
-msgstr ""
+msgstr "addListOfRowsWithStyle tiene {0} filas y {1} columnas. Nada que escribir. Ignorando..."
 
 msgid "Colors must have the same number of items as data columns"
-msgstr ""
+msgstr "Los colores deben tener el mismo número de elementos que las columnas de datos."
 
 msgid "Styles must have the same number of items as data columns"
 msgstr "Los estilos deben tener el mismo número de elementos que las columnas de datos"
@@ -502,6 +502,13 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
+
+#~ msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
+#~ msgstr "Hubo un error al eliminar espacio innecesario de la imagen. ¿Está el comando 'convert' de Imagemagick instalado?"
+
+#, python-brace-format
+#~ msgid "Error deleting: {0} -> {1}"
+#~ msgstr "Error al borrar: {0} -> {1}"
 
 #~ msgid "We recomend to launch then easily with 'unogenerator_start' script."
 #~ msgstr "Recomendamos lanzarlo facilmente con el script 'unogenerator_start'."
