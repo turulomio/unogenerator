@@ -1,6 +1,6 @@
 ## @namespace unogenerator.commons
 from colorama import Fore, Style
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta # Removed 'info', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'CRITICAL', 'basicConfig', 'debug'
 from decimal import Decimal
 from gettext import translation
 from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, debug
@@ -12,6 +12,9 @@ from uno import createUnoStruct
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 from pydicts import casts
+import logging # Import logging module
+
+logger = logging.getLogger(__name__) # Get logger for this module
 from shutil import which
 from socket import socket, AF_INET, SOCK_STREAM
 from unogenerator import exceptions, __versiondate__
@@ -60,8 +63,8 @@ def is_port_opened(host, port):
 def uno2datetime(r):
     try:
         return datetime(r.Year, r.Month, r.Day, r.Hours, r.Minutes, r.Seconds)
-    except:
-        debug(_("There was a problem converting com.sun.star.util.DateTime to datetime."))
+    except Exception:
+        logger.debug(_("There was a problem converting com.sun.star.util.DateTime to datetime."))
 
 ## Function used in argparse_epilog
 ## @return String
@@ -500,7 +503,7 @@ def guess_object_style(o):
     elif o.__class__.__name__=="bool":
         return "Bool"
     else:
-        info("guess_object_style not guessed {}".format( o.__class__))
+        logger.info("guess_object_style not guessed {}".format( o.__class__))
         return "Bold"
         
 def datetime2localc1989(o):
@@ -652,7 +655,7 @@ def bytes_after_trim_image(filename_or_bytessequence, type):
                 f.write(filename_or_bytessequence)
         else:
             filename_to_trim=filename_or_bytessequence
-
+        
         #Trims white space
         if which("magick") is not None:
             p=run(f"magick '{filename_to_trim}' -trim +repage '{filename_trimed}'",  shell=True)
@@ -668,8 +671,8 @@ def bytes_after_trim_image(filename_or_bytessequence, type):
                 with open(filename_trimed, "r+b") as f:
                     bytes_=f.read()
                     return bytes_
-        else:
-            print(_("There was an error triming image. Is convert command (from Imagemagick) installed?"))
+        warning(_("There was an error trimming image. Is 'magick' or 'convert' command (from ImageMagick) installed and in PATH?"))
+        return None # Return None if trimming fails
 
 
 def are_all_values_of_the_list_the_same(list_):
@@ -689,5 +692,5 @@ def are_all_values_of_the_list_the_same(list_):
 def remove_without_errors(filename): 
     try: 
         remove(filename) 
-    except OSError as e: 
-        print(_("Error deleting: {0} -> {1}").format(filename, e.strerror)) 
+    except OSError as e:
+        logger.error(_("Error deleting: {0} -> {1} -> {2}").format(filename, e.errno, e.strerror))

@@ -6,14 +6,15 @@ import argparse
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, as_completed,  ThreadPoolExecutor
 from datetime import datetime, date, timedelta
-from gettext import translation
-from logging import info
+from gettext import translation # Removed 'info'
+import logging # Import logging module
 from importlib.resources import files
 from os import system
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer
 from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals, helper_ods_sheet_stylenames, helper_split_big_listofrows
+
 from tqdm import tqdm
 
 try:
@@ -25,6 +26,8 @@ except:
 type_choices=[ "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS", "COMMONSERVER_SEQUENTIAL","COMMONSERVER_CONCURRENT_PROCESS","COMMONSERVER_CONCURRENT_THREADS" ]
 
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
+
+logger = logging.getLogger(__name__) # Get logger for this module
 ## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
 def demo(arguments=None):
@@ -312,8 +315,8 @@ def demo_ods_standard(language, server):
         doc.export_xlsx(f"unogenerator_example_{language}.xlsx")
         doc.export_pdf(f"unogenerator_example_{language}.pdf")
     
-    r= _("unogenerator_example_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port)
-    info(r)
+    r= _("unogenerator_example_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port) # This is an application-level message
+    logger.info(r)
     return r
     
     
@@ -562,7 +565,6 @@ with ODS_Standard() as doc:
         doc.export_docx(f"unogenerator_documentation_{language}.docx")
         doc.export_pdf(f"unogenerator_documentation_{language}.pdf")
 
-    r= _("unogenerator_documentation_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port)
-    info(r)
+    r= _("unogenerator_documentation_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port) # This is an application-level message
+    logger.info(r)
     return r
-

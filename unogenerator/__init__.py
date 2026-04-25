@@ -1,8 +1,13 @@
 ## @package unogenerator.objects
 ## @brief Objects for unogenerator package
 from colorama import init
-from datetime import datetime
+from datetime import datetime # Removed 'logging'
+import logging # Import logging module
 
+# Set up package-level logger
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler()) # Add NullHandler to prevent "No handlers could be found" message
+logger.setLevel(logging.WARNING) # Set default level for the library to WARNING
 
 __version__ = '1.0.0'
 __versiondatetime__=datetime(2024, 10, 27, 16, 11)
