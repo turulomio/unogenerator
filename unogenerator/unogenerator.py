@@ -3,6 +3,7 @@
 
 from datetime import datetime
 from os import path, makedirs
+import subprocess
 from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
@@ -13,6 +14,7 @@ from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
 from gettext import translation
 from logging import warning, debug
 from importlib.resources import files
+import sys # Added for multiplatform OS detection
 from os import path, makedirs # Removed 'system' as it's no longer used in this file
 from pydicts import lol, casts
 from shutil import copyfile, rmtree # Added rmtree for directory removal
@@ -76,11 +78,33 @@ class LibreofficeServer:
                 self.process.stdout.close()
             if self.process.stderr:
                 self.process.stderr.close()
-            if self.process.poll() is None: # Check if process is still alive
-                self.process.terminate()
-                self.process.wait(timeout=5) # Wait for it to terminate
+            
+            # Attempt graceful termination
+            if self.process.poll() is None: # Check if process is still alive (not yet terminated)
+                self.process.terminate() # Send SIGTERM (graceful termination request)
+                try:
+                    self.process.wait(timeout=5) # Wait up to 5 seconds for graceful termination
+                except subprocess.TimeoutExpired:
+                    debug(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} did not terminate gracefully within 5 seconds. Attempting forceful kill.")
+                    self.process.kill() # Send SIGKILL (forceful termination)
+                    try:
+                        self.process.wait(timeout=5) # Wait again after forceful kill
+                    except subprocess.TimeoutExpired:
+                        warning(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} could not be forcefully killed within 5 seconds.")
             self.process = None # Clear reference
-        run(['pkill', '-f', f'socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager'], check=False)
+
+        # Secondary fallback: use system-specific kill command for any lingering processes
+        try:
+            if sys.platform.startswith('linux') or sys.platform == 'darwin': # Linux and macOS
+                run(['pkill', '-9', '-f', f'socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager'], check=False, timeout=5)
+            elif sys.platform == 'win32': # Windows
+                run(['taskkill', '/F', '/IM', 'soffice.bin'], check=False, timeout=5)
+            else:
+                debug(f"Process termination for LibreOffice on port {self.port} is not explicitly handled on this operating system ({sys.platform}).")
+        except subprocess.TimeoutExpired:
+            warning(f"System kill command timed out while trying to kill LibreOffice process on port {self.port}. Process might still be running.")
+        except Exception as e:
+            warning(f"Error during system kill command for LibreOffice on port {self.port}: {e}")
         rmtree(f'/tmp/unogenerator{self.port}', ignore_errors=True)
 
 class ODF:
