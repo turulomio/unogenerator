@@ -7,13 +7,13 @@ from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_obje
 from pydicts import lod
 from gettext import translation
 from logging import debug
-import logging # Import logging module
+import logging
 from math import ceil
 from importlib.resources import files
 
+logger = logging.getLogger(__name__) # Get logger for this module
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
-    logger = logging.getLogger(__name__) # Get logger for this module
     _=t.gettext
 except:
     _=str
