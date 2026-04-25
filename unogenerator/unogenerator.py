@@ -3,16 +3,18 @@
 
 from datetime import datetime
 from os import path, makedirs
+import subprocess
 from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.sheet.ConditionEntryType import COLORSCALE
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
-from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
+from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER # Removed 'warning', 'debug'
 from gettext import translation
-from logging import warning, debug
+import logging # Import logging module
 from importlib.resources import files
+import sys # Added for multiplatform OS detection
 from os import path, makedirs # Removed 'system' as it's no longer used in this file
 from pydicts import lol, casts
 from shutil import copyfile, rmtree # Added rmtree for directory removal
@@ -24,6 +26,8 @@ from unogenerator import __version__, exceptions
 from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989,  is_formula, uno2datetime, string_float2object
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
+
+logger = logging.getLogger(__name__) # Get logger for this module
 
 def createUnoService(serviceName):
 #        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
@@ -76,14 +80,37 @@ class LibreofficeServer:
                 self.process.stdout.close()
             if self.process.stderr:
                 self.process.stderr.close()
-            if self.process.poll() is None: # Check if process is still alive
-                self.process.terminate()
-                self.process.wait(timeout=5) # Wait for it to terminate
+            
+            # Attempt graceful termination
+            if self.process.poll() is None: # Check if process is still alive (not yet terminated)
+                self.process.terminate() # Send SIGTERM (graceful termination request)
+                try:
+                    self.process.wait(timeout=5) # Wait up to 5 seconds for graceful termination
+                except subprocess.TimeoutExpired:
+                    logger.debug(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} did not terminate gracefully within 5 seconds. Attempting forceful kill.")
+                    self.process.kill() # Send SIGKILL (forceful termination)
+                    try:
+                        self.process.wait(timeout=5) # Wait again after forceful kill
+                    except subprocess.TimeoutExpired:
+                        logger.warning(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} could not be forcefully killed within 5 seconds.")
             self.process = None # Clear reference
-        run(['pkill', '-f', f'socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager'], check=False)
+
+        # Secondary fallback: use system-specific kill command for any lingering processes
+        try:
+            if sys.platform.startswith('linux') or sys.platform == 'darwin': # Linux and macOS
+                run(['pkill', '-9', '-f', f'socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager'], check=False, timeout=5)
+            elif sys.platform == 'win32': # Windows
+                run(['taskkill', '/F', '/IM', 'soffice.bin'], check=False, timeout=5)
+            else:
+                logger.debug(f"Process termination for LibreOffice on port {self.port} is not explicitly handled on this operating system ({sys.platform}).")
+        except subprocess.TimeoutExpired:
+            logger.warning(f"System kill command timed out while trying to kill LibreOffice process on port {self.port}. Process might still be running.")
+        except Exception as e:
+            logger.warning(f"Error during system kill command for LibreOffice on port {self.port}: {e}")
         rmtree(f'/tmp/unogenerator{self.port}', ignore_errors=True)
 
 class ODF:
+    maxtries = 200 # Define as a class attribute with a default value
     def __init__(self, template=None,  server=None):
         """
             Common class for ODF instances
@@ -93,13 +120,15 @@ class ODF:
             @param server Server object to use
             @type LibreofficeServer
         """        
+
         self.start=datetime.now()
         self.server=LibreofficeServer() if server is None else server #Assigns server or auto launch if None
         self.autoserver=server==None
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
-        maxtries=200
-        
-        for i in range(maxtries):
+        # Initialize ctx and desktop to None, so they always exist even if connection fails
+        self.ctx = None
+        self.desktop = None
+        for i in range(self.maxtries): # Access as self.maxtries, which will use the class attribute
             try:
                 localContext = getComponentContext()
                 resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
@@ -127,8 +156,8 @@ class ODF:
             except Exception as e:
                 sleeptime=0.20
                 sleep(sleeptime)
-                if i==maxtries - 1:
-                    print(_("This process died after trying to connect to port {0} during {1} seconds. Error: {2}").format(self.server.port, maxtries*sleeptime, e))
+                if i == self.maxtries - 1:
+                    logger.warning(_("This process died after trying to connect to port {0} during {1} seconds. Error: {2}").format(self.server.port, self.maxtries * sleeptime, e))
 
     ## This method allows to use with statement. 
     ## with ODS() as doc:
@@ -148,7 +177,7 @@ class ODF:
         try:
             self.document.dispose()
         except:
-            print (_("Error closing ODF instance"))
+            logger.warning (_("Error closing ODF instance"))
         finally:
             if self.autoserver is True:
                 self.server.stop()
@@ -312,7 +341,7 @@ class ODT(ODF):
             self.cursor=found
         else:
             if log is True:
-                warning(f"'{find}' was not found in the document'")
+                logger.warning(f"'{find}' was not found in the document'")
         return found
 
     def findall_and_replace(self, find, replace="", log=False):
@@ -322,12 +351,12 @@ class ODT(ODF):
         found=self.document.findFirst(search)
         if found is not None:
             number=self.document.replaceAll(search)
-            debug(f"Replaced {number} times '{find}' by '{replace}'")
+            logger.debug(f"Replaced {number} times '{find}' by '{replace}'")
             self.cursor=found
             return number
         else:
             if log is True:
-                debug(f"'{find}' was not found in the document'")
+                logger.debug(f"'{find}' was not found in the document'")
             return 0
 
     ## Sets the cursor after found string
@@ -347,7 +376,7 @@ class ODT(ODF):
             self.cursor.gotoRange(oVC,True)			#'Move Text Cursor to same location as oVC while selecting text in between (True)
             self.cursor.setString("")
         else:
-            warning(f"'{find}' was not found in the document'")
+            logger.warning(f"'{find}' was not found in the document'")
         
     def addString(self, text, style=None, paragraphBreak=False):
         if style is not None:
@@ -602,7 +631,7 @@ class ODS(ODF):
     def createSheet(self, name, index=None):
         for sheet in self.getSheetNames():
             if sheet.upper()==name.upper():
-                raise exceptions.UnogeneratorException(_("ERROR: You can't create '{0}' sheet, because it already exists.").format(name)) 
+                raise exceptions.UnogeneratorException(_("ERROR: You can't create '{0}' sheet, because it already exists.").format(name))
         
         sheets=self.document.getSheets()
         if index is None:
@@ -619,7 +648,7 @@ class ODS(ODF):
     def setActiveSheet(self,  index):
         self.sheet_index=index
         self.sheet=self.document.getSheets().getByIndex(index)
-        debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
+        logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
     
     ## l measures are in cm can be float
@@ -656,7 +685,7 @@ class ODS(ODF):
         coord_start=Coord.assertCoord(coord_start)
         
         if len(list_o)==0:
-            debug(_("addRow is empty. Nothing to write. Ignoring..."))
+            logger.debug(_("addRow is empty. Nothing to write. Ignoring..."))
             return None
 
         #Convert list_rows to valid dataarray
@@ -793,8 +822,8 @@ class ODS(ODF):
             return False
         
         if contains_special_start(array_):
-            debug(_("You're trying to add formulas to cells using setDataArray and they will be treated as strings. If you want formula's value use formulas=True in ODS methods"))
-            debug(_("  + Range: {0}").format(unorange.AbsoluteName))
+            logger.debug(_("You're trying to add formulas to cells using setDataArray and they will be treated as strings. If you want formula's value use formulas=True in ODS methods"))
+            logger.debug(_("  + Range: {0}").format(unorange.AbsoluteName))
         unorange.setDataArray(array_)
 
 
@@ -822,7 +851,7 @@ class ODS(ODF):
             
             
         if rows==0 or columns==0:
-            debug(_("addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring...").format(rows, columns))
+            logger.debug(_("addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring...").format(rows, columns))
             return 
             
         #Convert list_rows to valid dataarray
@@ -1015,8 +1044,8 @@ class ODS(ODF):
         elif o is None:
             cell.setString("")
         else:
-            cell.setString(str(o))
-            print("MISSING", o.__class__.__name__)
+            cell.setString(str(o)) # Fallback to string representation
+            logger.debug(f"Unhandled object type in __object_to_cell: {o.__class__.__name__}. Storing as string.")
             
     ## Function used to massive data_array creation
     def __object_to_dataarray_element(self, o):
@@ -1049,8 +1078,8 @@ class ODS(ODF):
         elif o is None:
             return ""
         else:
-            return str(o)
-            print("MISSING", o.__class__.__name__)
+            logger.debug(f"Unhandled object type in __object_to_dataarray_element: {o.__class__.__name__}. Storing as string.")
+            return str(o) # Fallback to string representation
 
             
     def sortRange(self, range,  sortindex, ascending=True, casesensitive=True):

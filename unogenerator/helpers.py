@@ -7,9 +7,11 @@ from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_obje
 from pydicts import lod
 from gettext import translation
 from logging import debug
+import logging
 from math import ceil
 from importlib.resources import files
 
+logger = logging.getLogger(__name__) # Get logger for this module
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
@@ -240,7 +242,7 @@ def helper_split_big_listofrows(doc, sheet_name, lor, headers, headers_colors=Co
         #Sets name and headers
         if ceil_>1:
             name=_("{0} ({1} of {2})").format(sheet_name, num_sheet+1,  ceil_)
-            debug(_("More than {0} rows. Spliting {1} of {2} sheets").format(max_rows, num_sheet+1,  ceil_))
+            logger.debug(_("More than {0} rows. Spliting {1} of {2} sheets").format(max_rows, num_sheet+1,  ceil_))
         else:
             name=sheet_name
         doc.createSheet(name)

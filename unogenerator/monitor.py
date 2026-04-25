@@ -5,12 +5,14 @@ from datetime import datetime, timedelta
 from gettext import translation
 from pydicts import lod
 from importlib.resources import files
-from os import scandir, remove # Removed 'system', added 'remove'
+from os import scandir, remove # Removed 'system', added 'remove' # Removed 'info'
 from humanize import naturalsize
 from psutil import process_iter
 from unogenerator import __version__ # Added 'run' for subprocess, 'rmtree' for directory removal
 from unogenerator.commons import argparse_epilog, addDebugSystem, green, red, yellow, white
 from shutil import rmtree
+import logging # Import logging module
+logger = logging.getLogger(__name__) # Get logger for this module
 from subprocess import run
 from pydicts.percentage import Percentage
 from time import sleep
@@ -49,7 +51,7 @@ def command_monitor(seconds, refresh):
         
         
         
-        system("reset")
+        # system("reset") # This is a UI command, not debug info. Keep or remove based on UI preference.
 
         print (_("Unogenerator version: {0}. Hora actual: {1}. Refresh time: {2} seconds").format(yellow(__version__), white(datetime.now()),  green(refresh)))
         print ()
@@ -98,14 +100,14 @@ def command_monitor(seconds, refresh):
         
         result_dod=deepcopy(dod_)
         result_lod=lod.lod_order_by(result_dod.values(), "duration",  reverse=True)
-        lod.lod_remove_key(result_lod,"last_cpu_percentage_datetime")
+        lod.lod_remove_key(result_lod, "last_cpu_percentage_datetime")
         
         #Change color on Last CPU
         for d in result_lod:
             d["duration"]=red(d["duration"] )if d["duration"].total_seconds()>seconds else green(d["duration"])
             d["Last CPU"]=red(d["Last CPU"] )if d["Last CPU"].total_seconds()>seconds else green(d["Last CPU"])
         
-        lod.lod_print(result_lod)
+        lod.lod_print(result_lod) # This is intended for console output, not logging
         
         print(green(_("Active soffice.bin processes number:")),  white(len(result_lod)))
         
