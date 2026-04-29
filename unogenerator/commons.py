@@ -3,7 +3,7 @@ from colorama import Fore, Style
 from datetime import datetime, date, timedelta # Removed 'info', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'CRITICAL', 'basicConfig', 'debug'
 from decimal import Decimal # Keep Decimal for string_float2object
 from gettext import translation
-from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, debug
+from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig
 from importlib.resources import files
 from os import geteuid, remove
 from subprocess import run
@@ -462,7 +462,7 @@ def addDebugSystem(level):
         basicConfig(level=ERROR, format=logFormat, datefmt=dateFormat)
     elif level=="CRITICAL":#The program encounters a serious error and may stop running. ERRORS
         basicConfig(level=CRITICAL, format=logFormat, datefmt=dateFormat)
-    info("Debug level set to {}".format(level))
+    logger.info("Debug level set to {}".format(level))
 
 
 
@@ -671,7 +671,7 @@ def bytes_after_trim_image(filename_or_bytessequence, type):
                 with open(filename_trimed, "r+b") as f:
                     bytes_=f.read()
                     return bytes_
-        warning(_("There was an error trimming image. Is 'magick' or 'convert' command (from ImageMagick) installed and in PATH?"))
+        logger.warning(_("There was an error trimming image. Is 'magick' or 'convert' command (from ImageMagick) installed and in PATH?"))
         return None # Return None if trimming fails
 
 
