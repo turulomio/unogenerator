@@ -38,7 +38,6 @@ def release():
   * git checkout -b unogenerator-{0}
   * pytest
   * unogenerator_demo --benchmark
-  * Modificar el Changelog en README.md
   * poe coverage con pyvenv systempackages=false
   * poe coverage con pyvenv systempackages=true
   * poe translate
