@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-25 16:30+0200\n"
+"POT-Creation-Date: 2026-05-01 10:20+0200\n"
 "PO-Revision-Date: 2024-07-30 15:30+0000\n"
 "Last-Translator: turulomio@yahoo.es\n"
 "Language-Team: turulomio@yahoo.es\n"
@@ -449,9 +449,6 @@ msgstr "Traduciendo ficheros a:"
 msgid "This process died after trying to connect to port {0} during {1} seconds. Error: {2}"
 msgstr "Este proceso murió después de intentar conectarse al puerto {0} durante {1} segundos. Error: {2}"
 
-msgid "Error closing ODF instance"
-msgstr "Error al cerrar la instancia ODF"
-
 msgid "You can't use the same filename as your template or you will overwrite it."
 msgstr "No puedes usar el mismo nombre de archivo que tu plantilla o lo sobrescribirás."
 
@@ -502,6 +499,9 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
+
+#~ msgid "Error closing ODF instance"
+#~ msgstr "Error al cerrar la instancia ODF"
 
 #~ msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
 #~ msgstr "Hubo un error al eliminar espacio innecesario de la imagen. ¿Está el comando 'convert' de Imagemagick instalado?"
