@@ -663,7 +663,7 @@ class ODS(ODF):
         return self.sheet
     
     ## l measures are in cm can be float
-    def setColumnsWidth(self, l=None, automatic=True):
+    def setColumnsWidth(self, l=None, automatic=True, max_width_cm=15):
         if automatic:
             if isinstance(l, int):
                 num_cols = l
@@ -674,7 +674,15 @@ class ODS(ODF):
 
             if num_cols > 0:
                 # Optimized call: set OptimalWidth on the columns collection of the used range
-                self.sheet.getCellRangeByPosition(0, 0, num_cols - 1, 0).getColumns().OptimalWidth = True
+                columns = self.sheet.getCellRangeByPosition(0, 0, num_cols - 1, 0).getColumns()
+                columns.OptimalWidth = True
+                
+                if max_width_cm is not None:
+                    max_width_units = int(max_width_cm * 1000)
+                    for i in range(num_cols):
+                        column = columns.getByIndex(i)
+                        if column.Width > max_width_units:
+                            column.Width = max_width_units
         elif l is not None:
             columns = self.sheet.getColumns()
             for i, width in enumerate(l):
