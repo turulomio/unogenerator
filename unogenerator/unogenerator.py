@@ -664,25 +664,23 @@ class ODS(ODF):
     
     ## l measures are in cm can be float
     def setColumnsWidth(self, l=None, automatic=True):
-        columns = self.sheet.getColumns()
-        if automatic is True:
-            if isinstance(l, list):
-                num_columns = len(l)
-            elif isinstance(l, int):
-                num_columns = l
+        if automatic:
+            if isinstance(l, int):
+                num_cols = l
+            elif isinstance(l, list):
+                num_cols = len(l)
             else:
-                num_columns, _ = self.getSheetSize()
+                num_cols, _ = self.getSheetSize()
 
-            for i in range(num_columns):
+            if num_cols > 0:
+                # Optimized call: set OptimalWidth on the columns collection of the used range
+                self.sheet.getCellRangeByPosition(0, 0, num_cols - 1, 0).getColumns().OptimalWidth = True
+        elif l is not None:
+            columns = self.sheet.getColumns()
+            for i, width in enumerate(l):
                 column = columns.getByIndex(i)
-                column.OptimalWidth = True
-        else:
-            if l is not None:
-                for i, width in enumerate(l):
-                    column = columns.getByIndex(i)
-                    width = width * 1000
-                    column.Width = width  ## Are in 1/100th of mm
-            
+                column.Width = int(width * 1000)  ## Are in 1/100th of mm
+
     def setComment(self, coord, comment):
         coord=Coord.assertCoord(coord)
         celladdress= createUnoStruct("com.sun.star.table.CellAddress")
@@ -1326,11 +1324,10 @@ class ODS(ODF):
 
     ## Returns (columnsNumber, rowsNumber
     def getSheetSize(self):
-        data=self.sheet.getData()
-        if len(data)==0:
-            return 0, 0
-        else:
-            return len(data[0]), len(data)
+        cursor = self.sheet.createCursor()
+        cursor.gotoEndOfUsedArea(False)
+        address = cursor.RangeAddress
+        return address.EndColumn + 1, address.EndRow + 1
             
     ## Method to remove default sheet if empty
     def removeDefaultSheet(self):
