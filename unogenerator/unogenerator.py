@@ -1,5 +1,3 @@
-## @namespace unogenerator.unogenerator
-## @brief Package that allows to read and write Libreoffice ods and odt files
 
 from datetime import datetime
 from os import path, makedirs
@@ -662,8 +660,19 @@ class ODS(ODF):
         logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
     
-    ## l measures are in cm can be float
+
     def setColumnsWidth(self, l=None, automatic=True, max_width_cm=15):
+        """
+            Sets the width of columns in the current sheet.
+            @param l Specification for columns to affect:
+                - If list: Specific widths in cm (e.g., [2, 5, 3.5]). Used for fixed widths if automatic=False.
+                            If automatic=True, only the length of the list is used to determine the number of columns.
+                - If int: The number of columns to process (starting from column A).
+                - If None: Automatically detects the number of columns in the used area of the sheet.
+            @param automatic Boolean. If True, uses LibreOffice's OptimalWidth to adjust columns to content. Defaults to True.
+            @param max_width_cm Float. The maximum width in cm allowed for a column when automatic=True. 
+                                Prevents columns with very long text from expanding excessively. Defaults to 15.
+        """
         if automatic:
             if isinstance(l, int):
                 num_cols = l
