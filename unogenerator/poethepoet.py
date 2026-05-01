@@ -35,15 +35,12 @@ def release():
   * Cambiar la versión y la fecha en __init__.py
   * Cambiar la versión en pyproject.toml
   * Ejecutar otra vez poe release
-  * git checkout -b unogenerator-{0}
-  * pytest
-  * unogenerator_demo --benchmark
-  * poe coverage con pyvenv systempackages=false
-  * poe coverage con pyvenv systempackages=true
   * poe translate
   * linguist
   * poe translate
   * poe documentation
+  * unogenerator_demo --benchmark
+  * pytest
   * git commit -a -m 'unogenerator-{0}'
   * git push
   * Hacer un pull request con los cambios a main
@@ -52,8 +49,6 @@ def release():
   * git pull
   * poetry build
   * poetry publish --username --password  
-  * Crea un nuevo ebuild de UNOGENERATOR Gentoo con la nueva versión
-  * Subelo al repositorio del portage
 
 """.format(__version__))
 

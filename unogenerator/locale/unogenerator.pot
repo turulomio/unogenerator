@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-29 08:23+0200\n"
+"POT-Creation-Date: 2026-05-01 10:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -445,9 +445,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "This process died after trying to connect to port {0} during {1} seconds. Error: {2}"
-msgstr ""
-
-msgid "Error closing ODF instance"
 msgstr ""
 
 msgid "You can't use the same filename as your template or you will overwrite it."
