@@ -1,5 +1,3 @@
-## @namespace unogenerator.unogenerator
-## @brief Package that allows to read and write Libreoffice ods and odt files
 
 from datetime import datetime
 from os import path, makedirs
@@ -86,22 +84,21 @@ class LibreofficeServer:
             if self.process.poll() is None: # Check if process is still alive (not yet terminated)
                 self.process.terminate() # Send SIGTERM (graceful termination request)
                 try:
-                    self.process.wait(timeout=5) # Wait up to 5 seconds for graceful termination
+                    self.process.wait(timeout=3) # Wait up to 3 seconds for graceful termination
                 except subprocess.TimeoutExpired:
                     logger.debug(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} did not terminate gracefully within 5 seconds. Attempting forceful kill.")
                     self.process.kill() # Send SIGKILL (forceful termination)
-                    try:
-                        self.process.wait(timeout=5) # Wait again after forceful kill
-                    except subprocess.TimeoutExpired:
-                        logger.warning(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} could not be forcefully killed within 5 seconds.")
             self.process = None # Clear reference
             
         # Secondary fallback: use system-specific kill command for any lingering processes
         try:
+            # Recommendation: Use psutil here in the future to target only children of self.process
             if sys.platform.startswith('linux') or sys.platform == 'darwin': # Linux and macOS
-                run(['pkill', '-9', '-f', f'socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager'], check=False, timeout=5)
+                # We use a more specific pattern to avoid killing other users' LO instances
+                pattern = f'port={self.port};urp;StarOffice.ServiceManager'
+                run(['pkill', '-9', '-f', pattern], check=False, timeout=2)
             elif sys.platform == 'win32': # Windows
-                run(['taskkill', '/F', '/IM', 'soffice.bin'], check=False, timeout=5)
+                run(['taskkill', '/F', '/IM', 'soffice.bin'], check=False, timeout=2)
             else:
                 logger.debug(f"Process termination for LibreOffice on port {self.port} is not explicitly handled on this operating system ({sys.platform}).")
         except subprocess.TimeoutExpired:
@@ -187,8 +184,8 @@ class ODF:
     def close(self):
         try:
             self.document.dispose()
-        except:
-            logger.warning (_("Error closing ODF instance"))
+        except Exception as e:
+            logger.warning(f"Error closing ODF instance: {e}")
         finally:
             if self.autoserver is True:
                 self.server.stop()
@@ -510,7 +507,7 @@ class ODT(ODF):
             image.Size=Size(width*1000, height*1000)
         elif graphic.getType()==2:#Vector
             print("This is a vector graphic. TODO")
-        elif graphic.getType()==0:#Empty
+        elif graphic.getType()==0: # Empty
             print("This is a empty graphic. TODO")
         #print("Final size", width, height)
         return image
@@ -662,14 +659,44 @@ class ODS(ODF):
         logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
     
-    ## l measures are in cm can be float
-    def setColumnsWidth(self, l):
-        columns=self.sheet.getColumns()
-        for i, width in enumerate(l):
-            column=columns.getByIndex(i)
-            width=width*1000
-            column.Width=width ## Are in 1/100th of mm
-            
+
+    def setColumnsWidth(self, l=None, automatic=True, max_width_cm=15):
+        """
+            Sets the width of columns in the current sheet.
+            @param l Specification for columns to affect:
+                - If list: Specific widths in cm (e.g., [2, 5, 3.5]). Used for fixed widths if automatic=False.
+                            If automatic=True, only the length of the list is used to determine the number of columns.
+                - If int: The number of columns to process (starting from column A).
+                - If None: Automatically detects the number of columns in the used area of the sheet.
+            @param automatic Boolean. If True, uses LibreOffice's OptimalWidth to adjust columns to content. Defaults to True.
+            @param max_width_cm Float. The maximum width in cm allowed for a column when automatic=True. 
+                                Prevents columns with very long text from expanding excessively. Defaults to 15.
+        """
+        if automatic:
+            if isinstance(l, int):
+                num_cols = l
+            elif isinstance(l, list):
+                num_cols = len(l)
+            else:
+                num_cols, _ = self.getSheetSize()
+
+            if num_cols > 0:
+                # Optimized call: set OptimalWidth on the columns collection of the used range
+                columns = self.sheet.getCellRangeByPosition(0, 0, num_cols - 1, 0).getColumns()
+                columns.OptimalWidth = True
+                
+                if max_width_cm is not None:
+                    max_width_units = int(max_width_cm * 1000)
+                    for i in range(num_cols):
+                        column = columns.getByIndex(i)
+                        if column.Width > max_width_units:
+                            column.Width = max_width_units
+        elif l is not None:
+            columns = self.sheet.getColumns()
+            for i, width in enumerate(l):
+                column = columns.getByIndex(i)
+                column.Width = int(width * 1000)  ## Are in 1/100th of mm
+
     def setComment(self, coord, comment):
         coord=Coord.assertCoord(coord)
         celladdress= createUnoStruct("com.sun.star.table.CellAddress")
@@ -734,14 +761,14 @@ class ODS(ODF):
                 styles.append(guess_object_style(o))
             
         
-        if colors.__class__==list:
+        if isinstance(colors, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
                 cell.setPropertyValue("CellBackColor", colors[i])
         else:
             range_uno.setPropertyValue("CellBackColor", colors)
         #Fast style:
-        if styles.__class__==list:
+        if isinstance(styles, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
                 cell.setPropertyValue("CellStyle", styles[i])
@@ -799,14 +826,14 @@ class ODS(ODF):
             for o in list_o:
                 styles.append(guess_object_style(o))
         #Fast color:
-        if colors.__class__==list:
+        if isinstance(colors, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
                 cell.setPropertyValue("CellBackColor", colors[i])
         else:
             range_uno.setPropertyValue("CellBackColor", colors)
         #Fast style:
-        if styles.__class__==list:
+        if isinstance(styles, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
                 cell.setPropertyValue("CellStyle", styles[i])
@@ -1313,11 +1340,10 @@ class ODS(ODF):
 
     ## Returns (columnsNumber, rowsNumber
     def getSheetSize(self):
-        data=self.sheet.getData()
-        if len(data)==0:
-            return 0, 0
-        else:
-            return len(data[0]), len(data)
+        cursor = self.sheet.createCursor()
+        cursor.gotoEndOfUsedArea(False)
+        address = cursor.RangeAddress
+        return address.EndColumn + 1, address.EndRow + 1
             
     ## Method to remove default sheet if empty
     def removeDefaultSheet(self):

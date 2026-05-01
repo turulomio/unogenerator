@@ -361,3 +361,31 @@ if can_import_uno():
             doc.export_pdf("test_ods_template_with_importlib_resources_files.pdf")
         remove("test_ods_template_with_importlib_resources_files.pdf")
 
+    def test_ods_setColumnsWidth(libreoffice_server):
+        num_columns = 20
+        num_rows = 100
+        
+        # Preparamos una fila de ejemplo con contenido de texto representativo
+        row_data = [f"Dato de prueba para columna {i} con cierta longitud" for i in range(num_columns)]
+        # Creamos una lista de 100,000 filas. Al usar la misma referencia de lista para cada fila,
+        # ahorramos memoria significativamente en el proceso de Python.
+        lor = [row_data] * num_rows
+        
+        # A la primera celda de la segunda columna le añado 1000 caracteres
+
+        lor[0][2]="abcdefghijklmnopqr "*20
+
+        filename = "test_performance_calc.ods"
+        with ODS_Standard(server=libreoffice_server) as doc:
+            # Medimos la inserción inicial (operación previa necesaria)
+            doc.addListOfRows("A1", lor)            
+            # Test de rendimiento: OptimalWidth (Ancho automático)
+            start_auto = datetime.now()
+            # Nota: Al pasar num_columns evitamos que setColumnsWidth llame a getSheetSize()
+            doc.setColumnsWidth(l=num_columns, automatic=True)
+            print(f"Rendimiento setColumnsWidth(automatic=True): {datetime.now() - start_auto}")
+            
+            
+            doc.save(filename)
+        if path.exists(filename):
+            remove(filename)

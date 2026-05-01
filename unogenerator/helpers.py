@@ -219,10 +219,10 @@ def helper_list_of_dicts(doc, coord_start,  lod, keys, columns_header=0,  color_
 ## Creates a new sheet called "Style names" with alll ods styles grouped by families
 def helper_ods_sheet_stylenames(doc):
     doc.createSheet("Internal style names")
-    doc.setColumnsWidth([5, 5])
     for column, (family,  style_names) in enumerate(doc.dict_stylenames.items()):
         doc.addCellWithStyle(C("A1").addColumn(column), family, ColorsNamed.Orange, "BoldCenter")
         doc.addColumnWithStyle(C("A2").addColumn(column), style_names)
+    doc.setColumnsWidth()
     doc.freezeAndSelect("A2")
 
 ## This helper is used when lor length is bigger than localc limits (1048576)
@@ -248,18 +248,19 @@ def helper_split_big_listofrows(doc, sheet_name, lor, headers, headers_colors=Co
         doc.createSheet(name)
         doc.addRowWithStyle("A1", headers, headers_colors, "BoldCenter")
         
-        #Sets width of columns
-        if len(lor)>0:
-            if columns_width is None:
-                columns_width=[3]*len(lor)
-            elif columns_width.__class__.__name__=="int":
-                columns_width=[columns_width]*len(lor)
-            doc.setColumnsWidth(columns_width)
-        
         #Splits data
         from_=max_rows*num_sheet
         to_=max_rows*(num_sheet+1) if len(lor)>=max_rows*(num_sheet+1) else len(lor)
         doc.addListOfRowsWithStyle("A2", lor[from_:to_])
+
+        #Sets width of columns
+        if columns_width is None:
+            doc.setColumnsWidth(automatic=True)
+        else:
+            if isinstance(columns_width, int):
+                columns_width = [columns_width] * len(headers)
+            doc.setColumnsWidth(columns_width, automatic=False)
+
         doc.freezeAndSelect(C.assertCoord(coord_to_freeze))
     
     
