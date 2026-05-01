@@ -201,7 +201,7 @@ def demo_ods_standard(language, server):
             ["unogenerator", "demo", "files"]
         )
         doc.createSheet("Styles")
-        doc.setColumnsWidth([3.5, 5, 2, 2, 2, 2, 2, 5, 5, 3, 3])
+        doc.setColumnsWidth([3.5, 5, 2, 2, 2, 2, 2, 5, 5, 3, 3], automatic=False)
         
         doc.setSheetStyle("Portrait")
         doc.setCellName("A1",  "MYNAME")

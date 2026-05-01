@@ -663,12 +663,25 @@ class ODS(ODF):
         return self.sheet
     
     ## l measures are in cm can be float
-    def setColumnsWidth(self, l):
-        columns=self.sheet.getColumns()
-        for i, width in enumerate(l):
-            column=columns.getByIndex(i)
-            width=width*1000
-            column.Width=width ## Are in 1/100th of mm
+    def setColumnsWidth(self, l=None, automatic=True):
+        columns = self.sheet.getColumns()
+        if automatic is True:
+            if isinstance(l, list):
+                num_columns = len(l)
+            elif isinstance(l, int):
+                num_columns = l
+            else:
+                num_columns, _ = self.getSheetSize()
+
+            for i in range(num_columns):
+                column = columns.getByIndex(i)
+                column.OptimalWidth = True
+        else:
+            if l is not None:
+                for i, width in enumerate(l):
+                    column = columns.getByIndex(i)
+                    width = width * 1000
+                    column.Width = width  ## Are in 1/100th of mm
             
     def setComment(self, coord, comment):
         coord=Coord.assertCoord(coord)

@@ -219,7 +219,7 @@ def helper_list_of_dicts(doc, coord_start,  lod, keys, columns_header=0,  color_
 ## Creates a new sheet called "Style names" with alll ods styles grouped by families
 def helper_ods_sheet_stylenames(doc):
     doc.createSheet("Internal style names")
-    doc.setColumnsWidth([5, 5])
+    doc.setColumnsWidth([5, 5], automatic=False)
     for column, (family,  style_names) in enumerate(doc.dict_stylenames.items()):
         doc.addCellWithStyle(C("A1").addColumn(column), family, ColorsNamed.Orange, "BoldCenter")
         doc.addColumnWithStyle(C("A2").addColumn(column), style_names)
@@ -254,7 +254,7 @@ def helper_split_big_listofrows(doc, sheet_name, lor, headers, headers_colors=Co
                 columns_width=[3]*len(lor)
             elif columns_width.__class__.__name__=="int":
                 columns_width=[columns_width]*len(lor)
-            doc.setColumnsWidth(columns_width)
+            doc.setColumnsWidth(columns_width, automatic=False)
         
         #Splits data
         from_=max_rows*num_sheet
