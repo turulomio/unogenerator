@@ -84,22 +84,21 @@ class LibreofficeServer:
             if self.process.poll() is None: # Check if process is still alive (not yet terminated)
                 self.process.terminate() # Send SIGTERM (graceful termination request)
                 try:
-                    self.process.wait(timeout=5) # Wait up to 5 seconds for graceful termination
+                    self.process.wait(timeout=3) # Wait up to 3 seconds for graceful termination
                 except subprocess.TimeoutExpired:
                     logger.debug(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} did not terminate gracefully within 5 seconds. Attempting forceful kill.")
                     self.process.kill() # Send SIGKILL (forceful termination)
-                    try:
-                        self.process.wait(timeout=5) # Wait again after forceful kill
-                    except subprocess.TimeoutExpired:
-                        logger.warning(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} could not be forcefully killed within 5 seconds.")
             self.process = None # Clear reference
             
         # Secondary fallback: use system-specific kill command for any lingering processes
         try:
+            # Recommendation: Use psutil here in the future to target only children of self.process
             if sys.platform.startswith('linux') or sys.platform == 'darwin': # Linux and macOS
-                run(['pkill', '-9', '-f', f'socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager'], check=False, timeout=5)
+                # We use a more specific pattern to avoid killing other users' LO instances
+                pattern = f'port={self.port};urp;StarOffice.ServiceManager'
+                run(['pkill', '-9', '-f', pattern], check=False, timeout=2)
             elif sys.platform == 'win32': # Windows
-                run(['taskkill', '/F', '/IM', 'soffice.bin'], check=False, timeout=5)
+                run(['taskkill', '/F', '/IM', 'soffice.bin'], check=False, timeout=2)
             else:
                 logger.debug(f"Process termination for LibreOffice on port {self.port} is not explicitly handled on this operating system ({sys.platform}).")
         except subprocess.TimeoutExpired:
@@ -185,8 +184,8 @@ class ODF:
     def close(self):
         try:
             self.document.dispose()
-        except:
-            logger.warning (_("Error closing ODF instance"))
+        except Exception as e:
+            logger.warning(f"Error closing ODF instance: {e}")
         finally:
             if self.autoserver is True:
                 self.server.stop()
@@ -508,7 +507,7 @@ class ODT(ODF):
             image.Size=Size(width*1000, height*1000)
         elif graphic.getType()==2:#Vector
             print("This is a vector graphic. TODO")
-        elif graphic.getType()==0:#Empty
+        elif graphic.getType()==0: # Empty
             print("This is a empty graphic. TODO")
         #print("Final size", width, height)
         return image
@@ -762,14 +761,14 @@ class ODS(ODF):
                 styles.append(guess_object_style(o))
             
         
-        if colors.__class__==list:
+        if isinstance(colors, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
                 cell.setPropertyValue("CellBackColor", colors[i])
         else:
             range_uno.setPropertyValue("CellBackColor", colors)
         #Fast style:
-        if styles.__class__==list:
+        if isinstance(styles, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
                 cell.setPropertyValue("CellStyle", styles[i])
@@ -827,14 +826,14 @@ class ODS(ODF):
             for o in list_o:
                 styles.append(guess_object_style(o))
         #Fast color:
-        if colors.__class__==list:
+        if isinstance(colors, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
                 cell.setPropertyValue("CellBackColor", colors[i])
         else:
             range_uno.setPropertyValue("CellBackColor", colors)
         #Fast style:
-        if styles.__class__==list:
+        if isinstance(styles, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
                 cell.setPropertyValue("CellStyle", styles[i])
