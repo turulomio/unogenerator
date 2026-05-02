@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-20 15:40+0200\n"
+"POT-Creation-Date: 2026-05-01 10:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,20 +24,47 @@ msgid "Developed by Mariano Muñoz 2020-{}"
 msgstr ""
 
 #, python-brace-format
-msgid "I couldn't detect unogenerator process info ({0}/{1} attempts)"
+msgid "Coord constructor must have a str or a Coord parameter and is a {0}"
 msgstr ""
 
-msgid "Have you launched unogenerator instances?. Please run unogenerator_start"
-msgstr ""
-
-msgid "I couldn't detect unogenerator instances"
-msgstr ""
-
-msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
+msgid "I can't convert {} (class: {}) to a Coord"
 msgstr ""
 
 #, python-brace-format
-msgid "Error deleting: {0} -> {1}"
+msgid "Coord can have this character: {0}"
+msgstr ""
+
+msgid "Coord letter can't be empty"
+msgstr ""
+
+#, python-brace-format
+msgid "Coord couldn't be created with '{0}'"
+msgstr ""
+
+#, python-brace-format
+msgid "Range constructor must receive a string but got: {0} ({1})"
+msgstr ""
+
+#, python-brace-format
+msgid "This is not a range: {0}"
+msgstr ""
+
+#, python-brace-format
+msgid "Range start coord is wrong: {0}"
+msgstr ""
+
+#, python-brace-format
+msgid "Range end coord is wrong: {0}"
+msgstr ""
+
+msgid "I can't convert {} (class: {}) to a Range"
+msgstr ""
+
+msgid "There was an error trimming image. Is 'magick' or 'convert' command (from ImageMagick) installed and in PATH?"
+msgstr ""
+
+#, python-brace-format
+msgid "Error deleting: {0} -> {1} -> {2}"
 msgstr ""
 
 msgid "Create example files using unogenerator module"
@@ -46,11 +73,29 @@ msgstr ""
 msgid "Debug program information"
 msgstr ""
 
-msgid "All process took {}"
+#, python-brace-format
+msgid "Launching demo with {0} workers without common server using concurrent processes"
 msgstr ""
 
 #, python-brace-format
-msgid "Launching concurrent demo with {0} workers to a daemon with {0} instances from {1} port"
+msgid "Launching demo with {0} workers with common server using concurrent processes"
+msgstr ""
+
+#, python-brace-format
+msgid "Launching demo with {0} workers without common server using concurrent threads"
+msgstr ""
+
+#, python-brace-format
+msgid "Launching demo with {0} workers with common server using concurrent threads"
+msgstr ""
+
+msgid "Launching demo with one common server sequentially"
+msgstr ""
+
+msgid "Launching demo without one common server sequentially"
+msgstr ""
+
+msgid "All process took {}"
 msgstr ""
 
 msgid "UnoGenerator ODS example"
@@ -100,7 +145,7 @@ msgid "String"
 msgstr ""
 
 #, python-brace-format
-msgid "unogenerator_example_{0}{1}.ods took {2} in {3}"
+msgid "unogenerator_example_{0}.ods took {1} in {2}"
 msgstr ""
 
 msgid "UnoGenerator documentation"
@@ -122,7 +167,10 @@ msgstr ""
 msgid "So in order to use, you need to launch a --headless LibreOffice instance."
 msgstr ""
 
-msgid "We recomend to launch then easily with 'unogenerator_start' script."
+msgid "UnoGenerator make this unattended for you in each ODF (ODS and ODT) instance."
+msgstr ""
+
+msgid "However if you wish, you can do this programmatically using LibreofficeServer class to reuse it in serveral ODF instances to improve documents generation speed."
 msgstr ""
 
 msgid "UnoGenerator has standard templates to help you with edition, although you can use your own templates."
@@ -305,11 +353,11 @@ msgstr ""
 msgid "NOW)("
 msgstr ""
 
-msgid "This is a set of symbols: .,:;?ºª\\_-/()."
+msgid "This is a set of symbols: .,:;?ºª-/()."
 msgstr ""
 
 #, python-brace-format
-msgid "unogenerator_documentation_{0}{1}.ods took {2} in {3}"
+msgid "unogenerator_documentation_{0}.ods took {1} in {2}"
 msgstr ""
 
 msgid "Total"
@@ -329,111 +377,26 @@ msgstr ""
 msgid "More than {0} rows. Spliting {1} of {2} sheets"
 msgstr ""
 
-msgid "Launches LibreOffice server to run unogenerator code"
-msgstr ""
-
-msgid "Number of concurrent LibreOffice instances"
-msgstr ""
-
-msgid "First port assigned to server"
-msgstr ""
-
-msgid "Backtrace logs"
-msgstr ""
-
-#, python-brace-format
-msgid "It seems that server is already launched in port {0}"
-msgstr ""
-
-#, python-brace-format
-msgid "Preparing {0} LibreOffice server instances from port {1}:"
-msgstr ""
-
-msgid "You can see instances output in /var/log/unogenerator"
-msgstr ""
-
-#, python-brace-format
-msgid "  - Launched LibreOffice headless instance in port {0}"
-msgstr ""
-
-msgid "Stops LibreOffice server to finish using unogenerator code"
-msgstr ""
-
-#, python-brace-format
-msgid "  - Server was stopped killing {0} processes"
-msgstr ""
-
 msgid "UnoGenerator monitor"
 msgstr ""
 
-msgid "Restart server when idle"
+msgid "Seconds until next refresh"
 msgstr ""
 
-msgid "Recommended max memory (Mb) to restart server when idle. By default: 600Mb per instance"
-msgstr ""
-
-#, python-brace-format
-msgid "Instances: {0}"
+msgid "Seconds to color Last CPU variation"
 msgstr ""
 
 #, python-brace-format
-msgid "Ports used: {0}"
+msgid "Unogenerator version: {0}. Hora actual: {1}. Refresh time: {2} seconds"
 msgstr ""
 
-#, python-brace-format
-msgid "CPU used: {0}"
+msgid "Active soffice.bin processes number:"
 msgstr ""
 
-#, python-brace-format
-msgid "Memory used: {0}"
+msgid "Temporal directories with asociated soffice.bin process: "
 msgstr ""
 
-#, python-brace-format
-msgid "Max memory recommended: {0}"
-msgstr ""
-
-#, python-brace-format
-msgid "CPU percentage: {0}"
-msgstr ""
-
-#, python-brace-format
-msgid "Connections: {0}"
-msgstr ""
-
-msgid "Restarting server"
-msgstr ""
-
-msgid "Server restarted"
-msgstr ""
-
-msgid "Server wasn't restarted because it's busy"
-msgstr ""
-
-msgid "Server doesn't need to be restarted"
-msgstr ""
-
-msgid "Number"
-msgstr ""
-
-msgid "Total seconds"
-msgstr ""
-
-msgid "Average"
-msgstr ""
-
-msgid "Cells"
-msgstr ""
-
-msgid "Merged cells"
-msgstr ""
-
-msgid "Cell gets"
-msgstr ""
-
-msgid "Sheet creations"
-msgstr ""
-
-msgid "Sheet freezes"
+msgid "UnoGenerator cleaner"
 msgstr ""
 
 msgid "Generate a po and pot file from ODF"
@@ -481,10 +444,7 @@ msgid "Translating files to:"
 msgstr ""
 
 #, python-brace-format
-msgid "Changing port {0} to {1} {2} times"
-msgstr ""
-
-msgid "This process died"
+msgid "This process died after trying to connect to port {0} during {1} seconds. Error: {2}"
 msgstr ""
 
 msgid "You can't use the same filename as your template or you will overwrite it."
@@ -510,6 +470,16 @@ msgstr ""
 
 #, python-brace-format
 msgid "ERROR: You can't create '{0}' sheet, because it already exists."
+msgstr ""
+
+msgid "addRow is empty. Nothing to write. Ignoring..."
+msgstr ""
+
+msgid "You're trying to add formulas to cells using setDataArray and they will be treated as strings. If you want formula's value use formulas=True in ODS methods"
+msgstr ""
+
+#, python-brace-format
+msgid "  + Range: {0}"
 msgstr ""
 
 #, python-brace-format

@@ -1,66 +1,159 @@
-## @namespace unogenerator.unogenerator
-## @brief Package that allows to read and write Libreoffice ods and odt files
 
 from datetime import datetime
 from os import path, makedirs
+import subprocess
 from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
 from com.sun.star.sheet.ConditionEntryType import COLORSCALE
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
-from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER
+from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER # Removed 'warning', 'debug'
 from gettext import translation
-from logging import warning, debug
+import logging # Import logging module
 from importlib.resources import files
-from shutil import copyfile
+import sys # Added for multiplatform OS detection
+from os import path, makedirs # Removed 'system' as it's no longer used in this file
+from pydicts import lol, casts
+from shutil import copyfile, rmtree # Added rmtree for directory removal
+from socket import socket, AF_INET, SOCK_STREAM
+from subprocess import Popen, PIPE, run # Added run for executing external commands
 from tempfile import TemporaryDirectory
-from unogenerator.commons import Coord as C, ColorsNamed,  Range as R, datetime2uno, guess_object_style, row2index, column2index, datetime2localc1989, date2localc1989,  time2localc1989, next_port, get_from_process_numinstances_and_firstport,  is_formula, uno2datetime, __version__, string_float2object
-from unogenerator.reusing.casts import lor_transposed
-from unogenerator.reusing.currency import Currency
-from unogenerator.reusing.datetime_functions import string2dtnaive, string2date, string2time
-from unogenerator.reusing.percentage import Percentage
-from unogenerator.statistics import StatisticsODS, StatisticsODT
-from sys import exit
+from time import sleep
+from unogenerator import __version__, exceptions
+from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989,  is_formula, uno2datetime, string_float2object
+from pydicts.currency import Currency
+from pydicts.percentage import Percentage
+
+logger = logging.getLogger(__name__) # Get logger for this module
 
 def createUnoService(serviceName):
 #        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
   return getComponentContext().ServiceManager.createInstance(serviceName)
-
-        
+  
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
 except:
     _=str
 
+class LibreofficeServer:
+    ## This method allows to use with statement. 
+    ## with LibreofficeServer() as server:
+    ##      with ODS_Standard
+    ## First calls __init__ with None and 2002, then enter, then exit
+    def __enter__(self):
+        return self
+        
+    ## Exit function to use with with statement. __enter__ defines enter in with
+    def __exit__(self, *args, **kwargs):
+        self.stop()
+
+    def __init__(self, port=None):
+        self.process = None
+        self.port = port
+        self.started_by_me = False # Flag to indicate if this instance started the LO process
+        
+        if self.port is None: # If no port is provided, start a new process
+            with socket(AF_INET, SOCK_STREAM) as s:
+                s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
+                self.port = s.getsockname()[1]
+            command_args = [
+                'loffice',
+                f'--accept=socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager',
+                f'-env:UserInstallation=file:///tmp/unogenerator{self.port}',
+                '--headless',
+                '--nologo',
+                '--norestore'
+            ]
+            self.process = Popen(command_args, stdout=PIPE, stderr=PIPE, shell=False)
+            self.started_by_me = True
+            logger.debug(f"LibreOffice server started on port {self.port}")
+        else: # If a port is provided, assume an external server is running, and this instance is just a connector
+            logger.debug(f"LibreOffice server connecting to existing instance on port {self.port}")
+
+    def stop(self):
+        if self.started_by_me and self.process:
+            # Close stdout and stderr pipes
+            if self.process.stdout:
+                self.process.stdout.close()
+            if self.process.stderr:
+                self.process.stderr.close()
+            
+            # Attempt graceful termination
+            if self.process.poll() is None: # Check if process is still alive (not yet terminated)
+                self.process.terminate() # Send SIGTERM (graceful termination request)
+                try:
+                    self.process.wait(timeout=3) # Wait up to 3 seconds for graceful termination
+                except subprocess.TimeoutExpired:
+                    logger.debug(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} did not terminate gracefully within 5 seconds. Attempting forceful kill.")
+                    self.process.kill() # Send SIGKILL (forceful termination)
+            self.process = None # Clear reference
+            
+        # Secondary fallback: use system-specific kill command for any lingering processes
+        try:
+            # Recommendation: Use psutil here in the future to target only children of self.process
+            if sys.platform.startswith('linux') or sys.platform == 'darwin': # Linux and macOS
+                # We use a more specific pattern to avoid killing other users' LO instances
+                pattern = f'port={self.port};urp;StarOffice.ServiceManager'
+                run(['pkill', '-9', '-f', pattern], check=False, timeout=2)
+            elif sys.platform == 'win32': # Windows
+                run(['taskkill', '/F', '/IM', 'soffice.bin'], check=False, timeout=2)
+            else:
+                logger.debug(f"Process termination for LibreOffice on port {self.port} is not explicitly handled on this operating system ({sys.platform}).")
+        except subprocess.TimeoutExpired:
+            logger.warning(f"System kill command timed out while trying to kill LibreOffice process on port {self.port}. Process might still be running.")
+        except Exception as e: # Catch a broader exception for robustness
+            logger.warning(f"Error during system kill command for LibreOffice on port {self.port}: {e}")
+        if self.started_by_me: # Only remove temp dir if this instance started the process
+            rmtree(f'/tmp/unogenerator{self.port}', ignore_errors=True)
 
 class ODF:
-    def __init__(self, template=None, loserver_port=2002):
+    maxtries = 200 # Define as a class attribute with a default value
+    def __init__(self, template=None,  server=None):
+        """
+            Common class for ODF instances
+
+            @param template path to template
+            @type string
+            @param server Server object to use
+            @type LibreofficeServer
+        """        
+
+        self.start=datetime.now()
+        if isinstance(server, LibreofficeServer):
+            self.server = server
+            self.autoserver = False # Not auto-managed by ODF, but by the passed server object
+        elif isinstance(server, int): # If an integer (port) is passed, create a connector LibreofficeServer
+            self.server = LibreofficeServer(port=server)
+            self.autoserver = False # Not auto-managed, it's connecting to an external one
+        elif server is None: # If None, ODF manages its own server
+            self.server = LibreofficeServer() # ODF manages its own server, starts a new LO process
+            self.autoserver = True
+        else:
+            raise TypeError("Invalid 'server' argument. Must be None, a LibreofficeServer instance, or an integer port.")
         self.template=None if template is None else systemPathToFileUrl(path.abspath(template))
-        self.loserver_port=loserver_port
-        self.num_instances, self.first_port=get_from_process_numinstances_and_firstport()
-        maxtries=self.num_instances*3
-        for i in range(maxtries):
+        # Initialize ctx and desktop to None, so they always exist even if connection fails
+        self.ctx = None
+        self.desktop = None
+        for i in range(self.maxtries): # Access as self.maxtries, which will use the class attribute
             try:
                 localContext = getComponentContext()
                 resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
                 ## self.ctx parece que es mi contexto para servicios
-                self.ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={loserver_port};urp;StarOffice.ComponentContext')
+                self.ctx = resolver.resolve(f'uno:socket,host=127.0.0.1,port={self.server.port};urp;StarOffice.ComponentContext')
                 self.desktop = self.ctx.ServiceManager.createInstance('com.sun.star.frame.Desktop')
                 self.graphicsprovider=self.ctx.ServiceManager.createInstance("com.sun.star.graphic.GraphicProvider")                   
                 args=(
                     PropertyValue('AsTemplate',0,True,0),
                 )
                 if self.__class__  in (ODS, ODS_Standard):
-                    self.statistics=StatisticsODS(self)
                     if self.template is None:
                         self.document=self.desktop.loadComponentFromURL('private:factory/scalc','_blank',8,())
                     else:
                         self.document=self.desktop.loadComponentFromURL(self.template,'_blank', 8, args)
                     self.sheet=self.setActiveSheet(0)
                 else: #ODT
-                    self.statistics=StatisticsODT(self)
                     if self.template is None:
                         self.document=self.desktop.loadComponentFromURL('private:factory/swriter','_blank', 8, ())
                     else:
@@ -69,13 +162,11 @@ class ODF:
                 self.dict_stylenames=self.dictionary_of_stylenames()
                 break
             except Exception as e:
-                print(e)
-                old=self.loserver_port
-                self.loserver_port=next_port(self.loserver_port, self.first_port, self.num_instances)
-                print(_("Changing port {0} to {1} {2} times").format(old, self.loserver_port, i))
-                if i==maxtries - 1:
-                    print(_("This process died"))
-        
+                sleeptime=0.20
+                sleep(sleeptime)
+                if i == self.maxtries - 1:
+                    logger.warning(_("This process died after trying to connect to port {0} during {1} seconds. Error: {2}").format(self.server.port, self.maxtries * sleeptime, e))
+
     ## This method allows to use with statement. 
     ## with ODS() as doc:
     ##      doc.createSheet("WITH")
@@ -91,8 +182,14 @@ class ODF:
         self.document.calculateAll()
 
     def close(self):
-        self.document.dispose()
-        
+        try:
+            self.document.dispose()
+        except Exception as e:
+            logger.warning(f"Error closing ODF instance: {e}")
+        finally:
+            if self.autoserver is True:
+                self.server.stop()
+
     ## Generate a dictionary_of_styles with families as key, and a list of string styles as value
     def dictionary_of_stylenames(self):
         stylefam=self.document.StyleFamilies
@@ -134,19 +231,22 @@ class ODF:
         
     ##Only sets a value when it's different of [] or ""
     def setMetadata(self, title="",  subject="", author="", description="", keywords=[], creationdate=datetime.now()):
-        if author!="":
-            self.document.DocumentProperties.Author=author
-        self.document.DocumentProperties.Generator=f"UnoGenerator-{__version__}"
-        if description!="":
-            self.document.DocumentProperties.Description=description
-        if subject!="":
-            self.document.DocumentProperties.Subject=subject
-        if keywords!="":
-            self.document.DocumentProperties.Keywords=keywords
-        self.document.DocumentProperties.CreationDate=datetime2uno(creationdate)
-        self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
-        if title!="":
-            self.document.DocumentProperties.Title=title
+        try:
+            if author!="":
+                self.document.DocumentProperties.Author=author
+            self.document.DocumentProperties.Generator=f"UnoGenerator-{__version__}"
+            if description!="":
+                self.document.DocumentProperties.Description=description
+            if subject!="":
+                self.document.DocumentProperties.Subject=subject
+            if keywords!="":
+                self.document.DocumentProperties.Keywords=keywords
+            self.document.DocumentProperties.CreationDate=datetime2uno(creationdate)
+            self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
+            if title!="":
+                self.document.DocumentProperties.Title=title
+        except:
+            print("Error setting metadata. Sometimes fails with concurrent process")
 
     def deleteAll(self):
         self.executeDispatch(".uno:SelectAll")
@@ -167,8 +267,8 @@ class ODF:
         
                    
 class ODT(ODF):
-    def __init__(self, template=None, loserver_port=2002):
-        ODF.__init__(self, template, loserver_port)
+    def __init__(self, template=None, server=None):
+        ODF.__init__(self, template, server)
 
     def save(self, filename, overwrite_template=False):
         if filename==self.template and overwrite_template is False:
@@ -249,7 +349,7 @@ class ODT(ODF):
             self.cursor=found
         else:
             if log is True:
-                warning(f"'{find}' was not found in the document'")
+                logger.warning(f"'{find}' was not found in the document'")
         return found
 
     def findall_and_replace(self, find, replace="", log=False):
@@ -259,12 +359,12 @@ class ODT(ODF):
         found=self.document.findFirst(search)
         if found is not None:
             number=self.document.replaceAll(search)
-            debug(f"Replaced {number} times '{find}' by '{replace}'")
+            logger.debug(f"Replaced {number} times '{find}' by '{replace}'")
             self.cursor=found
             return number
         else:
             if log is True:
-                debug(f"'{find}' was not found in the document'")
+                logger.debug(f"'{find}' was not found in the document'")
             return 0
 
     ## Sets the cursor after found string
@@ -284,7 +384,7 @@ class ODT(ODF):
             self.cursor.gotoRange(oVC,True)			#'Move Text Cursor to same location as oVC while selecting text in between (True)
             self.cursor.setString("")
         else:
-            warning(f"'{find}' was not found in the document'")
+            logger.warning(f"'{find}' was not found in the document'")
         
     def addString(self, text, style=None, paragraphBreak=False):
         if style is not None:
@@ -390,7 +490,7 @@ class ODT(ODF):
         if graphic.getType()==1:#Pixel
             ##Size100thMM sometimes is 0 in some images, but no Size
             if graphic.Size100thMM.Height==0 or graphic.Size100thMM.Height==0:
-                debug(_("Problems to detect size in 100thmm, I'm trying to calculate it"))
+                logger.debug(_("Problems to detect size in 100thmm, I'm trying to calculate it"))
             height100thmm=graphic.Size100thMM.Height if graphic.Size100thMM.Height!=0 else self.pixelsto100thmm(graphic.Size.Height)
             width100thmm=graphic.Size100thMM.Width if graphic.Size100thMM.Width!=0 else self.pixelsto100thmm(graphic.Size.Width)
             #print("100thmm problem ",  graphic.Size100thMM.Width,  graphic.Size100thMM.Height, width100thmm, height100thmm)
@@ -407,7 +507,7 @@ class ODT(ODF):
             image.Size=Size(width*1000, height*1000)
         elif graphic.getType()==2:#Vector
             print("This is a vector graphic. TODO")
-        elif graphic.getType()==0:#Empty
+        elif graphic.getType()==0: # Empty
             print("This is a empty graphic. TODO")
         #print("Final size", width, height)
         return image
@@ -515,8 +615,8 @@ class ODT(ODF):
 
 
 class ODS(ODF):
-    def __init__(self, template=None, loserver_port=2002):
-        ODF.__init__(self, template, loserver_port)
+    def __init__(self, template=None, server=None):
+        ODF.__init__(self, template, server)
         self._remove_default_sheet=True
 
     def getRemoveDefaultSheet(self):
@@ -533,23 +633,19 @@ class ODS(ODF):
         
     def getSheetNames(self):        
         return self.document.Sheets.ElementNames
-        
-        
+
     ## Creates a new sheet at the end of the sheets
     ## @param if index is None it creates sheet at the end of the existing sheets
     def createSheet(self, name, index=None):
-        start=datetime.now()
         for sheet in self.getSheetNames():
             if sheet.upper()==name.upper():
-                print(_("ERROR: You can't create '{0}' sheet, because it already exists.").format(name)) 
-                exit(4)
+                raise exceptions.UnogeneratorException(_("ERROR: You can't create '{0}' sheet, because it already exists.").format(name))
         
         sheets=self.document.getSheets()
         if index is None:
             index=len(sheets)
         sheets.insertNewByName(name, index)
         self.setActiveSheet(index)
-        self.statistics.appendSheetCreationsCreationStartMoment(start)
         
     def removeSheet(self, index):
         current=self.sheet.Name
@@ -560,18 +656,49 @@ class ODS(ODF):
     def setActiveSheet(self,  index):
         self.sheet_index=index
         self.sheet=self.document.getSheets().getByIndex(index)
+        logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
     
-    ## l measures are in cm can be float
-    def setColumnsWidth(self, l):
-        columns=self.sheet.getColumns()
-        for i, width in enumerate(l):
-            column=columns.getByIndex(i)
-            width=width*1000
-            column.Width=width ## Are in 1/100th of mm
-            
+
+    def setColumnsWidth(self, l=None, automatic=True, max_width_cm=15):
+        """
+            Sets the width of columns in the current sheet.
+            @param l Specification for columns to affect:
+                - If list: Specific widths in cm (e.g., [2, 5, 3.5]). Used for fixed widths if automatic=False.
+                            If automatic=True, only the length of the list is used to determine the number of columns.
+                - If int: The number of columns to process (starting from column A).
+                - If None: Automatically detects the number of columns in the used area of the sheet.
+            @param automatic Boolean. If True, uses LibreOffice's OptimalWidth to adjust columns to content. Defaults to True.
+            @param max_width_cm Float. The maximum width in cm allowed for a column when automatic=True. 
+                                Prevents columns with very long text from expanding excessively. Defaults to 15.
+        """
+        if automatic:
+            if isinstance(l, int):
+                num_cols = l
+            elif isinstance(l, list):
+                num_cols = len(l)
+            else:
+                num_cols, _ = self.getSheetSize()
+
+            if num_cols > 0:
+                # Optimized call: set OptimalWidth on the columns collection of the used range
+                columns = self.sheet.getCellRangeByPosition(0, 0, num_cols - 1, 0).getColumns()
+                columns.OptimalWidth = True
+                
+                if max_width_cm is not None:
+                    max_width_units = int(max_width_cm * 1000)
+                    for i in range(num_cols):
+                        column = columns.getByIndex(i)
+                        if column.Width > max_width_units:
+                            column.Width = max_width_units
+        elif l is not None:
+            columns = self.sheet.getColumns()
+            for i, width in enumerate(l):
+                column = columns.getByIndex(i)
+                column.Width = int(width * 1000)  ## Are in 1/100th of mm
+
     def setComment(self, coord, comment):
-        coord=C.assertCoord(coord)
+        coord=Coord.assertCoord(coord)
         celladdress= createUnoStruct("com.sun.star.table.CellAddress")
         celladdress.Sheet=self.sheet_index
         celladdress.Column=coord.letterIndex()
@@ -581,61 +708,178 @@ class ODS(ODF):
     ## If addCell is used, preserves styles properties
     ## If you want to change these properties you must add parameters. Not developed
     def addCell(self, coord, o, color=None, outlined=None, alignment=None, decimals=None, bold=None):
-        coord=C.assertCoord(coord)
+        coord=Coord.assertCoord(coord)
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__object_to_cell(cell, o)
+
+    def addRow(self, coord_start, list_o, formulas=True):        
+        """
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                - colors Color: Use color for all array, List of colors one for each cell
+                - styles If None uses guest style. Else an array of styles
+            Return: Range
+        """
+        coord_start=Coord.assertCoord(coord_start)
         
-        if outlined is not None:
-            border_prop = createUnoStruct("com.sun.star.table.BorderLine2")
-            border_prop.LineWidth = outlined
-            cell.setPropertyValue("TopBorder", border_prop)
-            cell.setPropertyValue("LeftBorder", border_prop)
-            cell.setPropertyValue("RightBorder", border_prop)
-            cell.setPropertyValue("BottomBorder", border_prop)
-        if color is not None:
-            cell.setPropertyValue("CellBackColor", color)
+        if len(list_o)==0:
+            logger.debug(_("addRow is empty. Nothing to write. Ignoring..."))
+            return None
 
-    ## @param colors If None uses Wh
-    ## @param styles If None uses guest style. Else an array of styles
-    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
-        coord_start=C.assertCoord(coord_start)
+        #Convert list_rows to valid dataarray
+        r=[]
+        for o in list_o:
+            r.append(self.__object_to_dataarray_element(o))
+        
+        #Writes data fast
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
+        range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
+        if formulas is True:
+            self.__setFormulaArray(range_uno, [r, ])
+        else:
+            self.__setDataArray(range_uno, [r, ])
+        return R.from_uno_range(range_uno)
+
+
+    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True):        
+        """
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                - colors Color: Use color for all array, List of colors one for each cell
+                - styles If None uses guest style. Else an array of styles
+            Return: Range
+        """
+        coord_start=Coord.assertCoord(coord_start)        
+        range_=self.addRow(coord_start, list_o, formulas)
+        if range_ is None:
+            return None
+        range_uno=range_.uno_range(self.sheet)
+        #Fast color:
         if styles is None:
             styles=[]
             for o in list_o:
                 styles.append(guess_object_style(o))
-        elif styles.__class__.__name__!="list":
-            styles=[styles]*len(list_o)
+            
+        
+        if isinstance(colors, list):
+            for i in range(len(list_o)):
+                cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
+                cell.setPropertyValue("CellBackColor", colors[i])
+        else:
+            range_uno.setPropertyValue("CellBackColor", colors)
+        #Fast style:
+        if isinstance(styles, list):
+            for i in range(len(list_o)):
+                cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
+                cell.setPropertyValue("CellStyle", styles[i])
+        else:
+            range_uno.setPropertyValue("CellStyle", styles)
+        return range_
+            
 
-        if colors.__class__.__name__!="list":
-            colors=[colors]*len(list_o)
 
-        for i,o in enumerate(list_o):
-            self.addCellWithStyle(coord_start.addColumnCopy(i),o,colors[i],styles[i])
+    def addColumn(self, coord_start, list_o, formulas=True):
+        """
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                - colors If None uses Wh
+                - styles If None uses guest style. Else an array of styles
+            Return: Range
+        """
+        coord_start=Coord.assertCoord(coord_start)
+        
+        if len(list_o)==0:
+            return None
 
-    ## @param colors If None uses Wh
-    ## @param styles If None uses guest style. Else an array of styles
-    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None):
-        coord_start=C.assertCoord(coord_start)
+        #Convert list_o to valid dataarray
+        r=[]
+        for o in list_o:
+            r.append([self.__object_to_dataarray_element(o), ])
+        
+        #Writes data fast
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex(), coord_start.numberIndex()+len(list_o)-1]
+        range_=self.sheet.getCellRangeByPosition(*range_indexes)
+        if formulas is True:
+            self.__setFormulaArray(range_, r)
+        else:
+            self.__setDataArray(range_, r)
+        return R.from_coords_indexes(*range_indexes)
+            
+    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True):
+        """
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                - colors Color: Use color for all array, List of colors one for each cell
+                - styles If None uses guest style. Else an array of styles
+            Return: Range
+        """
+        coord_start=Coord.assertCoord(coord_start)
+        range_=self.addColumn(coord_start, list_o, formulas)
+        
+        if range_ is None:
+            return None
+            
+        range_uno=range_.uno_range(self.sheet)
+        # Guess styles if none
         if styles is None:
             styles=[]
             for o in list_o:
                 styles.append(guess_object_style(o))
-        elif styles.__class__.__name__!="list":
-            styles=[styles]*len(list_o)
+        #Fast color:
+        if isinstance(colors, list):
+            for i in range(len(list_o)):
+                cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
+                cell.setPropertyValue("CellBackColor", colors[i])
+        else:
+            range_uno.setPropertyValue("CellBackColor", colors)
+        #Fast style:
+        if isinstance(styles, list):
+            for i in range(len(list_o)):
+                cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
+                cell.setPropertyValue("CellStyle", styles[i])
+        else:
+            range_uno.setPropertyValue("CellStyle", styles)
+        return range_
+        
+        
+    
+            
+    def __setDataArray(self,  unorange,  array_):
+        def contains_special_start(iterable, special_chars=('+', '=')):
+            if isinstance(iterable, str):
+                # Check if the string starts with any of the special characters
+                return any(iterable.startswith(char) for char in special_chars)
+            try:
+                # Try iterating over the iterable
+                for item in iterable:
+                    if contains_special_start(item, special_chars):
+                        return True
+            except TypeError:
+                # Not an iterable
+                pass
+            return False
+        
+        if contains_special_start(array_):
+            logger.debug(_("You're trying to add formulas to cells using setDataArray and they will be treated as strings. If you want formula's value use formulas=True in ODS methods"))
+            logger.debug(_("  + Range: {0}").format(unorange.AbsoluteName))
+        unorange.setDataArray(array_)
 
-        if colors.__class__.__name__!="list":
-            colors=[colors]*len(list_o)
 
-        for i,o in enumerate(list_o):
-            self.addCellWithStyle(coord_start.addRowCopy(i),o,colors[i],styles[i])
+    def __setFormulaArray(self,  unorange,  array_):
+        unorange.setFormulaArray(array_)
 
-    ## Function used to add a big amount of cells to paste quickly
-    ## @param colors. List of column colors or None to use white
-    ## @param styles. List of styles (columns) or None to guess them from first row
-    ## @param cellbycell If true creates cells with addCellWithStyle instead of range.setDataArray
-    ## @return range of the list_of_rows
-    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None, cellbycell=False):
-        coord_start=C.assertCoord(coord_start) 
+
+    def addListOfRows(self, coord_start, list_rows, formulas=True):
+        """
+            Function used to add a big amount of cells to paste quickly
+            This method is used when we want to add data without styles, or because we are using a styled template
+
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+
+            Return: Range
+        """
+        coord_start=Coord.assertCoord(coord_start) 
         
         rows=len(list_rows)
         if rows==0:
@@ -645,82 +889,151 @@ class ODS(ODF):
             
             
         if rows==0 or columns==0:
-            debug(_("addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring...").format(rows, columns))
+            logger.debug(_("addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring...").format(rows, columns))
             return 
-        
-        if cellbycell is True:
-            for i, row in enumerate(list_rows):
-                self.addRowWithStyle(coord_start.addRowCopy(i), row, colors=colors,styles=styles)
-                return R.from_columns_rows(coord_start, columns, rows)
+            
+        #Convert list_rows to valid dataarray
+        r=[]
+        for row in list_rows:
+            r_row=[]
+            for o in row:
+                r_row.append(self.__object_to_dataarray_element(o))
+            r.append(r_row)
+
+        #Writes data fast
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
+        range=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
+        if formulas is True:
+            self.__setFormulaArray(range, r)
         else:
-            #Calculates the number of rows and columns of list_rows
+            self.__setDataArray(range, r)
+        return R.from_coords_indexes(*range_indexes)
 
-            #Sets colors and styles
-            if colors.__class__.__name__!="list" and columns>0:
-                colors=[ColorsNamed.White]*columns
-            if styles is None and rows>0:
-                styles=[]
-                for o in list_rows[0]:
-                    styles.append(guess_object_style(o))
-            if len(colors)!=columns:
-                print(_("Colors must have the same number of items as data columns"))
-            if len(styles)!=columns:
-                print(_("Styles must have the same number of items as data columns"))
+    ## Function used to add a big amount of cells to paste quickly
+    ## @param colors. List of column colors, one color, or None to use white
+    ## @param styles. List of styles (columns) or None to guess them from first row
+    ## @return range of the list_of_rows
+    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None,  formulas=True):
+        """
+            Function used to add a big amount of cells to paste quickly
+            
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                - colors. List of column colors, one color, or None to use white
+                - styles. List of styles (columns) or None to guess them from first row
                 
-            #Convert list_rows to valid dataarray
-            r=[]
-            for row in list_rows:
-                r_row=[]
-                for o in row:
-                    r_row.append(self.__object_to_dataarray_element(o))
-                r.append(r_row)
+            Return: Range
+        """
+        coord_start=Coord.assertCoord(coord_start) 
+        
+        range_=self.addListOfRows(coord_start, list_rows, formulas)
+        if range_ is None:
+            return
+        
+        columns=range_.numColumns()
+        rows=range_.numRows()
 
-            #Writes data fast
-            range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
-            range=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1)
-            range.setDataArray(r)
+        # Parse colors.
+        if colors.__class__.__name__=="list":
+            colors=colors
+        elif colors is None:
+            colors=[ColorsNamed.White]*columns
+        else: #one ColorsNamed
+            colors=[colors]*columns
+        
+        # Parse styles
+        if styles is None and rows>0:
+            styles=[]
+            for o in list_rows[0]:
+                styles.append(guess_object_style(o))
+        elif styles.__class__.__name__=="list":
+            styles=styles
+        else:
+            styles=[styles]*columns
+                
+                
+        if len(colors)!=columns:
+            raise exceptions.UnogeneratorException(_("Colors must have the same number of items as data columns"))
+        if len(styles)!=columns:
+            raise exceptions.UnogeneratorException(_("Styles must have the same number of items as data columns"))
+            
+        #Create styles by columns cellranges
+        if rows>0:
+            for c, o in enumerate(list_rows[0]):
+                columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
+                columnrange.setPropertyValue("CellStyle", styles[c])
+                columnrange.setPropertyValue("CellBackColor", colors[c])                    
+        return range_
 
-            #Create styles by columns cellranges
-            if rows>0:
-                for c, o in enumerate(list_rows[0]):
-                    columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
-                    columnrange.setPropertyValue("CellStyle", styles[c])
-                    columnrange.setPropertyValue("CellBackColor", colors[c])                    
-            return R.from_coords_indexes(*range_indexes)
+
+    def addListOfColumns(self, coord_start, list_columns, formulas=True):
+        """
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+                
+            Return: Range
+        """
+        coord_start=Coord.assertCoord(coord_start) 
+        list_rows=lol.lol_transposed(list_columns)
+        return self.addListOfRows(coord_start, list_rows, formulas)
+
 
     ## @param style If None tries to guess it
-    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None, cellbycell=False):
-        coord_start=C.assertCoord(coord_start) 
+    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None,  formulas=True):
+        """
+            Colors and styles are the colors of the first column. Code is different
+            
+            Parameters:
+                - formulas Boolean. If true formulas will be written as formula. If false as string
+            
+            Return: Range
+        """
+        coord_start=Coord.assertCoord(coord_start) 
         
-        if cellbycell is True:
-            if len(list_columns)>0:
-                columns=len(list_columns)
-                rows=len(list_columns[0])
-            else:
-                columns=0
-                rows=0
-            
-            for i, column in enumerate(list_columns):
-                self.addColumnWithStyle(coord_start.addColumnCopy(i), column, colors=colors,styles=styles)
-                return R.from_columns_rows(coord_start, columns, rows)
-        else:
-            list_rows=lor_transposed(list_columns)
-            return self.addListOfRowsWithStyle(coord_start, list_rows, colors, styles, cellbycell)
-            
-    ## Making prints in each statement we can see that most of the time is interactuating with LibreOffice server (Times in a very fast machine)    ##A4999 Time after assert 0:00:00.000002
-    ## Thats why we create adding all celss with range.setDataArray in addListOfRowsWithStyle
-    ##A4999 Time after guessing style 0:00:00.000001
-    ##A4999 Time after cellbyposition 0:00:00.000284
-    ##A4999 Time after object to cell 0:00:00.000099
-    ##A4999 Time after properties 0:00:00.000247
-    ##A4999 Time after statistics 0:00:00.000002
-    ##A4999 Total cell 0:00:00.000688
+        range_=self.addListOfColumns(coord_start, list_columns, formulas)
+        if range_ is None:
+            return
+        
+        columns=range_.numColumns()
+        rows=range_.numRows()
 
+        # Parse colors.
+        if colors.__class__.__name__=="list":
+            colors=colors
+        elif colors is None:
+            colors=[ColorsNamed.White]*rows
+        else: #one ColorsNamed
+            colors=[colors]*rows
+        
+        # Parse styles
+        if styles is None and rows>0:
+            styles=[]
+            for o in list_columns[0]:
+                styles.append(guess_object_style(o))
+        elif styles.__class__.__name__=="list":
+            styles=styles
+        else:
+            styles=[styles]*rows
+                
+                
+        if len(colors)!=rows:
+            raise exceptions.UnogeneratorException(_("Colors must have the same number of items as data columns"))
+        if len(styles)!=rows:
+            raise exceptions.UnogeneratorException(_("Styles must have the same number of items as data columns"))
+            
+        #Create styles by columns cellranges
+        if rows>0:
+            for c, o in enumerate(list_columns[0]):
+                columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex()+c, coord_start.letterIndex()+columns-1, coord_start.numberIndex()+c)
+                columnrange.setPropertyValue("CellStyle", styles[c])
+                columnrange.setPropertyValue("CellBackColor", colors[c])                    
+        return range_
+            
     ## @param style If None tries to guess it
     ## @param rewritewrite If color is ColorsNamed.White, rewrites the color to White instead of ignoring it. Ignore it gains 0.200 ms
+    ## THIS IS THE WAY TO CREATE FORMULAS
     def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
-        start=datetime.now()
-        coord=C.assertCoord(coord)
+        coord=Coord.assertCoord(coord)
         
         if style is None:
             style=guess_object_style(o)
@@ -729,13 +1042,15 @@ class ODS(ODF):
         self.__object_to_cell(cell, o)
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
-        self.statistics.appendCellCreationStartMoment(start)
         
-    ## All of this names are document names
-    def setCellName(self, coord, name):
-        coord=C.assertCoord(coord)
-        cell=self.sheet.getCellRangeByName(coord.string()).getCellAddress()
-        self.document.NamedRanges.addNewByName(name, coord.string(), cell, 0)
+    def setCellName(self, reference, name):
+        """
+            All of this names are document names
+            Parameters:
+                - reference -> str: Examples:   $Sheet2.$A$1 
+        """
+        cell=self.sheet.getCellRangeByName(reference).getCellAddress()
+        self.document.NamedRanges.addNewByName(name, reference, cell, 0)
         
     def __object_to_cell(self, cell, o):
         if o.__class__.__name__ in ("int", ):
@@ -763,17 +1078,19 @@ class ODS(ODF):
         elif o.__class__.__name__ in ("bool", ):
             cell.setValue(int(o))
         elif o.__class__.__name__ in ("timedelta", ):
-            cell.setString(str(o))
+            cell.setValue(o.total_seconds())
         elif o is None:
             cell.setString("")
         else:
-            cell.setString(str(o))
-            print("MISSING", o.__class__.__name__)
+            cell.setString(str(o)) # Fallback to string representation
+            logger.debug(f"Unhandled object type in __object_to_cell: {o.__class__.__name__}. Storing as string.")
             
     ## Function used to massive data_array creation
     def __object_to_dataarray_element(self, o):
         if o.__class__.__name__ in ("int", "float"):
             return o
+        elif o.__class__.__name__ in ("timedelta", ):
+            return o.total_seconds()
         elif o.__class__.__name__ in ("str", ):
             if is_formula(o):
                 return o
@@ -796,13 +1113,11 @@ class ODS(ODF):
             return float(o)
         elif o.__class__.__name__ in ("bool", ):
             return int(o)
-        elif o.__class__.__name__ in ("timedelta", ):
-            return str(o)
         elif o is None:
             return ""
         else:
-            return str(o)
-            print("MISSING", o.__class__.__name__)
+            logger.debug(f"Unhandled object type in __object_to_dataarray_element: {o.__class__.__name__}. Storing as string.")
+            return str(o) # Fallback to string representation
 
             
     def sortRange(self, range,  sortindex, ascending=True, casesensitive=True):
@@ -821,30 +1136,31 @@ class ODS(ODF):
         # sort ...
         unorange.sort(sortDescr)
 
-    def addCellMergedWithStyle(self, range, o, color=ColorsNamed.White, style=None):
-        start=datetime.now()
+    def addCellMerged(self, range, o):
         range=R.assertRange(range)
         cell=self.sheet.getCellByPosition(range.c_start.letterIndex(), range.c_start.numberIndex())
         cellrange=self.sheet.getCellRangeByName(range.string())
         cellrange.merge(True)
         self.__object_to_cell(cell, o)
+        return cell
+
+    def addCellMergedWithStyle(self, range, o, color=ColorsNamed.White, style=None):
+        cell=self.addCellMerged(range, o)
         if style is None:
             style=guess_object_style(o)
         cell.setPropertyValue("CellStyle", style)
         cell.setPropertyValue("CellBackColor", color)
-        self.statistics.appendCellMergedCreationStartMoment(start)
 
     def freezeAndSelect(self, freeze, selected=None, topleft=None):
-        start=datetime.now()
-        freeze=C.assertCoord(freeze) 
+        freeze=Coord.assertCoord(freeze) 
         num_columns, num_rows=self.getSheetSize()
         self.document.getCurrentController().setActiveSheet(self.sheet)
         self.document.getCurrentController().freezeAtPosition(freeze.letterIndex(), freeze.numberIndex())
 
         if selected is None:
-            selected=C.from_index(num_columns-1, num_rows-1)
+            selected=Coord.from_index(num_columns-1, num_rows-1)
         else:
-            selected=C.assertCoord(selected)
+            selected=Coord.assertCoord(selected)
         selectedcell=self.sheet.getCellByPosition(selected.letterIndex(), selected.numberIndex())
         self.document.getCurrentController().select(selectedcell)
         
@@ -859,99 +1175,129 @@ class ODS(ODF):
                 number=freeze.number
             else:
                 number=minus_coord.number
-            topleft=C.from_letters(letter, number)
+            topleft=Coord.from_letters(letter, number)
         else:
-            topleft=C.assertCoord(topleft)
+            topleft=Coord.assertCoord(topleft)
         self.document.getCurrentController().setFirstVisibleColumn(topleft.letterIndex())
         self.document.getCurrentController().setFirstVisibleRow(topleft.numberIndex())
-        self.statistics.appendSheetFreezesCreationStartMoment(start)
+        
         
     def getValue(self, coord,  detailed=False):
-        coord=C.assertCoord(coord)
+        """
+            Gets the value from a coord
+            If detailed is True returns a dict with detailed information
+        """
+        coord=Coord.assertCoord(coord)
         return self.getValueByPosition(coord.letterIndex(), coord.numberIndex(), detailed)
         
     def getValueByPosition(self, letter_index, number_index,  detailed=False):
-        start=datetime.now()
+        """
+            Gets the value from a position A1= (0,0)
+            If detailed is True returns a dict with detailed information
+        """
         r=self.__cell_to_object(self.sheet.getCellByPosition(letter_index, number_index), detailed)
-        self.statistics.appendCellGetValuesStartMoment(start)
         return r
 
     ## Returns a list of rows with the values of the sheet
     ## @param sheet_index Integer index of the sheet
     ## @param skip_up int. Number of rows to skip at the begining of the list of rows (lor)
     ## @param skip_down int. Number of rows to skip at the end of the list of rows (lor)
-    ## @return Returns a list of rows of object values
-    def getValues(self, skip_up=0, skip_down=0,  detailed=False):
-        range=self.getSheetRange()
-        if skip_up>0:
-           range=range.addRowBefore(-skip_up)
-        if skip_down>0:
-           range=range.addRowAfter(-skip_down)
-        return self.getValuesByRange(range, detailed)
-
-
-    ## @param sheet_index Integer index of the sheet
-    ## @param range_ Range object to get values. If None returns all values from sheet
-    ## @return Returns a list of rows of object values
-    def getValuesByRange(self, range_,  detailed=False):
-        range_=R.assertRange(range_)
-        r=[]
-        for row_indexes in range_.indexes_list():
-            rrow=[]
-            for column_index,  row_index in row_indexes:
-                rrow.append(self.getValueByPosition(column_index, row_index, detailed))
-            r.append(rrow)
-        return r
-
-
-    ## Gets values by block, returns strings and floats only
-    ## @param range_ Range object to get values.
-    ## @return Returns a tuple of tuples of object values
-    def getBlockValuesByRange(self, range_):
-        range_=R.assertRange(range_)
-        range_uno=self.sheet.getCellRangeByPosition(range_.c_start.letterIndex(), range_.c_start.numberIndex(), range_.c_end.letterIndex(), range_.c_end.numberIndex())
-        return range_uno.getDataArray()
-    
-
-    ## Gets values by block, returns strings and floats only
-    ## @param range_ Range object to get values. If None returns all values from sheet
-    ## @param styles List of strings with style names, to cast string and float to objects. Allowed values
+    ## @param detailed Returns a dict {'value': 'A1', 'string': 'A1', 'style': 'Normal', 'class': 'str', 'is_formula': False, 'formula': None}
+    ## @param casts List of strings with style names, to cast string and float to objects. Allowed values
     ##      "int", "str", "Decimal", "float", "Percentage", "USD", "EUR",
     ##      The cast columns, so you need to have the same cast items as columns in range
-    ## @return Returns a tuple of tuples of object values
-    def getBlockValuesByRangeWithCast(self, range_,  cast):
-        tupleoftuples=self.getBlockValuesByRange(range_)
-        #Reads data fast
-        lor=[]
-        for tuple_ in tupleoftuples:
-            lor_row=[]
-            for i, tuple_value in enumerate(tuple_):
-                lor_row.append(string_float2object(tuple_value, cast[i]))
-            lor.append(lor_row)
-        return lor
+    ## If detailed is True cast is ignored
+    ## @return Returns a list of rows of object values
+    def getValues(self, skip_up=0, skip_down=0, skip_left=0, skip_right=0, cast=None, detailed=False):
+        range_=self.getSheetRange()
+        if skip_up>0:
+           range_=range_.addRowBefore(-skip_up)
+        if skip_down>0:
+           range_=range_.addRowAfter(-skip_down)
+        if skip_left>0:
+           range_=range_.addColumnBefore(-skip_left)
+        if skip_right>0:
+           range_=range_.addColumnAfter(-skip_right)
+        return self.getValuesByRange(range_, cast,  detailed)
+
+    ## Get values by range. If detailed is False, it uses getDataArray method: Dates and datetimes are float. You can convert them using commons.localc1989 methods
+    ## @param sheet_index Integer index of the sheet
+    ## @param range_ Range object to get values. If None returns all values from sheet
+    ## @param detailed Returns a dict {'value': 'A1', 'string': 'A1', 'style': 'Normal', 'class': 'str', 'is_formula': False, 'formula': None}
+    ## @param casts List of strings with style names, to cast string and float to objects. Allowed values
+    ##      "int", "str", "Decimal", "float", "Percentage", "USD", "EUR",
+    ##      The cast columns, so you need to have the same cast items as columns in range
+    ## If detailed is True cast is ignored
+    ## @return Returns a list of rows of object values
+    def getValuesByRange(self, range_,  cast=None, detailed=False):
+        range_=R.assertRange(range_)
         
-    
+        if detailed is True:#position by position
+            r=[]
+            for row_indexes in range_.indexes_list():
+                rrow=[]
+                for column_index,  row_index in row_indexes:
+                    rrow.append(self.getValueByPosition(column_index, row_index, detailed))
+                r.append(rrow)
+            return r
+        else:
+            range_=R.assertRange(range_)
+            range_uno=self.sheet.getCellRangeByPosition(range_.c_start.letterIndex(), range_.c_start.numberIndex(), range_.c_end.letterIndex(), range_.c_end.numberIndex())
+            tupleoftuples=range_uno.getDataArray()
+            if cast is not None:
+                #Reads data fast
+                lor=[]
+                for tuple_ in tupleoftuples:
+                    lor_row=[]
+                    for i, tuple_value in enumerate(tuple_):
+                        lor_row.append(string_float2object(tuple_value, cast[i]))
+                    lor.append(lor_row)
+                return lor
+            else: #cast false
+                return tupleoftuples
+       
     ## @param sheet_index Integer index of the sheet
     ## @param column_letter Letter of the column to get values
     ## @param skip Integer Number of top rows to skip in the result
+    ## @param detailed Returns a dict {'value': 'A1', 'string': 'A1', 'style': 'Normal', 'class': 'str', 'is_formula': False, 'formula': None}
+    ## @param casts List of strings with style names, to cast string and float to objects. Allowed values
+    ##      "int", "str", "Decimal", "float", "Percentage", "USD", "EUR",
+    ##      The cast columns, so you need to have the same cast items as columns in range
+    ## If detailed is True cast is ignored
     ## @return List of values
-    def getValuesByColumn(self, column_letter, skip_up=0, skip_down=0,  detailed=False):
-        columns,  rows=self.getSheetSize()
+    def getValuesByColumn(self, column_letter, skip_up=0, skip_down=0,  cast=None, detailed=False):
+        range_=self.getSheetRange()
+        range_.c_start.letter=column_letter
+        range_.c_end.letter=column_letter
+        if skip_up>0:
+           range_=range_.addRowBefore(-skip_up)
+        if skip_down>0:
+           range_=range_.addRowAfter(-skip_down)
+        lor=self.getValuesByRange(range_, cast, detailed)
+        #Transform to list
         r=[]
-        for row in range(skip_up, rows-skip_down+1):
-            r.append(self.getValueByPosition(column2index(column_letter), row, detailed))
-        return r    
+        for o in lor:
+            r.append(o[0])
+        return r
 
     ## @param sheet_index Integer index of the sheet
     ## @param row_number String Number of the row to get values
     ## @param skip Integer Number of top rows to skip in the result
+    ## @param detailed Returns a dict {'value': 'A1', 'string': 'A1', 'style': 'Normal', 'class': 'str', 'is_formula': False, 'formula': None}
+    ## @param casts List of strings with style names, to cast string and float to objects. Allowed values
+    ##      "int", "str", "Decimal", "float", "Percentage", "USD", "EUR",
+    ##      The cast columns, so you need to have the same cast items as columns in range
+    ## If detailed is True cast is ignored
     ## @return List of values
-    def getValuesByRow(self, row_number, skip_left=0, skip_right=0,  detailed=False):
-        columns,  rows=self.getSheetSize()
-        r=[]
-        for column in range(skip_left, columns-skip_right+1):
-            r.append(self.getValueByPosition(column, row2index(row_number), detailed))
-        return r    
+    def getValuesByRow(self, row_number, skip_left=0, skip_right=0,  cast=None,  detailed=False):
+        range_=self.getSheetRange()
+        if skip_left>0:
+           range_=range_.addColumnBefore(-skip_left)
+        if skip_right>0:
+           range_=range_.addColumnAfter(-skip_right)
+        lor=self.getValuesByRange(range_, cast, detailed)
+        return lor[0]
+
 
 
     ## If formula  or without known style returns a tuple (value, formula)
@@ -963,11 +1309,11 @@ class ODS(ODF):
         if cell.CellStyle=="Bool":
             value=bool(cell.getValue())
         elif cell.CellStyle in ["Datetime"]:
-            value=string2dtnaive(cell.getString(),"%Y-%m-%d %H:%M:%S.")
+            value=casts.str2dtnaive(cell.getString(),"%Y-%m-%d %H:%M:%S.")
         elif cell.CellStyle in ["Date"]:
-            value=string2date(cell.getString())
+            value=casts.str2date(cell.getString())
         elif cell.CellStyle in ["Time"]:
-            value=string2time(cell.getString(), "HH:MM:SS")
+            value=casts.str2time(cell.getString(), "HH:MM:SS")
         elif cell.CellStyle in ["Float2", "Float6"]:
             value=cell.getValue()
         elif cell.CellStyle in ["Integer"]:
@@ -988,17 +1334,16 @@ class ODS(ODF):
     ## Return a Range object with the limits of the index sheet
     def getSheetRange(self):
         columns,  rows=self.getSheetSize()
-        endcoord=C("A1").addRow(rows-1).addColumn(columns-1)
+        endcoord=Coord("A1").addRow(rows-1).addColumn(columns-1)
         return R("A1:" + endcoord.string())
         
 
     ## Returns (columnsNumber, rowsNumber
     def getSheetSize(self):
-        data=self.sheet.getData()
-        if len(data)==0:
-            return 0, 0
-        else:
-            return len(data[0]), len(data)
+        cursor = self.sheet.createCursor()
+        cursor.gotoEndOfUsedArea(False)
+        address = cursor.RangeAddress
+        return address.EndColumn + 1, address.EndRow + 1
             
     ## Method to remove default sheet if empty
     def removeDefaultSheet(self):
@@ -1107,13 +1452,43 @@ class ODS(ODF):
 #                                                )
 #                                            )
 
+    def toDictionaryOfDetailedValues(self):
+        """
+            Converts document to a dictionary with detailed values of every sheets
+            Has two keys:
+                - sheets. A list of dictionaries
+                - dictionary. A dictionary with keys (sheet_name, coord_string)
+            
+            For example: {
+                'dictionary': {
+                    ('One', 'A1'): {'value': 2, 'string': '2', 'style': 'Integer', 'class': 'int', 'is_formula': False, 'formula': None}, 
+                    ('One', 'A2'): {'value': '', 'string': '', 'style': 'Default', 'class': 'str', 'is_formula': False, 'formula': None}, 
+                    ('One', 'A3'): {'value': 4, 'string': '4', 'style': 'Integer', 'class': 'int', 'is_formula': True, 'formula': '=2*hola'}, 
+                    ('Two', 'A1'): {'value': 5, 'string': '5', 'style': 'Integer', 'class': 'int', 'is_formula': False, 'formula': None}
+                }, 
+                'sheets': [
+                    {'name': 'One', 'columns': 1, 'rows': 3}, 
+                    {'name': 'Two', 'columns': 1, 'rows': 1}
+                ]
+            }
+
+            This method retains more exact values (types) with ODS_Standard although woks fine with ODS
+        """
+        r={"dictionary":{}, "sheets":[]}
+        for i, sheet_name in enumerate(self.getSheetNames()):
+            self.setActiveSheet(i)
+            sheet_values=self.getValues(detailed=True)
+            for number_index, row in enumerate(sheet_values):
+                for letter_index, cell in enumerate(row):
+                    r["dictionary"][(sheet_name, Coord.from_index(letter_index, number_index).string())]=cell
+            r["sheets"].append({"name":sheet_name, "columns": letter_index+1,  "rows": number_index+1})
+        return r
+
 class ODS_Standard(ODS):
-    def __init__(self, loserver_port=2002):
-        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', loserver_port)
+    def __init__(self, server=None):
+        ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', server)
 
 class ODT_Standard(ODT):
-    def __init__(self, loserver_port=2002):
-        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', loserver_port)
+    def __init__(self, server=None):
+        ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', server)
         self.deleteAll()
-
-

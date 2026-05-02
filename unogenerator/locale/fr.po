@@ -1,0 +1,551 @@
+# French translations for PACKAGE package.
+# Copyright (C) 2024 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#  <turulomio@yahoo.es>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Unogenerator\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-10-11 19:27+0200\n"
+"PO-Revision-Date: 2024-10-11 19:29+0200\n"
+"Last-Translator: <turulomio@yahoo.es>\n"
+"Language-Team: French <traduc@traduc.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Language: fr\n"
+"X-Source-Language: en\n"
+
+msgid "There was a problem converting com.sun.star.util.DateTime to datetime."
+msgstr ""
+
+msgid "Developed by Mariano Muñoz 2020-{}"
+msgstr ""
+
+#, python-brace-format
+msgid "Coord constructor must have a str or a Coord parameter and is a {0}"
+msgstr ""
+
+msgid "I can't convert {} (class: {}) to a Coord"
+msgstr ""
+
+#, python-brace-format
+msgid "Coord can have this character: {0}"
+msgstr ""
+
+msgid "Coord letter can't be empty"
+msgstr ""
+
+#, python-brace-format
+msgid "Coord couldn't be created with '{0}'"
+msgstr ""
+
+#, python-brace-format
+msgid "Range constructor must receive a string but got: {0} ({1})"
+msgstr ""
+
+#, python-brace-format
+msgid "This is not a range: {0}"
+msgstr ""
+
+#, python-brace-format
+msgid "Range start coord is wrong: {0}"
+msgstr ""
+
+#, python-brace-format
+msgid "Range end coord is wrong: {0}"
+msgstr ""
+
+msgid "I can't convert {} (class: {}) to a Range"
+msgstr ""
+
+msgid ""
+"There was an error triming image. Is convert command (from Imagemagick) "
+"installed?"
+msgstr ""
+
+#, python-brace-format
+msgid "Error deleting: {0} -> {1}"
+msgstr ""
+
+msgid "Create example files using unogenerator module"
+msgstr ""
+
+msgid "Debug program information"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Launching demo with {0} workers without common server using concurrent "
+"processes"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Launching demo with {0} workers with common server using concurrent processes"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Launching demo with {0} workers without common server using concurrent "
+"threads"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Launching demo with {0} workers with common server using concurrent threads"
+msgstr ""
+
+msgid "Launching demo with one common server sequentially"
+msgstr ""
+
+msgid "Launching demo without one common server sequentially"
+msgstr ""
+
+msgid "All process took {}"
+msgstr ""
+
+msgid "UnoGenerator ODS example"
+msgstr ""
+
+msgid "Demo with ODS class"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"This file have been generated with UnoGenerator-{0}. You can see "
+"UnoGenerator main page in https://github.com/turulomio/unogenerator"
+msgstr ""
+
+msgid "Style name"
+msgstr ""
+
+msgid "Date and time"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Integer"
+msgstr ""
+
+msgid "Euros"
+msgstr ""
+
+msgid "Dollars"
+msgstr ""
+
+msgid "Percentage"
+msgstr ""
+
+msgid "Number with 2 decimals"
+msgstr ""
+
+msgid "Number with 6 decimals"
+msgstr ""
+
+msgid "Time"
+msgstr ""
+
+msgid "Boolean"
+msgstr ""
+
+msgid "String"
+msgstr ""
+
+#, python-brace-format
+msgid "unogenerator_example_{0}.ods took {1} in {2}"
+msgstr ""
+
+msgid "UnoGenerator documentation"
+msgstr ""
+
+msgid "UnoGenerator python module documentation"
+msgstr ""
+
+#, python-brace-format
+msgid "Version: {0}"
+msgstr ""
+
+msgid "Introduction"
+msgstr ""
+
+msgid ""
+"UnoGenerator uses Libreoffice UNO API python bindings to generate documents."
+msgstr ""
+
+msgid ""
+"So in order to use, you need to launch a --headless LibreOffice instance."
+msgstr ""
+
+msgid "We recomend to launch then easily with 'unogenerator_start' script."
+msgstr ""
+
+msgid ""
+"UnoGenerator has standard templates to help you with edition, although you "
+"can use your own templates."
+msgstr ""
+
+msgid "You can edit this one or create your own."
+msgstr ""
+
+msgid ""
+"This document has been created with 'standard.odt' files that you can find "
+"inside this python module."
+msgstr ""
+
+msgid "Installation"
+msgstr ""
+
+msgid "You can use pip to install this python package:"
+msgstr ""
+
+msgid "ODT 'Hello World' example"
+msgstr ""
+
+msgid ""
+"This is a Hello World example. You get the example in odt, docx and pdf "
+"formats:"
+msgstr ""
+
+msgid "ODT"
+msgstr ""
+
+msgid "ODT files can be quickly generated with UnoGenerator."
+msgstr ""
+
+msgid ""
+"There is a predefined template in code called 'standard.odt' to help you "
+"with edition."
+msgstr ""
+
+msgid "Calling the ODT constructor"
+msgstr ""
+
+msgid "You can call ODT constructor in this ways:"
+msgstr ""
+
+msgid "ODT with standard template (Recomended)."
+msgstr ""
+
+msgid ""
+"There is a predefined template in code called 'standard.odt', inside this "
+"python module, to help you with edition, although you can use your own ones."
+msgstr ""
+
+msgid "With this mode you can create new documents"
+msgstr ""
+
+msgid "ODT with template or file (Recomended)."
+msgstr ""
+
+msgid ""
+"With this mode you can read your files to overwrite them or use your file as "
+"a new template to create new documents"
+msgstr ""
+
+msgid "ODT without template."
+msgstr ""
+
+msgid ""
+"With this mode you can write your files with Libreoffice default styles."
+msgstr ""
+
+msgid ""
+"If you want to create new ones, you should write them using Libreoffice API "
+"code"
+msgstr ""
+
+msgid "Styles"
+msgstr ""
+
+msgid ""
+"To call default Libreoffice paragraph styles you must use their english name."
+msgstr ""
+
+msgid "You can see their names with this method:"
+msgstr ""
+
+msgid "Tables"
+msgstr ""
+
+msgid "Concept"
+msgstr ""
+
+msgid "Value"
+msgstr ""
+
+msgid "Comment"
+msgstr ""
+
+msgid "Text"
+msgstr ""
+
+msgid "This is a text"
+msgstr ""
+
+msgid "Good"
+msgstr ""
+
+msgid "Datetime"
+msgstr ""
+
+msgid "Float"
+msgstr ""
+
+msgid "Currency"
+msgstr ""
+
+msgid "We can create tables with diferent font sizes and formats:"
+msgstr ""
+
+msgid "Lists and numbered lists"
+msgstr ""
+
+msgid "Simple list"
+msgstr ""
+
+msgid "Hyperlinks"
+msgstr ""
+
+msgid "If you want to go to Google, click on this "
+msgstr ""
+
+msgid "That's all folks!"
+msgstr ""
+
+msgid "HTML code"
+msgstr ""
+
+msgid "Images"
+msgstr ""
+
+msgid "This is an 'image as char' example: "
+msgstr ""
+
+msgid "Now I keep writing without problems."
+msgstr ""
+
+msgid "This is an image loaded from bytes: "
+msgstr ""
+
+msgid ""
+"As you can see, I can reuse it one hundred times. File size will not be "
+"increased because I used reference names."
+msgstr ""
+
+msgid "The next paragraph is generated with the illustration method"
+msgstr ""
+
+msgid "You can play with image width and height:"
+msgstr ""
+
+msgid "You can trim image border white space when needed:"
+msgstr ""
+
+msgid ""
+"You can trim that gray space when needed with 'bytes_after_trim_image' "
+"method. To use this method you need Imagemagick installed to use 'convert' "
+"command. This is the result: "
+msgstr ""
+
+msgid "Search and Replace"
+msgstr ""
+
+msgid ""
+"Below this paragraph is a paragraph with a % REPLACEME % (Without white "
+"spaces) text and it's going to be replaced after all document is been "
+"generated"
+msgstr ""
+
+msgid "ODS"
+msgstr ""
+
+msgid "ODS 'Hello World' example"
+msgstr ""
+
+msgid ""
+"This is a Hello World example. You'll get the example in ods, xlsx and pdf "
+"formats:"
+msgstr ""
+
+msgid ""
+"This paragraph was set at the end of the code after a find and replace "
+"command."
+msgstr ""
+
+msgid "This paragraph was set after replacement."
+msgstr ""
+
+msgid "This paragraph was set after a page break."
+msgstr ""
+
+msgid "This paragraph was set after a page break with Landscape style."
+msgstr ""
+
+msgid "This is a pair of brackets ()."
+msgstr ""
+
+msgid "NOW)("
+msgstr ""
+
+msgid "This is a set of symbols: .,:;?ºª-/()."
+msgstr ""
+
+#, python-brace-format
+msgid "unogenerator_documentation_{0}.ods took {1} in {2}"
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Sum of totals"
+msgstr ""
+
+msgid "No data to show"
+msgstr ""
+
+#, python-brace-format
+msgid "{0} ({1} of {2})"
+msgstr ""
+
+#, python-brace-format
+msgid "More than {0} rows. Spliting {1} of {2} sheets"
+msgstr ""
+
+msgid "UnoGenerator monitor"
+msgstr ""
+
+msgid "Seconds until next refresh"
+msgstr ""
+
+msgid "Seconds to color Last CPU variation"
+msgstr ""
+
+#, python-brace-format
+msgid "Unogenerator version: {0}. Hora actual: {1}. Refresh time: {2} seconds"
+msgstr ""
+
+msgid "Active soffice.bin processes number:"
+msgstr ""
+
+msgid "Temporal directories with asociated soffice.bin process: "
+msgstr ""
+
+msgid "UnoGenerator cleaner"
+msgstr ""
+
+msgid "Generate a po and pot file from ODF"
+msgstr ""
+
+msgid "Language to translate from. Example codes: es, fr, en, md"
+msgstr ""
+
+msgid "Language to translate to. Example codes: es, fr, en, md"
+msgstr ""
+
+msgid "Files to translate. You can set several files."
+msgstr ""
+
+msgid ""
+"Output directory with results and catalogues. Default: "
+"./unogenerator_translation/"
+msgstr ""
+
+msgid "Undetected strings to append to translation. Default: []"
+msgstr ""
+
+msgid "Sets a fake translation to all strings. Default: False"
+msgstr ""
+
+msgid "Creates translated file in pdf. Default: False"
+msgstr ""
+
+msgid "Perhaps a merged string"
+msgstr ""
+
+msgid "Extracting strings from:"
+msgstr ""
+
+msgid "Only ODT files are supported"
+msgstr ""
+
+#, python-brace-format
+msgid "Generating {0}"
+msgstr ""
+
+#, python-brace-format
+msgid "   - {0} different strings detected"
+msgstr ""
+
+msgid "Translating files to:"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"This process died after trying to connect to port {0} during {1} seconds. "
+"Error: {2}"
+msgstr ""
+
+msgid "Error closing ODF instance"
+msgstr ""
+
+msgid ""
+"You can't use the same filename as your template or you will overwrite it."
+msgstr ""
+
+msgid "You can force it, setting overwrite_template paramter to True"
+msgstr ""
+
+msgid "Document hasn't been saved."
+msgstr ""
+
+msgid "Filename extension must be 'odt'."
+msgstr ""
+
+msgid "Filename extension must be 'pdf'."
+msgstr ""
+
+msgid "Filename extension must be 'docx'."
+msgstr ""
+
+msgid "Problems to detect size in 100thmm, I'm trying to calculate it"
+msgstr ""
+
+#, python-brace-format
+msgid "ERROR: You can't create '{0}' sheet, because it already exists."
+msgstr ""
+
+msgid "addRow is empty. Nothing to write. Ignoring..."
+msgstr ""
+
+msgid ""
+"You're trying to add formulas to cells using setDataArray and they will be "
+"treated as strings. If you want formula's value use formulas=True in ODS "
+"methods"
+msgstr ""
+
+#, python-brace-format
+msgid "  + Range: {0}"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. "
+"Ignoring..."
+msgstr ""
+
+msgid "Colors must have the same number of items as data columns"
+msgstr ""
+
+msgid "Styles must have the same number of items as data columns"
+msgstr ""
+
+msgid "Filename extension must be 'ods'."
+msgstr ""
+
+msgid "Filename extension must be 'xlsx'."
+msgstr ""

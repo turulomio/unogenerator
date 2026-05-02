@@ -28,8 +28,6 @@ I've downloaded debian-live-11.2.0-amd64-kde.iso. Run from a usb pendrive and op
 
 `pip install unogenerator`
 
-`unogenerator_start` (It throws me some errors that java-vm is missing, but java-vm is not needed for UnoGenerator so I ignore them)
-
 `unogenerator_demo --create`
 
 If everything goes fine, you'll find demo files created in your current directory
@@ -43,10 +41,6 @@ To instal python3 pip system:
 To install unogenerator:
 
 `pip install unogenerator`
-
-To launch Libreoffice server instances:
-
-`unogenerator_start`
 
 To generate unogenerator demo files:
 
