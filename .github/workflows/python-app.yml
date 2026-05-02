@@ -1,0 +1,35 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python application
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+    - name: Install LibreOffice and uno dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libreoffice python3-uno imagemagick # Removed explicit python3.10 and python3.10-venv
+    - name: Install python environment
+      run: |
+        python -m venv .venv --system-site-packages # Use 'python' and remove 'sudo'
+        .venv/bin/pip install . # Remove 'sudo'
+        .venv/bin/pip install pytest # Remove 'sudo'
+    - name: Run Tests
+      run: |
+        .venv/bin/pytest -v # Correct venv path and remove 'sudo'

@@ -8,4 +8,5 @@ dist/
 *.po~
 doc/html/
 doc/unogenerator.tag
+.coverage
 .jedi/

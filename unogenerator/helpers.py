@@ -4,12 +4,14 @@
 ## @param string with the row where th3e total begins
 ## @param string with the rew where the formula ends. If None it's a coord.row -1
 from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string
-from unogenerator.reusing.listdict_functions import listdict2listofrows
+from pydicts import lod
 from gettext import translation
 from logging import debug
+import logging
 from math import ceil
 from importlib.resources import files
 
+logger = logging.getLogger(__name__) # Get logger for this module
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
@@ -37,6 +39,21 @@ def helper_totals_row(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, s
 
 
 def helper_totals_column(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, column_from="B", column_to=None):
+    """
+        Genera una columna de totales desde la coordenada pasado como parámetro
+        @param doc Documento ODS
+        @param coord Coordenada de inicio
+        @param list_of_totals List of values #SUM #AVG #MEDIAN
+        @type list
+        @param color DESCRIPTION (defaults to ColorsNamed.GrayLight)
+        @type TYPE (optional)
+        @param styles DESCRIPTION (defaults to None)
+        @type TYPE (optional)
+        @param column_from DESCRIPTION (defaults to "B")
+        @type TYPE (optional)
+        @param column_to DESCRIPTION (defaults to None)
+        @type TYPE (optional)
+    """
     coord=C.assertCoord(coord)
     for number, total in enumerate(list_of_totals):
         coord_total=coord.addRowCopy(number)
@@ -152,24 +169,24 @@ def helper_totals_from_range (
 ## @param keys. If None write all keys, Else must be a list of keys
 ## @param columns_header. Integer with the number of columns to apply color_header
 ## @return Range. Returns the range of the data without headers. Useful to set totals.
-def helper_list_of_ordereddicts(doc, coord_start,  lod, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
+def helper_list_of_ordereddicts(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
     coord_start=C.assertCoord(coord_start)
     
-    if len(lod)==0 and keys is None:
+    if len(lod_)==0 and keys is None:
         doc.addCellWithStyle(coord_start, _("No data to show"), ColorsNamed.Red, "BoldCenter")
         return None
 
         
     #Header
     if keys is None:
-        keys=lod[0].keys()
+        keys=lod.lod_keys(lod_)
     
     for column,  key in enumerate(keys):       
         doc.addCellWithStyle(coord_start.addColumnCopy(column), key, color_row_header, "BoldCenter")
     coord_data=coord_start.addRowCopy(1)
     
     
-    lor=listdict2listofrows(lod, keys)
+    lor=lod.lod2lol(lod_, keys)
     
     #Generate list of colors
     colors=[]
@@ -202,10 +219,10 @@ def helper_list_of_dicts(doc, coord_start,  lod, keys, columns_header=0,  color_
 ## Creates a new sheet called "Style names" with alll ods styles grouped by families
 def helper_ods_sheet_stylenames(doc):
     doc.createSheet("Internal style names")
-    doc.setColumnsWidth([5, 5])
     for column, (family,  style_names) in enumerate(doc.dict_stylenames.items()):
         doc.addCellWithStyle(C("A1").addColumn(column), family, ColorsNamed.Orange, "BoldCenter")
         doc.addColumnWithStyle(C("A2").addColumn(column), style_names)
+    doc.setColumnsWidth()
     doc.freezeAndSelect("A2")
 
 ## This helper is used when lor length is bigger than localc limits (1048576)
@@ -225,24 +242,25 @@ def helper_split_big_listofrows(doc, sheet_name, lor, headers, headers_colors=Co
         #Sets name and headers
         if ceil_>1:
             name=_("{0} ({1} of {2})").format(sheet_name, num_sheet+1,  ceil_)
-            debug(_("More than {0} rows. Spliting {1} of {2} sheets").format(max_rows, num_sheet+1,  ceil_))
+            logger.debug(_("More than {0} rows. Spliting {1} of {2} sheets").format(max_rows, num_sheet+1,  ceil_))
         else:
             name=sheet_name
         doc.createSheet(name)
         doc.addRowWithStyle("A1", headers, headers_colors, "BoldCenter")
         
-        #Sets width of columns
-        if len(lor)>0:
-            if columns_width is None:
-                columns_width=[3]*len(lor)
-            elif columns_width.__class__.__name__=="int":
-                columns_width=[columns_width]*len(lor)
-            doc.setColumnsWidth(columns_width)
-        
         #Splits data
         from_=max_rows*num_sheet
         to_=max_rows*(num_sheet+1) if len(lor)>=max_rows*(num_sheet+1) else len(lor)
         doc.addListOfRowsWithStyle("A2", lor[from_:to_])
+
+        #Sets width of columns
+        if columns_width is None:
+            doc.setColumnsWidth(automatic=True)
+        else:
+            if isinstance(columns_width, int):
+                columns_width = [columns_width] * len(headers)
+            doc.setColumnsWidth(columns_width, automatic=False)
+
         doc.freezeAndSelect(C.assertCoord(coord_to_freeze))
     
     

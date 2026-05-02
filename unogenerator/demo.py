@@ -4,19 +4,17 @@ from uno import getComponentContext
 getComponentContext()
 import argparse
 from collections import OrderedDict
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, as_completed,  ThreadPoolExecutor
 from datetime import datetime, date, timedelta
-from gettext import translation
-from logging import info
-from multiprocessing import cpu_count
+from gettext import translation # Removed 'info'
+import logging # Import logging module
 from importlib.resources import files
-
-from unogenerator.commons import __version__, addDebugSystem, argparse_epilog, ColorsNamed, Coord as C, next_port, get_from_process_numinstances_and_firstport, bytes_after_trim_image
-from unogenerator.reusing.currency import Currency
-from unogenerator.reusing.percentage import Percentage
-from unogenerator.unogenerator import ODT_Standard, ODS_Standard
+from os import system
+from pydicts.currency import Currency
+from pydicts.percentage import Percentage
+from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer
 from unogenerator.helpers import helper_title_values_total_row,helper_title_values_total_column, helper_totals_row, helper_totals_from_range, helper_list_of_ordereddicts, helper_list_of_dicts, helper_list_of_ordereddicts_with_totals, helper_ods_sheet_stylenames, helper_split_big_listofrows
-from os import remove
+
 from tqdm import tqdm
 
 try:
@@ -25,108 +23,176 @@ try:
 except:
     _=str
 
-def remove_without_errors(filename):
-    try:
-        remove(filename)
-    except OSError as e:
-        print(_("Error deleting: {0} -> {1}").format(filename, e.strerror))
+type_choices=[ "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS", "COMMONSERVER_SEQUENTIAL","COMMONSERVER_CONCURRENT_PROCESS","COMMONSERVER_CONCURRENT_THREADS" ]
 
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
+
+logger = logging.getLogger(__name__) # Get logger for this module
 ## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
-def main(arguments=None):
-    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
+def demo(arguments=None):
+    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
     group= parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
+    group.add_argument('--benchmark', help="Executes all types to compare its benchmark", action="store_true", default=False)
+    parser.add_argument('--type', help="Debug program information", choices=type_choices,  default="COMMONSERVER_CONCURRENT_PROCESS")
     args=parser.parse_args(arguments)
+    commons.addDebugSystem(args.debug)
+    demo_command(args.create, args.remove, args.benchmark, args.type)
 
-    addDebugSystem(args.debug)
+def demo_command(create, remove, benchmark, type):
+    languages=['es', 'en',  'ro',  'fr']
         
-    if args.remove==True:
-            for language in ['es', 'en']:
-                remove_without_errors(f"unogenerator_documentation_{language}.odt")
-                remove_without_errors(f"unogenerator_documentation_{language}.docx")
-                remove_without_errors(f"unogenerator_documentation_{language}.pdf")
-                remove_without_errors(f"unogenerator_example_{language}.ods")
-                remove_without_errors(f"unogenerator_example_{language}.xlsx")
-                remove_without_errors(f"unogenerator_example_{language}.pdf")
+    if benchmark is True:
+        for type in type_choices:
+            #demo_command(True, False,  False,  type)
+            system(f"unogenerator_demo --create --type {type}")
 
-    if args.create==True:
+    if remove==True:
+            for language in languages:
+                commons.remove_without_errors(f"unogenerator_documentation_{language}.odt")
+                commons.remove_without_errors(f"unogenerator_documentation_{language}.docx")
+                commons.remove_without_errors(f"unogenerator_documentation_{language}.pdf")
+                commons.remove_without_errors(f"unogenerator_example_{language}.ods")
+                commons.remove_without_errors(f"unogenerator_example_{language}.xlsx")
+                commons.remove_without_errors(f"unogenerator_example_{language}.pdf")
+
+    if create==True:
         start=datetime.now()
-        futures=[]
-        with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
-            for language in ['es', 'en']:
-                futures.append(executor.submit(demo_ods_standard, language))
-                futures.append(executor.submit(demo_odt_standard, language))
+        instances=3
+        total_documents=len(languages)*2
+        
+        if type=="CONCURRENT_PROCESS":            
+            futures=[]
+            print(_("Launching demo with {0} workers without common server using concurrent processes").format(instances))
 
-        for future in as_completed(futures):
-            future.result()
-        print(_("All process took {}").format(datetime.now()-start))
-
-
-def main_concurrent(arguments=None):
-    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--version', action='version', version=__version__)
-    parser.add_argument('--debug', help="Debug program information", choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
-    group= parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--create', help="Create demo files", action="store_true",default=False)
-    group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
-    parser.add_argument('--loops', help="Loops of documentation jobs", action="store", default=30,  type=int)
-    args=parser.parse_args(arguments)
-
-    num_instances, first_port=get_from_process_numinstances_and_firstport()
-    addDebugSystem(args.debug)
-
-    if args.remove==True:
-            for i in range(args.loops):
-                for language in ['es', 'en']:
-                    remove_without_errors(f"unogenerator_documentation_{language}.{i}.odt")
-                    remove_without_errors(f"unogenerator_documentation_{language}.{i}.docx")
-                    remove_without_errors(f"unogenerator_documentation_{language}.{i}.pdf")
-                    remove_without_errors(f"unogenerator_example_{language}.{i}.ods")
-                    remove_without_errors(f"unogenerator_example_{language}.{i}.xlsx")
-                    remove_without_errors(f"unogenerator_example_{language}.{i}.pdf")
-
-    if args.create==True:
-        print(_("Launching concurrent demo with {0} workers to a daemon with {0} instances from {1} port").format(num_instances, first_port))
-
-        start=datetime.now()
-        futures=[]
-        port=first_port
-        with ProcessPoolExecutor(max_workers=num_instances) as executor:
-            with tqdm(total=args.loops*4) as progress:
-                for i in range(args.loops):
-                    for language in ['es', 'en']:
-                        port=next_port(port, first_port, num_instances)
-                        future=executor.submit(demo_ods_standard, language, port, f".{i}")
+            with ProcessPoolExecutor(max_workers=instances) as executor:
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        future=executor.submit(demo_ods_standard, language, None)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
-                        port=next_port(port, first_port, num_instances)
-                        future=executor.submit(demo_odt_standard, language, port, f".{i}")
+                        future=executor.submit(demo_odt_standard, language,  None)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 
-                for future in as_completed(futures):
-                    future.result()
+                    for future in as_completed(futures):
+                        future.result()
+
+            results = []
+            for future in futures:
+                result = future.result()
+                results.append(result)    
+
+        elif type=="COMMONSERVER_CONCURRENT_PROCESS":            
+            futures=[]
+            print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
+
+            # Start a single LibreofficeServer in the main process.
+            # This instance will manage the actual LibreOffice process.
+            main_server = LibreofficeServer()
+            main_server_port = main_server.port
+
+            try:
+                with ProcessPoolExecutor(max_workers=instances) as executor:
+                    with tqdm(total=total_documents) as progress:
+                            for language in languages:
+                                # Pass only the port to the child processes.
+                                # Each child process will create a new LibreofficeServer(port=main_server_port)
+                                # which will connect to the main_server_port without starting a new LO process.
+                                future=executor.submit(demo_ods_standard, language, main_server_port)
+                                future.add_done_callback(lambda p: progress.update())
+                                futures.append(future)
+                                future=executor.submit(demo_odt_standard, language,  main_server_port)
+                                future.add_done_callback(lambda p: progress.update())
+                                futures.append(future)
+
+                            for future in as_completed(futures):
+                                future.result()
+
+                results = []
+                for future in futures:
+                    result = future.result()
+                    results.append(result)
+            finally:
+                main_server.stop() # Ensure the main server is stopped when done
+
+        elif type=="CONCURRENT_THREADS":            
+            futures=[]
+            print(_("Launching demo with {0} workers without common server using concurrent threads").format(instances))
+
+            with ThreadPoolExecutor(max_workers=instances) as executor:
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        future=executor.submit(demo_ods_standard, language, None)
+                        future.add_done_callback(lambda p: progress.update())
+                        futures.append(future)
+                        future=executor.submit(demo_odt_standard, language,  None)
+                        future.add_done_callback(lambda p: progress.update())
+                        futures.append(future)
+
+                    for future in as_completed(futures):
+                        future.result()
+
+                results = []
+                for future in futures:
+                    result = future.result()
+                    results.append(result)
+
+        elif type=="COMMONSERVER_CONCURRENT_THREADS":            
+            futures=[]
+            print(_("Launching demo with {0} workers with common server using concurrent threads").format(instances))
+
+            with LibreofficeServer() as server: #FALLA POR PICCKING
+                with ThreadPoolExecutor(max_workers=instances) as executor:
+                    with tqdm(total=total_documents) as progress:
+                        for language in languages:
+                            future=executor.submit(demo_ods_standard, language, server)
+                            future.add_done_callback(lambda p: progress.update())
+                            futures.append(future)
+                            future=executor.submit(demo_odt_standard, language,  server)
+                            future.add_done_callback(lambda p: progress.update())
+                            futures.append(future)
+
+                        for future in as_completed(futures):
+                            future.result()
+
+                results = []
+                for future in futures:
+                    result = future.result()
+                    results.append(result)
+
+        elif type=="COMMONSERVER_SEQUENTIAL":
+            with LibreofficeServer() as server:
+                print(_("Launching demo with one common server sequentially"))
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        demo_ods_standard(language, server)
+                        progress.update()
+                        demo_odt_standard(language,  server)       
+                        progress.update()
+                        
+        elif type=="SEQUENTIAL":
+                print(_("Launching demo without one common server sequentially"))
+                with tqdm(total=total_documents) as progress:
+                    for language in languages:
+                        demo_ods_standard(language, None)
+                        progress.update()
+                        demo_odt_standard(language,  None)       
+                        progress.update()     
             
-
-
-        results = []
-        for future in futures:
-            result = future.result()
-            results.append(result)
         print(_("All process took {}".format(datetime.now()-start)))
 
        
-def demo_ods_standard(language, port=2002, suffix="",):
+def demo_ods_standard(language, server):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
     
-    with ODS_Standard(port) as doc:
+    with ODS_Standard(server=server) as doc:
         doc.setMetadata(
             _("UnoGenerator ODS example"),  
             _("Demo with ODS class"), 
@@ -135,7 +201,6 @@ def demo_ods_standard(language, port=2002, suffix="",):
             ["unogenerator", "demo", "files"]
         )
         doc.createSheet("Styles")
-        doc.setColumnsWidth([3.5, 5, 2, 2, 2, 2, 2, 5, 5, 3, 3])
         
         doc.setSheetStyle("Portrait")
         doc.setCellName("A1",  "MYNAME")
@@ -154,22 +219,23 @@ def demo_ods_standard(language, port=2002, suffix="",):
         colors_list=([a for a in dir(ColorsNamed()) if not a.startswith('__')])
         for row, color_str in enumerate(colors_list):
             color_key=getattr(ColorsNamed(), color_str)
-            doc.addCellWithStyle(C("A2").addRow(row), color_str, color_key, "Bold")
-            doc.addCellWithStyle(C("B2").addRow(row), datetime.now(), color_key, "Datetime")
-            doc.addCellWithStyle(C("C2").addRow(row), date.today(), color_key, "Date")
-            doc.addCellWithStyle(C("D2").addRow(row), pow(-1, row)*-10000000, color_key, "Integer")
-            doc.addCellWithStyle(C("E2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), color_key, "EUR")
-            doc.addCellWithStyle(C("F2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), color_key, "USD")
-            doc.addCellWithStyle(C("G2").addRow(row), Percentage(pow(-1, row)*1, 3), color_key,  "Percentage")
-            doc.addCellWithStyle(C("H2").addRow(row), pow(-1, row)*123456789.121212, color_key, "Float6")
-            doc.addCellWithStyle(C("I2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
-            doc.addCellWithStyle(C("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
-            doc.addCellWithStyle(C("K2").addRow(row), bool(row%2), color_key, "Bool")
+            doc.addCellWithStyle(Coord("A2").addRow(row), color_str, color_key, "Bold")
+            doc.addCellWithStyle(Coord("B2").addRow(row), datetime.now(), color_key, "Datetime")
+            doc.addCellWithStyle(Coord("C2").addRow(row), date.today(), color_key, "Date")
+            doc.addCellWithStyle(Coord("D2").addRow(row), pow(-1, row)*-10000000, color_key, "Integer")
+            doc.addCellWithStyle(Coord("E2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), color_key, "EUR")
+            doc.addCellWithStyle(Coord("F2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), color_key, "USD")
+            doc.addCellWithStyle(Coord("G2").addRow(row), Percentage(pow(-1, row)*1, 3), color_key,  "Percentage")
+            doc.addCellWithStyle(Coord("H2").addRow(row), pow(-1, row)*123456789.121212, color_key, "Float6")
+            doc.addCellWithStyle(Coord("I2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
+            doc.addCellWithStyle(Coord("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
+            doc.addCellWithStyle(Coord("K2").addRow(row), bool(row%2), color_key, "Bool")
 
-        doc.addCellWithStyle(C("E2").addRow(row+1),f"=sum(E2:{C('E2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR" )
+        doc.addCellWithStyle(Coord("E2").addRow(row+1),f"=sum(E2:{Coord('E2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR" )
         doc.addCellMergedWithStyle("E15:K15", "Merge proof", ColorsNamed.Yellow, style="BoldCenter")
         doc.setComment("B14", "This is nice comment")
         
+        doc.setColumnsWidth()
         doc.freezeAndSelect("B2")
         
         ## List of rows
@@ -205,6 +271,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
         range_=doc.addListOfRowsWithStyle("A43", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
         helper_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False, showing=True)
 
+        doc.setColumnsWidth()
         
 
         ## HELPERS
@@ -232,6 +299,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
         lod.append(OrderedDict({"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 }))
         helper_list_of_ordereddicts_with_totals(doc, "A34",  lod, columns_header=1)
         
+        doc.setColumnsWidth()
         ##Sort
         doc.createSheet("Sort")
         l=[7, 3, 2, 5, 6, 0, 9, 4, 10]
@@ -244,6 +312,7 @@ def demo_ods_standard(language, port=2002, suffix="",):
         doc.sortRange("B2:B10",  0)
         doc.sortRange("C2:C10",  0, False)
         
+        doc.setColumnsWidth()
         ## Split big LOR
         lor=[]
         for i in range(1000):
@@ -254,23 +323,22 @@ def demo_ods_standard(language, port=2002, suffix="",):
         
         ## Sheet with all styles names
         helper_ods_sheet_stylenames(doc)
-        doc.statistics.ods_sheet_statistics()
 
-        doc.save(f"unogenerator_example_{language}{suffix}.ods")
-        doc.export_xlsx(f"unogenerator_example_{language}{suffix}.xlsx")
-        doc.export_pdf(f"unogenerator_example_{language}{suffix}.pdf")
+        doc.save(f"unogenerator_example_{language}.ods")
+        doc.export_xlsx(f"unogenerator_example_{language}.xlsx")
+        doc.export_pdf(f"unogenerator_example_{language}.pdf")
     
-    r= _("unogenerator_example_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.statistics.init, port)
-    info(r)
+    r= _("unogenerator_example_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port) # This is an application-level message
+    logger.info(r)
     return r
     
     
-def demo_odt_standard(language, port=2002, suffix=""):
+def demo_odt_standard(language, server):
     lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
     lang1.install()
     _=lang1.gettext
 
-    with ODT_Standard(port) as doc:
+    with ODT_Standard(server=server) as doc:
         doc.setMetadata(
             _("UnoGenerator documentation"),  
             _("UnoGenerator python module documentation"), 
@@ -282,13 +350,18 @@ def demo_odt_standard(language, port=2002, suffix=""):
         
         doc.addParagraph(_("UnoGenerator documentation"), "Title")
         doc.addParagraph(_("Version: {0}").format(__version__), "Subtitle")
+
+        doc.addImageParagraph([files('unogenerator') / 'images/unogenerator.png', ], 4, 4, "Illustration", linked=False)
+
+
         
         doc.addParagraph(_("Introduction"),  "Heading 1")
         
         doc.addParagraph(
             _("UnoGenerator uses Libreoffice UNO API python bindings to generate documents.") +" " +
             _("So in order to use, you need to launch a --headless LibreOffice instance.") + " "+
-            _("We recomend to launch then easily with 'unogenerator_start' script."), 
+            _("UnoGenerator make this unattended for you in each ODF (ODS and ODT) instance.") + " " +
+            _("However if you wish, you can do this programmatically using LibreofficeServer class to reuse it in serveral ODF instances to improve documents generation speed."),
             "Standard"
         )
 
@@ -305,13 +378,12 @@ def demo_odt_standard(language, port=2002, suffix=""):
         doc.addParagraph(_("ODT 'Hello World' example"), "Heading 2")
         doc.addParagraph(_("This is a Hello World example. You get the example in odt, docx and pdf formats:") ,  "Standard")
         doc.addParagraph("""from unogenerator import ODT_Standard
-    doc=ODT_Standard()
+with ODT_Standard() as doc:
     doc.addParagraph("Hello World", "Heading 1")
     doc.addParagraph("Easy, isn't it","Standard")
     doc.save("hello_world.odt")
     doc.export_docx("hello_world.docx")
-    doc.export_pdf("hello_world.pdf")
-    doc.close()"""    , "Code")
+    doc.export_pdf("hello_world.pdf")"""    , "Code")
         doc.pageBreak()
         
         doc.addParagraph(_("ODT"), "Heading 1")
@@ -333,7 +405,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
         )
         
         doc.addParagraph("""from unogenerator import ODT_Standard
-    doc=ODT_Standard()"""    , "Code")
+doc=ODT_Standard()"""    , "Code")
 
         doc.addParagraph(
             _("ODT with template or file (Recomended).") + " " + 
@@ -342,7 +414,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
         )
         
         doc.addParagraph("""from unogenerator import ODT
-    doc=ODT('yourdocument.odt')"""    , "Code")
+doc=ODT('yourdocument.odt')"""    , "Code")
         
         doc.addParagraph(
             _("ODT without template.") + " " + 
@@ -353,7 +425,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
         
         
         doc.addParagraph("""from unogenerator import ODT
-    doc=ODT()"""    , "Code")
+doc=ODT()"""    , "Code")
         
         doc.addParagraph(_("Styles"), "Heading 2")
         doc.addParagraph(
@@ -414,7 +486,11 @@ def demo_odt_standard(language, port=2002, suffix=""):
         
         l=[]
         l.append( _("This is an image loaded from bytes: "))
-        l.append(doc.textcontentImage(open(files('unogenerator') / 'images/crown.png', "rb").read(), 1, 1, "AS_CHARACTER", "d", linked=False))
+        
+        with open(files('unogenerator') / 'images/crown.png', "rb") as f:
+            bytes_crown=f.read()
+        
+        l.append(doc.textcontentImage(bytes_crown, 1, 1, "AS_CHARACTER", "d", linked=False))
         doc.addParagraphComplex(l, "Standard")
 
         l=[]
@@ -457,7 +533,7 @@ def demo_odt_standard(language, port=2002, suffix=""):
         l.append(doc.textcontentImage(files('unogenerator') / 'images/Imagewithborder.png', 1, None))
         l.append(". ")
         l.append(_("You can trim that gray space when needed with 'bytes_after_trim_image' method. To use this method you need Imagemagick installed to use 'convert' command. This is the result: "))
-        bytes_=bytes_after_trim_image(files('unogenerator') / 'images/Imagewithborder.png', "png")
+        bytes_=commons.bytes_after_trim_image(files('unogenerator') / 'images/Imagewithborder.png', "png")
         l.append(doc.textcontentImage(bytes_, 1, None,))
         doc.addParagraphComplex(l, "Standard")
         
@@ -471,12 +547,11 @@ def demo_odt_standard(language, port=2002, suffix=""):
         doc.addParagraph(_("ODS 'Hello World' example"), "Heading 2")
         doc.addParagraph(_("This is a Hello World example. You'll get the example in ods, xlsx and pdf formats:") ,  "Standard")
         doc.addParagraph("""from unogenerator import ODS_Standard
-    doc=ODS_Standard()
+with ODS_Standard() as doc:
     doc.addCellMergedWithStyle("A1:E1", "Hello world", style="BoldCenter")
     doc.save("hello_world.ods")
     doc.export_xlsx("hello_world.xlsx")
-    doc.export_pdf("hello_world.pdf")
-    doc.close()"""    , "Code")
+    doc.export_pdf("hello_world.pdf")"""    , "Code")
         
         doc.find_and_replace("%REPLACEME%", _("This paragraph was set at the end of the code after a find and replace command."))
         doc.paragraphBreak()
@@ -493,19 +568,16 @@ def demo_odt_standard(language, port=2002, suffix=""):
         doc.findall_and_replace(" ().", " )(.", True)
         
         doc.addParagraph(_("NOW)("), "Standard")
-        doc.addParagraph(_("This is a set of symbols: .,:;?ºª\_-/()."), "Standard")
-        doc.findall_and_replace(".,:;?ºª\_-/().", ".,:;?ºª\_-/(). REPLACED", True)
+        doc.addParagraph(_("This is a set of symbols: .,:;?ºª-/()."), "Standard")
+        doc.findall_and_replace(".,:;?ºª-/().", ".,:;?ºª-/(). REPLACED", True)
         doc.addParagraph(_("NOW)("), "Standard")
         
         
         
-        doc.save(f"unogenerator_documentation_{language}{suffix}.odt")
-        doc.export_docx(f"unogenerator_documentation_{language}{suffix}.docx")
-        doc.export_pdf(f"unogenerator_documentation_{language}{suffix}.pdf")
+        doc.save(f"unogenerator_documentation_{language}.odt")
+        doc.export_docx(f"unogenerator_documentation_{language}.docx")
+        doc.export_pdf(f"unogenerator_documentation_{language}.pdf")
 
-    r= _("unogenerator_documentation_{0}{1}.ods took {2} in {3}").format(language, suffix, datetime.now()-doc.statistics.init, port)
-    info(r)
+    r= _("unogenerator_documentation_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port) # This is an application-level message
+    logger.info(r)
     return r
-
-if __name__ == "__main__":
-    main()

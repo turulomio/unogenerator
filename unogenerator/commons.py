@@ -1,22 +1,23 @@
 ## @namespace unogenerator.commons
 from colorama import Fore, Style
-from datetime import datetime, date, timedelta
-from decimal import Decimal
+from datetime import datetime, date, timedelta # Removed 'info', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'CRITICAL', 'basicConfig', 'debug'
+from decimal import Decimal # Keep Decimal for string_float2object
 from gettext import translation
-from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig, error, debug
+from logging import info, ERROR, WARNING, INFO, DEBUG, CRITICAL, basicConfig
 from importlib.resources import files
-from psutil import process_iter
+from os import geteuid, remove
 from subprocess import run
 from tempfile import TemporaryDirectory
 from uno import createUnoStruct
-from unogenerator.reusing.listdict_functions import listdict_min
-from unogenerator.reusing.currency import Currency
-from unogenerator.reusing.percentage import Percentage
-from time import sleep
+from pydicts.currency import Currency
+from pydicts.percentage import Percentage
+from pydicts import casts
+import logging # Import logging module
 
-__version__ = '0.33.0'
-__versiondatetime__=datetime(2023, 8, 20, 15, 6)
-__versiondate__=__versiondatetime__.date()
+logger = logging.getLogger(__name__) # Get logger for this module
+from shutil import which
+from socket import socket, AF_INET, SOCK_STREAM
+from unogenerator import exceptions, __versiondate__
 
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
@@ -46,20 +47,24 @@ def datetime2uno( dt):
     r.Seconds=dt.second
     return r
 
+
+def is_port_opened(host, port):
+    sock = socket(AF_INET, SOCK_STREAM)
+    result = sock.connect_ex((host,port))
+    sock.close()
+    if result == 0:
+       return False
+    else:
+       return True
+
+
+
 ## Converts a com.sun.star.util.DateTime to datetime
 def uno2datetime(r):
     try:
         return datetime(r.Year, r.Month, r.Day, r.Hours, r.Minutes, r.Seconds)
-    except:
-        debug(_("There was a problem converting com.sun.star.util.DateTime to datetime."))
-
-def date2uno( dt):
-    r=createUnoStruct("com.sun.star.util.Date")
-    r.Year=dt.year
-    r.Month=dt.month
-    r.Day=dt.day
-    return r
-    
+    except Exception:
+        logger.debug(_("There was a problem converting com.sun.star.util.DateTime to datetime."))
 
 ## Function used in argparse_epilog
 ## @return String
@@ -122,11 +127,32 @@ def index2row(index):
 def index2column(index):
     return number2column(index+1)
 
-## Class that manage spreadsheet coordinates (letter + number)
 class Coord:
-    def __init__(self, strcoord):
-        self.letter, self.number=self.__extract(strcoord)
+    """
+        Class that manage spreadsheet coordinates (letter + number)
+    """
+    def __init__(self, value):
+        """
+            Coord constructor
+            
+            Value can be:
+            - String
+        """
+        self.letter=None
+        self.number=None
+        if value.__class__==str:
+            self.letter, self.number=self.__extract(value)
+        else:
+            raise exceptions.CoordException(_("Coord constructor must have a str or a Coord parameter and is a {0}").format(value.__class__))
+            
         
+    @staticmethod
+    def assertCoord(o):
+        if o.__class__==Coord:
+            return o
+        elif o.__class__==str:
+            return Coord(o)
+        raise exceptions.CoordException(_("I can't convert {} (class: {}) to a Coord").format(o, o.__class__))
         
     ## Creates a Coord object from spreadsheet index coords
     @classmethod
@@ -140,7 +166,7 @@ class Coord:
         return cls(column+letter)
 
     def __repr__(self):
-        return f"Coord <{self}>"
+        return f"Coord <{self.string()}>"
         
     def __str__(self):
         return self.string()
@@ -152,16 +178,27 @@ class Coord:
         return False
         
     def __extract(self, strcoord):
-        if strcoord.find(":")!=-1:
-            print("I can't manage range coord")
-            return
+        allowed="ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
         letter=""
         number=""
-        for l in strcoord:
+        for i, l in enumerate(strcoord):
+            if not l in allowed:
+                raise exceptions.CoordException(_("Coord can have this character: {0}").format(l))
+            
             if l.isdigit()==False:
                 letter=letter+l
             else:
-                number=number+l
+                number=strcoord[i:]
+                break
+                
+        if len(letter)==0:
+            raise exceptions.CoordException(_("Coord letter can't be empty"))
+                
+        try:
+            number=str(int(number))
+        except ValueError:
+            raise exceptions.CoordException(_("Coord couldn't be created with '{0}'").format(strcoord))
+        
         return (letter,number)
 
     ## Returns Coord string
@@ -219,29 +256,28 @@ class Coord:
     def numberPosition(self):
         return row2number(self.number)
 
-    @staticmethod
-    def assertCoord(o):
-        if o.__class__==Coord:
-            return o
-        elif o.__class__==str:
-            return Coord(o)
-        else:
-            error("{} is not a coord".format(o))
-            
-
-
 
 ## Class that manages spreadsheet Ranges for ods and xlsx
 class Range:
     def __init__(self,strrange):
         self.c_start, self.c_end=self.__extract(strrange)
 
+    def __eq__(self, b):
+        b=Range.assertRange(b)
+        if self.c_start==b.c_start and self.c_end==b.c_end:
+            return True
+        return False
+        
     def __repr__(self):
         return f"Range <{self}>"
         
     def __str__(self):
         return self.string()
         
+    @classmethod
+    def from_uno_range(cls, uno_range):
+        return cls.from_coords_indexes(uno_range.RangeAddress.StartColumn, uno_range.RangeAddress.StartRow, uno_range.RangeAddress.EndColumn, uno_range.RangeAddress.EndRow)
+    
     @classmethod
     def from_coords_indexes(cls, start_letter_index, start_number_index, end_letter_index, end_number_index):
         c_start=Coord.from_index(start_letter_index, start_number_index)
@@ -264,7 +300,7 @@ class Range:
     @classmethod
     def from_columns_rows(cls, coord_start, number_columns,  number_rows):
         c_start=Coord.assertCoord(coord_start)
-        c_end=Coord(c_start).addRow(number_rows-1).addColumn(number_columns-1)
+        c_end=c_start.addRowCopy(number_rows-1).addColumnCopy(number_columns-1)
         return cls(f"{c_start}:{c_end}")
 
     @classmethod
@@ -291,16 +327,33 @@ class Range:
                 b.numberIndex()<=self.c_end.numberIndex())==True:
             return True
         return False
-
-
+        
+    def uno_range(self, sheet):
+        """
+            Returns the uno range of the current sheet
+            @param sheet is current sheet. ODS.sheet parameter
+        """
+        range_indexes=[self.c_start.letterIndex(), self.c_start.numberIndex(), self.c_end.letterIndex(), self.c_end.numberIndex()]
+        return sheet.getCellRangeByPosition(*range_indexes)
 
     ## Converts a string to a Range. Returns None if conversion can't be done
-    def __extract(self,range):
-        if range.find(":")==-1:
-            print("I can't manage this range")
-            return
-        a=range.split(":")
-        return (Coord(a[0]), Coord(a[1]))
+    def __extract(self,strrange):
+        if not strrange.__class__==str:
+            raise exceptions.RangeException(_("Range constructor must receive a string but got: {0} ({1})").format(strrange, strrange.__class__))
+        
+        a=strrange.split(":")
+        if not len(a)==2:
+            raise exceptions.RangeException(_("This is not a range: {0}").format(strrange))
+            
+        try:
+            c_start=Coord(a[0])
+        except exceptions.CoordException:
+            raise exceptions.RangeException(_("Range start coord is wrong: {0}").format(a[0]))
+        try:
+            c_end=Coord(a[1])
+        except exceptions.CoordException:
+            raise exceptions.RangeException(_("Range end coord is wrong: {0}").format(a[1]))
+        return (c_start, c_end)
 
     ## String of a range in spreadsheets
     def string(self):
@@ -321,6 +374,7 @@ class Range:
             return o
         elif o.__class__==str:
             return Range(o)
+        raise exceptions.RangeException(_("I can't convert {} (class: {}) to a Range").format(o, o.__class__))
 
 
     ## Adds a row to the c_end Coord, so it adds a row to the range
@@ -382,10 +436,10 @@ class Range:
     def coords_list(self, plain=False):
         r=[]
         if plain is True:
-            for letter_index, number_index in self.indexes_list():
+            for letter_index, number_index in self.indexes_list(plain):
                 r.append(Coord.from_index(letter_index, number_index))
         else:
-            for row  in self.indexes_list():
+            for row  in self.indexes_list(plain):
                 r2=[]
                 for  letter_index , number_index  in row:
                     r2.append(Coord.from_index(letter_index, number_index))
@@ -408,7 +462,7 @@ def addDebugSystem(level):
         basicConfig(level=ERROR, format=logFormat, datefmt=dateFormat)
     elif level=="CRITICAL":#The program encounters a serious error and may stop running. ERRORS
         basicConfig(level=CRITICAL, format=logFormat, datefmt=dateFormat)
-    info("Debug level set to {}".format(level))
+    logger.info("Debug level set to {}".format(level))
 
 
 
@@ -430,6 +484,8 @@ def guess_object_style(o):
         return "Normal"
     elif o.__class__.__name__=="int":
         return "Integer"
+    elif o.__class__.__name__=="timedelta":
+        return "TimedeltaSeconds"#TimedeltaISO exits but you can't add or supr
     elif o.__class__.__name__=="str":
         return "Normal"
     elif o.__class__.__name__ in ["Currency", "Money" ]:
@@ -442,25 +498,31 @@ def guess_object_style(o):
         return "Datetime"
     elif o.__class__.__name__=="date":
         return "Date"
-    elif o.__class__.__name__=="timedelta":
-        return "Normal"
     elif o.__class__.__name__=="time":
         return "Time"
     elif o.__class__.__name__=="bool":
         return "Bool"
     else:
-        info("guess_object_style not guessed {}".format( o.__class__))
+        logger.info("guess_object_style not guessed {}".format( o.__class__))
         return "Bold"
         
 def datetime2localc1989(o):
+    """
+        Converts a datetime to a localc1989 values. Used with getValues with getDataArray method
+        datetime(2023,12,2,12,0,0) ==> 45262.5
+    """
     delta = o -  datetime(1899, 12, 30)
     return float(delta.days) + float(delta.seconds) / 86400
     
-def localc19892datetime(value):    
+def localc19892datetime(value):
     return  datetime(1899, 12, 30)+timedelta(days=int(value),  seconds=(value-int(value))*86400)
     
     
 def date2localc1989(o):
+    """
+        Converts a date to a localc1989 values. Used with getValues with getDataArray method
+        date(2023,12,2) ==> 45262.0
+    """
     delta = o -  date(1899, 12, 30)
     return float(delta.days) 
 
@@ -487,35 +549,6 @@ def next_port(last,  first_port,  instances):
     else:
         return last+1
 
-
-## @param attempts (Integer). Sometimes when server is busy this method fails to detect info. So I make several attempts with a time interval
-## @return listdict with process info
-
-def get_from_process_info(cpu_percentage=False, attempts=10):
-    for attempt in range(attempts):
-        try:
-            r=[]
-            for p in process_iter(['name','cmdline', 'pid']): 
-                d={}
-                if p.info['name']=='soffice.bin':
-                    if  'file:///tmp/unogenerator'  in ' '.join(p.info['cmdline']):
-                        d["port"]=int(p.info['cmdline'][1][-4:])
-                        d["pid"]=p.pid
-                        d["mem"]=p.memory_info().rss
-                        d["cpu_number"]=p.cpu_num()
-                        if cpu_percentage is True:
-                            d["cpu_percentage"]=p.cpu_percent(interval=0.01)
-                            d["object"]=p
-                        r.append(d)
-            if len(r)==0:
-                raise
-            return r
-        except:
-            print(_("I couldn't detect unogenerator process info ({0}/{1} attempts)").format(attempt, attempts))
-            sleep(5)
-            continue
-    print(_("Have you launched unogenerator instances?. Please run unogenerator_start"))
-    return []
     
         
 ## Converts an string or a float to an object.
@@ -556,6 +589,11 @@ def string_float2object(string_float, cast):
             return localc19892time(string_float)
         except:
             return string_float
+    elif cast=="timedelta":
+        if string_float.__class__== str:
+            return casts.str2timedelta(string_float)
+        else:
+            return timedelta(seconds=string_float)
         
     elif cast=="bool":
         if string_float==0:
@@ -583,12 +621,8 @@ def string_float2object(string_float, cast):
             return string_float
     return string_float
 
-
-def get_from_process_numinstances_and_firstport():        
-    ld=get_from_process_info()
-    if len(ld)==0:
-        print(_("I couldn't detect unogenerator instances"))
-    return len(ld), listdict_min(ld,"port")
+def is_root():
+    return geteuid() == 0
    
 def is_formula(s):
     if s is None:
@@ -604,6 +638,10 @@ def green(s):
     return Style.BRIGHT + Fore.GREEN + str(s) + Style.RESET_ALL
 def magenta(s):
     return Style.BRIGHT + Fore.MAGENTA + str(s) + Style.RESET_ALL
+def yellow(s):
+    return Style.BRIGHT + Fore.YELLOW + str(s) + Style.RESET_ALL
+def white(s):
+    return Style.BRIGHT + str(s) + Style.RESET_ALL
     
 ## Removes border white space from a path or a byte array of a image. It uses convert from imagemagick
 ## @param type Image extension
@@ -617,14 +655,42 @@ def bytes_after_trim_image(filename_or_bytessequence, type):
                 f.write(filename_or_bytessequence)
         else:
             filename_to_trim=filename_or_bytessequence
-
+        
         #Trims white space
-        p=run(f"convert -trim +repage '{filename_to_trim}' '{filename_trimed}'",  shell=True)
-        if p.returncode==0:
-            #Alter bytes if converted
-            with open(filename_trimed, "r+b") as f:
-                bytes_=f.read()
-                return bytes_
-        else:
-            print(_("There was an error triming image. Is convert command (from Imagemagick) installed?"))
+        if which("magick") is not None:
+            p=run(f"magick '{filename_to_trim}' -trim +repage '{filename_trimed}'",  shell=True)
+            if p.returncode==0:
+                #Alter bytes if converted
+                with open(filename_trimed, "r+b") as f:
+                    bytes_=f.read()
+                    return bytes_
+        elif which("convert") is not None:
+            p=run(f"convert -trim +repage '{filename_to_trim}' '{filename_trimed}'",  shell=True)
+            if p.returncode==0:
+                #Alter bytes if converted
+                with open(filename_trimed, "r+b") as f:
+                    bytes_=f.read()
+                    return bytes_
+        logger.warning(_("There was an error trimming image. Is 'magick' or 'convert' command (from ImageMagick) installed and in PATH?"))
+        return None # Return None if trimming fails
 
+
+def are_all_values_of_the_list_the_same(list_):
+    """
+        Returns true if all values of the list are the same
+        Devuelve True si la lista es vacía
+    """
+    if len(list_)==0:
+        return True
+        
+    value=list_[0]
+    for i in range(1, len(list_)):
+        if not list_[i]==value:
+            return False
+    return True
+    
+def remove_without_errors(filename): 
+    try: 
+        remove(filename) 
+    except OSError as e:
+        logger.error(_("Error deleting: {0} -> {1} -> {2}").format(filename, e.errno, e.strerror))

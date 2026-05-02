@@ -1,5 +1,5 @@
 from os import path
-from uno import getComponentContext, createUnoStruct, systemPathToFileUrl
+from uno import getComponentContext, systemPathToFileUrl
 from com.sun.star.beans import PropertyValue
 from com.sun.star.sheet.ConditionEntryType import COLORSCALE
 localContext = getComponentContext()
