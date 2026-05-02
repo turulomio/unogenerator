@@ -2,7 +2,7 @@
 from datetime import datetime
 from os import path, makedirs
 import subprocess
-from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence
+from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence, invoke
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.awt import Size
@@ -1432,25 +1432,55 @@ class ODS(ODF):
             makedirs(path.dirname(path.abspath(filename)), exist_ok=True)
             copyfile(tempfile, filename)
             
-    def setColorScale(self, range):
-        range=R.assertRange(range)
-        myCells=self.sheet.getCellRangeByName(range.string())
-#        print(unorange, dir(unorange))
-#        print(self.sheet, dir(self.sheet))
-        myConditionalFormat = myCells.ConditionalFormat
-        args=(
-            PropertyValue('Operator',0, COLORSCALE,0),
-        )
-        myConditionalFormat.clear()
-        myConditionalFormat.addNew(args)
-        myCells.ConditionalFormat = myConditionalFormat
-#        self.ws_current.conditional_formatting.add(range, 
-#                            openpyxl.formatting.rule.ColorScaleRule(
-#                                                start_type='percentile', start_value=0, start_color='00FF00',
-#                                                mid_type='percentile', mid_value=50, mid_color='FFFFFF',
-#                                                end_type='percentile', end_value=100, end_color='FF0000'
-#                                                )
-#                                            )
+    def setColorScale(self, range_val, entries=None):
+        """
+        Sets a dynamic Color Scale conditional format on a range.
+        @param range_val: Range string (e.g., "A1:A10") or Range object.
+        @param entries: Optional list of dicts defining the scale. 
+                        Example entry: {"Type": 2, "Color": 0xFFFF00, "Value": "50"}
+                        Types: 0=Min, 1=Max, 2=Percentile, 3=Value, 4=Percent, 5=Formula
+        """
+        range_obj = R.assertRange(range_val)
+        cells = self.sheet.getCellRangeByName(range_obj.string())
+
+        # Use the modern ConditionalFormats API (introduced in LO 4.0) for ColorScale support
+        # instead of cells.ConditionalFormat (old API) which doesn't expose ColorScaleEntries properties.
+        cfs = self.sheet.ConditionalFormats
+        oRangos = self.document.createInstance("com.sun.star.sheet.SheetCellRanges")
+        oRangos.addRangeAddress(cells.getRangeAddress(), False)
+        
+        # Match research script logic: select the range before creating the format
+        self.document.getCurrentController().select(oRangos)
+
+        cf_id = cfs.createByRange(oRangos)
+        # Use cf_id-1 to access the collection, exactly as in your successful script
+        cf = cfs.getConditionalFormats()[cf_id - 1]
+
+        cf.createEntry(COLORSCALE, 0)
+        entry = cf[0]
+
+        if entries is None:
+            entries = [
+                {"Type": 0, "Color": 16711680, "Value": 0},  # Min (Rojo)
+                {"Type": 2, "Color": 16777215, "Value": 50}, # Percentil (Blanco)
+                {"Type": 1, "Color": 43315, "Value": 0}      # Max (Verde)
+            ]
+
+        colorent = []
+        for e in entries:
+            # Construimos arrays de PropertyValue exactamente como en pregunta.py
+            # El orden Formula, Color, Type es el que ha demostrado funcionar.
+            # Usamos enteros para los valores de Formula en los percentiles.
+            ent = (
+                PropertyValue("Formula", 0, e.get("Value", 0), 0),
+                PropertyValue("Color", 0, int(e["Color"]), 0),
+                PropertyValue("Type", 0, int(e["Type"]), 0)
+            )
+            colorent.append(ent)
+
+        # El uso de uno.invoke con setPropertyValue y una tupla de tuplas es la forma
+        # más compatible de establecer secuencias complejas en PyUNO 3.13.
+        invoke(entry, "setPropertyValue", ("ColorScaleEntries", tuple(colorent)))
 
     def toDictionaryOfDetailedValues(self):
         """
