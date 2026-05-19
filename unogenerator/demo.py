@@ -1,6 +1,8 @@
 ## @namespace unogenerator.demo
 ## @brief Generate ODF example files
 from uno import getComponentContext
+
+from unogenerator.unogenerator import ODS
 getComponentContext()
 import argparse
 from collections import OrderedDict
@@ -204,18 +206,11 @@ def demo_ods_standard(language, server):
         
         doc.setSheetStyle("Portrait")
         doc.setCellName("A1",  "MYNAME")
-        
-        doc.addCellWithStyle("A1", _("Style name"), ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("B1", _("Date and time"), ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("C1", _("Date"), ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("D1", _("Integer"), ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("E1", _("Euros"), ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("F1", _("Dollars"), ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("G1", _("Percentage"), ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("H1", _("Number with 2 decimals"), ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("I1", _("Number with 6 decimals"), ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("J1", _("Time"), ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("K1", _("Boolean"), ColorsNamed.Orange, "BoldCenter")
+
+
+        headers=[_("Style name"), _("Date and time"), _("Date"), _("Integer"), _("Euros"), _("Dollars"), _("Percentage"), _("Number with 2 decimals"), _("Number with 6 decimals"), _("Time"), _("Boolean")]
+        doc.addRowWithStyle( "A1", headers, ColorsNamed.Orange, "BoldCenter")
+
         colors_list=([a for a in dir(ColorsNamed()) if not a.startswith('__')])
         for row, color_str in enumerate(colors_list):
             color_key=getattr(ColorsNamed(), color_str)
@@ -235,7 +230,7 @@ def demo_ods_standard(language, server):
         doc.addCellMergedWithStyle("E15:K15", "Merge proof", ColorsNamed.Yellow, style="BoldCenter")
         doc.setComment("B14", "This is nice comment")
         
-        doc.setColumnsWidth()
+        doc.setColumnsWidth(ODS.columnsWidth_from_list(headers))
         doc.freezeAndSelect("B2")
         
         ## List of rows
@@ -271,7 +266,7 @@ def demo_ods_standard(language, server):
         range_=doc.addListOfRowsWithStyle("A43", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
         helper_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False, showing=True)
 
-        doc.setColumnsWidth()
+        doc.setColumnsWidth([3]*20)
         
 
         ## HELPERS
@@ -298,8 +293,8 @@ def demo_ods_standard(language, server):
         lod.append(OrderedDict({"Singer": "Elvis",  "Songs": 10000 , "Albums": 100}))
         lod.append(OrderedDict({"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 }))
         helper_list_of_ordereddicts_with_totals(doc, "A34",  lod, columns_header=1)
+        doc.setColumnsWidth([3]*20)
         
-        doc.setColumnsWidth()
         ##Sort
         doc.createSheet("Sort")
         l=[7, 3, 2, 5, 6, 0, 9, 4, 10]
@@ -311,8 +306,8 @@ def demo_ods_standard(language, server):
         doc.addColumnWithStyle("C2", l)
         doc.sortRange("B2:B10",  0)
         doc.sortRange("C2:C10",  0, False)
-        
-        doc.setColumnsWidth()
+        doc.setColumnsWidth([3]*20)
+
         ## Split big LOR
         lor=[]
         for i in range(1000):
@@ -320,6 +315,27 @@ def demo_ods_standard(language, server):
             
         helper_split_big_listofrows(doc, "Splits in 400 rows", lor, ["Integer", "String", "Datetime"], columns_width=[2, 5, 5],  max_rows=400)
 
+
+        ## COLUMNS WIDTH LOD
+        doc.createSheet("ColumnsWidthsLOD")
+        helper_list_of_ordereddicts_with_totals(doc, "A1",  lod, columns_header=1)
+        doc.setColumnsWidth(ODS.columnsWidth_from_lod(lod))
+        
+        ## COLUMNS WIDTH LOL
+        doc.createSheet("ColumnsWidthsLOL")
+        lol_=[
+            ["One Two Three", "Four", "Ten"],
+            ["One Two Three", "Four Two Three", "Ten"],
+            ["One Two Three", "Four", "Ten Two Three"],
+        ]
+        doc.addListOfRowsWithStyle("A1", lol_)
+        doc.setColumnsWidth(ODS.columnsWidth_from_lol(lol_))
+
+
+        ## COLUMNS WIDTH LOL
+        doc.createSheet("ColumnsWidthsList")
+        doc.addListOfRowsWithStyle("A1", lol_)
+        doc.setColumnsWidth(ODS.columnsWidth_from_list(lol_[0]))
         
         ## Sheet with all styles names
         helper_ods_sheet_stylenames(doc)
