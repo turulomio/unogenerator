@@ -418,7 +418,7 @@ if can_import_uno():
             ["a" * 10]
         ]
         # Col 1: longitudes 20 y 0 -> percentil 90 = 18.0 -> 18 * 0.22 + 0.5 = 4.46
-        assert ODS.columnsWidth_from_lol(matrix_ragged) == [2.7, 4.46]
+        assert ODS.columnsWidth_from_lol(matrix_ragged) == [2.7, 4.9]
 
     def test_columnsWidth_from_lod():
         # LOD vacío

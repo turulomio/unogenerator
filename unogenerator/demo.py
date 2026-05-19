@@ -315,6 +315,27 @@ def demo_ods_standard(language, server):
             
         helper_split_big_listofrows(doc, "Splits in 400 rows", lor, ["Integer", "String", "Datetime"], columns_width=[2, 5, 5],  max_rows=400)
 
+
+        ## COLUMNS WIDTH LOD
+        doc.createSheet("ColumnsWidthsLOD")
+        helper_list_of_ordereddicts_with_totals(doc, "A1",  lod, columns_header=1)
+        doc.setColumnsWidth(ODS.columnsWidth_from_lod(lod))
+        
+        ## COLUMNS WIDTH LOL
+        doc.createSheet("ColumnsWidthsLOL")
+        lol_=[
+            ["One Two Three", "Four", "Ten"],
+            ["One Two Three", "Four Two Three", "Ten"],
+            ["One Two Three", "Four", "Ten Two Three"],
+        ]
+        doc.addListOfRowsWithStyle("A1", lol_)
+        doc.setColumnsWidth(ODS.columnsWidth_from_lol(lol_))
+
+
+        ## COLUMNS WIDTH LOL
+        doc.createSheet("ColumnsWidthsList")
+        doc.addListOfRowsWithStyle("A1", lol_)
+        doc.setColumnsWidth(ODS.columnsWidth_from_list(lol_[0]))
         
         ## Sheet with all styles names
         helper_ods_sheet_stylenames(doc)

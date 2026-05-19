@@ -685,7 +685,7 @@ class ODS(ODF):
         return recommended_widths
 
     @staticmethod
-    def columnsWidth_from_lol(matrix, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
+    def columnsWidth_from_lol(matrix, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0, percentile=100):
         """
         Calcula el ancho recomendado de las columnas basándose en el percentil 90 
         de la longitud de los caracteres de una lista de listas (matriz).
@@ -722,10 +722,14 @@ class ODS(ODF):
             if not lengths:
                 p90_length = 0
             elif len(lengths) < 2:
-                p90_length = lengths[0]
+                # If there's only one element, that's our effective maximum/percentile
+                p90_length = lengths[0] 
+            elif percentile == 100:
+                p90_length = max(lengths)
             else:
-                # El índice 8 de quantiles(n=10) nos da el corte del 90%
-                p90_length = quantiles(lengths, n=10, method='inclusive')[8]
+                # For P-th percentile, we need the (P-1)-th index from quantiles(n=100)
+                # (e.g., 90th percentile is index 89)
+                p90_length = quantiles(lengths, n=100, method='inclusive')[percentile - 1]
 
             # Conversión a centímetros basándonos en el texto
             calculated_width = (p90_length * char_to_cm) + padding_cm
@@ -739,7 +743,7 @@ class ODS(ODF):
         return recommended_widths
 
     @staticmethod
-    def columnsWidth_from_lod(lod, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
+    def columnsWidth_from_lod(lod, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0, percentile=100):
         """
         Calcula el ancho recomendado de las columnas basándose en el percentil 90 
         de la longitud de los caracteres de una lista de diccionarios (lod).
@@ -780,10 +784,14 @@ class ODS(ODF):
                 # statistics.quantiles requiere al menos un par de datos para calcular,
                 # si solo hay uno, ese es nuestro valor.
                 p90_length = lengths[0]
+            elif percentile == 100:
+                p90_length = max(lengths)
             else:
                 # quantiles(datos, n=10) nos da los deciles. El índice 8 corresponde al percentil 90.
                 # Ejemplo: si n=10, devuelve 9 puntos de corte. El 8º corte separa el 90% inferior del 10% superior.
-                p90_length = quantiles(lengths, n=10, method='inclusive')[8]
+                # For P-th percentile, we need the (P-1)-th index from quantiles(n=100)
+                # (e.g., 90th percentile is index 89)
+                p90_length = quantiles(lengths, n=100, method='inclusive')[percentile - 1]
 
             # Convertir caracteres a cm con tus factores de escala
             calculated_width = (p90_length * char_to_cm) + padding_cm
