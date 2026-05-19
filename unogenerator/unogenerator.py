@@ -1,6 +1,7 @@
 
 from datetime import datetime
 from os import path, makedirs
+from statistics import quantiles
 import subprocess
 from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence
 from com.sun.star.beans import PropertyValue
@@ -660,42 +661,148 @@ class ODS(ODF):
         return self.sheet
     
 
-    def setColumnsWidth(self, l=None, automatic=True, max_width_cm=15):
+    def columnsWidth_from_list(l, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
         """
-            Sets the width of columns in the current sheet.
-            @param l Specification for columns to affect:
-                - If list: Specific widths in cm (e.g., [2, 5, 3.5]). Used for fixed widths if automatic=False.
-                            If automatic=True, only the length of the list is used to determine the number of columns.
-                - If int: The number of columns to process (starting from column A).
-                - If None: Automatically detects the number of columns in the used area of the sheet.
-            @param automatic Boolean. If True, uses LibreOffice's OptimalWidth to adjust columns to content. Defaults to True.
-            @param max_width_cm Float. The maximum width in cm allowed for a column when automatic=True. 
-                                Prevents columns with very long text from expanding excessively. Defaults to 15.
+        Calcula el ancho recomendado de las columnas basándose en el percentil 90 
+        de la longitud de los caracteres de una lista de listas (matriz).
+        
+        Toma como máximo las 100 primeras filas para optimizar el rendimiento.
+        Retorna una lista de anchos en cm ordenada por columnas (índice 0, 1, 2...).
         """
-        if automatic:
-            if isinstance(l, int):
-                num_cols = l
-            elif isinstance(l, list):
-                num_cols = len(l)
-            else:
-                num_cols, _ = self.getSheetSize()
+        if not l:
+            return []
 
-            if num_cols > 0:
-                # Optimized call: set OptimalWidth on the columns collection of the used range
-                columns = self.sheet.getCellRangeByPosition(0, 0, num_cols - 1, 0).getColumns()
-                columns.OptimalWidth = True
-                
-                if max_width_cm is not None:
-                    max_width_units = int(max_width_cm * 1000)
-                    for i in range(num_cols):
-                        column = columns.getByIndex(i)
-                        if column.Width > max_width_units:
-                            column.Width = max_width_units
-        elif l is not None:
-            columns = self.sheet.getColumns()
-            for i, width in enumerate(l):
-                column = columns.getByIndex(i)
-                column.Width = int(width * 1000)  ## Are in 1/100th of mm
+        recommended_widths = []
+        for v in l:
+            calculated_width = (len(str(v)) * char_to_cm) + padding_cm
+            
+            # Acotar dentro de los márgenes permitidos
+            final_width = max(min_width_cm, min(calculated_width, max_width_cm))
+            
+            # Redondear para mantener el formato limpio
+            recommended_widths.append(round(final_width, 2))
+
+        return recommended_widths
+
+    def columnsWidth_from_lol(matrix, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
+        """
+        Calcula el ancho recomendado de las columnas basándose en el percentil 90 
+        de la longitud de los caracteres de una lista de listas (matriz).
+        
+        Toma como máximo las 100 primeras filas para optimizar el rendimiento.
+        Retorna una lista de anchos en cm ordenada por columnas (índice 0, 1, 2...).
+        """
+        if not matrix or not matrix[0]:
+            return []
+
+        # 1. Acotar a las primeras 100 filas
+        sample = matrix[:100]
+
+        # 2. Determinar el número de columnas basándonos en la fila más larga del sample
+        # (Por si hay filas con longitudes variables)
+        num_cols = max(len(row) for row in sample)
+        
+        # Inicializar una lista de listas para guardar las longitudes de cada columna
+        # Ejemplo para 3 columnas: [[], [], []]
+        lengths_per_col = [[] for _ in range(num_cols)]
+
+        # 3. Recopilar las longitudes de los caracteres
+        for row in sample:
+            for col_idx in range(num_cols):
+                # Si la fila actual es más corta que num_cols, rellenamos con vacío
+                value = row[col_idx] if col_idx < len(row) else ""
+                val_str = "" if value is None else str(value)
+                lengths_per_col[col_idx].append(len(val_str))
+
+        # 4. Calcular el percentil 90 y convertir a centímetros
+        recommended_widths = []
+        
+        for lengths in lengths_per_col:
+            if not lengths:
+                p90_length = 0
+            elif len(lengths) < 2:
+                p90_length = lengths[0]
+            else:
+                # El índice 8 de quantiles(n=10) nos da el corte del 90%
+                p90_length = quantiles(lengths, n=10)[8]
+
+            # Conversión a centímetros basándonos en el texto
+            calculated_width = (p90_length * char_to_cm) + padding_cm
+            
+            # Acotar dentro de los márgenes permitidos
+            final_width = max(min_width_cm, min(calculated_width, max_width_cm))
+            
+            # Redondear para mantener el formato limpio
+            recommended_widths.append(round(final_width, 2))
+
+        return recommended_widths
+
+    def columnsWidth_from_lod(lod, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
+        """
+        Calcula el ancho recomendado de las columnas basándose en el percentil 90 
+        de la longitud de los caracteres de una lista de diccionarios (lod).
+        
+        Toma como máximo los 100 primeros registros para optimizar el rendimiento.
+        Retorna una lista de anchos en cm listos para pasar a tu método setColumnsWidth.
+        """
+        if not lod:
+            return []
+
+        # 1. Acotar a los primeros 100 elementos (o menos si no hay tantos)
+        sample = lod[:100]
+
+        # 2. Extraer las claves (columnas) manteniendo el orden del primer diccionario
+        keys = list(lod[0].keys())
+        
+        # Inicializar un diccionario para agrupar las longitudes de cada columna
+        # Ejemplo: {'col1': [4, 5, 12, ...], 'col2': [2, 2, 3, ...]}
+        lengths_per_col = {key: [] for key in keys}
+
+        # 3. Recopilar las longitudes de los caracteres (convertidos a string)
+        for row in sample:
+            for key in keys:
+                # Usamos str() para manejar números, fechas o None de forma segura
+                value = row.get(key, "")
+                val_str = "" if value is None else str(value)
+                lengths_per_col[key].append(len(val_str))
+
+        # 4. Calcular el percentil 90 y convertir a centímetros
+        recommended_widths = []
+        
+        for key in keys:
+            lengths = lengths_per_col[key]
+            
+            if not lengths:
+                p90_length = 0
+            elif len(lengths) < 2:
+                # statistics.quantiles requiere al menos un par de datos para calcular,
+                # si solo hay uno, ese es nuestro valor.
+                p90_length = lengths[0]
+            else:
+                # quantiles(datos, n=10) nos da los deciles. El índice 8 corresponde al percentil 90.
+                # Ejemplo: si n=10, devuelve 9 puntos de corte. El 8º corte separa el 90% inferior del 10% superior.
+                p90_length = quantiles(lengths, n=10)[8]
+
+            # Convertir caracteres a cm con tus fstatisticsactores de escala
+            calculated_width = (p90_length * char_to_cm) + padding_cm
+            
+            # Acotar entre los límites mínimos y máximos
+            final_width = max(min_width_cm, min(calculated_width, max_width_cm))
+            
+            # Redondear a 2 decimales para que quede limpio
+            recommended_widths.append(round(final_width, 2))
+
+        return recommended_widths
+
+
+    def setColumnsWidth(self, l):
+        """
+            Sets columns width from
+        """
+        columns = self.sheet.getColumns()
+        for i, width in enumerate(l):
+            column = columns.getByIndex(i)
+            column.Width = int(width * 1000)  ## Are in 1/100th of mm
 
     def setComment(self, coord, comment):
         coord=Coord.assertCoord(coord)
