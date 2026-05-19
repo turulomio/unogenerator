@@ -660,7 +660,7 @@ class ODS(ODF):
         logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
     
-
+    @staticmethod
     def columnsWidth_from_list(l, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
         """
         Calcula el ancho recomendado de las columnas basándose en el percentil 90 
@@ -684,6 +684,7 @@ class ODS(ODF):
 
         return recommended_widths
 
+    @staticmethod
     def columnsWidth_from_lol(matrix, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
         """
         Calcula el ancho recomendado de las columnas basándose en el percentil 90 
@@ -724,7 +725,7 @@ class ODS(ODF):
                 p90_length = lengths[0]
             else:
                 # El índice 8 de quantiles(n=10) nos da el corte del 90%
-                p90_length = quantiles(lengths, n=10)[8]
+                p90_length = quantiles(lengths, n=10, method='inclusive')[8]
 
             # Conversión a centímetros basándonos en el texto
             calculated_width = (p90_length * char_to_cm) + padding_cm
@@ -737,6 +738,7 @@ class ODS(ODF):
 
         return recommended_widths
 
+    @staticmethod
     def columnsWidth_from_lod(lod, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
         """
         Calcula el ancho recomendado de las columnas basándose en el percentil 90 
@@ -781,9 +783,9 @@ class ODS(ODF):
             else:
                 # quantiles(datos, n=10) nos da los deciles. El índice 8 corresponde al percentil 90.
                 # Ejemplo: si n=10, devuelve 9 puntos de corte. El 8º corte separa el 90% inferior del 10% superior.
-                p90_length = quantiles(lengths, n=10)[8]
+                p90_length = quantiles(lengths, n=10, method='inclusive')[8]
 
-            # Convertir caracteres a cm con tus fstatisticsactores de escala
+            # Convertir caracteres a cm con tus factores de escala
             calculated_width = (p90_length * char_to_cm) + padding_cm
             
             # Acotar entre los límites mínimos y máximos

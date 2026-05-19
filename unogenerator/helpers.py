@@ -4,6 +4,7 @@
 ## @param string with the row where th3e total begins
 ## @param string with the rew where the formula ends. If None it's a coord.row -1
 from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string
+from unogenerator import ODS
 from pydicts import lod
 from gettext import translation
 from logging import debug
@@ -222,7 +223,7 @@ def helper_ods_sheet_stylenames(doc):
     for column, (family,  style_names) in enumerate(doc.dict_stylenames.items()):
         doc.addCellWithStyle(C("A1").addColumn(column), family, ColorsNamed.Orange, "BoldCenter")
         doc.addColumnWithStyle(C("A2").addColumn(column), style_names)
-    doc.setColumnsWidth()
+    doc.setColumnsWidth([6,6])
     doc.freezeAndSelect("A2")
 
 ## This helper is used when lor length is bigger than localc limits (1048576)
@@ -255,11 +256,11 @@ def helper_split_big_listofrows(doc, sheet_name, lor, headers, headers_colors=Co
 
         #Sets width of columns
         if columns_width is None:
-            doc.setColumnsWidth(automatic=True)
+            doc.setColumnsWidth(ODS.columnsWidth_from_lol(lor))
         else:
             if isinstance(columns_width, int):
                 columns_width = [columns_width] * len(headers)
-            doc.setColumnsWidth(columns_width, automatic=False)
+            doc.setColumnsWidth(columns_width)
 
         doc.freezeAndSelect(C.assertCoord(coord_to_freeze))
     

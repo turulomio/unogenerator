@@ -382,8 +382,8 @@ if can_import_uno():
             # Test de rendimiento: OptimalWidth (Ancho automático)
             start_auto = datetime.now()
             # Nota: Al pasar num_columns evitamos que setColumnsWidth llame a getSheetSize()
-            doc.setColumnsWidth(l=num_columns, automatic=True)
-            print(f"Rendimiento setColumnsWidth(automatic=True): {datetime.now() - start_auto}")
+            doc.setColumnsWidth(ODS.columnsWidth_from_lol(lor))
+            print(f"Rendimiento setColumnsWidth(): {datetime.now() - start_auto}")
             
             
             doc.save(filename)
