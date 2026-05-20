@@ -1,8 +1,3 @@
-## @param cood Coord from we are going to add totals
-## @param list_of_totals List with strings or keys. Example: ["Total", "#SUM", "#AVG"]...
-## @param styles List with string styles or None. If none tries to guest from top column object. List example: ["GrayLightPercentage", "GrayLightInteger"]
-## @param string with the row where th3e total begins
-## @param string with the rew where the formula ends. If None it's a coord.row -1
 from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string
 from unogenerator import ODS
 from pydicts import lod
@@ -12,6 +7,13 @@ import logging
 from math import ceil
 from importlib.resources import files
 
+"""
+    Functions
+"""
+
+
+
+
 logger = logging.getLogger(__name__) # Get logger for this module
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
@@ -19,7 +21,19 @@ try:
 except:
     _=str
 
-def helper_totals_row(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, row_from="2", row_to=None):
+def row_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, row_from="2", row_to=None):
+    """
+    Generates a row of totals starting from the given coordinate.
+
+    Args:
+        doc (ODS): The ODS document object.
+        coord (Coord or str): Coordinate where the totals row will start.
+        list_of_totals (list): List of formulas or keys (e.g., ["Total", "#SUM", "#AVG"]).
+        color (int, optional): Background color for the cells. Defaults to ColorsNamed.GrayLight.
+        styles (list or str, optional): List of styles or a single style. If None, guesses from the adjacent cell.
+        row_from (str, optional): The row number where the formula range begins. Defaults to "2".
+        row_to (str, optional): The row number where the formula range ends. If None, defaults to the row above `coord`.
+    """
     coord=C.assertCoord(coord)
     for letter, total in enumerate(list_of_totals):
         coord_total=coord.addColumnCopy(letter)
@@ -39,21 +53,18 @@ def helper_totals_row(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, s
         doc.addCellWithStyle(coord_total, generate_formula_total_string(total, coord_total_from, coord_total_to), color, style)
 
 
-def helper_totals_column(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, column_from="B", column_to=None):
+def column_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, column_from="B", column_to=None):
     """
-        Genera una columna de totales desde la coordenada pasado como parámetro
-        @param doc Documento ODS
-        @param coord Coordenada de inicio
-        @param list_of_totals List of values #SUM #AVG #MEDIAN
-        @type list
-        @param color DESCRIPTION (defaults to ColorsNamed.GrayLight)
-        @type TYPE (optional)
-        @param styles DESCRIPTION (defaults to None)
-        @type TYPE (optional)
-        @param column_from DESCRIPTION (defaults to "B")
-        @type TYPE (optional)
-        @param column_to DESCRIPTION (defaults to None)
-        @type TYPE (optional)
+    Generates a column of totals starting from the given coordinate.
+
+    Args:
+        doc (ODS): The ODS document object.
+        coord (Coord or str): Starting coordinate for the totals column.
+        list_of_totals (list): List of formulas or keys (e.g., ["Total", "#SUM", "#AVG", "#MEDIAN"]).
+        color (int, optional): Background color for the cells. Defaults to ColorsNamed.GrayLight.
+        styles (list or str, optional): List of styles or a single style. If None, guesses from the adjacent cell.
+        column_from (str, optional): The column letter where the formula range begins. Defaults to "B".
+        column_to (str, optional): The column letter where the formula range ends. If None, defaults to one column before `coord`.
     """
     coord=C.assertCoord(coord)
     for number, total in enumerate(list_of_totals):
@@ -73,11 +84,26 @@ def helper_totals_column(doc, coord, list_of_totals, color=ColorsNamed.GrayLight
 
         doc.addCellWithStyle(coord_total, generate_formula_total_string(total, coord_total_from, coord_total_to), color, style)
         
-def helper_title_values_total_row( doc, coord, title, values, 
+def row_title_values_total( doc, coord, title, values, 
         style_title=None, color_title=ColorsNamed.Orange, 
         style_values=None, color_values=ColorsNamed.White, 
         style_total=None, color_total=ColorsNamed.GrayLight
     ):
+    """
+    Creates a column containing a title, a list of values, and a total sum at the bottom.
+
+    Args:
+        doc (ODS): The ODS document object.
+        coord (Coord or str): Starting coordinate.
+        title (str): Title to be placed at the starting coordinate.
+        values (list): List of values to be placed below the title.
+        style_title (str, optional): Style for the title cell. Defaults to "BoldCenter".
+        color_title (int, optional): Background color for the title. Defaults to ColorsNamed.Orange.
+        style_values (list or str, optional): Styles for the value cells. Defaults to None.
+        color_values (list or int, optional): Colors for the value cells. Defaults to ColorsNamed.White.
+        style_total (str, optional): Style for the total cell. Defaults to None.
+        color_total (int, optional): Background color for the total cell. Defaults to ColorsNamed.GrayLight.
+    """
     coord=C.assertCoord(coord)
 
     if style_title is None:
@@ -96,11 +122,26 @@ def helper_title_values_total_row( doc, coord, title, values,
     doc.addRowWithStyle(coord.addColumnCopy(i),values,colors=color_values,styles=style_values)
     doc.addCellWithStyle(coord.addColumnCopy(i+len(values)),f"=sum({coord.addColumnCopy(i).string()}:{coord.addColumnCopy(i+len(values)-1).string()}",color_total,style_total)
 
-def helper_title_values_total_column(doc, coord, title, values,
+def column_title_values_total(doc, coord, title, values,
         style_title=None, color_title=ColorsNamed.Orange, 
         style_values=None, color_values=ColorsNamed.White, 
         style_total=None, color_total=ColorsNamed.GrayLight
     ):
+    """
+    Creates a row containing a title, a list of values, and a total sum at the end.
+
+    Args:
+        doc (ODS): The ODS document object.
+        coord (Coord or str): Starting coordinate.
+        title (str): Title to be placed at the starting coordinate.
+        values (list): List of values to be placed after the title.
+        style_title (str, optional): Style for the title cell. Defaults to "Bold".
+        color_title (int, optional): Background color for the title. Defaults to ColorsNamed.Orange.
+        style_values (list or str, optional): Styles for the value cells. Defaults to None.
+        color_values (list or int, optional): Colors for the value cells. Defaults to ColorsNamed.White.
+        style_total (str, optional): Style for the total cell. Defaults to None.
+        color_total (int, optional): Background color for the total cell. Defaults to ColorsNamed.GrayLight.
+    """
     coord=C.assertCoord(coord)
 
     if style_title is None:
@@ -119,21 +160,34 @@ def helper_title_values_total_column(doc, coord, title, values,
     doc.addCellWithStyle(coord.addRowCopy(i+len(values)),f"=sum({coord.addRowCopy(i).string()}:{coord.addRowCopy(i+len(values)-1).string()}",color_total,style_total)
         
 
-## Genera totales verticales y horizontales directamente partiendo de un rango. Todos con sumas, añade un "Total" en la fila columna anterior
-## @param s xlsx doc
-## @param range_of_data. Range with data values
-## @param keys Key of formula if List, it has all values
-## @param showing When totalcolumns=True or totalrows=True only, shows a Total of Totals
-def helper_totals_from_range (
-                                                    doc, 
-                                                    range_of_data, 
-                                                    key="#SUM", 
-                                                    totalcolumns=True, 
-                                                    totalrows=True, 
-                                                    vertical_total_title_style="BoldCenter", 
-                                                    horizontal_total_title_style="BoldCenter", 
-                                                    showing=False
-                                                ):
+def cross_totals_from_range (
+        doc, 
+        range_of_data, 
+        key="#SUM", 
+        totalcolumns=True, 
+        totalrows=True, 
+        vertical_total_title_style="BoldCenter", 
+        horizontal_total_title_style="BoldCenter", 
+        showing=False
+    ):
+    """
+    Generates vertical and horizontal totals directly from a data range.
+
+    Calculates sums (or specified formulas) for the given range and adds "Total" labels.
+
+    Args:
+        doc (ODS): The ODS document object.
+        range_of_data (Range or str): The range containing the data values.
+        key (str, optional): Formula key to apply (e.g., "#SUM"). Defaults to "#SUM".
+        totalcolumns (bool, optional): Whether to generate column totals. Defaults to True.
+        totalrows (bool, optional): Whether to generate row totals. Defaults to True.
+        vertical_total_title_style (str, optional): Style for the vertical total title. Defaults to "BoldCenter".
+        horizontal_total_title_style (str, optional): Style for the horizontal total title. Defaults to "BoldCenter".
+        showing (bool, optional): If True, shows a 'Sum of totals' cell when either totalcolumns or totalrows is True. Defaults to False.
+
+    Returns:
+        Range: The original data range.
+    """
     range=R.assertRange(range_of_data)
     data_rows=range.numRows()
     data_columns=range.numColumns()
@@ -143,19 +197,19 @@ def helper_totals_from_range (
     
     if totalcolumns==True and totalrows==True:
         doc.addCellWithStyle(coord_horizontal_title, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
-        helper_totals_row(doc, coord_horizontal_title.addColumnCopy(1), [key]*data_columns,styles=style_data, row_from=range.c_start.number)
+        row_totals(doc, coord_horizontal_title.addColumnCopy(1), [key]*data_columns,styles=style_data, row_from=range.c_start.number)
         doc.addCellWithStyle(coord_vertical_title, _("Total"), ColorsNamed.GrayLight, vertical_total_title_style)
-        helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.c_start.letter)
+        column_totals(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.c_start.letter)
     elif totalcolumns==True:
         doc.addCellWithStyle(coord_vertical_title, _("Total"), ColorsNamed.GrayLight, vertical_total_title_style)
-        helper_totals_column(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+0), styles=style_data, column_from=range.c_start.letter)
+        column_totals(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+0), styles=style_data, column_from=range.c_start.letter)
         if showing is True:
             coord_sum_totals=coord_vertical_title.addRowCopy(data_rows+1)
             doc.addCellWithStyle(coord_sum_totals, generate_formula_total_string(key, range.c_start.addColumnCopy(data_columns+1), range.c_end.addColumnCopy(1)), ColorsNamed.GrayLight, style_data)
             doc.addCellWithStyle(coord_sum_totals.addColumnCopy(-1), _("Sum of totals"), ColorsNamed.GrayDark, style_data)
     elif totalrows==True:
         doc.addCellWithStyle(coord_horizontal_title, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
-        helper_totals_row(doc, coord_horizontal_title.addColumnCopy(1),[key]*(data_columns+0), styles=style_data, row_from=range.c_start.number) #1 menos por la esquina
+        row_totals(doc, coord_horizontal_title.addColumnCopy(1),[key]*(data_columns+0), styles=style_data, row_from=range.c_start.number) #1 menos por la esquina
         if showing is True:
             coord_sum_totals=coord_horizontal_title.addColumnCopy(data_columns+1)
             doc.addCellWithStyle(coord_sum_totals, generate_formula_total_string(key, range.c_start.addRowCopy(data_rows+1), range.c_end.addRowCopy(1)), ColorsNamed.GrayLight, style_data)
@@ -170,7 +224,7 @@ def helper_totals_from_range (
 ## @param keys. If None write all keys, Else must be a list of keys
 ## @param columns_header. Integer with the number of columns to apply color_header
 ## @return Range. Returns the range of the data without headers. Useful to set totals.
-def helper_list_of_ordereddicts(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
+def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
     coord_start=C.assertCoord(coord_start)
     
     if len(lod_)==0 and keys is None:
@@ -200,25 +254,41 @@ def helper_list_of_ordereddicts(doc, coord_start,  lod_, keys=None, columns_head
     #Generate list of rows
     return doc.addListOfRowsWithStyle(coord_data, lor, colors, styles)
 
-## Write cells from a list of ordered dictionaries
-## @param lod List of ordered dictionaries
-## @param keys. If None write all keys, Else must be a list of keys
-## @param columns_header. Integer with the number of columns to apply color_header
-## @return Range of the data
-def helper_list_of_ordereddicts_with_totals(doc, coord_start,  lod, keys=None, columns_header=1,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, totalcolumns=True, totalrows=True, key="#SUM"):
+def block_from_lod_with_totals(doc, coord_start,  lod, keys=None, columns_header=1,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, totalcolumns=True, totalrows=True, key="#SUM"):
+    """
+    Writes data from a list of ordered dictionaries and appends totals.
+
+    Args:
+        doc (ODS): The ODS document object.
+        coord_start (Coord or str): Starting coordinate.
+        lod (list): List of ordered dictionaries containing the data.
+        keys (list, optional): List of keys to write. Defaults to None.
+        columns_header (int, optional): Number of leading columns treated as headers. Defaults to 1.
+        color_row_header (int, optional): Color for the top header row. Defaults to ColorsNamed.Orange.
+        color_column_header (int, optional): Color for the side header columns. Defaults to ColorsNamed.Green.
+        color (int, optional): Default color for data cells. Defaults to ColorsNamed.White.
+        styles (list or str, optional): Styles for data columns. Defaults to None.
+        totalcolumns (bool, optional): Whether to generate column totals. Defaults to True.
+        totalrows (bool, optional): Whether to generate row totals. Defaults to True.
+        key (str, optional): Formula key to apply (e.g., "#SUM"). Defaults to "#SUM".
+
+    Returns:
+        Range: The range of the data including the generated totals.
+    """
+    print("QWUITAR CON parametros")
     coord_start=C.assertCoord(coord_start)
-    helper_list_of_ordereddicts(doc, coord_start,  lod, keys, columns_header,  color_row_header, color_column_header,  color, styles)
+    block_from_lod(doc, coord_start,  lod, keys, columns_header,  color_row_header, color_column_header,  color, styles)
     range_lod=R.from_iterable_object(coord_start.addRow(1), lod)## Adds q to skip top headers
     range_lod.c_start.addColumn(columns_header) ## Adds to skip columns headers
-    return helper_totals_from_range (doc, range_lod, key, totalcolumns, totalrows)
-    
-## It's the same of helper_list_of_ordereddicts but withth mandatory keys
-## @return Range of the data
-def helper_list_of_dicts(doc, coord_start,  lod, keys, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
-    return helper_list_of_ordereddicts(doc, coord_start,  lod, keys, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None)
+    return cross_totals_from_range (doc, range_lod, key, totalcolumns, totalrows)
 
-## Creates a new sheet called "Style names" with alll ods styles grouped by families
-def helper_ods_sheet_stylenames(doc):
+def sheet_stylenames(doc):
+    """
+    Creates a new sheet called "Internal style names" listing all ODS styles grouped by families.
+
+    Args:
+        doc (ODS): The ODS document object.
+    """
     doc.createSheet("Internal style names")
     for column, (family,  style_names) in enumerate(doc.dict_stylenames.items()):
         doc.addCellWithStyle(C("A1").addColumn(column), family, ColorsNamed.Orange, "BoldCenter")
@@ -226,18 +296,24 @@ def helper_ods_sheet_stylenames(doc):
     doc.setColumnsWidth([6,6])
     doc.freezeAndSelect("A2")
 
-## This helper is used when lor length is bigger than localc limits (1048576)
-## With this function you can split a lor automatically in all sheets needed
-## If the number of rows is lower than max_rows makes a normal sheet
-## You have to set a header of one line. 
-## @param doc ODS Document
-## @param sheet_name Root name of the sheet
-## @param lor List of rows with data
-## @param headers List of strings
-## @param headers_colors Color of the sheet header
-## @param columns_width None=3cm. Integer=all that value, List. Defines all columns width
-## @param coord_to_freeze Coord with coord to freeze
-def helper_split_big_listofrows(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575):
+def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575):
+    """
+    Splits a large list of rows across multiple sheets if it exceeds LibreOffice Calc's row limits.
+
+    If the number of rows is lower than `max_rows`, it generates a single normal sheet.
+    A one-line header is added to each generated sheet.
+
+    Args:
+        doc (ODS): The ODS document object.
+        sheet_name (str): The root name of the generated sheet(s).
+        lor (list): List of rows containing the data.
+        headers (list): List of strings representing the column headers.
+        headers_colors (int, optional): Color for the sheet headers. Defaults to ColorsNamed.Orange.
+        columns_width (int, list, or None, optional): Defines column widths. If None, sets automatically.
+            If int, applies to all columns. If list, specifies width per column. Defaults to None.
+        coord_to_freeze (Coord or str, optional): Coordinate to freeze panes at. Defaults to "A2".
+        max_rows (int, optional): Maximum number of rows per sheet (Calc limit is 1,048,576). Defaults to 1048575.
+    """
     ceil_=ceil(len(lor)/max_rows)
     for num_sheet in range(ceil_):
         #Sets name and headers
@@ -264,4 +340,35 @@ def helper_split_big_listofrows(doc, sheet_name, lor, headers, headers_colors=Co
 
         doc.freezeAndSelect(C.assertCoord(coord_to_freeze))
     
+
+
+def sheet_from_lod_with_totals():
+    pass
+
+def sheet_from_lod(doc, sheetname, lod_, titulo=None, totalcolumns=False, totalrows=False, freezeandselect=None):
+    """
+    """
+    doc.createSheet(sheetname)
+    if len(lod_)==0:
+        if titulo:
+            doc.addCellMergedWithStyle("A1:D1", titulo, ColorsNamed.Red, "BoldCenter")
+        else:
+            doc.addCellMergedWithStyle("A1:D1", "No hay datos", ColorsNamed.Red, "BoldCenter")
+        return
+
+         
+    keys=lod_[0].keys()
+    if titulo is None:
+        c_start=Coord("A1")
+    else:
+        c_end=Coord("A1").addColumnCopy(len(keys)-1)
+        range_=Range.from_coords("A1", c_end)
+        doc.addCellMergedWithStyle(range_, titulo, ColorsNamed.Red, "BoldCenter")
+        c_start=Coord("A2")#Empieza abajo
+            
     
+    range_final=helper_list_of_ordereddicts_with_totals(doc, c_start, lod_, totalcolumns=totalcolumns, totalrows=totalrows )
+    doc.setColumnsWidth(columnsWidth_from_lod(lod_), automatic=False)
+    if freezeandselect:
+        doc.freezeAndSelect(freezeandselect,freezeandselect, freezeandselect)
+    return range_final
