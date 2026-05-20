@@ -7,12 +7,6 @@ import logging
 from math import ceil
 from importlib.resources import files
 
-"""
-    Functions
-"""
-
-
-
 
 logger = logging.getLogger(__name__) # Get logger for this module
 try:
@@ -375,7 +369,7 @@ def sheet_from_lod(doc, sheetname, lod_, titulo=None, totalcolumns=False, totalr
 
 
 
-def uno_lod_to_cell_with_headers(doc, lod_, coord, subtitles=[], titulo=None):
+def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None):
     """
         Función que imprime desde una celda un lod
         El lod usará el orden de las keys creadas, pero tendrá un titulo, que se creará automáticamente
@@ -418,3 +412,6 @@ def uno_lod_to_cell_with_headers(doc, lod_, coord, subtitles=[], titulo=None):
     return range_
     
 
+
+def block_from_lod_with_headers_and_totals(doc, lod_, coord, subtitles=[], titulo=None):
+    pass
