@@ -372,3 +372,49 @@ def sheet_from_lod(doc, sheetname, lod_, titulo=None, totalcolumns=False, totalr
     if freezeandselect:
         doc.freezeAndSelect(freezeandselect,freezeandselect, freezeandselect)
     return range_final
+
+
+
+def uno_lod_to_cell_with_headers(doc, lod_, coord, subtitles=[], titulo=None):
+    """
+        Función que imprime desde una celda un lod
+        El lod usará el orden de las keys creadas, pero tendrá un titulo, que se creará automáticamente
+        los titulos serán una tupla con el nombre del titulo, primera key 
+        El fin del titulo será la anterior de la segunda key
+
+        Permite reordenar facilmente, añadir nuevas filas sin tener que cambiar indices constantemente
+    """
+    if len(lod_)==0:
+        doc.addCell(coord, "Sin datos que consigar")
+        return
+
+    coord=Coord.assertCoord(coord)
+    keys=lod.lod_keys(lod_)
+         
+
+    #Añado en la lista un campo nuevo de indice de inicio y indice de final
+    for i in range(len(subtitles)):
+        subtitles[i].append(keys.index(subtitles[i][1])) #Añade el indice de inicio
+        if i== len(subtitles)-1:#Ultimo titulo
+            subtitles[i].append(len(keys)-1)
+        else:# hay mas titulos
+            subtitles[i].append(keys.index(subtitles[i+1][1])-1)
+    
+    # Crea titulo principal
+    if titulo is not None:
+        doc.addCellMergedWithStyle(Range.from_coords(coord,coord.addColumnCopy(len(keys)-1)), titulo, ColorsNamed.Red, "BoldCenter")
+        coord.addRow(1)
+     
+         
+    # Crea titulos
+    for title, key_start, index_start, index_end in subtitles:
+        c_start=coord.addColumnCopy(index_start)
+        c_fin=coord.addColumnCopy(index_end)
+        doc.addCellMergedWithStyle(Range.from_coords(c_start,c_fin), title, ColorsNamed.Orange, "BoldCenter")
+
+
+    #Imprime listas de diccionarios
+    range_=helper_list_of_ordereddicts(doc, coord.addRowCopy(1),lod_,color_row_header=ColorsNamed.Yellow)
+    return range_
+    
+
