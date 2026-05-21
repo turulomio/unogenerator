@@ -660,7 +660,7 @@ class ODS(ODF):
         logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
     
-    def setColumnsWidth(self,  value: list[dict] | list[list] | list, enummode=types.ColumnsWidthMode.MANUAL, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
+    def setColumnsWidth(self,  value: list[dict] | list[list] | list, columns_width_mode=types.ColumnsWidthMode.MANUAL, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
         """
             Sets columns width 
             Can use several types.ColumnsWidthMode
@@ -668,7 +668,7 @@ class ODS(ODF):
             Value list is set in cm
         """
 
-        columns_widths=columnswidth.guessColumnsWidth(value, enummode,char_to_cm, padding_cm, min_width_cm, max_width_cm)
+        columns_widths=columnswidth.guessColumnsWidth(value, columns_width_mode, char_to_cm, padding_cm, min_width_cm, max_width_cm)
         columns = self.sheet.getColumns()
 
         if columns.Count<len(columns_widths):

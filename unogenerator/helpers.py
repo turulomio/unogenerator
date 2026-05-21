@@ -1,5 +1,5 @@
-from unogenerator.commons import ColorsNamed, Coord as C, Range as R, guess_object_style, generate_formula_total_string
-from unogenerator import ODS
+from unogenerator.commons import ColorsNamed, Coord, Range, guess_object_style, generate_formula_total_string
+from unogenerator import ODS, types
 from pydicts import lod
 from gettext import translation
 from logging import debug
@@ -31,11 +31,11 @@ def row_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=N
     coord=C.assertCoord(coord)
     for letter, total in enumerate(list_of_totals):
         coord_total=coord.addColumnCopy(letter)
-        coord_total_from=C(coord_total.letter+row_from)
+        coord_total_from=Coord(coord_total.letter+row_from)
         if row_to is None:
             coord_total_to=coord_total.addRowCopy(-1)# row above
         else:
-            coord_total_to=C(coord_total.letter+row_to)
+            coord_total_to=Coord(coord_total.letter+row_to)
 
         if styles is None:
             style=guess_object_style(doc.getValue(coord_total_from))
@@ -63,11 +63,11 @@ def column_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, style
     coord=C.assertCoord(coord)
     for number, total in enumerate(list_of_totals):
         coord_total=coord.addRowCopy(number)
-        coord_total_from=C(column_from + coord_total.number)
+        coord_total_from=Coord(column_from + coord_total.number)
         if column_to is None:
             coord_total_to=coord_total.addColumnCopy(-1)# row above
         else:
-            coord_total_to=C(column_to + coord_total.number)
+            coord_total_to=Coord(column_to + coord_total.number)
 
         if styles is None:
             style=guess_object_style(doc.getValue(coord_total_from))
@@ -283,12 +283,13 @@ def sheet_stylenames(doc):
     Args:
         doc (ODS): The ODS document object.
     """
-    doc.createSheet("Internal style names")
-    for column, (family,  style_names) in enumerate(doc.dict_stylenames.items()):
-        doc.addCellWithStyle(C("A1").addColumn(column), family, ColorsNamed.Orange, "BoldCenter")
-        doc.addColumnWithStyle(C("A2").addColumn(column), style_names)
-    doc.setColumnsWidth([6,6])
-    doc.freezeAndSelect("A2")
+    lod_=[]
+    for family,  style_names in doc.dict_stylenames.items():
+        lod_.append({
+            "Family":family,
+            "Styles":style_names
+        })
+    sheet_from_lod(doc, "Internal style names", lod_, freezeandselect="A2", columns_width_mode=types.ColumnsWidthMode.FROM_LOD)
 
 def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575):
     """
@@ -332,16 +333,19 @@ def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=Color
                 columns_width = [columns_width] * len(headers)
             doc.setColumnsWidth(columns_width)
 
-        doc.freezeAndSelect(C.assertCoord(coord_to_freeze))
+        doc.freezeAndSelect(Coord.assertCoord(coord_to_freeze))
     
 
-
-def sheet_from_lod_with_totals():
-    pass
-
-def sheet_from_lod(doc, sheetname, lod_, titulo=None, totalcolumns=False, totalrows=False, freezeandselect=None):
+def sheet_from_lod(doc, sheetname, lod_,  totalcolumns=False, totalrows=False, freezeandselect=None, titulo=None, **kwargs_columnswidth):
     """
+        kwargs son los parametros de la funcion setColumnsWidth
     """
+    columns_width_mode=kwargs_columnswidth.get("columns_width_mode", types.ColumnsWidthMode.FROM_LOD)
+    char_to_cm=kwargs_columnswidth.get("char_to_cm", 0.22)
+    padding_cm=kwargs_columnswidth.get("padding_cm", 0.5)
+    min_width_cm=kwargs_columnswidth.get("min_width_cm", 2.0)
+    max_width_cm=kwargs_columnswidth.get("max_width_cm", 15.0)
+
     doc.createSheet(sheetname)
     if len(lod_)==0:
         if titulo:
@@ -361,11 +365,14 @@ def sheet_from_lod(doc, sheetname, lod_, titulo=None, totalcolumns=False, totalr
         c_start=Coord("A2")#Empieza abajo
             
     
-    range_final=helper_list_of_ordereddicts_with_totals(doc, c_start, lod_, totalcolumns=totalcolumns, totalrows=totalrows )
-    doc.setColumnsWidth(columnsWidth_from_lod(lod_), automatic=False)
+    range_final=block_from_lod_with_totals(doc, c_start, lod_, totalcolumns=totalcolumns, totalrows=totalrows )
+    if totalcolumns or totalrows:
+        range_cross=cross_totals_from_range (doc, range_final, "#SUM", totalcolumns, totalrows, "BoldCenter", "BoldCenter", False)
+    doc.setColumnsWidth(lod_, columns_width_mode, char_to_cm, padding_cm, min_width_cm, max_width_cm)
     if freezeandselect:
         doc.freezeAndSelect(freezeandselect,freezeandselect, freezeandselect)
-    return range_final
+    return range_cross if totalcolumns or totalrows else range_final
+
 
 
 
