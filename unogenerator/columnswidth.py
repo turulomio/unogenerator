@@ -221,7 +221,7 @@ def columnsWidth_from_lod_with_quantile(lod, n=100, percentile_value=90, char_to
 
 
 def guessColumnsWidth(value: list[dict] | list[list] | list, colums_width_mode=types.ColumnsWidthMode.MANUAL, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
-    match enummode:
+    match colums_width_mode:
         case types.ColumnsWidthMode.MANUAL:
             return value
         case types.ColumnsWidthMode.FROM_LIST:

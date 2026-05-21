@@ -14,7 +14,7 @@ from importlib.resources import files
 from os import system
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
-from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer, helpers
+from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer, helpers, types
 from tqdm import tqdm
 
 try:
@@ -228,7 +228,7 @@ def demo_ods_standard(language, server):
         doc.addCellMergedWithStyle("E15:K15", "Merge proof", ColorsNamed.Yellow, style="BoldCenter")
         doc.setComment("B14", "This is nice comment")
         
-        doc.setColumnsWidth(ODS.columnsWidth_from_list(headers))
+        doc.setColumnsWidth(headers, types.ColumnsWidthMode.FROM_LIST)
         doc.freezeAndSelect("B2")
         
         ## List of rows
@@ -284,7 +284,7 @@ def demo_ods_standard(language, server):
         helpers.block_from_lod(doc, "A24",  lod, columns_header=1)
         
         doc.addCellMergedWithStyle("A28:B28","List of dictionaries", ColorsNamed.Orange, "BoldCenter")
-        helpers.helper_list_of_dicts(doc, "A29",  lod, keys=["Song",  "Singer"])
+        helpers.block_from_lod(doc, "A29",  lod, keys=["Song",  "Singer"])
         
         doc.addCellMergedWithStyle("A33:D33","List of ordered dictionaries one method with totals", ColorsNamed.Orange, "BoldCenter")
         lod=[]
@@ -317,7 +317,7 @@ def demo_ods_standard(language, server):
         ## COLUMNS WIDTH LOD
         doc.createSheet("ColumnsWidthsLOD")
         helpers.block_from_lod_with_totals(doc, "A1",  lod, columns_header=1)
-        doc.setColumnsWidth(ODS.columnsWidth_from_lod(lod))
+        doc.setColumnsWidth(lod,types.ColumnsWidthMode.FROM_LOD)
         
         ## COLUMNS WIDTH LOL
         doc.createSheet("ColumnsWidthsLOL")
@@ -327,13 +327,13 @@ def demo_ods_standard(language, server):
             ["One Two Three", "Four", "Ten Two Three"],
         ]
         doc.addListOfRowsWithStyle("A1", lol_)
-        doc.setColumnsWidth(ODS.columnsWidth_from_lol(lol_))
+        doc.setColumnsWidth(lol_, types.ColumnsWidthMode.FROM_LOL)
 
 
         ## COLUMNS WIDTH LOL
         doc.createSheet("ColumnsWidthsList")
         doc.addListOfRowsWithStyle("A1", lol_)
-        doc.setColumnsWidth(ODS.columnsWidth_from_list(lol_[0]))
+        doc.setColumnsWidth(lol_, types.ColumnsWidthMode.FROM_LOL)
         
         ## Sheet with all styles names
         helpers.sheet_stylenames(doc)

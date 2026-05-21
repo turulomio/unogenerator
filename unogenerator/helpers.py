@@ -28,7 +28,7 @@ def row_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=N
         row_from (str, optional): The row number where the formula range begins. Defaults to "2".
         row_to (str, optional): The row number where the formula range ends. If None, defaults to the row above `coord`.
     """
-    coord=C.assertCoord(coord)
+    coord=Coord.assertCoord(coord)
     for letter, total in enumerate(list_of_totals):
         coord_total=coord.addColumnCopy(letter)
         coord_total_from=Coord(coord_total.letter+row_from)
@@ -60,7 +60,7 @@ def column_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, style
         column_from (str, optional): The column letter where the formula range begins. Defaults to "B".
         column_to (str, optional): The column letter where the formula range ends. If None, defaults to one column before `coord`.
     """
-    coord=C.assertCoord(coord)
+    coord=Coord.assertCoord(coord)
     for number, total in enumerate(list_of_totals):
         coord_total=coord.addRowCopy(number)
         coord_total_from=Coord(column_from + coord_total.number)
@@ -98,7 +98,7 @@ def row_title_values_total( doc, coord, title, values,
         style_total (str, optional): Style for the total cell. Defaults to None.
         color_total (int, optional): Background color for the total cell. Defaults to ColorsNamed.GrayLight.
     """
-    coord=C.assertCoord(coord)
+    coord=Coord.assertCoord(coord)
 
     if style_title is None:
         style_title="Bold"
@@ -136,7 +136,7 @@ def column_title_values_total(doc, coord, title, values,
         style_total (str, optional): Style for the total cell. Defaults to None.
         color_total (int, optional): Background color for the total cell. Defaults to ColorsNamed.GrayLight.
     """
-    coord=C.assertCoord(coord)
+    coord=Coord.assertCoord(coord)
 
     if style_title is None:
         style_title="BoldCenter"
@@ -182,7 +182,7 @@ def cross_totals_from_range (
     Returns:
         Range: The original data range.
     """
-    range=R.assertRange(range_of_data)
+    range=Range.assertRange(range_of_data)
     data_rows=range.numRows()
     data_columns=range.numColumns()
     coord_horizontal_title=range.c_start.addColumnCopy(-1).addRowCopy(data_rows) 
@@ -219,7 +219,7 @@ def cross_totals_from_range (
 ## @param columns_header. Integer with the number of columns to apply color_header
 ## @return Range. Returns the range of the data without headers. Useful to set totals.
 def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
-    coord_start=C.assertCoord(coord_start)
+    coord_start=Coord.assertCoord(coord_start)
     
     if len(lod_)==0 and keys is None:
         doc.addCellWithStyle(coord_start, _("No data to show"), ColorsNamed.Red, "BoldCenter")
@@ -270,9 +270,9 @@ def block_from_lod_with_totals(doc, coord_start,  lod, keys=None, columns_header
         Range: The range of the data including the generated totals.
     """
     print("QWUITAR CON parametros")
-    coord_start=C.assertCoord(coord_start)
+    coord_start=Coord.assertCoord(coord_start)
     block_from_lod(doc, coord_start,  lod, keys, columns_header,  color_row_header, color_column_header,  color, styles)
-    range_lod=R.from_iterable_object(coord_start.addRow(1), lod)## Adds q to skip top headers
+    range_lod=Range.from_iterable_object(coord_start.addRow(1), lod)## Adds q to skip top headers
     range_lod.c_start.addColumn(columns_header) ## Adds to skip columns headers
     return cross_totals_from_range (doc, range_lod, key, totalcolumns, totalrows)
 
@@ -327,7 +327,7 @@ def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=Color
 
         #Sets width of columns
         if columns_width is None:
-            doc.setColumnsWidth(ODS.columnsWidth_from_lol(lor))
+            doc.setColumnsWidth(lor, types.ColumnsWidthMode.FROM_LOL)
         else:
             if isinstance(columns_width, int):
                 columns_width = [columns_width] * len(headers)

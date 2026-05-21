@@ -6,7 +6,7 @@ from pydicts import casts, currency, percentage, lod
 from importlib.resources import files
 import logging
 
-from unogenerator import can_import_uno
+from unogenerator import can_import_uno, types
 
 logger = logging.getLogger(__name__) # Get logger for this module
 
@@ -382,7 +382,7 @@ if can_import_uno():
             # Test de rendimiento: OptimalWidth (Ancho automático)
             start_auto = datetime.now()
             # Nota: Al pasar num_columns evitamos que setColumnsWidth llame a getSheetSize()
-            doc.setColumnsWidth(ODS.columnsWidth_from_lol(lor))
+            doc.setColumnsWidth(lor, types.ColumnsWidthMode.FROM_LOL)
             print(f"Rendimiento setColumnsWidth(): {datetime.now() - start_auto}")
             
             
@@ -390,48 +390,3 @@ if can_import_uno():
         if path.exists(filename):
             remove(filename)
 
-    def test_columnsWidth_from_list():
-        # Listas vacías
-        assert ODS.columnsWidth_from_list([]) == []
-        
-        # Comprobación de límites: min_width, cálculo normal y max_width
-        l = ["12", "a" * 10, "b" * 20, "c" * 100]
-        # Longitudes: 2, 10, 20, 100
-        # 2 * 0.22 + 0.5 = 0.94 -> se ajusta al mínimo de 2.0
-        # 10 * 0.22 + 0.5 = 2.7
-        # 20 * 0.22 + 0.5 = 4.9
-        # 100 * 0.22 + 0.5 = 22.5 -> se ajusta al máximo de 15.0
-        assert ODS.columnsWidth_from_list(l) == [2.0, 2.7, 4.9, 15.0]
-
-    def test_columnsWidth_from_lol():
-        # Matrices vacías
-        assert ODS.columnsWidth_from_lol([]) == []
-        assert ODS.columnsWidth_from_lol([[]]) == []
-
-        # Matriz normal (se usan 10 filas para asegurar un cálculo estable del percentil 90)
-        matrix = [["a" * 10, "b" * 20, "c" * 100]] * 10
-        assert ODS.columnsWidth_from_lol(matrix) == [2.7, 4.9, 15.0]
-
-        # Matriz irregular (ragged matrix), probando columnas faltantes en ciertas filas
-        matrix_ragged = [
-            ["a" * 10, "b" * 20],
-            ["a" * 10]
-        ]
-        # Col 1: longitudes 20 y 0 -> percentil 90 = 18.0 -> 18 * 0.22 + 0.5 = 4.46
-        assert ODS.columnsWidth_from_lol(matrix_ragged) == [2.7, 4.9]
-
-    def test_columnsWidth_from_lod():
-        # LOD vacío
-        assert ODS.columnsWidth_from_lod([]) == []
-
-        # LOD normal (10 filas para estabilidad estadística)
-        lod_data = [{"col1": "a" * 10, "col2": "b" * 20, "col3": "c" * 100}] * 10
-        assert ODS.columnsWidth_from_lod(lod_data) == [2.7, 4.9, 15.0]
-
-        # LOD con claves faltantes y valores None
-        lod_missing = [
-            {"col1": "a" * 10, "col2": None},
-            {"col1": "a" * 10}
-        ]
-        # Col 2: longitudes 0 y 0 -> percentil 90 = 0 -> 0 * 0.22 + 0.5 = 0.5 -> se ajusta a min 2.0
-        assert ODS.columnsWidth_from_lod(lod_missing) == [2.7, 2.0]

@@ -177,29 +177,29 @@ if can_import_uno():
         # Should use ["Header0_Col0", "Header0_Col1"]
         # Lengths: 12, 12 -> max = 12
         # Widths: (12*0.22+0.5)=3.14
-        assert guessColumnsWidth(test_data_lol, enummode=types.ColumnsWidthMode.FROM_LOL_0, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [3.14, 3.14]
+        assert guessColumnsWidth(test_data_lol, types.ColumnsWidthMode.FROM_LOL_0, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [3.14, 3.14]
 
         # FROM_LOL_1
         # Should use ["Data1_Col0", "Data1_Col1"]
         # Lengths: 10, 10 -> max = 10
         # Widths: (10*0.22+0.5)=2.7
-        assert guessColumnsWidth(test_data_lol, enummode=types.ColumnsWidthMode.FROM_LOL_1, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.7, 2.7]
+        assert guessColumnsWidth(test_data_lol, types.ColumnsWidthMode.FROM_LOL_1, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.7, 2.7]
 
         # FROM_LOL_2
         # Should use ["Data2_Col0", "Data2_Col1"]
         # Lengths: 10, 10 -> max = 10
         # Widths: (10*0.22+0.5)=2.7
-        assert guessColumnsWidth(test_data_lol, enummode=types.ColumnsWidthMode.FROM_LOL_2, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.7, 2.7]
+        assert guessColumnsWidth(test_data_lol, types.ColumnsWidthMode.FROM_LOL_2, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.7, 2.7]
 
         # Test with fewer elements than expected index
         test_data_lol_short = [
             ["Header0_Col0"]
         ]
         # FROM_LOL_0 should work
-        assert guessColumnsWidth(test_data_lol_short, enummode=types.ColumnsWidthMode.FROM_LOL_0, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [3.14]
+        assert guessColumnsWidth(test_data_lol_short, types.ColumnsWidthMode.FROM_LOL_0, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [3.14]
         
         # FROM_LOL_1 
-        guessColumnsWidth(test_data_lol_short, enummode=types.ColumnsWidthMode.FROM_LOL_1, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM)
+        guessColumnsWidth(test_data_lol_short, types.ColumnsWidthMode.FROM_LOL_1, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM)
 
     def test_guessColumnsWidth_from_lod_indexed_modes():
         test_data_lod = [
@@ -212,29 +212,29 @@ if can_import_uno():
         # Should use values from the first dict: ["Val00", "Val01"]
         # Lengths: 5, 5 -> max = 5
         # Widths: (5*0.22+0.5)=1.6 -> 2.0
-        assert guessColumnsWidth(test_data_lod, enummode=types.ColumnsWidthMode.FROM_LOD_0, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0, 2.0]
+        assert guessColumnsWidth(test_data_lod, types.ColumnsWidthMode.FROM_LOD_0, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0, 2.0]
 
         # FROM_LOD_1
         # Should use values from the second dict: ["Val10", "Val11"]
         # Lengths: 5, 5 -> max = 5
         # Widths: (5*0.22+0.5)=1.6 -> 2.0
-        assert guessColumnsWidth(test_data_lod, enummode=types.ColumnsWidthMode.FROM_LOD_1, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0, 2.0]
+        assert guessColumnsWidth(test_data_lod, types.ColumnsWidthMode.FROM_LOD_1, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0, 2.0]
 
         # FROM_LOD_2
         # Should use values from the third dict: ["Val20", "Val21"]
         # Lengths: 5, 5 -> max = 5
         # Widths: (5*0.22+0.5)=1.6 -> 2.0
-        assert guessColumnsWidth(test_data_lod, enummode=types.ColumnsWidthMode.FROM_LOD_2, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0, 2.0]
+        assert guessColumnsWidth(test_data_lod, types.ColumnsWidthMode.FROM_LOD_2, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0, 2.0]
 
         # Test with fewer elements than expected index
         test_data_lod_short = [
             {"H0C0": "Val00"}
         ]
         # FROM_LOD_0 should work
-        assert guessColumnsWidth(test_data_lod_short, enummode=types.ColumnsWidthMode.FROM_LOD_0, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0]
+        assert guessColumnsWidth(test_data_lod_short, types.ColumnsWidthMode.FROM_LOD_0, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0]
 
         # FROM_LOD_1
-        guessColumnsWidth(test_data_lod_short, enummode=types.ColumnsWidthMode.FROM_LOD_1, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM)
+        guessColumnsWidth(test_data_lod_short, types.ColumnsWidthMode.FROM_LOD_1, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM)
 
     def test_guessColumnsWidth_quantile_modes():
         matrix_for_quantile = [
@@ -249,8 +249,8 @@ if can_import_uno():
         # Widths: (70.9*0.22+0.5)=16.10 -> 15.0, (72.1*0.22+0.5)=16.36 -> 15.0, (73.6*0.22+0.5)=16.69 -> 15.0
         expected_widths_lol = [15.0, 15.0, 15.0]
 
-        assert guessColumnsWidth(matrix_for_quantile, enummode=types.ColumnsWidthMode.FROM_LOL_QUANTILE_90, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == expected_widths_lol
-        assert guessColumnsWidth(matrix_for_quantile, enummode=types.ColumnsWidthMode.FROM_LOL_QUANTILE_90_ONLY_100, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == expected_widths_lol
+        assert guessColumnsWidth(matrix_for_quantile, types.ColumnsWidthMode.FROM_LOL_QUANTILE_90, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == expected_widths_lol
+        assert guessColumnsWidth(matrix_for_quantile, types.ColumnsWidthMode.FROM_LOL_QUANTILE_90_ONLY_100, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == expected_widths_lol
 
         lod_for_quantile = [
             {"A": "a"*1, "B": "b"*5},
@@ -264,5 +264,5 @@ if can_import_uno():
         # Widths: (61.2*0.22+0.5)=13.96, (62.8*0.22+0.5)=14.32
         expected_widths_lod = [13.96, 14.32]
 
-        assert guessColumnsWidth(lod_for_quantile, enummode=types.ColumnsWidthMode.FROM_LOD_QUANTILE_90, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == expected_widths_lod
-        assert guessColumnsWidth(lod_for_quantile, enummode=types.ColumnsWidthMode.FROM_LOD_QUANTILE_90_ONLY_100, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == expected_widths_lod
+        assert guessColumnsWidth(lod_for_quantile, types.ColumnsWidthMode.FROM_LOD_QUANTILE_90, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == expected_widths_lod
+        assert guessColumnsWidth(lod_for_quantile, types.ColumnsWidthMode.FROM_LOD_QUANTILE_90_ONLY_100, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == expected_widths_lod
