@@ -21,7 +21,7 @@ from socket import socket, AF_INET, SOCK_STREAM
 from subprocess import Popen, PIPE, run # Added run for executing external commands
 from tempfile import TemporaryDirectory
 from time import sleep
-from unogenerator import __version__, exceptions
+from unogenerator import __version__, columnswidth, exceptions, types
 from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989,  is_formula, uno2datetime, string_float2object
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
@@ -660,159 +660,25 @@ class ODS(ODF):
         logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
     
-    @staticmethod
-    def columnsWidth_from_list(l, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
+    def setColumnsWidth(self,  value: list[dict] | list[list] | list, enummode=types.ColumnsWidthMode.MANUAL, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
         """
-        Calcula el ancho recomendado de las columnas basándose en el percentil 90 
-        de la longitud de los caracteres de una lista de listas (matriz).
-        
-        Toma como máximo las 100 primeras filas para optimizar el rendimiento.
-        Retorna una lista de anchos en cm ordenada por columnas (índice 0, 1, 2...).
+            Sets columns width 
+            Can use several types.ColumnsWidthMode
+            By default uses MANUAL and value is a list
+            Value list is set in cm
         """
-        if not l:
-            return []
 
-        recommended_widths = []
-        for v in l:
-            calculated_width = (len(str(v)) * char_to_cm) + padding_cm
-            
-            # Acotar dentro de los márgenes permitidos
-            final_width = max(min_width_cm, min(calculated_width, max_width_cm))
-            
-            # Redondear para mantener el formato limpio
-            recommended_widths.append(round(final_width, 2))
-
-        return recommended_widths
-
-    @staticmethod
-    def columnsWidth_from_lol(matrix, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0, percentile=100):
-        """
-        Calcula el ancho recomendado de las columnas basándose en el percentil 90 
-        de la longitud de los caracteres de una lista de listas (matriz).
-        
-        Toma como máximo las 100 primeras filas para optimizar el rendimiento.
-        Retorna una lista de anchos en cm ordenada por columnas (índice 0, 1, 2...).
-        """
-        if not matrix or not matrix[0]:
-            return []
-
-        # 1. Acotar a las primeras 100 filas
-        sample = matrix[:100]
-
-        # 2. Determinar el número de columnas basándonos en la fila más larga del sample
-        # (Por si hay filas con longitudes variables)
-        num_cols = max(len(row) for row in sample)
-        
-        # Inicializar una lista de listas para guardar las longitudes de cada columna
-        # Ejemplo para 3 columnas: [[], [], []]
-        lengths_per_col = [[] for _ in range(num_cols)]
-
-        # 3. Recopilar las longitudes de los caracteres
-        for row in sample:
-            for col_idx in range(num_cols):
-                # Si la fila actual es más corta que num_cols, rellenamos con vacío
-                value = row[col_idx] if col_idx < len(row) else ""
-                val_str = "" if value is None else str(value)
-                lengths_per_col[col_idx].append(len(val_str))
-
-        # 4. Calcular el percentil 90 y convertir a centímetros
-        recommended_widths = []
-        
-        for lengths in lengths_per_col:
-            if not lengths:
-                p90_length = 0
-            elif len(lengths) < 2:
-                # If there's only one element, that's our effective maximum/percentile
-                p90_length = lengths[0] 
-            elif percentile == 100:
-                p90_length = max(lengths)
-            else:
-                # For P-th percentile, we need the (P-1)-th index from quantiles(n=100)
-                # (e.g., 90th percentile is index 89)
-                p90_length = quantiles(lengths, n=100, method='inclusive')[percentile - 1]
-
-            # Conversión a centímetros basándonos en el texto
-            calculated_width = (p90_length * char_to_cm) + padding_cm
-            
-            # Acotar dentro de los márgenes permitidos
-            final_width = max(min_width_cm, min(calculated_width, max_width_cm))
-            
-            # Redondear para mantener el formato limpio
-            recommended_widths.append(round(final_width, 2))
-
-        return recommended_widths
-
-    @staticmethod
-    def columnsWidth_from_lod(lod, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0, percentile=100):
-        """
-        Calcula el ancho recomendado de las columnas basándose en el percentil 90 
-        de la longitud de los caracteres de una lista de diccionarios (lod).
-        
-        Toma como máximo los 100 primeros registros para optimizar el rendimiento.
-        Retorna una lista de anchos en cm listos para pasar a tu método setColumnsWidth.
-        """
-        if not lod:
-            return []
-
-        # 1. Acotar a los primeros 100 elementos (o menos si no hay tantos)
-        sample = lod[:100]
-
-        # 2. Extraer las claves (columnas) manteniendo el orden del primer diccionario
-        keys = list(lod[0].keys())
-        
-        # Inicializar un diccionario para agrupar las longitudes de cada columna
-        # Ejemplo: {'col1': [4, 5, 12, ...], 'col2': [2, 2, 3, ...]}
-        lengths_per_col = {key: [] for key in keys}
-
-        # 3. Recopilar las longitudes de los caracteres (convertidos a string)
-        for row in sample:
-            for key in keys:
-                # Usamos str() para manejar números, fechas o None de forma segura
-                value = row.get(key, "")
-                val_str = "" if value is None else str(value)
-                lengths_per_col[key].append(len(val_str))
-
-        # 4. Calcular el percentil 90 y convertir a centímetros
-        recommended_widths = []
-        
-        for key in keys:
-            lengths = lengths_per_col[key]
-            
-            if not lengths:
-                p90_length = 0
-            elif len(lengths) < 2:
-                # statistics.quantiles requiere al menos un par de datos para calcular,
-                # si solo hay uno, ese es nuestro valor.
-                p90_length = lengths[0]
-            elif percentile == 100:
-                p90_length = max(lengths)
-            else:
-                # quantiles(datos, n=10) nos da los deciles. El índice 8 corresponde al percentil 90.
-                # Ejemplo: si n=10, devuelve 9 puntos de corte. El 8º corte separa el 90% inferior del 10% superior.
-                # For P-th percentile, we need the (P-1)-th index from quantiles(n=100)
-                # (e.g., 90th percentile is index 89)
-                p90_length = quantiles(lengths, n=100, method='inclusive')[percentile - 1]
-
-            # Convertir caracteres a cm con tus factores de escala
-            calculated_width = (p90_length * char_to_cm) + padding_cm
-            
-            # Acotar entre los límites mínimos y máximos
-            final_width = max(min_width_cm, min(calculated_width, max_width_cm))
-            
-            # Redondear a 2 decimales para que quede limpio
-            recommended_widths.append(round(final_width, 2))
-
-        return recommended_widths
-
-
-    def setColumnsWidth(self, l):
-        """
-            Sets columns width from
-        """
+        columns_widths=columnswidth.guessColumnsWidth(value, enummode,char_to_cm, padding_cm, min_width_cm, max_width_cm)
         columns = self.sheet.getColumns()
-        for i, width in enumerate(l):
+
+        if columns.Count<len(columns_widths):
+            columns_widths=columns_widths[0:columns.Count]
+
+        for i, width in enumerate(columns_widths):
             column = columns.getByIndex(i)
             column.Width = int(width * 1000)  ## Are in 1/100th of mm
+
+
 
     def setComment(self, coord, comment):
         coord=Coord.assertCoord(coord)
