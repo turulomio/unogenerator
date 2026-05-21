@@ -132,6 +132,45 @@ def columnsWidth_from_lod(lod, n=None, char_to_cm=0.22, padding_cm=0.5, min_widt
     return recommended_widths
 
 
+def columnsWidth_from_lol_with_quantile(matrix, n=100, percentile_value=90, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
+    """
+    Calcula el ancho recomendado de las columnas basándose en un percentil específico
+    de la longitud de los caracteres de una lista de listas (matriz) dentro de una muestra de 'n' registros.
+    
+    Toma como máximo los 'n' primeros registros para optimizar el rendimiento.
+    Retorna una lista de anchos en cm ordenada por columnas (índice 0, 1, 2...).
+    """
+    if not matrix or not matrix[0]:
+        return []
+
+    sample = matrix if n is None else matrix[:n]
+    num_cols = max(len(row) for row in sample)
+    lengths_per_col = [[] for _ in range(num_cols)]
+
+    for row in sample:
+        for col_idx in range(num_cols):
+            value = row[col_idx] if col_idx < len(row) else ""
+            val_str = "" if value is None else str(value)
+            lengths_per_col[col_idx].append(len(val_str))
+
+    recommended_widths = []
+    
+    for lengths in lengths_per_col:
+        if not lengths:
+            p_length = 0
+        elif len(lengths) < 2:
+            p_length = lengths[0]
+        else:
+            # Calculate the specified percentile
+            p_length = quantiles(lengths, n=100, method='inclusive')[percentile_value - 1]
+
+        calculated_width = (p_length * char_to_cm) + padding_cm
+        final_width = max(min_width_cm, min(calculated_width, max_width_cm))
+        recommended_widths.append(round(final_width, 2))
+
+    return recommended_widths
+
+
 def columnsWidth_from_lod_keys(lod, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
     """
     Calcula el ancho recomendado de las columnas basándose únicamente en la longitud
@@ -143,7 +182,7 @@ def columnsWidth_from_lod_keys(lod, char_to_cm=0.22, padding_cm=0.5, min_width_c
     return columnsWidth_from_list(keys, char_to_cm, padding_cm, min_width_cm, max_width_cm)
 
 
-def columnsWidth_from_lod_with_quantile(lod, percentile_value=90, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
+def columnsWidth_from_lod_with_quantile(lod, n=100, percentile_value=90, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
     """
     Calcula el ancho recomendado de las columnas basándose en un percentil específico
     de la longitud de los caracteres de una lista de diccionarios (lod), incluyendo la longitud de las claves,
@@ -155,7 +194,7 @@ def columnsWidth_from_lod_with_quantile(lod, percentile_value=90, char_to_cm=0.2
     if not lod:
         return []
 
-    sample = lod
+    sample = lod[:n]
     keys = list(lod[0].keys())
     lengths_per_col = {key: [len(key)] for key in keys} # Initialize with key lengths
 
@@ -187,8 +226,6 @@ def guessColumnsWidth(value: list[dict] | list[list] | list, enummode=types.Colu
             return value
         case types.ColumnsWidthMode.FROM_LIST:
             return columnsWidth_from_list(value, char_to_cm, padding_cm, min_width_cm, max_width_cm)
-
-
         case types.ColumnsWidthMode.FROM_LOL:
             return columnsWidth_from_lol(value, None, char_to_cm, padding_cm, min_width_cm, max_width_cm) 
         case types.ColumnsWidthMode.FROM_LOL_0:
@@ -198,10 +235,11 @@ def guessColumnsWidth(value: list[dict] | list[list] | list, enummode=types.Colu
         case types.ColumnsWidthMode.FROM_LOL_2:
             return guessColumnsWidth(value[2], types.ColumnsWidthMode.FROM_LIST, char_to_cm, padding_cm, min_width_cm, max_width_cm)
         case types.ColumnsWidthMode.FROM_LOL_QUANTILE_90:
-            pass
-            # return _columnsWidth_from_lol_with_quantile(value, n=100, percentile_value=90, char_to_cm=char_to_cm, padding_cm=padding_cm, min_width_cm=min_width_cm, max_width_cm=max_width_cm)
+            return columnsWidth_from_lol_with_quantile(value, None, 90, char_to_cm, padding_cm, min_width_cm, max_width_cm)
         case types.ColumnsWidthMode.FROM_LOL_ONLY_100:
             return columnsWidth_from_lol(value, 100, char_to_cm, padding_cm, min_width_cm, max_width_cm) 
+        case types.ColumnsWidthMode.FROM_LOL_QUANTILE_90_ONLY_100:
+            return columnsWidth_from_lol_with_quantile(value, 100, 90, char_to_cm, padding_cm, min_width_cm, max_width_cm)
         
 
         case types.ColumnsWidthMode.FROM_LOD:
@@ -217,4 +255,6 @@ def guessColumnsWidth(value: list[dict] | list[list] | list, enummode=types.Colu
         case types.ColumnsWidthMode.FROM_LOD_ONLY_100:
             return columnsWidth_from_lod(value, 100, char_to_cm, padding_cm, min_width_cm, max_width_cm)
         case types.ColumnsWidthMode.FROM_LOD_QUANTILE_90:
-            return columnsWidth_from_lod_with_quantile(value, 90, char_to_cm, padding_cm, min_width_cm, max_width_cm)
+            return columnsWidth_from_lod_with_quantile(value, None, 90, char_to_cm, padding_cm, min_width_cm, max_width_cm)
+        case types.ColumnsWidthMode.FROM_LOD_QUANTILE_90_ONLY_100:
+            return columnsWidth_from_lod_with_quantile(value, 100, 90, char_to_cm, padding_cm, min_width_cm, max_width_cm)

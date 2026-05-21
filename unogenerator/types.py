@@ -12,6 +12,7 @@ class ColumnsWidthMode(Enum):
     FROM_LOL_1 = auto() #Para usar los valores del diccionario 1
     FROM_LOL_2 = auto() #Para usar los valores del diccionario 2
     FROM_LOL_QUANTILE_90 = auto() # Para usar los valores del percentil 90
+    FROM_LOL_QUANTILE_90_ONLY_100= auto() # Para usar los valores del percentil 90 
     FROM_LOL_ONLY_100 = auto() # Para usar los 100 primeras listas
 
 
@@ -21,5 +22,6 @@ class ColumnsWidthMode(Enum):
     FROM_LOD_2 = auto() #Para usar los valores del diccionario 2
     FROM_LOD_KEYS = auto() #Para usar las claves
     FROM_LOD_QUANTILE_90 = auto() # Para usar los valores del percentil 90
+    FROM_LOD_QUANTILE_90_ONLY_100 = auto() # Para usar los valores del percentil 90
     FROM_LOD_ONLY_100 = auto() # Para usar los 100 primeros diccionarios
 
