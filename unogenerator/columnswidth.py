@@ -259,11 +259,25 @@ def guessColumnsWidth(value: list[dict] | list[list] | list, enummode=types.Colu
         case types.ColumnsWidthMode.FROM_LOD:
             return columnsWidth_from_lod(value, None, char_to_cm, padding_cm, min_width_cm, max_width_cm)
         case types.ColumnsWidthMode.FROM_LOD_0:
+            if len(value)==0:
+                return []
             return columnsWidth_from_list(value[0].values(), char_to_cm, padding_cm, min_width_cm, max_width_cm)
         case types.ColumnsWidthMode.FROM_LOD_1:
-            return columnsWidth_from_list(value[1].values(), char_to_cm, padding_cm, min_width_cm, max_width_cm)
+            if len(value)==0:
+                return []
+            elif len(value)==1:
+                return guessColumnsWidth(value, types.ColumnsWidthMode.FROM_LOD_0, char_to_cm, padding_cm, min_width_cm, max_width_cm)
+            else:
+                return columnsWidth_from_list(value[1].values(), char_to_cm, padding_cm, min_width_cm, max_width_cm)
         case types.ColumnsWidthMode.FROM_LOD_2:
-            return columnsWidth_from_list(value[2].values(), char_to_cm, padding_cm, min_width_cm, max_width_cm)
+            if len(value)==0:
+                return []
+            elif len(value)==1:
+                return guessColumnsWidth(value, types.ColumnsWidthMode.FROM_LOD_0, char_to_cm, padding_cm, min_width_cm, max_width_cm)
+            elif len(value)==2:
+                return guessColumnsWidth(value, types.ColumnsWidthMode.FROM_LOD_1, char_to_cm, padding_cm, min_width_cm, max_width_cm)
+            else:
+                return columnsWidth_from_list(value[2].values(), char_to_cm, padding_cm, min_width_cm, max_width_cm)
         case types.ColumnsWidthMode.FROM_LOD_KEYS:
             return columnsWidth_from_lod_keys(value, char_to_cm, padding_cm, min_width_cm, max_width_cm)
         case types.ColumnsWidthMode.FROM_LOD_ONLY_100:
