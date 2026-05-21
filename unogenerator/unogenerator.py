@@ -1311,8 +1311,11 @@ class ODS(ODF):
         if detailed is False:
             return value
         else:
+            
+            # Determine if the cell is merged
+            is_merged = cell.IsMerged            
             formula = cell.getFormula() if isformula else None
-            return {"value":value, "string":  cell.getString(),  "style":cell.CellStyle, "class": value.__class__.__name__, "is_formula": isformula, "formula": formula}
+            return {"value":value, "string":  cell.getString(),  "style":cell.CellStyle, "class": value.__class__.__name__, "is_formula": isformula, "formula": formula, "is_merged": is_merged}
 
     ## Return a Range object with the limits of the index sheet
     def getSheetRange(self):

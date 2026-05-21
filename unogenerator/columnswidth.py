@@ -286,3 +286,34 @@ def guessColumnsWidth(value: list[dict] | list[list] | list, colums_width_mode=t
             return columnsWidth_from_lod_with_quantile(value, None, 90, char_to_cm, padding_cm, min_width_cm, max_width_cm)
         case types.ColumnsWidthMode.FROM_LOD_QUANTILE_90_ONLY_100:
             return columnsWidth_from_lod_with_quantile(value, 100, 90, char_to_cm, padding_cm, min_width_cm, max_width_cm)
+        
+        case types.ColumnsWidthMode.FROM_SHEET_CELLS: # 'value' is expected to be the ODS document object (doc)
+            doc = value
+            # Get all values from the current active sheet, including detailed string representation
+            sheet_data_detailed = doc.getValues(detailed=True)
+            
+            if not sheet_data_detailed:
+                return []
+            
+            # Construct a list of lists of strings, applying the specified logic for length calculation.
+            # - If a cell is NOT merged (is_merged is False), its effective length for calculation will be 1.
+            # - If a cell IS merged (is_merged is True), its actual string content will be used.
+            #   (Note: For merged cells that are not the top-left, 'string' will typically be empty,
+            #   resulting in a length of 0, which is then capped by min_width_cm in columnsWidth_from_lol).
+            processed_strings_for_width_calc = []
+            for row_data in sheet_data_detailed:
+                current_row_processed_strings = []
+                for cell_data in row_data:
+                    if cell_data.get('is_merged') is True:
+                        current_row_processed_strings.append("X") # Placeholder string of length 1
+                    else:
+                        current_row_processed_strings.append(cell_data.get('string'))
+                processed_strings_for_width_calc.append(current_row_processed_strings)
+            
+            # Now calculate widths using the list of lists of strings
+            r=columnsWidth_from_lol(processed_strings_for_width_calc, None, char_to_cm, padding_cm, min_width_cm, max_width_cm)
+            # with open("BORRAME", "a") as f:
+            #     f.write(str(sheet_data_detailed)+"\n")
+            #     f.write(str(r)+"\n")
+            #     f.write(str(processed_strings_for_width_calc)+"\n")
+            return r

@@ -291,7 +291,7 @@ def sheet_stylenames(doc):
         })
     sheet_from_lod(doc, "Internal style names", lod_, freezeandselect="A2", columns_width_mode=types.ColumnsWidthMode.FROM_LOD)
 
-def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575):
+def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, coord_to_freeze="A2",  max_rows=1048575):
     """
     Splits a large list of rows across multiple sheets if it exceeds LibreOffice Calc's row limits.
 
@@ -326,12 +326,8 @@ def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=Color
         doc.addListOfRowsWithStyle("A2", lor[from_:to_])
 
         #Sets width of columns
-        if columns_width is None:
-            doc.setColumnsWidth(lor, types.ColumnsWidthMode.FROM_LOL)
-        else:
-            if isinstance(columns_width, int):
-                columns_width = [columns_width] * len(headers)
-            doc.setColumnsWidth(columns_width)
+    
+        doc.setColumnsWidth(lor[from_:to_], types.ColumnsWidthMode.FROM_LOL)
 
         doc.freezeAndSelect(Coord.assertCoord(coord_to_freeze))
     

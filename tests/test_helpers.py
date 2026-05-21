@@ -51,7 +51,7 @@ if can_import_uno():
             
         with ODS_Standard(server=libreoffice_server) as doc:
             helpers.sheet_split_with_big_lol(doc, "Big LOR", r, ["N", "N+1"])#, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575): 
-            helpers.sheet_split_with_big_lol(doc, "Big LOR de 10", r, ["N", "N+1"], columns_width=3, max_rows=10)#, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575): 
+            helpers.sheet_split_with_big_lol(doc, "Big LOR de 10", r, ["N", "N+1"], max_rows=10)#, headers_colors=ColorsNamed.Orange, columns_width=None,  coord_to_freeze="A2",  max_rows=1048575): 
             
             doc.export_xlsx("sheet_split_with_big_lol.xlsx")
         

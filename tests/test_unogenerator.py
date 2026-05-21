@@ -126,7 +126,6 @@ if can_import_uno():
     def test_ods_addListOfRows(libreoffice_server):
         filename="test_ods_addListOfRows.pdf"
         with ODS("unogenerator/templates/colored.ods", server=libreoffice_server) as doc:
-            doc.setColumnsWidth([5]*20)
             #Rows
             doc.addListOfRows("B1", lor)
             doc.addListOfRows("A1", [])
@@ -140,6 +139,7 @@ if can_import_uno():
             doc.addListOfColumnsWithStyle("H7", lor)
             doc.addListOfColumnsWithStyle("A1", [])
                         
+            doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
             doc.export_pdf(filename)
         remove(filename)
         
@@ -147,7 +147,6 @@ if can_import_uno():
     def test_ods_addFormulaArray(libreoffice_server):
         filename="test_ods_addFormulaArray.pdf"
         with ODS_Standard(server=libreoffice_server) as doc:
-            doc.setColumnsWidth([5]*20)
            
             # Checks with List of Rows
             doc.addListOfRows("A1", [["=2+2", "=3+3"], ], formulas=False)
@@ -182,13 +181,13 @@ if can_import_uno():
             doc.addListOfColumns("H14", [["=2+2", "=3+3"], ], formulas=True)
             doc.addListOfColumnsWithStyle("J14",  lor_types, formulas=False, styles=lor_types_styles)
             doc.addListOfColumnsWithStyle("M14",  lor_types, formulas=True, styles=lor_types_styles)
+            doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
             
             doc.export_pdf(filename)
         remove(filename)
 
     def test_ods_addRow(libreoffice_server):
         with ODS("unogenerator/templates/colored.ods", server=libreoffice_server) as doc:
-            doc.setColumnsWidth([4]*20)
             #Checking range - range_uno conversions
             range_=Range("B2:C3")
             range_uno=range_.uno_range(doc.sheet)
@@ -208,6 +207,7 @@ if can_import_uno():
             doc.addColumnWithStyle("A1", [])
             doc.addColumnWithStyle("H7", row)
             doc.addColumnWithStyle("I7", row, ColorsNamed.Yellow, "Integer")
+            doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
             doc.export_pdf("test_ods_addRow.pdf")
             
             # Replace colored cell

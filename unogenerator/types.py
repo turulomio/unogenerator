@@ -25,3 +25,4 @@ class ColumnsWidthMode(Enum):
     FROM_LOD_QUANTILE_90_ONLY_100 = auto() # Para usar los valores del percentil 90
     FROM_LOD_ONLY_100 = auto() # Para usar los 100 primeros diccionarios
 
+    FROM_SHEET_CELLS= auto()# Como valor se pasa el doc, saca los valores y calcula el width

@@ -228,7 +228,7 @@ def demo_ods_standard(language, server):
         doc.addCellMergedWithStyle("E15:K15", "Merge proof", ColorsNamed.Yellow, style="BoldCenter")
         doc.setComment("B14", "This is nice comment")
         
-        doc.setColumnsWidth(headers, types.ColumnsWidthMode.FROM_LIST)
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
         doc.freezeAndSelect("B2")
         
         ## List of rows
@@ -264,7 +264,7 @@ def demo_ods_standard(language, server):
         range_=doc.addListOfRowsWithStyle("A43", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
         helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False, showing=True)
 
-        doc.setColumnsWidth([3]*20)
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
         
 
         ## HELPERS
@@ -291,7 +291,7 @@ def demo_ods_standard(language, server):
         lod.append(OrderedDict({"Singer": "Elvis",  "Songs": 10000 , "Albums": 100}))
         lod.append(OrderedDict({"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 }))
         helpers.block_from_lod_with_totals(doc, "A34",  lod, columns_header=1)
-        doc.setColumnsWidth([3]*20)
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
         
         ##Sort
         doc.createSheet("Sort")
@@ -304,14 +304,14 @@ def demo_ods_standard(language, server):
         doc.addColumnWithStyle("C2", l)
         doc.sortRange("B2:B10",  0)
         doc.sortRange("C2:C10",  0, False)
-        doc.setColumnsWidth([3]*20)
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
         ## Split big LOR
         lor=[]
         for i in range(1000):
             lor.append([i, _("String")+" "+ str(i), datetime.now()])
             
-        helpers.sheet_split_with_big_lol(doc, "Splits in 400 rows", lor, ["Integer", "String", "Datetime"], columns_width=[2, 5, 5],  max_rows=400)
+        helpers.sheet_split_with_big_lol(doc, "Splits in 400 rows", lor, ["Integer", "String", "Datetime"],  max_rows=400)
 
 
         ## COLUMNS WIDTH LOD
