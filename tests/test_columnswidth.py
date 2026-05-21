@@ -86,9 +86,9 @@ if can_import_uno():
         assert columnsWidth_from_lol_with_quantile(matrix, n=None, percentile_value=90, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.15, 13.7]
 
         # Test with n=2 (only first two rows)
-        # Col 1 lengths: [1, 5] -> 90th percentile (interpolated) = 5
+        # Col 1 lengths: [1, 5] -> 90th percentile (interpolated) = 4.6
         # Col 2 lengths: [10, 20] -> 90th percentile (interpolated) = 19
-        # Widths: (5*0.22+0.5)=1.6 -> 2.0, (19*0.22+0.5)=4.68
+        # Widths: (4.6*0.22+0.5)=1.512 -> 2.0, (19*0.22+0.5)=4.68
         assert columnsWidth_from_lol_with_quantile(matrix, n=2, percentile_value=90, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0, 4.68]
 
     def test_columnsWidth_from_lod():
@@ -136,9 +136,9 @@ if can_import_uno():
             {"ShortKey": "val1", "VeryLongKeyIndeed": "val2"},
             {"ShortKey": "val3", "VeryLongKeyIndeed": "val4"}
         ]
-        # Keys: "ShortKey" (8), "VeryLongKeyIndeed" (19)
-        # Widths: (8*0.22+0.5)=2.26, (19*0.22+0.5)=4.68
-        assert columnsWidth_from_lod_keys(lod_data, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.26, 4.68]
+        # Keys: "ShortKey" (8), "VeryLongKeyIndeed" (17)
+        # Widths: (8*0.22+0.5)=2.26, (17*0.22+0.5)=4.24
+        assert columnsWidth_from_lod_keys(lod_data, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.26, 4.24]
 
     def test_columnsWidth_from_lod_with_quantile():
         # Empty LOD
@@ -153,18 +153,18 @@ if can_import_uno():
             {"A": "a"*3, "B": "b"*12},
             {"A": "a"*1, "B": "b"*100} # Outlier
         ]
-        # Keys: "A" (1), "B" (1)
-        # Col "A" lengths: [1 (key), 1, 5, 10, 2, 3, 1] -> sorted: [1, 1, 1, 2, 3, 5, 10] -> 90th percentile (interpolated) = 61.2
-        # Col "B" lengths: [1 (key), 10, 20, 5, 15, 12, 100] -> sorted: [1, 5, 10, 12, 15, 20, 100] -> 90th percentile (interpolated) = 62.8
-        # Widths: (61.2*0.22+0.5)=13.96, (62.8*0.22+0.5)=14.32
-        assert columnsWidth_from_lod_with_quantile(lod_data, n=None, percentile_value=90, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [13.96, 14.32]
+        # Keys: "A" (1), "B" (1) (from lod_data[0].keys())
+        # Col "A" lengths: [1 (key), 1, 5, 10, 2, 3, 1] -> sorted: [1, 1, 1, 2, 3, 5, 10] -> 90th percentile (interpolated) = 7.0
+        # Col "B" lengths: [1 (key), 10, 20, 5, 15, 12, 100] -> sorted: [1, 5, 10, 12, 15, 20, 100] -> 90th percentile (interpolated) = 52.0
+        # Widths: (7.0*0.22+0.5)=2.04, (52.0*0.22+0.5)=11.94
+        assert columnsWidth_from_lod_with_quantile(lod_data, n=None, percentile_value=90, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.04, 11.94]
 
         # Test with n=2 (only first two records)
         # Keys: "A" (1), "B" (1) (from lod_data[0].keys())
-        # Col "A" lengths: [1 (key), 1, 5] -> sorted: [1, 1, 5] -> 90th percentile (interpolated) = 5
-        # Col "B" lengths: [1 (key), 10, 20] -> sorted: [1, 10, 20] -> 90th percentile (interpolated) = 20
-        # Widths: (5*0.22+0.5)=1.6 -> 2.0, (20*0.22+0.5)=4.9
-        assert columnsWidth_from_lod_with_quantile(lod_data, n=2, percentile_value=90, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0, 4.9]
+        # Col "A" lengths: [1 (key), 1, 5] -> sorted: [1, 1, 5] -> 90th percentile (interpolated) = 4.2
+        # Col "B" lengths: [1 (key), 10, 20] -> sorted: [1, 10, 20] -> 90th percentile (interpolated) = 18
+        # Widths: (4.2*0.22+0.5)=1.424 -> 2.0, (18*0.22+0.5)=4.46
+        assert columnsWidth_from_lod_with_quantile(lod_data, n=2, percentile_value=90, char_to_cm=CHAR_TO_CM, padding_cm=PADDING_CM) == [2.0, 4.46]
 
     def test_guessColumnsWidth_from_lol_indexed_modes():
         test_data_lol = [

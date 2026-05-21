@@ -295,11 +295,6 @@ def guessColumnsWidth(value: list[dict] | list[list] | list, colums_width_mode=t
             if not sheet_data_detailed:
                 return []
             
-            # Construct a list of lists of strings, applying the specified logic for length calculation.
-            # - If a cell is NOT merged (is_merged is False), its effective length for calculation will be 1.
-            # - If a cell IS merged (is_merged is True), its actual string content will be used.
-            #   (Note: For merged cells that are not the top-left, 'string' will typically be empty,
-            #   resulting in a length of 0, which is then capped by min_width_cm in columnsWidth_from_lol).
             processed_strings_for_width_calc = []
             for row_data in sheet_data_detailed:
                 current_row_processed_strings = []
