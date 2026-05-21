@@ -291,6 +291,60 @@ def sheet_stylenames(doc):
         })
     sheet_from_lod(doc, "Internal style names", lod_, freezeandselect="A2", columns_width_mode=types.ColumnsWidthMode.FROM_LOD)
 
+def sheet_from_lol(doc, sheetname, lor, headers, totalcolumns=False, totalrows=False, freezeandselect=None, titulo=None, **kwargs_columnswidth):
+    """
+    Creates a sheet from a list of lists (lol) with headers and optional totals.
+
+    Args:
+        doc (ODS): The ODS document object.
+        sheetname (str): The name for the new sheet.
+        lor (list): The list of lists (data rows).
+        headers (list): The list of header strings.
+        totalcolumns (bool, optional): Whether to generate column totals. Defaults to False.
+        totalrows (bool, optional): Whether to generate row totals. Defaults to False.
+        freezeandselect (str, optional): Coordinate to freeze panes at. Defaults to None.
+        titulo (str, optional): An optional title to merge across the top of the sheet. Defaults to None.
+        **kwargs_columnswidth: Keyword arguments for setColumnsWidth.
+    """
+    columns_width_mode = kwargs_columnswidth.get("columns_width_mode", types.ColumnsWidthMode.FROM_LOL)
+    char_to_cm = kwargs_columnswidth.get("char_to_cm", 0.22)
+    padding_cm = kwargs_columnswidth.get("padding_cm", 0.5)
+    min_width_cm = kwargs_columnswidth.get("min_width_cm", 2.0)
+    max_width_cm = kwargs_columnswidth.get("max_width_cm", 15.0)
+
+    doc.createSheet(sheetname)
+
+    if not lor and not headers:
+        if titulo:
+            doc.addCellMergedWithStyle("A1:D1", titulo, ColorsNamed.Red, "BoldCenter")
+        else:
+            doc.addCellMergedWithStyle("A1:D1", "No hay datos", ColorsNamed.Red, "BoldCenter")
+        return
+
+    c_start = Coord("A1")
+
+    if titulo:
+        c_end = c_start.addColumnCopy(len(headers) - 1)
+        range_titulo = Range.from_coords(c_start, c_end)
+        doc.addCellMergedWithStyle(range_titulo, titulo, ColorsNamed.Orange, "BoldCenter")
+        c_start.addRow(1)
+
+    doc.addRowWithStyle(c_start, headers, ColorsNamed.Orange, "BoldCenter")
+    c_start_data = c_start.addRowCopy(1)
+
+    range_data = doc.addListOfRowsWithStyle(c_start_data, lor)
+
+    if totalcolumns or totalrows:
+        cross_totals_from_range(doc, range_data, "#SUM", totalcolumns, totalrows, "BoldCenter", "BoldCenter", False)
+
+    data_to_measure = [headers] + lor
+    doc.setColumnsWidth(data_to_measure, columns_width_mode, char_to_cm, padding_cm, min_width_cm, max_width_cm)
+
+    if freezeandselect:
+        doc.freezeAndSelect(freezeandselect,freezeandselect, freezeandselect)
+    
+    return range_data
+
 def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, coord_to_freeze="A2",  max_rows=1048575):
     """
     Splits a large list of rows across multiple sheets if it exceeds LibreOffice Calc's row limits.
