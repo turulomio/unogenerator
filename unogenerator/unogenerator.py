@@ -6,6 +6,7 @@ import subprocess
 from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
+from com.sun.star.table.CellVertJustify import CENTER, STANDARD
 from com.sun.star.awt import Size
 from com.sun.star.sheet.ConditionEntryType import COLORSCALE
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
@@ -619,6 +620,12 @@ class ODS(ODF):
     def __init__(self, template=None, server=None):
         ODF.__init__(self, template, server)
         self._remove_default_sheet=True
+        self._wrapped_rows = set() # Track rows that have word wrap enabled to avoid overriding them with False
+        self.default_row_height = None # Default row height in 1/100th mm. If None, it won't be explicitly set.
+        self.default_cell_style = "Default" # Default cell style name.
+
+
+
 
     def getRemoveDefaultSheet(self):
         return self._remove_default_sheet
@@ -647,6 +654,7 @@ class ODS(ODF):
             index=len(sheets)
         sheets.insertNewByName(name, index)
         self.setActiveSheet(index)
+        self.sheet.getRows().OptimalHeight = False
         
     def removeSheet(self, index):
         current=self.sheet.Name
@@ -659,7 +667,66 @@ class ODS(ODF):
         self.sheet=self.document.getSheets().getByIndex(index)
         logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
-    
+
+    def _set_row_optimal_height(self, row_index, word_wrap):
+        """
+            Internal method to set row optimal height honoring word wrap memory.
+        """
+        if word_wrap:
+            self._wrapped_rows.add((self.sheet.Name, row_index))
+            self.sheet.getRows().getByIndex(row_index).OptimalHeight = True
+        else:
+            if (self.sheet.Name, row_index) not in self._wrapped_rows:
+                row = self.sheet.getRows().getByIndex(row_index)
+                row.OptimalHeight = word_wrap # False
+                if self.default_row_height:
+                    row.Height = self.default_row_height
+
+    def _set_rows_optimal_height(self, row_range_uno, word_wrap):
+        """
+            Internal method to set optimal height for a range of rows honoring memory.
+        """
+        start_row = row_range_uno.RangeAddress.StartRow
+        end_row = row_range_uno.RangeAddress.EndRow
+        
+        if word_wrap:
+            # Optimization: only iterate if we need to add new rows to the set
+            for r in range(start_row, end_row + 1):
+                self._wrapped_rows.add((self.sheet.Name, r))
+            row_range_uno.getRows().OptimalHeight = True
+        else:
+            # Optimization: If the set is empty, we can skip the loop and do ONE bulk call.
+            # Even if not empty, we could check for intersection, but an empty set is the common case.
+            if not self._wrapped_rows:
+                rows = row_range_uno.getRows()
+                rows.OptimalHeight = word_wrap # False
+                if self.default_row_height:
+                    rows.Height = self.default_row_height
+                return
+
+            # First, set everything to OptimalHeight=False and Height=default_row_height for rows that should NOT be wrapped.
+            # We do this in blocks to be efficient.
+            current_start = -1
+            for r in range(start_row, end_row + 1):
+                if (self.sheet.Name, r) not in self._wrapped_rows:
+                    if current_start == -1:
+                        current_start = r
+                else:
+                    if current_start != -1:
+                        # Set block from current_start to r-1
+                        rows = self.sheet.getCellRangeByPosition(0, current_start, 0, r - 1).getRows()
+                        rows.OptimalHeight = word_wrap # False
+                        if self.default_row_height:
+                            rows.Height = self.default_row_height
+                        current_start = -1
+            
+            if current_start != -1:
+                # Set last block
+                rows = self.sheet.getCellRangeByPosition(0, current_start, 0, end_row).getRows()
+                rows.OptimalHeight = word_wrap # False
+                if self.default_row_height:
+                    rows.Height = self.default_row_height
+
     def setColumnsWidth(self,  value: list[dict] | list[list] | list, columns_width_mode=types.ColumnsWidthMode.MANUAL, char_to_cm=0.22, padding_cm=0.5, min_width_cm=2.0, max_width_cm=15.0):
         """
             Sets columns width 
@@ -724,12 +791,13 @@ class ODS(ODF):
         return R.from_uno_range(range_uno)
 
 
-    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True):        
+    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True, word_wrap=False):        
         """
             Parameters:
                 - formulas Boolean. If true formulas will be written as formula. If false as string
                 - colors Color: Use color for all array, List of colors one for each cell
                 - styles If None uses guest style. Else an array of styles
+                - word_wrap Boolean. If True, enables word wrap and optimal row height. If False, keeps fixed row height.
             Return: Range
         """
         coord_start=Coord.assertCoord(coord_start)        
@@ -737,11 +805,14 @@ class ODS(ODF):
         if range_ is None:
             return None
         range_uno=range_.uno_range(self.sheet)
+        range_uno.IsTextWrapped = word_wrap
+        range_uno.VertJustify = CENTER if word_wrap else STANDARD
+        self._set_rows_optimal_height(range_uno, word_wrap)
         #Fast color:
         if styles is None:
             styles=[]
             for o in list_o:
-                styles.append(guess_object_style(o))
+                styles.append(guess_object_style(o, self.default_cell_style))
             
         
         if isinstance(colors, list):
@@ -788,12 +859,13 @@ class ODS(ODF):
             self.__setDataArray(range_, r)
         return R.from_coords_indexes(*range_indexes)
             
-    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True):
+    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True, word_wrap=False):
         """
             Parameters:
                 - formulas Boolean. If true formulas will be written as formula. If false as string
                 - colors Color: Use color for all array, List of colors one for each cell
                 - styles If None uses guest style. Else an array of styles
+                - word_wrap Boolean. If True, enables word wrap and optimal row height. If False, keeps fixed row height.
             Return: Range
         """
         coord_start=Coord.assertCoord(coord_start)
@@ -803,11 +875,15 @@ class ODS(ODF):
             return None
             
         range_uno=range_.uno_range(self.sheet)
+        range_uno.IsTextWrapped = word_wrap
+        range_uno.VertJustify = CENTER if word_wrap else STANDARD
+        self._set_rows_optimal_height(range_uno, word_wrap)
+
         # Guess styles if none
         if styles is None:
             styles=[]
             for o in list_o:
-                styles.append(guess_object_style(o))
+                styles.append(guess_object_style(o, self.default_cell_style))
         #Fast color:
         if isinstance(colors, list):
             for i in range(len(list_o)):
@@ -896,7 +972,7 @@ class ODS(ODF):
     ## @param colors. List of column colors, one color, or None to use white
     ## @param styles. List of styles (columns) or None to guess them from first row
     ## @return range of the list_of_rows
-    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None,  formulas=True):
+    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None,  formulas=True, word_wrap=False):
         """
             Function used to add a big amount of cells to paste quickly
             
@@ -904,6 +980,7 @@ class ODS(ODF):
                 - formulas Boolean. If true formulas will be written as formula. If false as string
                 - colors. List of column colors, one color, or None to use white
                 - styles. List of styles (columns) or None to guess them from first row
+                - word_wrap Boolean. If True, enables word wrap and optimal row height. If False, keeps fixed row height.
                 
             Return: Range
         """
@@ -915,6 +992,7 @@ class ODS(ODF):
         
         columns=range_.numColumns()
         rows=range_.numRows()
+        range_uno=range_.uno_range(self.sheet)
 
         # Parse colors.
         if colors.__class__.__name__=="list":
@@ -928,7 +1006,7 @@ class ODS(ODF):
         if styles is None and rows>0:
             styles=[]
             for o in list_rows[0]:
-                styles.append(guess_object_style(o))
+                styles.append(guess_object_style(o, self.default_cell_style))
         elif styles.__class__.__name__=="list":
             styles=styles
         else:
@@ -939,13 +1017,22 @@ class ODS(ODF):
             raise exceptions.UnogeneratorException(_("Colors must have the same number of items as data columns"))
         if len(styles)!=columns:
             raise exceptions.UnogeneratorException(_("Styles must have the same number of items as data columns"))
-            
+
         #Create styles by columns cellranges
         if rows>0:
-            for c, o in enumerate(list_rows[0]):
-                columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
-                columnrange.setPropertyValue("CellStyle", styles[c])
-                columnrange.setPropertyValue("CellBackColor", colors[c])                    
+            # Optimization: If all styles are default and all colors are White, we can skip this loop
+            if all(s == self.default_cell_style for s in styles) and all(c == ColorsNamed.White for c in colors):
+                pass
+            else:
+                for c, o in enumerate(list_rows[0]):
+                    columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
+                    columnrange.setPropertyValue("CellStyle", styles[c])
+                    columnrange.setPropertyValue("CellBackColor", colors[c])                    
+        
+        range_uno.IsTextWrapped = word_wrap
+        range_uno.VertJustify = CENTER if word_wrap else STANDARD
+        self._set_rows_optimal_height(range_uno, word_wrap)
+        
         return range_
 
 
@@ -962,12 +1049,13 @@ class ODS(ODF):
 
 
     ## @param style If None tries to guess it
-    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None,  formulas=True):
+    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None,  formulas=True, word_wrap=False):
         """
             Colors and styles are the colors of the first column. Code is different
             
             Parameters:
                 - formulas Boolean. If true formulas will be written as formula. If false as string
+                - word_wrap Boolean. If True, enables word wrap and optimal row height. If False, keeps fixed row height.
             
             Return: Range
         """
@@ -979,6 +1067,7 @@ class ODS(ODF):
         
         columns=range_.numColumns()
         rows=range_.numRows()
+        range_uno=range_.uno_range(self.sheet)
 
         # Parse colors.
         if colors.__class__.__name__=="list":
@@ -992,7 +1081,7 @@ class ODS(ODF):
         if styles is None and rows>0:
             styles=[]
             for o in list_columns[0]:
-                styles.append(guess_object_style(o))
+                styles.append(guess_object_style(o, self.default_cell_style))
         elif styles.__class__.__name__=="list":
             styles=styles
         else:
@@ -1003,28 +1092,41 @@ class ODS(ODF):
             raise exceptions.UnogeneratorException(_("Colors must have the same number of items as data columns"))
         if len(styles)!=rows:
             raise exceptions.UnogeneratorException(_("Styles must have the same number of items as data columns"))
-            
+
         #Create styles by columns cellranges
         if rows>0:
-            for c, o in enumerate(list_columns[0]):
-                columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex()+c, coord_start.letterIndex()+columns-1, coord_start.numberIndex()+c)
-                columnrange.setPropertyValue("CellStyle", styles[c])
-                columnrange.setPropertyValue("CellBackColor", colors[c])                    
+            # Optimization: If all styles are default and all colors are White, we can skip this loop
+            if all(s == self.default_cell_style for s in styles) and all(c == ColorsNamed.White for c in colors):
+                pass
+            else:
+                for c, o in enumerate(list_columns[0]):
+                    columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex()+c, coord_start.letterIndex()+columns-1, coord_start.numberIndex()+c)
+                    columnrange.setPropertyValue("CellStyle", styles[c])
+                    columnrange.setPropertyValue("CellBackColor", colors[c])                    
+        
+        range_uno.IsTextWrapped = word_wrap
+        range_uno.VertJustify = CENTER if word_wrap else STANDARD
+        self._set_rows_optimal_height(range_uno, word_wrap)
+        
         return range_
             
     ## @param style If None tries to guess it
+    ## @param word_wrap Boolean. If True, enables word wrap and optimal row height. If False, keeps fixed row height.
     ## @param rewritewrite If color is ColorsNamed.White, rewrites the color to White instead of ignoring it. Ignore it gains 0.200 ms
     ## THIS IS THE WAY TO CREATE FORMULAS
-    def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None):
+    def addCellWithStyle(self, coord, o, color=ColorsNamed.White, style=None, word_wrap=True):
         coord=Coord.assertCoord(coord)
         
         if style is None:
-            style=guess_object_style(o)
+            style=guess_object_style(o, self.default_cell_style)
                 
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__object_to_cell(cell, o)
-        cell.setPropertyValue("CellStyle", style)
-        cell.setPropertyValue("CellBackColor", color)
+        cell.CellStyle = style
+        cell.CellBackColor = color
+        cell.IsTextWrapped = word_wrap
+        cell.VertJustify = CENTER if word_wrap else STANDARD
+        self._set_row_optimal_height(coord.numberIndex(), word_wrap)
         
     def setCellName(self, reference, name):
         """
@@ -1127,12 +1229,17 @@ class ODS(ODF):
         self.__object_to_cell(cell, o)
         return cell
 
-    def addCellMergedWithStyle(self, range, o, color=ColorsNamed.White, style=None):
-        cell=self.addCellMerged(range, o)
+    def addCellMergedWithStyle(self, range_o, o, color=ColorsNamed.White, style=None, word_wrap=False):
+        cell=self.addCellMerged(range_o, o)
+        range_obj=R.assertRange(range_o)
         if style is None:
             style=guess_object_style(o)
-        cell.setPropertyValue("CellStyle", style)
-        cell.setPropertyValue("CellBackColor", color)
+        cell.CellStyle = style
+        cell.CellBackColor = color
+        range_uno = range_obj.uno_range(self.sheet)
+        range_uno.IsTextWrapped = word_wrap
+        range_uno.VertJustify = CENTER if word_wrap else STANDARD
+        self._set_rows_optimal_height(range_uno, word_wrap)
 
     def freezeAndSelect(self, freeze, selected=None, topleft=None):
         freeze=Coord.assertCoord(freeze) 
@@ -1473,6 +1580,10 @@ class ODS(ODF):
 class ODS_Standard(ODS):
     def __init__(self, server=None):
         ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', server)
+        self.default_row_height = 452
+        self.default_cell_style = "Normal"
+
+
 
 class ODT_Standard(ODT):
     def __init__(self, server=None):

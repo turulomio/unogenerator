@@ -235,7 +235,10 @@ def demo_ods_standard(language, server):
         
         demo_ods_sheet_styles(doc)
         demo_ods_sheet_sort(doc)
+        demo_ods_sheet_word_wrap(doc)
         demo_ods_block_column_row_cross(doc)
+        demo_ods_sheet_from_lod(doc)
+        demo_ods_sheet_from_lol(doc)
 
         # demo_ods_block_column_row_cros(doc)
         # demo_ods_sheet_columns_width_with_list(doc)
@@ -671,7 +674,7 @@ def demo_ods_sheet_helpers(doc):
             OrderedDict({"ID": 2, "Name": "Product B", "Price": 20.0, "Stock": 50}),
         ]
         subtitles = [["General", "ID"], ["Details", "Price"]]
-        helpers.block_from_lod(doc, lod_headers, "A41", subtitles=subtitles, titulo="Products")
+        helpers.block_from_lod_with_headers(doc, lod_headers, "A41", subtitles=subtitles, titulo="Products", column_of_totals=True, row_of_totals=True)
 
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
         
@@ -679,7 +682,7 @@ def demo_ods_sheet_from_lol(doc):
         ## Sheet from LOL and LOD
         helpers.sheet_from_lol(doc, "Sheet from LOL", [[1, 2], [3, 4]], ["Col1", "Col2"], column_of_totals=True, row_of_totals=True, titulo="LOL Table")
         
-def demo_ods_sheet_helpers_from_lod(doc):
+def demo_ods_sheet_from_lod(doc):
         helpers.sheet_from_lod(doc, "Sheet from LOD", lod_singers, column_of_totals=True, row_of_totals=True, titulo="LOD Table")
         
 def demo_ods_sheet_sort(doc):
@@ -695,6 +698,25 @@ def demo_ods_sheet_sort(doc):
         doc.sortRange("B2:B10",  0)
         doc.sortRange("C2:C10",  0, False)
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+def demo_ods_sheet_word_wrap(doc):
+        ## Word Wrap
+        doc.createSheet("Word Wrap")
+        long_text = "This is a very long text that should be wrapped if the parameter is set to True, otherwise it should stay in a single line with fixed row height."
+        doc.addCellWithStyle("A1", "Word Wrap False", ColorsNamed.Orange, "BoldCenter")
+        doc.addCellWithStyle("A2", long_text, word_wrap=False)
+        
+        doc.addCellWithStyle("A4", "Word Wrap True", ColorsNamed.Orange, "BoldCenter")
+        doc.addCellWithStyle("A5", long_text, word_wrap=True)
+
+
+        helpers.block_from_lod(doc, "A7",  lod_singers, columns_header=1, word_wrap=False)
+
+        helpers.block_from_lod(doc, "A12",  lod_singers, columns_header=1, word_wrap=True)
+
+
+        
+        doc.setColumnsWidth([2, 2, 2, 2], types.ColumnsWidthMode.MANUAL)
 
 def demo_ods_sheet_split_with_big_lol(doc):
         helpers.sheet_split_with_big_lol(doc, "Splits in 400 rows", lol_thousands, ["Integer", "String", "Datetime"],  max_rows=400)

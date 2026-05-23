@@ -486,15 +486,15 @@ def generate_formula_total_string(key, coord_from, coord_to):
         s=key
     return s
 
-def guess_object_style(o):
+def guess_object_style(o, default_style="Default"):
     if o is None:
-        return "Normal"
+        return default_style
     elif o.__class__.__name__=="int":
         return "Integer"
     elif o.__class__.__name__=="timedelta":
         return "TimedeltaSeconds"#TimedeltaISO exits but you can't add or supr
     elif o.__class__.__name__=="str":
-        return "Normal"
+        return default_style
     elif o.__class__.__name__ in ["Currency", "Money" ]:
         return o.currency
     elif o.__class__.__name__=="Percentage":

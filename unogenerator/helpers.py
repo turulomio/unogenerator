@@ -212,7 +212,7 @@ def cross_totals_from_range (
     return range_of_data
 
 
-def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, column_of_totals=False, row_of_totals=False, key="#SUM", title=None):
+def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, column_of_totals=False, row_of_totals=False, key="#SUM", title=None, word_wrap=False):
     """
     Write cells from a list of ordered dictionaries.
     Params:
@@ -229,6 +229,7 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
         row_of_totals: Add a total at the right of the block
         key (str, optional): Formula key for totals. Defaults to "#SUM".
         title (str, optional): Title for the block. Defaults to None.   
+        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to False.
     Returns:
         Range: The range of the data without headers. Useful to set totals.
     """
@@ -246,7 +247,7 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
                 range_title=Range.from_coords("A1", Coord("A1").addColumn(len(lod_[0].keys())-1+add_of_totals))
             else:
                 range_title=Range.from_coords("A1", Coord("A1").addColumn(len(keys)-1)+add_of_totals)
-            doc.addCellMergedWithStyle(range_title, title, ColorsNamed.Red, "BoldCenter")
+            doc.addCellMergedWithStyle(range_title, title, ColorsNamed.Red, "BoldCenter", word_wrap=word_wrap)
         c.addRow(1)
 
     # Empty lod
@@ -258,7 +259,7 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
     #Headers
     if keys is None:
         keys=lod.lod_keys(lod_)
-    doc.addRowWithStyle(c, keys, color_row_header, "BoldCenter")
+    doc.addRowWithStyle(c, keys, color_row_header, "BoldCenter", word_wrap=word_wrap)
     
     #Generate list of colors
     colors=[]
@@ -270,7 +271,7 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
    
     #Generate list of rows
     lol_=lod.lod2lol(lod_, keys)
-    range_block= doc.addListOfRowsWithStyle(c.addRow(), lol_, colors, styles)
+    range_block= doc.addListOfRowsWithStyle(c.addRow(), lol_, colors, styles, word_wrap=word_wrap)
 
     # Generate totals 
     if column_of_totals or row_of_totals:
@@ -296,7 +297,7 @@ def sheet_stylenames(doc):
         })
     sheet_from_lod(doc, "Internal style names", lod_, freezeandselect="A2", columns_width_mode=types.ColumnsWidthMode.FROM_LOD)
 
-def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_totals=False, freezeandselect=None, titulo=None, **kwargs_columnswidth):
+def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_totals=False, freezeandselect=None, titulo=None, word_wrap=False, **kwargs_columnswidth):
     """
     Creates a sheet from a list of lists (lol) with headers and optional totals.
 
@@ -309,6 +310,7 @@ def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_
         row_of_totals (bool, optional): Whether to generate row totals. Defaults to False.
         freezeandselect (str, optional): Coordinate to freeze panes at. Defaults to None.
         titulo (str, optional): An optional title to merge across the top of the sheet. Defaults to None.
+        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to False.
         **kwargs_columnswidth: Keyword arguments for setColumnsWidth.
     """
     columns_width_mode = kwargs_columnswidth.get("columns_width_mode", types.ColumnsWidthMode.FROM_LOL)
@@ -331,13 +333,13 @@ def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_
     if titulo:
         c_end = c_start.addColumnCopy(len(headers) - 1)
         range_titulo = Range.from_coords(c_start, c_end)
-        doc.addCellMergedWithStyle(range_titulo, titulo, ColorsNamed.Orange, "BoldCenter")
+        doc.addCellMergedWithStyle(range_titulo, titulo, ColorsNamed.Orange, "BoldCenter", word_wrap=word_wrap)
         c_start.addRow(1)
 
-    doc.addRowWithStyle(c_start, headers, ColorsNamed.Orange, "BoldCenter")
+    doc.addRowWithStyle(c_start, headers, ColorsNamed.Orange, "BoldCenter", word_wrap=word_wrap)
     c_start_data = c_start.addRowCopy(1)
 
-    range_data = doc.addListOfRowsWithStyle(c_start_data, lor)
+    range_data = doc.addListOfRowsWithStyle(c_start_data, lor, word_wrap=word_wrap)
 
     if column_of_totals or row_of_totals:
         cross_totals_from_range(doc, range_data, "#SUM", column_of_totals, row_of_totals, "BoldCenter", "BoldCenter", False)
@@ -350,7 +352,7 @@ def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_
     
     return range_data
 
-def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, coord_to_freeze="A2",  max_rows=1048575):
+def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, coord_to_freeze="A2",  max_rows=1048575, word_wrap=False):
     """
     Splits a large list of rows across multiple sheets if it exceeds LibreOffice Calc's row limits.
 
@@ -367,6 +369,7 @@ def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=Color
             If int, applies to all columns. If list, specifies width per column. Defaults to None.
         coord_to_freeze (Coord or str, optional): Coordinate to freeze panes at. Defaults to "A2".
         max_rows (int, optional): Maximum number of rows per sheet (Calc limit is 1,048,576). Defaults to 1048575.
+        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to False.
     """
     ceil_=ceil(len(lor)/max_rows)
     for num_sheet in range(ceil_):
@@ -377,12 +380,12 @@ def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=Color
         else:
             name=sheet_name
         doc.createSheet(name)
-        doc.addRowWithStyle("A1", headers, headers_colors, "BoldCenter")
+        doc.addRowWithStyle("A1", headers, headers_colors, "BoldCenter", word_wrap=word_wrap)
         
         #Splits data
         from_=max_rows*num_sheet
         to_=max_rows*(num_sheet+1) if len(lor)>=max_rows*(num_sheet+1) else len(lor)
-        doc.addListOfRowsWithStyle("A2", lor[from_:to_])
+        doc.addListOfRowsWithStyle("A2", lor[from_:to_], word_wrap=word_wrap)
 
         #Sets width of columns
     
@@ -391,7 +394,7 @@ def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=Color
         doc.freezeAndSelect(Coord.assertCoord(coord_to_freeze))
     
 
-def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=False, freezeandselect=None, titulo=None, **kwargs_columnswidth):
+def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=False, freezeandselect=None, titulo=None, word_wrap=False, **kwargs_columnswidth):
     """
         kwargs son los parametros de la funcion setColumnsWidth
     """
@@ -416,11 +419,11 @@ def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=
     else:
         c_end=Coord("A1").addColumnCopy(len(keys)-1)
         range_=Range.from_coords("A1", c_end)
-        doc.addCellMergedWithStyle(range_, titulo, ColorsNamed.Red, "BoldCenter")
+        doc.addCellMergedWithStyle(range_, titulo, ColorsNamed.Red, "BoldCenter", word_wrap=word_wrap)
         c_start=Coord("A2")#Empieza abajo
             
     
-    range_final=block_from_lod(doc, c_start, lod_, column_of_totals=column_of_totals, row_of_totals=row_of_totals )
+    range_final=block_from_lod(doc, c_start, lod_, column_of_totals=column_of_totals, row_of_totals=row_of_totals, word_wrap=word_wrap )
     if column_of_totals or row_of_totals:
         range_cross=cross_totals_from_range (doc, range_final, "#SUM", column_of_totals, row_of_totals, "BoldCenter", "BoldCenter", False)
     doc.setColumnsWidth(lod_, columns_width_mode, char_to_cm, padding_cm, min_width_cm, max_width_cm)
@@ -431,7 +434,7 @@ def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=
 
 
 
-def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, column_of_totals=False, row_of_totals=False, freezeandselect=None, key="#SUM"):
+def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, column_of_totals=False, row_of_totals=False, freezeandselect=None, key="#SUM", word_wrap=True):
     """
     Writes data from a list of ordered dictionaries with custom header groups, and optional totals.
 
@@ -445,6 +448,7 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
         row_of_totals (bool, optional): Whether to generate row totals. Defaults to False.
         freezeandselect (str or Coord, optional): Coordinate to freeze and select. Defaults to None.
         key (str, optional): Formula key for totals (e.g., "#SUM"). Defaults to "#SUM".
+        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to False.
 
     Returns:
         Range: The data range (excluding headers).
@@ -469,7 +473,7 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
     
     # Crea titulo principal
     if titulo is not None:
-        doc.addCellMergedWithStyle(Range.from_coords(coord,coord.addColumnCopy(len(keys)-1)), titulo, ColorsNamed.Red, "BoldCenter")
+        doc.addCellMergedWithStyle(Range.from_coords(coord,coord.addColumnCopy(len(keys)-1)), titulo, ColorsNamed.Red, "BoldCenter", word_wrap=word_wrap)
         coord.addRow(1)
      
          
@@ -477,11 +481,11 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
     for title, key_start, index_start, index_end in subtitles:
         c_start=coord.addColumnCopy(index_start)
         c_fin=coord.addColumnCopy(index_end)
-        doc.addCellMergedWithStyle(Range.from_coords(c_start,c_fin), title, ColorsNamed.Orange, "BoldCenter")
+        doc.addCellMergedWithStyle(Range.from_coords(c_start,c_fin), title, ColorsNamed.Orange, "BoldCenter", word_wrap=word_wrap)
 
 
     #Imprime listas de diccionarios
-    range_=block_from_lod(doc, coord.addRowCopy(1),lod_,color_row_header=ColorsNamed.Yellow)
+    range_=block_from_lod(doc, coord.addRowCopy(1),lod_,color_row_header=ColorsNamed.Yellow, word_wrap=word_wrap)
 
     if column_of_totals or row_of_totals:
         cross_totals_from_range(doc, range_, key, column_of_totals, row_of_totals)
