@@ -18,7 +18,7 @@ except:
 
 def row_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, row_from="2", row_to=None):
     """
-    Generates a row of totals starting from the given coordinate.
+    Generates a row of totals starting from the given coordinate using bulk insertion.
 
     Args:
         doc (ODS): The ODS document object.
@@ -30,27 +30,27 @@ def row_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=N
         row_to (str, optional): The row number where the formula range ends. If None, defaults to the row above `coord`.
     """
     coord=Coord.assertCoord(coord)
+    formulas = []
     for letter, total in enumerate(list_of_totals):
         coord_total=coord.addColumnCopy(letter)
-        coord_total_from=Coord(coord_total.letter+row_from)
+        coord_total_from=Coord(coord_total.letter+str(row_from))
         if row_to is None:
             coord_total_to=coord_total.addRowCopy(-1)# row above
         else:
-            coord_total_to=Coord(coord_total.letter+row_to)
+            coord_total_to=Coord(coord_total.letter+str(row_to))
+        formulas.append(generate_formula_total_string(total, coord_total_from, coord_total_to))
 
-        if styles is None:
-            style=guess_object_style(doc.getValue(coord_total_from))
-        elif styles.__class__.__name__ != "list":
-            style=styles
-        else:
-            style=styles[letter]
-
-        doc.addCellWithStyle(coord_total, generate_formula_total_string(total, coord_total_from, coord_total_to), color, style)
+    if styles is None:
+        # Guess style from the first data cell
+        first_coord_from = Coord(coord.letter + str(row_from))
+        styles = guess_object_style(doc.getValue(first_coord_from), doc.default_cell_style)
+    
+    doc.addRowWithStyle(coord, formulas, colors=color, styles=styles)
 
 
 def column_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=None, column_from="B", column_to=None):
     """
-    Generates a column of totals starting from the given coordinate.
+    Generates a column of totals starting from the given coordinate using bulk insertion.
 
     Args:
         doc (ODS): The ODS document object.
@@ -62,22 +62,22 @@ def column_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, style
         column_to (str, optional): The column letter where the formula range ends. If None, defaults to one column before `coord`.
     """
     coord=Coord.assertCoord(coord)
+    formulas = []
     for number, total in enumerate(list_of_totals):
         coord_total=coord.addRowCopy(number)
-        coord_total_from=Coord(column_from + coord_total.number)
+        coord_total_from=Coord(str(column_from) + coord_total.number)
         if column_to is None:
             coord_total_to=coord_total.addColumnCopy(-1)# row above
         else:
-            coord_total_to=Coord(column_to + coord_total.number)
+            coord_total_to=Coord(str(column_to) + coord_total.number)
+        formulas.append(generate_formula_total_string(total, coord_total_from, coord_total_to))
 
-        if styles is None:
-            style=guess_object_style(doc.getValue(coord_total_from))
-        elif styles.__class__.__name__ != "list":
-            style=styles
-        else:
-            style=styles[number]
+    if styles is None:
+        # Guess style from the first data cell
+        first_coord_from = Coord(str(column_from) + coord.number)
+        styles = guess_object_style(doc.getValue(first_coord_from), doc.default_cell_style)
 
-        doc.addCellWithStyle(coord_total, generate_formula_total_string(total, coord_total_from, coord_total_to), color, style)
+    doc.addColumnWithStyle(coord, formulas, colors=color, styles=styles)
         
 def row_title_values_total( doc, coord, title, values, 
         style_title=None, color_title=ColorsNamed.Orange, 

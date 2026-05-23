@@ -801,34 +801,48 @@ class ODS(ODF):
             Return: Range
         """
         coord_start=Coord.assertCoord(coord_start)        
-        range_=self.addRow(coord_start, list_o, formulas)
-        if range_ is None:
-            return None
-        range_uno=range_.uno_range(self.sheet)
+        # Determine range and get UNO object
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
+        range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
+        
+        # Apply word wrap and alignment
         range_uno.IsTextWrapped = word_wrap
         range_uno.VertJustify = CENTER if word_wrap else STANDARD
         self._set_rows_optimal_height(range_uno, word_wrap)
-        #Fast color:
+
+        # Guess styles if none
         if styles is None:
             styles=[]
             for o in list_o:
                 styles.append(guess_object_style(o, self.default_cell_style))
-            
-        
-        if isinstance(colors, list):
-            for i in range(len(list_o)):
-                cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
-                cell.setPropertyValue("CellBackColor", colors[i])
-        else:
-            range_uno.setPropertyValue("CellBackColor", colors)
-        #Fast style:
+
+        # Fast style:
         if isinstance(styles, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
-                cell.setPropertyValue("CellStyle", styles[i])
+                cell.CellStyle = styles[i]
         else:
-            range_uno.setPropertyValue("CellStyle", styles)
-        return range_
+            range_uno.CellStyle = styles
+
+        # Fast color:
+        if isinstance(colors, list):
+            for i in range(len(list_o)):
+                cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
+                cell.CellBackColor = colors[i]
+        else:
+            range_uno.CellBackColor = colors
+
+        # Finally add content
+        r=[]
+        for o in list_o:
+            r.append(self.__object_to_dataarray_element(o))
+        
+        if formulas is True:
+            self.__setFormulaArray(range_uno, [r, ])
+        else:
+            self.__setDataArray(range_uno, [r, ])
+
+        return R.from_uno_range(range_uno)
             
 
 
@@ -859,7 +873,7 @@ class ODS(ODF):
             self.__setDataArray(range_, r)
         return R.from_coords_indexes(*range_indexes)
             
-    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True, word_wrap=False):
+    def addColumnWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True, word_wrap=True):
         """
             Parameters:
                 - formulas Boolean. If true formulas will be written as formula. If false as string
@@ -869,12 +883,15 @@ class ODS(ODF):
             Return: Range
         """
         coord_start=Coord.assertCoord(coord_start)
-        range_=self.addColumn(coord_start, list_o, formulas)
         
-        if range_ is None:
+        if len(list_o)==0:
             return None
-            
-        range_uno=range_.uno_range(self.sheet)
+
+        # Determine range and get UNO object
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex(), coord_start.numberIndex()+len(list_o)-1]
+        range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
+        
+        # Apply word wrap and alignment
         range_uno.IsTextWrapped = word_wrap
         range_uno.VertJustify = CENTER if word_wrap else STANDARD
         self._set_rows_optimal_height(range_uno, word_wrap)
@@ -884,21 +901,34 @@ class ODS(ODF):
             styles=[]
             for o in list_o:
                 styles.append(guess_object_style(o, self.default_cell_style))
+
+        # Fast style:
+        if isinstance(styles, list):
+            for i in range(len(list_o)):
+                cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
+                cell.CellStyle = styles[i]
+        else:
+            range_uno.CellStyle = styles
+
         #Fast color:
         if isinstance(colors, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
-                cell.setPropertyValue("CellBackColor", colors[i])
+                cell.CellBackColor = colors[i]
         else:
-            range_uno.setPropertyValue("CellBackColor", colors)
-        #Fast style:
-        if isinstance(styles, list):
-            for i in range(len(list_o)):
-                cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
-                cell.setPropertyValue("CellStyle", styles[i])
+            range_uno.CellBackColor = colors
+
+        # Finally add content
+        r=[]
+        for o in list_o:
+            r.append([self.__object_to_dataarray_element(o), ])
+        
+        if formulas is True:
+            self.__setFormulaArray(range_uno, r)
         else:
-            range_uno.setPropertyValue("CellStyle", styles)
-        return range_
+            self.__setDataArray(range_uno, r)
+
+        return R.from_coords_indexes(*range_indexes)
         
         
     
@@ -968,11 +998,7 @@ class ODS(ODF):
             self.__setDataArray(range, r)
         return R.from_coords_indexes(*range_indexes)
 
-    ## Function used to add a big amount of cells to paste quickly
-    ## @param colors. List of column colors, one color, or None to use white
-    ## @param styles. List of styles (columns) or None to guess them from first row
-    ## @return range of the list_of_rows
-    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None,  formulas=True, word_wrap=False):
+    def addListOfRowsWithStyle(self, coord_start, list_rows, colors=ColorsNamed.White, styles=None,  formulas=True, word_wrap=True):
         """
             Function used to add a big amount of cells to paste quickly
             
@@ -986,13 +1012,20 @@ class ODS(ODF):
         """
         coord_start=Coord.assertCoord(coord_start) 
         
-        range_=self.addListOfRows(coord_start, list_rows, formulas)
-        if range_ is None:
-            return
-        
-        columns=range_.numColumns()
-        rows=range_.numRows()
-        range_uno=range_.uno_range(self.sheet)
+        rows=len(list_rows)
+        if rows==0:
+            columns=0
+        else:
+            columns=len(list_rows[0])
+            
+            
+        if rows==0 or columns==0:
+            logger.debug(_("addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring...").format(rows, columns))
+            return 
+
+        # Determine range and get UNO object
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
+        range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
 
         # Parse colors.
         if colors.__class__.__name__=="list":
@@ -1026,14 +1059,27 @@ class ODS(ODF):
             else:
                 for c, o in enumerate(list_rows[0]):
                     columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
-                    columnrange.setPropertyValue("CellStyle", styles[c])
-                    columnrange.setPropertyValue("CellBackColor", colors[c])                    
+                    columnrange.CellStyle = styles[c]
+                    columnrange.CellBackColor = colors[c]                    
         
         range_uno.IsTextWrapped = word_wrap
         range_uno.VertJustify = CENTER if word_wrap else STANDARD
         self._set_rows_optimal_height(range_uno, word_wrap)
-        
-        return range_
+
+        # Finally add content
+        r=[]
+        for row in list_rows:
+            r_row=[]
+            for o in row:
+                r_row.append(self.__object_to_dataarray_element(o))
+            r.append(r_row)
+
+        if formulas is True:
+            self.__setFormulaArray(range_uno, r)
+        else:
+            self.__setDataArray(range_uno, r)
+
+        return R.from_coords_indexes(*range_indexes)
 
 
     def addListOfColumns(self, coord_start, list_columns, formulas=True):
@@ -1048,10 +1094,9 @@ class ODS(ODF):
         return self.addListOfRows(coord_start, list_rows, formulas)
 
 
-    ## @param style If None tries to guess it
-    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None,  formulas=True, word_wrap=False):
+    def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None,  formulas=True, word_wrap=True):
         """
-            Colors and styles are the colors of the first column. Code is different
+            Colors and styles are the colors of every column.
             
             Parameters:
                 - formulas Boolean. If true formulas will be written as formula. If false as string
@@ -1061,21 +1106,27 @@ class ODS(ODF):
         """
         coord_start=Coord.assertCoord(coord_start) 
         
-        range_=self.addListOfColumns(coord_start, list_columns, formulas)
-        if range_ is None:
-            return
-        
-        columns=range_.numColumns()
-        rows=range_.numRows()
-        range_uno=range_.uno_range(self.sheet)
+        columns=len(list_columns)
+        if columns==0:
+            rows=0
+        else:
+            rows=len(list_columns[0])
+            
+        if rows==0 or columns==0:
+            logger.debug(_("addListOfColumnsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring...").format(rows, columns))
+            return 
+
+        # Determine range and get UNO object
+        range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
+        range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
 
         # Parse colors.
         if colors.__class__.__name__=="list":
             colors=colors
         elif colors is None:
-            colors=[ColorsNamed.White]*rows
+            colors=[ColorsNamed.White]*columns
         else: #one ColorsNamed
-            colors=[colors]*rows
+            colors=[colors]*columns
         
         # Parse styles
         if styles is None and rows>0:
@@ -1085,12 +1136,12 @@ class ODS(ODF):
         elif styles.__class__.__name__=="list":
             styles=styles
         else:
-            styles=[styles]*rows
+            styles=[styles]*columns
                 
                 
-        if len(colors)!=rows:
+        if len(colors)!=columns:
             raise exceptions.UnogeneratorException(_("Colors must have the same number of items as data columns"))
-        if len(styles)!=rows:
+        if len(styles)!=columns:
             raise exceptions.UnogeneratorException(_("Styles must have the same number of items as data columns"))
 
         #Create styles by columns cellranges
@@ -1100,15 +1151,29 @@ class ODS(ODF):
                 pass
             else:
                 for c, o in enumerate(list_columns[0]):
-                    columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex()+c, coord_start.letterIndex()+columns-1, coord_start.numberIndex()+c)
-                    columnrange.setPropertyValue("CellStyle", styles[c])
-                    columnrange.setPropertyValue("CellBackColor", colors[c])                    
+                    columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
+                    columnrange.CellStyle = styles[c]
+                    columnrange.CellBackColor = colors[c]                    
         
         range_uno.IsTextWrapped = word_wrap
         range_uno.VertJustify = CENTER if word_wrap else STANDARD
         self._set_rows_optimal_height(range_uno, word_wrap)
-        
-        return range_
+
+        # Finally add content
+        list_rows=lol.lol_transposed(list_columns)
+        r=[]
+        for row in list_rows:
+            r_row=[]
+            for o in row:
+                r_row.append(self.__object_to_dataarray_element(o))
+            r.append(r_row)
+
+        if formulas is True:
+            self.__setFormulaArray(range_uno, r)
+        else:
+            self.__setDataArray(range_uno, r)
+
+        return R.from_coords_indexes(*range_indexes)
             
     ## @param style If None tries to guess it
     ## @param word_wrap Boolean. If True, enables word wrap and optimal row height. If False, keeps fixed row height.
@@ -1229,17 +1294,23 @@ class ODS(ODF):
         self.__object_to_cell(cell, o)
         return cell
 
-    def addCellMergedWithStyle(self, range_o, o, color=ColorsNamed.White, style=None, word_wrap=False):
-        cell=self.addCellMerged(range_o, o)
+    def addCellMergedWithStyle(self, range_o, o, color=ColorsNamed.White, style=None, word_wrap=True):
         range_obj=R.assertRange(range_o)
-        if style is None:
-            style=guess_object_style(o)
-        cell.CellStyle = style
-        cell.CellBackColor = color
         range_uno = range_obj.uno_range(self.sheet)
+        range_uno.merge(True)
+        
+        if style is None:
+            style=guess_object_style(o, self.default_cell_style)
+        
+        range_uno.CellStyle = style
+        range_uno.CellBackColor = color
         range_uno.IsTextWrapped = word_wrap
         range_uno.VertJustify = CENTER if word_wrap else STANDARD
         self._set_rows_optimal_height(range_uno, word_wrap)
+
+        cell = self.sheet.getCellByPosition(range_obj.c_start.letterIndex(), range_obj.c_start.numberIndex())
+        self.__object_to_cell(cell, o)
+        return cell
 
     def freezeAndSelect(self, freeze, selected=None, topleft=None):
         freeze=Coord.assertCoord(freeze) 
