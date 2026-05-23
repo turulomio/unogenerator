@@ -791,7 +791,7 @@ class ODS(ODF):
         return R.from_uno_range(range_uno)
 
 
-    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True, word_wrap=False):        
+    def addRowWithStyle(self, coord_start, list_o, colors=ColorsNamed.White,styles=None, formulas=True, word_wrap=True):        
         """
             Parameters:
                 - formulas Boolean. If true formulas will be written as formula. If false as string
@@ -801,14 +801,23 @@ class ODS(ODF):
             Return: Range
         """
         coord_start=Coord.assertCoord(coord_start)        
-        # Determine range and get UNO object
+        
+        if len(list_o)==0:
+            logger.debug(_("addRow is empty. Nothing to write. Ignoring..."))
+            return None
+
         range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+len(list_o)-1, coord_start.numberIndex()]
         range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
+
+        # Finally add content
+        r=[]
+        for o in list_o:
+            r.append(self.__object_to_dataarray_element(o))
         
-        # Apply word wrap and alignment
-        range_uno.IsTextWrapped = word_wrap
-        range_uno.VertJustify = CENTER if word_wrap else STANDARD
-        self._set_rows_optimal_height(range_uno, word_wrap)
+        if formulas is True:
+            self.__setFormulaArray(range_uno, [r, ])
+        else:
+            self.__setDataArray(range_uno, [r, ])
 
         # Guess styles if none
         if styles is None:
@@ -820,27 +829,22 @@ class ODS(ODF):
         if isinstance(styles, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
-                cell.CellStyle = styles[i]
+                cell.setPropertyValue("CellStyle", styles[i])
         else:
-            range_uno.CellStyle = styles
+            range_uno.setPropertyValue("CellStyle", styles)
 
         # Fast color:
         if isinstance(colors, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex()+i, coord_start.numberIndex())
-                cell.CellBackColor = colors[i]
+                cell.setPropertyValue("CellBackColor", colors[i])
         else:
-            range_uno.CellBackColor = colors
+            range_uno.setPropertyValue("CellBackColor", colors)
 
-        # Finally add content
-        r=[]
-        for o in list_o:
-            r.append(self.__object_to_dataarray_element(o))
-        
-        if formulas is True:
-            self.__setFormulaArray(range_uno, [r, ])
-        else:
-            self.__setDataArray(range_uno, [r, ])
+        # Apply word wrap and alignment (Applied last for maximum stability)
+        range_uno.IsTextWrapped = word_wrap
+        range_uno.VertJustify = CENTER if word_wrap else STANDARD
+        self._set_rows_optimal_height(range_uno, word_wrap)
 
         return R.from_uno_range(range_uno)
             
@@ -887,14 +891,18 @@ class ODS(ODF):
         if len(list_o)==0:
             return None
 
-        # Determine range and get UNO object
         range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex(), coord_start.numberIndex()+len(list_o)-1]
         range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
+
+        # Finally add content
+        r=[]
+        for o in list_o:
+            r.append([self.__object_to_dataarray_element(o), ])
         
-        # Apply word wrap and alignment
-        range_uno.IsTextWrapped = word_wrap
-        range_uno.VertJustify = CENTER if word_wrap else STANDARD
-        self._set_rows_optimal_height(range_uno, word_wrap)
+        if formulas is True:
+            self.__setFormulaArray(range_uno, r)
+        else:
+            self.__setDataArray(range_uno, r)
 
         # Guess styles if none
         if styles is None:
@@ -906,27 +914,22 @@ class ODS(ODF):
         if isinstance(styles, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
-                cell.CellStyle = styles[i]
+                cell.setPropertyValue("CellStyle", styles[i])
         else:
-            range_uno.CellStyle = styles
+            range_uno.setPropertyValue("CellStyle", styles)
 
         #Fast color:
         if isinstance(colors, list):
             for i in range(len(list_o)):
                 cell=self.sheet.getCellByPosition(coord_start.letterIndex(), coord_start.numberIndex()+i)
-                cell.CellBackColor = colors[i]
+                cell.setPropertyValue("CellBackColor", colors[i])
         else:
-            range_uno.CellBackColor = colors
-
-        # Finally add content
-        r=[]
-        for o in list_o:
-            r.append([self.__object_to_dataarray_element(o), ])
-        
-        if formulas is True:
-            self.__setFormulaArray(range_uno, r)
-        else:
-            self.__setDataArray(range_uno, r)
+            range_uno.setPropertyValue("CellBackColor", colors)
+            
+        # Apply word wrap and alignment (Applied last for maximum stability)
+        range_uno.IsTextWrapped = word_wrap
+        range_uno.VertJustify = CENTER if word_wrap else STANDARD
+        self._set_rows_optimal_height(range_uno, word_wrap)
 
         return R.from_coords_indexes(*range_indexes)
         
@@ -1059,8 +1062,8 @@ class ODS(ODF):
             else:
                 for c, o in enumerate(list_rows[0]):
                     columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
-                    columnrange.CellStyle = styles[c]
-                    columnrange.CellBackColor = colors[c]                    
+                    columnrange.setPropertyValue("CellStyle", styles[c])
+                    columnrange.setPropertyValue("CellBackColor", colors[c])                    
         
         range_uno.IsTextWrapped = word_wrap
         range_uno.VertJustify = CENTER if word_wrap else STANDARD
@@ -1096,7 +1099,7 @@ class ODS(ODF):
 
     def addListOfColumnsWithStyle(self, coord_start, list_columns, colors=ColorsNamed.White, styles=None,  formulas=True, word_wrap=True):
         """
-            Colors and styles are the colors of every column.
+            Colors and styles are applied per row of the input columns.
             
             Parameters:
                 - formulas Boolean. If true formulas will be written as formula. If false as string
@@ -1116,48 +1119,8 @@ class ODS(ODF):
             logger.debug(_("addListOfColumnsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring...").format(rows, columns))
             return 
 
-        # Determine range and get UNO object
         range_indexes=[coord_start.letterIndex(), coord_start.numberIndex(), coord_start.letterIndex()+columns-1, coord_start.numberIndex()+rows-1]
         range_uno=self.sheet.getCellRangeByPosition(*range_indexes)
-
-        # Parse colors.
-        if colors.__class__.__name__=="list":
-            colors=colors
-        elif colors is None:
-            colors=[ColorsNamed.White]*columns
-        else: #one ColorsNamed
-            colors=[colors]*columns
-        
-        # Parse styles
-        if styles is None and rows>0:
-            styles=[]
-            for o in list_columns[0]:
-                styles.append(guess_object_style(o, self.default_cell_style))
-        elif styles.__class__.__name__=="list":
-            styles=styles
-        else:
-            styles=[styles]*columns
-                
-                
-        if len(colors)!=columns:
-            raise exceptions.UnogeneratorException(_("Colors must have the same number of items as data columns"))
-        if len(styles)!=columns:
-            raise exceptions.UnogeneratorException(_("Styles must have the same number of items as data columns"))
-
-        #Create styles by columns cellranges
-        if rows>0:
-            # Optimization: If all styles are default and all colors are White, we can skip this loop
-            if all(s == self.default_cell_style for s in styles) and all(c == ColorsNamed.White for c in colors):
-                pass
-            else:
-                for c, o in enumerate(list_columns[0]):
-                    columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex()+c, coord_start.numberIndex(), coord_start.letterIndex()+c, coord_start.numberIndex()+rows-1)
-                    columnrange.CellStyle = styles[c]
-                    columnrange.CellBackColor = colors[c]                    
-        
-        range_uno.IsTextWrapped = word_wrap
-        range_uno.VertJustify = CENTER if word_wrap else STANDARD
-        self._set_rows_optimal_height(range_uno, word_wrap)
 
         # Finally add content
         list_rows=lol.lol_transposed(list_columns)
@@ -1173,6 +1136,45 @@ class ODS(ODF):
         else:
             self.__setDataArray(range_uno, r)
 
+        # Parse colors.
+        if colors.__class__.__name__=="list":
+            colors=colors
+        elif colors is None:
+            colors=[ColorsNamed.White]*rows
+        else: #one ColorsNamed
+            colors=[colors]*rows
+        
+        # Parse styles
+        if styles is None and rows>0:
+            styles=[]
+            for o in list_columns[0]:
+                styles.append(guess_object_style(o, self.default_cell_style))
+        elif styles.__class__.__name__=="list":
+            styles=styles
+        else:
+            styles=[styles]*rows
+                
+                
+        if len(colors)!=rows:
+            raise exceptions.UnogeneratorException(_("Colors must have the same number of items as data rows"))
+        if len(styles)!=rows:
+            raise exceptions.UnogeneratorException(_("Styles must have the same number of items as data rows"))
+
+        #Create styles by rows
+        if rows>0:
+            # Optimization: If all styles are default and all colors are White, we can skip this loop
+            if all(s == self.default_cell_style for s in styles) and all(c == ColorsNamed.White for c in colors):
+                pass
+            else:
+                for c, o in enumerate(list_columns[0]):
+                    columnrange=self.sheet.getCellRangeByPosition(coord_start.letterIndex(), coord_start.numberIndex()+c, coord_start.letterIndex()+columns-1, coord_start.numberIndex()+c)
+                    columnrange.setPropertyValue("CellBackColor", colors[c])                    
+                    columnrange.setPropertyValue("CellStyle", styles[c])
+        
+        range_uno.IsTextWrapped = word_wrap
+        range_uno.VertJustify = CENTER if word_wrap else STANDARD
+        self._set_rows_optimal_height(range_uno, word_wrap)
+
         return R.from_coords_indexes(*range_indexes)
             
     ## @param style If None tries to guess it
@@ -1187,8 +1189,8 @@ class ODS(ODF):
                 
         cell=self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
         self.__object_to_cell(cell, o)
-        cell.CellStyle = style
-        cell.CellBackColor = color
+        cell.setPropertyValue("CellStyle", style)
+        cell.setPropertyValue("CellBackColor", color)
         cell.IsTextWrapped = word_wrap
         cell.VertJustify = CENTER if word_wrap else STANDARD
         self._set_row_optimal_height(coord.numberIndex(), word_wrap)
