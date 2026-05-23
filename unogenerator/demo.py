@@ -237,8 +237,10 @@ def demo_ods_standard(language, server):
         demo_ods_sheet_sort(doc)
         demo_ods_sheet_word_wrap(doc)
         demo_ods_block_column_row_cross(doc)
+        demo_ods_sheet_helpers_single(doc)
         demo_ods_sheet_from_lod(doc)
         demo_ods_sheet_from_lol(doc)
+        demo_ods_sheet_block_from_lol(doc)
 
         # demo_ods_block_column_row_cros(doc)
         # demo_ods_sheet_columns_width_with_list(doc)
@@ -738,4 +740,47 @@ def demo_ods_sheet_columns_width_with_list(doc):
         doc.createSheet("ColumnsWidthsList")
         doc.addListOfRowsWithStyle("A1", lol_numbers)
         doc.setColumnsWidth(lol_numbers, types.ColumnsWidthMode.FROM_LOL)
+
+def demo_ods_sheet_block_from_lol(doc):
+        headers = ["Product", "Qty", "Price"]
+        data = [
+            ["Item A", 10, 20.5],
+            ["Item B", 5, 15.0],
+            ["Item C", 2, 100.0],
+        ]
+
+        doc.createSheet("block_from_lol column of totals")
+        helpers.block_from_lol(doc, "A1", data, headers=headers, column_of_totals=True, title="block_from_lol (With total columns)", styles="Float2")
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+        doc.createSheet("block_from_lol row of totals")
+        helpers.block_from_lol(doc, "A1", data, headers=headers, row_of_totals=True, title="block_from_lol (With total rows)", styles="Float2")
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+        
+        doc.createSheet("block_from_lol both totals")
+        helpers.block_from_lol(doc, "A1", data, headers=headers, column_of_totals=True, row_of_totals=True, title="block_from_lol (With both totals)", styles="Float2")
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+def demo_ods_sheet_helpers_single(doc):
+        ## row_title_values_total
+        doc.createSheet("row_title_values_total")
+        helpers.row_title_values_total(doc, "A1", "My Row Sum", [10, 20, 30])
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+        ## column_title_values_total
+        doc.createSheet("column_title_values_total")
+        helpers.column_title_values_total(doc, "A1", "My Col Sum", [1, 2, 3, 4, 5])
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+        ## row_totals
+        doc.createSheet("row_totals")
+        doc.addRowWithStyle("A1", [100, 200, 300, 400])
+        helpers.row_totals(doc, "A2", ["#SUM"] * 4, row_from="1")
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+        ## column_totals
+        doc.createSheet("column_totals")
+        doc.addColumnWithStyle("A1", [10, 20, 30, 40])
+        helpers.column_totals(doc, "B1", ["#SUM"] * 4, column_from="A")
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
         

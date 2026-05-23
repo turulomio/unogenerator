@@ -1,6 +1,6 @@
 from unogenerator.commons import ColorsNamed, Coord, Range, guess_object_style, generate_formula_total_string
 from unogenerator import ODS, types
-from pydicts import lod
+from pydicts import lod, lol
 from collections import OrderedDict
 from gettext import translation
 from logging import debug
@@ -8,8 +8,8 @@ import logging
 from math import ceil
 from importlib.resources import files
 
-
 logger = logging.getLogger(__name__) # Get logger for this module
+
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
     _=t.gettext
@@ -78,26 +78,16 @@ def column_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, style
         styles = guess_object_style(doc.getValue(first_coord_from), doc.default_cell_style)
 
     doc.addColumnWithStyle(coord, formulas, colors=color, styles=styles)
-        
+
+    
 def row_title_values_total( doc, coord, title, values, 
         style_title=None, color_title=ColorsNamed.Orange, 
         style_values=None, color_values=ColorsNamed.White, 
         style_total=None, color_total=ColorsNamed.GrayLight
     ):
     """
-    Creates a column containing a title, a list of values, and a total sum at the bottom.
-
-    Args:
-        doc (ODS): The ODS document object.
-        coord (Coord or str): Starting coordinate.
-        title (str): Title to be placed at the starting coordinate.
-        values (list): List of values to be placed below the title.
-        style_title (str, optional): Style for the title cell. Defaults to "BoldCenter".
-        color_title (int, optional): Background color for the title. Defaults to ColorsNamed.Orange.
-        style_values (list or str, optional): Styles for the value cells. Defaults to None.
-        color_values (list or int, optional): Colors for the value cells. Defaults to ColorsNamed.White.
-        style_total (str, optional): Style for the total cell. Defaults to None.
-        color_total (int, optional): Background color for the total cell. Defaults to ColorsNamed.GrayLight.
+        Parameters:
+            - values: list: Only one row
     """
     coord=Coord.assertCoord(coord)
 
@@ -113,34 +103,23 @@ def row_title_values_total( doc, coord, title, values,
         doc.addCellWithStyle(coord,title,color_title,style_title)
         i=i+1
 
-
     doc.addRowWithStyle(coord.addColumnCopy(i),values,colors=color_values,styles=style_values)
-    doc.addCellWithStyle(coord.addColumnCopy(i+len(values)),f"=sum({coord.addColumnCopy(i).string()}:{coord.addColumnCopy(i+len(values)-1).string()}",color_total,style_total)
+    doc.addCellWithStyle(coord.addColumnCopy(i+len(values)),f"=sum({coord.addColumnCopy(i).string()}:{coord.addColumnCopy(i+len(values)-1).string()})",color_total,style_total)
+        
 
-def column_title_values_total(doc, coord, title, values,
+def column_title_values_total( doc, coord, title, values, 
         style_title=None, color_title=ColorsNamed.Orange, 
         style_values=None, color_values=ColorsNamed.White, 
         style_total=None, color_total=ColorsNamed.GrayLight
     ):
     """
-    Creates a row containing a title, a list of values, and a total sum at the end.
-
-    Args:
-        doc (ODS): The ODS document object.
-        coord (Coord or str): Starting coordinate.
-        title (str): Title to be placed at the starting coordinate.
-        values (list): List of values to be placed after the title.
-        style_title (str, optional): Style for the title cell. Defaults to "Bold".
-        color_title (int, optional): Background color for the title. Defaults to ColorsNamed.Orange.
-        style_values (list or str, optional): Styles for the value cells. Defaults to None.
-        color_values (list or int, optional): Colors for the value cells. Defaults to ColorsNamed.White.
-        style_total (str, optional): Style for the total cell. Defaults to None.
-        color_total (int, optional): Background color for the total cell. Defaults to ColorsNamed.GrayLight.
+        Parameters:
+            - values: list: Only one column
     """
     coord=Coord.assertCoord(coord)
 
     if style_title is None:
-        style_title="BoldCenter"
+        style_title="Bold"
 
     if style_total is None and len(values)>0:
         style_total=guess_object_style(values[0])
@@ -152,7 +131,7 @@ def column_title_values_total(doc, coord, title, values,
         i=i+1
 
     doc.addColumnWithStyle(coord.addRowCopy(i),values,colors=color_values,styles=style_values)
-    doc.addCellWithStyle(coord.addRowCopy(i+len(values)),f"=sum({coord.addRowCopy(i).string()}:{coord.addRowCopy(i+len(values)-1).string()}",color_total,style_total)
+    doc.addCellWithStyle(coord.addRowCopy(i+len(values)),f"=sum({coord.addRowCopy(i).string()}:{coord.addRowCopy(i+len(values)-1).string()})",color_total,style_total)
         
 
 def cross_totals_from_range(
@@ -323,8 +302,8 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
             colors.append(color)
    
     # 6. Write data rows
-    lol_=lod.lod2lol(lod_, keys)
-    range_data = doc.addListOfRowsWithStyle(c.addRowCopy(1), lol_, colors, styles, word_wrap=word_wrap)
+    lol_data=lod.lod2lol(lod_, keys)
+    range_data = doc.addListOfRowsWithStyle(c.addRowCopy(1), lol_data, colors, styles, word_wrap=word_wrap)
 
     # 7. Generate totals
     if column_of_totals or row_of_totals:
@@ -335,6 +314,64 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
         return Range.from_coords(coord_start, final_range.c_end)
     
     return Range.from_coords(coord_start, range_data.c_end)
+
+
+def block_from_lol(doc, coord_start, lor, headers=None, colors=ColorsNamed.White, styles=None, column_of_totals=False, row_of_totals=False, key="#SUM", title=None, word_wrap=True):
+    """
+    Writes cells from a list of lists (lor) with optional headers and totals.
+
+    Args:
+        doc (ODS): The ODS document object.
+        coord_start (Coord or str): Starting coordinate.
+        lor (list): List of lists (data rows).
+        headers (list, optional): List of header strings. Defaults to None.
+        colors (list or int, optional): Column colors. Defaults to ColorsNamed.White.
+        styles (list or str, optional): Column styles. Defaults to None.
+        column_of_totals (bool, optional): Whether to generate a column of totals to the right. Defaults to False.
+        row_of_totals (bool, optional): Whether to generate a row of totals at the bottom. Defaults to False.
+        key (str, optional): Formula key or template. Defaults to "#SUM".
+        title (str, optional): Main title for the block. Defaults to None.
+        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to True.
+
+    Returns:
+        Range: The range of the data including headers and totals.
+    """
+    coord_start = Coord.assertCoord(coord_start)
+    c = coord_start.copy()
+
+    # 1. Title
+    if title is not None:
+        if not lor and not headers:
+            doc.addCellWithStyle(c, title, ColorsNamed.Red, "BoldCenter")
+        else:
+            num_cols = len(headers) if headers else len(lor[0]) if lor else 1
+            add_of_totals = 1 if column_of_totals else 0
+            range_title = Range.from_coords(c.copy(), c.addColumnCopy(num_cols - 1 + add_of_totals))
+            doc.addCellMergedWithStyle(range_title, title, ColorsNamed.Red, "BoldCenter", word_wrap=word_wrap)
+        c.addRow(1)
+
+    # 2. Handle empty data
+    if not lor and not headers:
+        doc.addCellWithStyle(c, _("No data to show"), ColorsNamed.White, "BoldCenter")
+        return Range.from_coords(coord_start, c)
+
+    # 3. Write column headers
+    if headers:
+        doc.addRowWithStyle(c, headers, ColorsNamed.Orange, "BoldCenter", word_wrap=word_wrap)
+        c.addRow(1)
+
+    # 4. Write data rows
+    range_data = doc.addListOfRowsWithStyle(c, lor, colors, styles, word_wrap=word_wrap)
+
+    # 5. Generate totals
+    if column_of_totals or row_of_totals:
+        # Default to skipping the first column if it looks like a label column
+        skip = 1 if (headers and len(headers) > 1) or (lor and len(lor[0]) > 1) else 0
+        final_range = cross_totals_from_range(doc, range_data, key, column_of_totals, row_of_totals, skip_columns=skip)
+        return Range.from_coords(coord_start, final_range.c_end)
+
+    return Range.from_coords(coord_start, range_data.c_end)
+
 
 def sheet_stylenames(doc):
     """
@@ -363,20 +400,20 @@ def sheet_stylenames(doc):
     
     sheet_from_lod(doc, "Internal style names", lod_, freezeandselect="A2", columns_width_mode=types.ColumnsWidthMode.FROM_LOD)
 
-def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_totals=False, freezeandselect=None, titulo=None, word_wrap=False, **kwargs_columnswidth):
+def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_totals=False, freezeandselect=None, titulo=None, word_wrap=True, **kwargs_columnswidth):
     """
-    Creates a sheet from a list of lists (lol) with headers and optional totals.
+    Creates a sheet from a list of lists (lor) with headers and optional totals.
 
     Args:
         doc (ODS): The ODS document object.
         sheetname (str): The name for the new sheet.
         lor (list): The list of lists (data rows).
         headers (list): The list of header strings.
-        column_of_totals (bool, optional): Whether to generate column totals. Defaults to False.
-        row_of_totals (bool, optional): Whether to generate row totals. Defaults to False.
+        column_of_totals (bool, optional): Whether to generate a column of totals to the right. Defaults to False.
+        row_of_totals (bool, optional): Whether to generate a row of totals at the bottom. Defaults to False.
         freezeandselect (str, optional): Coordinate to freeze panes at. Defaults to None.
         titulo (str, optional): An optional title to merge across the top of the sheet. Defaults to None.
-        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to False.
+        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to True.
         **kwargs_columnswidth: Keyword arguments for setColumnsWidth.
     """
     columns_width_mode = kwargs_columnswidth.get("columns_width_mode", types.ColumnsWidthMode.FROM_LOL)
@@ -387,38 +424,23 @@ def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_
 
     doc.createSheet(sheetname)
 
-    if not lor and not headers:
-        if titulo:
-            doc.addCellMergedWithStyle("A1:D1", titulo, ColorsNamed.Red, "BoldCenter")
-        else:
-            doc.addCellMergedWithStyle("A1:D1", "No hay datos", ColorsNamed.Red, "BoldCenter")
-        return
+    range_block = block_from_lol(
+        doc, "A1", lor, headers, 
+        column_of_totals=column_of_totals, 
+        row_of_totals=row_of_totals, 
+        title=titulo, 
+        word_wrap=word_wrap
+    )
 
-    c_start = Coord("A1")
-
-    if titulo:
-        c_end = c_start.addColumnCopy(len(headers) - 1)
-        range_titulo = Range.from_coords(c_start, c_end)
-        doc.addCellMergedWithStyle(range_titulo, titulo, ColorsNamed.Orange, "BoldCenter", word_wrap=word_wrap)
-        c_start.addRow(1)
-
-    doc.addRowWithStyle(c_start, headers, ColorsNamed.Orange, "BoldCenter", word_wrap=word_wrap)
-    c_start_data = c_start.addRowCopy(1)
-
-    range_data = doc.addListOfRowsWithStyle(c_start_data, lor, word_wrap=word_wrap)
-
-    if column_of_totals or row_of_totals:
-        cross_totals_from_range(doc, range_data, "#SUM", column_of_totals, row_of_totals, "BoldCenter", "BoldCenter", False)
-
-    data_to_measure = [headers] + lor
+    data_to_measure = [headers] + lor if headers else lor
     doc.setColumnsWidth(data_to_measure, columns_width_mode, char_to_cm, padding_cm, min_width_cm, max_width_cm)
 
     if freezeandselect:
-        doc.freezeAndSelect(freezeandselect,freezeandselect, freezeandselect)
+        doc.freezeAndSelect(freezeandselect, freezeandselect, freezeandselect)
     
-    return range_data
+    return range_block
 
-def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, coord_to_freeze="A2",  max_rows=1048575, word_wrap=False):
+def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=ColorsNamed.Orange, coord_to_freeze="A2",  max_rows=1048575, word_wrap=True):
     """
     Splits a large list of rows across multiple sheets if it exceeds LibreOffice Calc's row limits.
 
@@ -435,7 +457,7 @@ def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=Color
             If int, applies to all columns. If list, specifies width per column. Defaults to None.
         coord_to_freeze (Coord or str, optional): Coordinate to freeze panes at. Defaults to "A2".
         max_rows (int, optional): Maximum number of rows per sheet (Calc limit is 1,048,576). Defaults to 1048575.
-        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to False.
+        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to True.
     """
     ceil_=ceil(len(lor)/max_rows)
     for num_sheet in range(ceil_):
@@ -460,7 +482,7 @@ def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=Color
         doc.freezeAndSelect(Coord.assertCoord(coord_to_freeze))
     
 
-def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=False, freezeandselect=None, title=None, word_wrap=False, styles=None, **kwargs_columnswidth):
+def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=False, freezeandselect=None, title=None, word_wrap=True, styles=None, **kwargs_columnswidth):
     """
         kwargs son los parametros de la funcion setColumnsWidth
     """
@@ -495,7 +517,7 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
         row_of_totals (bool, optional): Whether to generate row totals. Defaults to False.
         freezeandselect (str or Coord, optional): Coordinate to freeze and select. Defaults to None.
         key (str, optional): Formula key for totals (e.g., "#SUM"). Defaults to "#SUM".
-        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to False.
+        word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to True.
 
     Returns:
         Range: The data range (excluding headers).
@@ -541,4 +563,3 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
         doc.freezeAndSelect(freezeandselect, freezeandselect, freezeandselect)
 
     return range_
-    
