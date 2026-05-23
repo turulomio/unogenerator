@@ -31,11 +31,11 @@ if can_import_uno():
             doc.createSheet("Columns")
             doc.addRowWithStyle("A1", headers, ColorsNamed.Orange, "BoldCenter")
             range_=doc.addListOfRowsWithStyle("A2", lor)
-            helpers.cross_totals_from_range(doc, range_, totalcolumns=True, totalrows=False)
+            helpers.cross_totals_from_range(doc, range_, column_of_totals=True, row_of_totals=False)
             doc.createSheet("Rows")
             doc.addRowWithStyle("B1", headers, ColorsNamed.Orange, "BoldCenter")
             range_=doc.addListOfRowsWithStyle("B2", lor)
-            helpers.cross_totals_from_range(doc, range_, totalcolumns=False, totalrows=True)
+            helpers.cross_totals_from_range(doc, range_, column_of_totals=False, row_of_totals=True)
             doc.export_pdf("test_cross_totals_from_range.pdf")
         remove("test_cross_totals_from_range.pdf")
             

@@ -560,20 +560,20 @@ def demo_ods_block_column_row_cross(doc):
         helpers.block_from_lod(doc, "A1", [], columns_header=1, color_row_header=ColorsNamed.Red, title="block_from_lod (Empty)")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
-        doc.createSheet("block_from_lod totalcolumns")
-        helpers.block_from_lod(doc, "A1", lod_singers, totalcolumns=True, title="block_from_lod (With total columns)")
+        doc.createSheet("block_from_lod column of totals")
+        helpers.block_from_lod(doc, "A1", lod_singers, column_of_totals=True, title="block_from_lod (With total columns)")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
-        doc.createSheet("block_from_lod totalrows")
-        helpers.block_from_lod(doc, "A1", lod_singers, totalrows=True, title="block_from_lod (With total rows)")
+        doc.createSheet("block_from_lod row of totals")
+        helpers.block_from_lod(doc, "A1", lod_singers, row_of_totals=True, title="block_from_lod (With total rows)")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
         
-        doc.createSheet("block_from_lod totalcolumns totalrows")
-        helpers.block_from_lod(doc, "A1", lod_singers, totalcolumns=True, totalrows=True, title="block_from_lod (With total columns and rows)")
+        doc.createSheet("block_from_lod column of totals row of totals")
+        helpers.block_from_lod(doc, "A1", lod_singers, column_of_totals=True, row_of_totals=True, title="block_from_lod (With total columns and rows)")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
         # c_start=c_start.addColumn(lod_singers_columns +1)
-        # helpers.block_from_lod(doc, c_start.addRowCopy(),  lod_singers, columns_header=1, color_row_header=ColorsNamed.Red, totalcolumns=True, title="block_from_lod (With total columns)")
+        # helpers.block_from_lod(doc, c_start.addRowCopy(),  lod_singers, columns_header=1, color_row_header=ColorsNamed.Red, column_of_totals=True, title="block_from_lod (With total columns)")
 
 
         # # block_from_lod_with_headers
@@ -588,13 +588,13 @@ def demo_ods_block_column_row_cross(doc):
         # helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
         #      ["Singer header", "Singer"],
         #      ["Song header", "Best song"]
-        # ], titulo="block_from_lod_with_headers (With total columns)", totalcolumns=True)
+        # ], titulo="block_from_lod_with_headers (With total columns)", column_of_totals=True)
 
         # c_start=c_start.addColumn(lod_singers_columns +3)
         # helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
         #      ["Singer header", "Singer"],
         #      ["Song header", "Best song"]
-        # ], titulo="block_from_lod_with_headers (With total rows)", totalrows=True)
+        # ], titulo="block_from_lod_with_headers (With total rows)", row_of_totals=True)
 
 
         # doc.addCell("A11", c_start.string())
@@ -603,7 +603,7 @@ def demo_ods_block_column_row_cross(doc):
         # helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
         #      ["Singer header", "Singer"],
         #      ["Song header", "Best song"]
-        # ], titulo="block_from_lod_with_headers (With total columns and rows)", totalcolumns=True, totalrows=True)
+        # ], titulo="block_from_lod_with_headers (With total columns and rows)", column_of_totals=True, row_of_totals=True)
 
 
         # # block_from_lod
@@ -620,24 +620,24 @@ def demo_ods_block_column_row_cross(doc):
 
         # doc.addCellMergedWithStyle("A15:E15","List of rows with cross_totals_from_range in rows and columns", ColorsNamed.Orange, "BoldCenter")
         # range_=doc.addListOfRowsWithStyle("A16", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        # helpers.cross_totals_from_range(doc, range_, totalcolumns=True, totalrows=True)
+        # helpers.cross_totals_from_range(doc, range_, column_of_totals=True, row_of_totals=True)
         
         
         # doc.addCellMergedWithStyle("A22:E22","List of rows with cross_totals_from_range in rows", ColorsNamed.Orange, "BoldCenter")
         # range_=doc.addListOfRowsWithStyle("A23", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True) #Removes one column to filter first alphanumerical column
+        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), column_of_totals=False, row_of_totals=True) #Removes one column to filter first alphanumerical column
 
         # doc.addCellMergedWithStyle("A29:E29","List of rows with cross_totals_from_range in columns", ColorsNamed.Orange, "BoldCenter")
         # range_=doc.addListOfRowsWithStyle("A30", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False)
+        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), column_of_totals=True, row_of_totals=False)
         
         # doc.addCellMergedWithStyle("A35:E35","List of rows with cross_totals_from_range in rows showing", ColorsNamed.Orange, "BoldCenter")
         # range_=doc.addListOfRowsWithStyle("A36", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True, showing=True)
+        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), column_of_totals=False, row_of_totals=True, showing=True)
 
         # doc.addCellMergedWithStyle("A42:E42","List of rows with cross_totals_from_range in columns showing", ColorsNamed.Orange, "BoldCenter")
         # range_=doc.addListOfRowsWithStyle("A43", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False, showing=True)
+        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), column_of_totals=True, row_of_totals=False, showing=True)
 
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
@@ -677,10 +677,10 @@ def demo_ods_sheet_helpers(doc):
         
 def demo_ods_sheet_from_lol(doc):
         ## Sheet from LOL and LOD
-        helpers.sheet_from_lol(doc, "Sheet from LOL", [[1, 2], [3, 4]], ["Col1", "Col2"], totalcolumns=True, totalrows=True, titulo="LOL Table")
+        helpers.sheet_from_lol(doc, "Sheet from LOL", [[1, 2], [3, 4]], ["Col1", "Col2"], column_of_totals=True, row_of_totals=True, titulo="LOL Table")
         
 def demo_ods_sheet_helpers_from_lod(doc):
-        helpers.sheet_from_lod(doc, "Sheet from LOD", lod_singers, totalcolumns=True, totalrows=True, titulo="LOD Table")
+        helpers.sheet_from_lod(doc, "Sheet from LOD", lod_singers, column_of_totals=True, row_of_totals=True, titulo="LOD Table")
         
 def demo_ods_sheet_sort(doc):
         ##Sort
