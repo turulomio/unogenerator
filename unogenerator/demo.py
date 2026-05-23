@@ -556,16 +556,34 @@ def demo_ods_block_column_row_cross(doc):
         doc.addCellMergedWithStyle(Range.from_coords(c_start,c_start.addColumnCopy(lod_singers_columns-1)),"block_from_lod (Changing headers)", ColorsNamed.Orange, "BoldCenter")
         helpers.block_from_lod(doc, c_start.addRowCopy(),  lod_singers, columns_header=1, color_row_header=ColorsNamed.Red)
 
-
-        doc.addCell("A2", c_start.string())
+        # block_from_lod_with_headers
         c_start=c_start.from_index(0, c_start.numberIndex()+lod_singers_rows+3)# column_index, row_index
-        doc.addCell("A10", c_start.string())
         helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
              ["Singer header", "Singer"],
              ["Song header", "Best song"]
         ], titulo="block_from_lod_with_headers")
 
 
+        c_start=c_start.addColumn(lod_singers_columns +1)
+        helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
+             ["Singer header", "Singer"],
+             ["Song header", "Best song"]
+        ], titulo="block_from_lod_with_headers (With total columns)", totalcolumns=True)
+
+        c_start=c_start.addColumn(lod_singers_columns +3)
+        helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
+             ["Singer header", "Singer"],
+             ["Song header", "Best song"]
+        ], titulo="block_from_lod_with_headers (With total rows)", totalrows=True)
+
+
+        doc.addCell("A11", c_start.string())
+        c_start=c_start.addColumn(lod_singers_columns +2)
+        doc.addCell("A12", c_start.string())
+        helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
+             ["Singer header", "Singer"],
+             ["Song header", "Best song"]
+        ], titulo="block_from_lod_with_headers (With total columns and rows)", totalcolumns=True, totalrows=True)
                 
         # doc.addCellMergedWithStyle(Range(c_start,c_end),"List of rows with row_totals", ColorsNamed.Orange, "BoldCenter")
         # range_=doc.addListOfRowsWithStyle("A2", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)

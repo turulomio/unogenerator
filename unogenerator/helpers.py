@@ -426,20 +426,31 @@ def sheet_from_lod(doc, sheetname, lod_,  totalcolumns=False, totalrows=False, f
 
 
 
-def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None):
+def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, totalcolumns=False, totalrows=False, freezeandselect=None, key="#SUM"):
     """
-        Función que imprime desde una celda un lod
-        El lod usará el orden de las keys creadas, pero tendrá un titulo, que se creará automáticamente
-        los titulos serán una tupla con el nombre del titulo, primera key 
-        El fin del titulo será la anterior de la segunda key
+    Writes data from a list of ordered dictionaries with custom header groups, and optional totals.
 
-        Permite reordenar facilmente, añadir nuevas filas sin tener que cambiar indices constantemente
+    Args:
+        doc (ODS): The ODS document object.
+        lod_ (list): List of ordered dictionaries containing the data.
+        coord (Coord or str): Starting coordinate.
+        subtitles (list): List of lists [title, first_key] defining header groups.
+        titulo (str, optional): Main title for the entire block. Defaults to None.
+        totalcolumns (bool, optional): Whether to generate column totals. Defaults to False.
+        totalrows (bool, optional): Whether to generate row totals. Defaults to False.
+        freezeandselect (str or Coord, optional): Coordinate to freeze and select. Defaults to None.
+        key (str, optional): Formula key for totals (e.g., "#SUM"). Defaults to "#SUM".
+
+    Returns:
+        Range: The data range (excluding headers).
     """
     if len(lod_)==0:
         doc.addCell(coord, "Sin datos que consigar")
         return
 
     coord=Coord.assertCoord(coord)
+    coord=Coord(coord.string())# To avoid carry internal coord movements
+    
     keys=lod.lod_keys(lod_)
          
 
@@ -466,9 +477,12 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None):
 
     #Imprime listas de diccionarios
     range_=block_from_lod(doc, coord.addRowCopy(1),lod_,color_row_header=ColorsNamed.Yellow)
+
+    if totalcolumns or totalrows:
+        cross_totals_from_range(doc, range_, key, totalcolumns, totalrows)
+        
+    if freezeandselect:
+        doc.freezeAndSelect(freezeandselect, freezeandselect, freezeandselect)
+
     return range_
     
-
-
-def block_from_lod_with_headers_and_totals(doc, lod_, coord, subtitles=[], titulo=None):
-    pass
