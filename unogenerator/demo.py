@@ -1,8 +1,5 @@
-## @namespace unogenerator.demo
-## @brief Generate ODF example files
 from uno import getComponentContext
 
-from unogenerator.unogenerator import ODS
 getComponentContext()
 import argparse
 from collections import OrderedDict
@@ -28,6 +25,26 @@ type_choices=[ "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS", "COMM
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
 
 logger = logging.getLogger(__name__) # Get logger for this module
+
+
+lod_singers=[
+    {"Singer": "Elvis",  "Songs": 10000 , "Albums": 100},
+    {"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 },
+]
+
+
+
+lol_numbers=[
+    ["One Two Three", "Four", "Ten"],
+    ["One Two Three", "Four Two Three", "Ten"],
+    ["One Two Three", "Four", "Ten Two Three"],
+]
+
+lol_thousands=[]
+for i in range(1000):
+    lol_thousands.append([i, _("String")+" "+ str(i), datetime.now()])
+
+
 ## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
 def demo(arguments=None):
@@ -200,142 +217,17 @@ def demo_ods_standard(language, server):
             _("This file have been generated with UnoGenerator-{0}. You can see UnoGenerator main page in https://github.com/turulomio/unogenerator").format(__version__), 
             ["unogenerator", "demo", "files"]
         )
-        doc.createSheet("Styles")
         
-        doc.setSheetStyle("Portrait")
-        doc.setCellName("A1",  "MYNAME")
-
-
-        headers=[_("Style name"), _("Date and time"), _("Date"), _("Integer"), _("Euros"), _("Dollars"), _("Percentage"), _("Number with 2 decimals"), _("Number with 6 decimals"), _("Time"), _("Boolean")]
-        doc.addRowWithStyle( "A1", headers, ColorsNamed.Orange, "BoldCenter")
-
-        colors_list=([a for a in dir(ColorsNamed()) if not a.startswith('__')])
-        for row, color_str in enumerate(colors_list):
-            color_key=getattr(ColorsNamed(), color_str)
-            doc.addCellWithStyle(Coord("A2").addRow(row), color_str, color_key, "Bold")
-            doc.addCellWithStyle(Coord("B2").addRow(row), datetime.now(), color_key, "Datetime")
-            doc.addCellWithStyle(Coord("C2").addRow(row), date.today(), color_key, "Date")
-            doc.addCellWithStyle(Coord("D2").addRow(row), pow(-1, row)*-10000000, color_key, "Integer")
-            doc.addCellWithStyle(Coord("E2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), color_key, "EUR")
-            doc.addCellWithStyle(Coord("F2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), color_key, "USD")
-            doc.addCellWithStyle(Coord("G2").addRow(row), Percentage(pow(-1, row)*1, 3), color_key,  "Percentage")
-            doc.addCellWithStyle(Coord("H2").addRow(row), pow(-1, row)*123456789.121212, color_key, "Float6")
-            doc.addCellWithStyle(Coord("I2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
-            doc.addCellWithStyle(Coord("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
-            doc.addCellWithStyle(Coord("K2").addRow(row), bool(row%2), color_key, "Bool")
-
-        doc.addCellWithStyle(Coord("E2").addRow(row+1),f"=sum(E2:{Coord('E2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR" )
-        doc.addCellMergedWithStyle("E15:K15", "Merge proof", ColorsNamed.Yellow, style="BoldCenter")
-        doc.setComment("B14", "This is nice comment")
-        
-        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
-        doc.freezeAndSelect("B2")
-        
-        ## List of rows
-        doc.createSheet("List of rows or columns")
-        
-                
-        doc.addCellMergedWithStyle("A1:C1","List of rows with row_totals", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A2", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
-        helpers.row_totals(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="2", row_to="4")
-        
-        doc.addCellMergedWithStyle("A8:C8","List of columns with row_totals", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfColumnsWithStyle("A9", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
-        helpers.row_totals(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="9", row_to="11")
-
-        doc.addCellMergedWithStyle("A15:E15","List of rows with cross_totals_from_range in rows and columns", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A16", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        helpers.cross_totals_from_range(doc, range_, totalcolumns=True, totalrows=True)
-        
-        
-        doc.addCellMergedWithStyle("A22:E22","List of rows with cross_totals_from_range in rows", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A23", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True) #Removes one column to filter first alphanumerical column
-
-        doc.addCellMergedWithStyle("A29:E29","List of rows with cross_totals_from_range in columns", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A30", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False)
-        
-        doc.addCellMergedWithStyle("A35:E35","List of rows with cross_totals_from_range in rows showing", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A36", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True, showing=True)
-
-        doc.addCellMergedWithStyle("A42:E42","List of rows with cross_totals_from_range in columns showing", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A43", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False, showing=True)
-
-        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
-        
-
-        ## HELPERS
-        doc.createSheet("Helpers")
-        doc.setSheetStyle("Portrait")
-        doc.addCellMergedWithStyle("A1:E1","Helper values with total (horizontal)", ColorsNamed.Orange, "BoldCenter")
-        helpers.row_title_values_total(doc, "A2", "Suma 3", [1,2,3])
-
-        doc.addCellMergedWithStyle("A4:A9","Helper values with total (vertical)", ColorsNamed.Orange, "VerticalBoldCenter")
-        helpers.column_title_values_total(doc, "B4", "Suma 3", [1,2,3, 4])
-
-        
-        doc.addCellMergedWithStyle("A23:B23","List of ordered dictionaries", ColorsNamed.Orange, "BoldCenter")
-        lod=[]
-        lod.append(OrderedDict({"Singer": "Elvis",  "Song": "Fever" }))
-        lod.append(OrderedDict({"Singer": "Roy Orbison",  "Song": "Blue angel" }))
-        helpers.block_from_lod(doc, "A24",  lod, columns_header=1)
-        
-        doc.addCellMergedWithStyle("A28:B28","List of dictionaries", ColorsNamed.Orange, "BoldCenter")
-        helpers.block_from_lod(doc, "A29",  lod, keys=["Song",  "Singer"])
-        
-        doc.addCellMergedWithStyle("A33:D33","List of ordered dictionaries one method with totals", ColorsNamed.Orange, "BoldCenter")
-        lod=[]
-        lod.append(OrderedDict({"Singer": "Elvis",  "Songs": 10000 , "Albums": 100}))
-        lod.append(OrderedDict({"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 }))
-        helpers.block_from_lod_with_totals(doc, "A34",  lod, columns_header=1)
-        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
-        
-        ##Sort
-        doc.createSheet("Sort")
-        l=[7, 3, 2, 5, 6, 0, 9, 4, 10]
-        doc.addCellWithStyle("A1",  "Unsorted", ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("B1", "Sorted ASC", ColorsNamed.Orange, "BoldCenter")
-        doc.addCellWithStyle("C1", "Sorted DESC", ColorsNamed.Orange, "BoldCenter")
-        doc.addColumnWithStyle("A2", l)
-        doc.addColumnWithStyle("B2", l)
-        doc.addColumnWithStyle("C2", l)
-        doc.sortRange("B2:B10",  0)
-        doc.sortRange("C2:C10",  0, False)
-        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
-
-        ## Split big LOR
-        lor=[]
-        for i in range(1000):
-            lor.append([i, _("String")+" "+ str(i), datetime.now()])
-            
-        helpers.sheet_split_with_big_lol(doc, "Splits in 400 rows", lor, ["Integer", "String", "Datetime"],  max_rows=400)
-
-
-        ## COLUMNS WIDTH LOD
-        doc.createSheet("ColumnsWidthsLOD")
-        helpers.block_from_lod_with_totals(doc, "A1",  lod, columns_header=1)
-        doc.setColumnsWidth(lod,types.ColumnsWidthMode.FROM_LOD)
-        
-        ## COLUMNS WIDTH LOL
-        doc.createSheet("ColumnsWidthsLOL")
-        lol_=[
-            ["One Two Three", "Four", "Ten"],
-            ["One Two Three", "Four Two Three", "Ten"],
-            ["One Two Three", "Four", "Ten Two Three"],
-        ]
-        doc.addListOfRowsWithStyle("A1", lol_)
-        doc.setColumnsWidth(lol_, types.ColumnsWidthMode.FROM_LOL)
-
-
-        ## COLUMNS WIDTH LOL
-        doc.createSheet("ColumnsWidthsList")
-        doc.addListOfRowsWithStyle("A1", lol_)
-        doc.setColumnsWidth(lol_, types.ColumnsWidthMode.FROM_LOL)
-        
-        ## Sheet with all styles names
+        demo_ods_sheet_styles(doc)
+        demo_ods_sheet_list_of_rows_or_columns(doc)
+        demo_ods_sheet_columns_width_with_list(doc)
+        demo_ods_sheet_columns_width_with_lol(doc)
+        demo_ods_sheet_columns_width_with_lod(doc)
+        demo_ods_sheet_from_lol(doc)
+        demo_ods_sheet_helpers(doc)
+        demo_ods_sheet_helpers_from_lod(doc)
+        demo_ods_sheet_sort(doc)
+        demo_ods_sheet_split_with_big_lol(doc)
         helpers.sheet_stylenames(doc)
 
         doc.save(f"unogenerator_example_{language}.ods")
@@ -595,3 +487,158 @@ with ODS_Standard() as doc:
     r= _("unogenerator_documentation_{0}.ods took {1} in {2}").format(language, datetime.now()-doc.start, doc.server.port) # This is an application-level message
     logger.info(r)
     return r
+
+
+def demo_ods_sheet_styles(doc):
+    doc.createSheet("Styles")
+    
+    doc.setSheetStyle("Portrait")
+    doc.setCellName("A1",  "MYNAME")
+
+
+    headers=[_("Style name"), _("Date and time"), _("Date"), _("Integer"), _("Euros"), _("Dollars"), _("Percentage"), _("Number with 2 decimals"), _("Number with 6 decimals"), _("Time"), _("Boolean")]
+    doc.addRowWithStyle( "A1", headers, ColorsNamed.Orange, "BoldCenter")
+
+    colors_list=([a for a in dir(ColorsNamed()) if not a.startswith('__')])
+    for row, color_str in enumerate(colors_list):
+        color_key=getattr(ColorsNamed(), color_str)
+        doc.addCellWithStyle(Coord("A2").addRow(row), color_str, color_key, "Bold")
+        doc.addCellWithStyle(Coord("B2").addRow(row), datetime.now(), color_key, "Datetime")
+        doc.addCellWithStyle(Coord("C2").addRow(row), date.today(), color_key, "Date")
+        doc.addCellWithStyle(Coord("D2").addRow(row), pow(-1, row)*-10000000, color_key, "Integer")
+        doc.addCellWithStyle(Coord("E2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), color_key, "EUR")
+        doc.addCellWithStyle(Coord("F2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), color_key, "USD")
+        doc.addCellWithStyle(Coord("G2").addRow(row), Percentage(pow(-1, row)*1, 3), color_key,  "Percentage")
+        doc.addCellWithStyle(Coord("H2").addRow(row), pow(-1, row)*123456789.121212, color_key, "Float6")
+        doc.addCellWithStyle(Coord("I2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
+        doc.addCellWithStyle(Coord("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
+        doc.addCellWithStyle(Coord("K2").addRow(row), bool(row%2), color_key, "Bool")
+
+    doc.addCellWithStyle(Coord("E2").addRow(row+1),f"=sum(E2:{Coord('E2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR" )
+    doc.addCellMergedWithStyle("E15:K15", "Merge proof", ColorsNamed.Yellow, style="BoldCenter")
+    doc.setComment("B14", "This is nice comment")
+    
+    doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+    doc.freezeAndSelect("B2")
+
+
+
+def demo_ods_sheet_list_of_rows_or_columns(doc):
+        ## List of rows
+        doc.createSheet("List of rows or columns")
+        
+                
+        doc.addCellMergedWithStyle("A1:C1","List of rows with row_totals", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A2", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+        helpers.row_totals(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="2", row_to="4")
+        
+        doc.addCellMergedWithStyle("A8:C8","List of columns with row_totals", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfColumnsWithStyle("A9", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+        helpers.row_totals(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="9", row_to="11")
+
+        doc.addCellMergedWithStyle("A15:E15","List of rows with cross_totals_from_range in rows and columns", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A16", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        helpers.cross_totals_from_range(doc, range_, totalcolumns=True, totalrows=True)
+        
+        
+        doc.addCellMergedWithStyle("A22:E22","List of rows with cross_totals_from_range in rows", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A23", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True) #Removes one column to filter first alphanumerical column
+
+        doc.addCellMergedWithStyle("A29:E29","List of rows with cross_totals_from_range in columns", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A30", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False)
+        
+        doc.addCellMergedWithStyle("A35:E35","List of rows with cross_totals_from_range in rows showing", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A36", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True, showing=True)
+
+        doc.addCellMergedWithStyle("A42:E42","List of rows with cross_totals_from_range in columns showing", ColorsNamed.Orange, "BoldCenter")
+        range_=doc.addListOfRowsWithStyle("A43", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False, showing=True)
+
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+
+
+def demo_ods_sheet_helpers(doc):
+        ## HELPERS
+        doc.createSheet("Helpers")
+        doc.setSheetStyle("Portrait")
+        doc.addCellMergedWithStyle("A1:E1","Helper values with total (horizontal)", ColorsNamed.Orange, "BoldCenter")
+        helpers.row_title_values_total(doc, "A2", "Suma 3", [1,2,3])
+
+        doc.addCellMergedWithStyle("A4:A9","Helper values with total (vertical)", ColorsNamed.Orange, "VerticalBoldCenter")
+        helpers.column_title_values_total(doc, "B4", "Suma 3", [1,2,3, 4])
+
+        doc.addCellMergedWithStyle("A11:E11","Column totals example", ColorsNamed.Orange, "BoldCenter")
+        doc.addListOfColumnsWithStyle("A12", [[10, 20, 30], [5, 15, 25]], ColorsNamed.White)
+        helpers.column_totals(doc, "C12", ["#SUM"]*2, column_from="A")
+
+        doc.addCellMergedWithStyle("A23:B23","List of ordered dictionaries", ColorsNamed.Orange, "BoldCenter")
+        lod=[]
+        lod.append(OrderedDict({"Singer": "Elvis",  "Song": "Fever" }))
+        lod.append(OrderedDict({"Singer": "Roy Orbison",  "Song": "Blue angel" }))
+        helpers.block_from_lod(doc, "A24",  lod, columns_header=1)
+        
+        doc.addCellMergedWithStyle("A28:B28","List of dictionaries", ColorsNamed.Orange, "BoldCenter")
+        helpers.block_from_lod(doc, "A29",  lod, keys=["Song",  "Singer"])
+        
+        doc.addCellMergedWithStyle("A33:D33","List of ordered dictionaries one method with totals", ColorsNamed.Orange, "BoldCenter")
+        lod=[]
+        lod.append(OrderedDict({"Singer": "Elvis",  "Songs": 10000 , "Albums": 100}))
+        lod.append(OrderedDict({"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 }))
+        helpers.block_from_lod_with_totals(doc, "A34",  lod, columns_header=1)
+
+        doc.addCellMergedWithStyle("A40:E40", "Block from LOD with headers", ColorsNamed.Orange, "BoldCenter")
+        lod_headers = [
+            OrderedDict({"ID": 1, "Name": "Product A", "Price": 10.5, "Stock": 100}),
+            OrderedDict({"ID": 2, "Name": "Product B", "Price": 20.0, "Stock": 50}),
+        ]
+        subtitles = [["General", "ID"], ["Details", "Price"]]
+        helpers.block_from_lod_with_headers(doc, lod_headers, "A41", subtitles=subtitles, titulo="Products")
+
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+        
+def demo_ods_sheet_from_lol(doc):
+        ## Sheet from LOL and LOD
+        helpers.sheet_from_lol(doc, "Sheet from LOL", [[1, 2], [3, 4]], ["Col1", "Col2"], totalcolumns=True, totalrows=True, titulo="LOL Table")
+        
+def demo_ods_sheet_helpers_from_lod(doc):
+        helpers.sheet_from_lod(doc, "Sheet from LOD", lod_singers, totalcolumns=True, totalrows=True, titulo="LOD Table")
+        
+def demo_ods_sheet_sort(doc):
+        ##Sort
+        doc.createSheet("Sort")
+        l=[7, 3, 2, 5, 6, 0, 9, 4, 10]
+        doc.addCellWithStyle("A1",  "Unsorted", ColorsNamed.Orange, "BoldCenter")
+        doc.addCellWithStyle("B1", "Sorted ASC", ColorsNamed.Orange, "BoldCenter")
+        doc.addCellWithStyle("C1", "Sorted DESC", ColorsNamed.Orange, "BoldCenter")
+        doc.addColumnWithStyle("A2", l)
+        doc.addColumnWithStyle("B2", l)
+        doc.addColumnWithStyle("C2", l)
+        doc.sortRange("B2:B10",  0)
+        doc.sortRange("C2:C10",  0, False)
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+def demo_ods_sheet_split_with_big_lol(doc):
+        helpers.sheet_split_with_big_lol(doc, "Splits in 400 rows", lol_thousands, ["Integer", "String", "Datetime"],  max_rows=400)
+
+
+def demo_ods_sheet_columns_width_with_lod(doc):
+        ## COLUMNS WIDTH LOD
+        doc.createSheet("ColumnsWidthsLOD")
+        helpers.block_from_lod_with_totals(doc, "A1",  lod_singers, columns_header=1)
+        doc.setColumnsWidth(lod_singers,types.ColumnsWidthMode.FROM_LOD)
+        
+def demo_ods_sheet_columns_width_with_lol(doc):
+        doc.createSheet("ColumnsWidthsLOL")
+        doc.addListOfRowsWithStyle("A1", lol_numbers)
+        doc.setColumnsWidth(lol_numbers, types.ColumnsWidthMode.FROM_LOL)
+
+
+def demo_ods_sheet_columns_width_with_list(doc):
+        doc.createSheet("ColumnsWidthsList")
+        doc.addListOfRowsWithStyle("A1", lol_numbers)
+        doc.setColumnsWidth(lol_numbers, types.ColumnsWidthMode.FROM_LOL)
+        

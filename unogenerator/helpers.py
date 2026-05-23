@@ -465,7 +465,7 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None):
 
 
     #Imprime listas de diccionarios
-    range_=helper_list_of_ordereddicts(doc, coord.addRowCopy(1),lod_,color_row_header=ColorsNamed.Yellow)
+    range_=block_from_lod(doc, coord.addRowCopy(1),lod_,color_row_header=ColorsNamed.Yellow)
     return range_
     
 
