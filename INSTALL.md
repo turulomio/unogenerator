@@ -2,7 +2,7 @@
 
 Only Linux is supported
 
-You need LibreOffice installed in your system. Imagemagick is recommended for some image operations.
+You need LibreOffice installed in your system. **Imagemagick** is recommended for some image operations and **psutil** is recommended for robust process management.
 
 In some distros you need to install Python LibreOffice bindings too (python3-uno)
 

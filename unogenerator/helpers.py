@@ -168,49 +168,68 @@ def cross_totals_from_range (
     """
     Generates vertical and horizontal totals directly from a data range.
 
-    Calculates sums (or specified formulas) for the given range and adds "Total" labels.
+    Calculates sums (or specified formulas) for the given range and adds labels.
 
     Args:
         doc (ODS): The ODS document object.
         range_of_data (Range or str): The range containing the data values.
-        key (str, optional): Formula key to apply (e.g., "#SUM"). Defaults to "#SUM".
-        column_of_totals (bool, optional): Whether to generate column totals. Defaults to True.
-        row_of_totals (bool, optional): Whether to generate row totals. Defaults to True.
+        key (str, optional): Formula key, function name, or template (e.g., "#SUM", "SUM", "=SUM({})"). Defaults to "#SUM".
+        column_of_totals (bool, optional): Whether to generate a column of totals to the right. Defaults to True.
+        row_of_totals (bool, optional): Whether to generate a row of totals at the bottom. Defaults to True.
         vertical_total_title_style (str, optional): Style for the vertical total title. Defaults to "BoldCenter".
         horizontal_total_title_style (str, optional): Style for the horizontal total title. Defaults to "BoldCenter".
-        showing (bool, optional): If True, shows a 'Sum of totals' cell when either column_of_totals or row_of_totals is True. Defaults to False.
+        showing (bool, optional): Legacy parameter. If True, adds an extra 'Sum of totals' block. Defaults to False.
 
     Returns:
-        Range: The original data range.
+        Range: The new range including the generated totals.
     """
-    range=Range.assertRange(range_of_data)
-    data_rows=range.numRows()
-    data_columns=range.numColumns()
-    coord_horizontal_title=range.c_start.addColumnCopy(-1).addRowCopy(data_rows) 
-    coord_vertical_title=range.c_start.addRowCopy(-1).addColumnCopy(data_columns)
-    style_data=guess_object_style(doc.getValue(range.c_end))
+    data_range = Range.assertRange(range_of_data)
+    data_rows = data_range.numRows()
+    data_columns = data_range.numColumns()
     
-    if column_of_totals==True and row_of_totals==True:
-        doc.addCellWithStyle(coord_horizontal_title, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
-        row_totals(doc, coord_horizontal_title.addColumnCopy(1), [key]*data_columns,styles=style_data, row_from=range.c_start.number)
-        doc.addCellWithStyle(coord_vertical_title, _("Total"), ColorsNamed.GrayLight, vertical_total_title_style)
-        column_totals(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+1), styles=style_data, column_from=range.c_start.letter)
-    elif column_of_totals==True:
-        doc.addCellWithStyle(coord_vertical_title, _("Total"), ColorsNamed.GrayLight, vertical_total_title_style)
-        column_totals(doc, coord_vertical_title.addRowCopy(1),[key]*(data_rows+0), styles=style_data, column_from=range.c_start.letter)
-        if showing is True:
-            coord_sum_totals=coord_vertical_title.addRowCopy(data_rows+1)
-            doc.addCellWithStyle(coord_sum_totals, generate_formula_total_string(key, range.c_start.addColumnCopy(data_columns+1), range.c_end.addColumnCopy(1)), ColorsNamed.GrayLight, style_data)
-            doc.addCellWithStyle(coord_sum_totals.addColumnCopy(-1), _("Sum of totals"), ColorsNamed.GrayDark, style_data)
-    elif row_of_totals==True:
-        doc.addCellWithStyle(coord_horizontal_title, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
-        row_totals(doc, coord_horizontal_title.addColumnCopy(1),[key]*(data_columns+0), styles=style_data, row_from=range.c_start.number) #1 menos por la esquina
-        if showing is True:
-            coord_sum_totals=coord_horizontal_title.addColumnCopy(data_columns+1)
-            doc.addCellWithStyle(coord_sum_totals, generate_formula_total_string(key, range.c_start.addRowCopy(data_rows+1), range.c_end.addRowCopy(1)), ColorsNamed.GrayLight, style_data)
-            doc.addCellWithStyle(coord_sum_totals.addRowCopy(-1), _("Sum of totals"), ColorsNamed.GrayDark, style_data)
+    # Guessed style for data (to match totals formatting)
+    style_data = guess_object_style(doc.getValue(data_range.c_start), doc.default_cell_style)
+    
+    final_end_coord = data_range.c_end.copy()
 
-    return range_of_data
+    # 1. Add row of totals (Bottom)
+    if row_of_totals:
+        coord_row_totals = data_range.c_start.addRowCopy(data_rows)
+        row_totals(doc, coord_row_totals, [key] * data_columns, styles=style_data, row_from=data_range.c_start.number, row_to=data_range.c_end.number)
+        final_end_coord.addRow(1)
+        
+        # Label for row totals (bottom row) usually goes to the left of the totals row
+        if data_range.c_start.letterIndex() > 0:
+            coord_label_row = data_range.c_start.addColumnCopy(-1).addRowCopy(data_rows)
+            doc.addCellWithStyle(coord_label_row, _("Total"), ColorsNamed.GrayLight, horizontal_total_title_style)
+
+    # 2. Add column of totals (Right)
+    if column_of_totals:
+        coord_col_totals = data_range.c_start.addColumnCopy(data_columns)
+        # If we also added a row of totals, we include it in the column totals (cross total)
+        total_items = data_rows + (1 if row_of_totals else 0)
+        column_totals(doc, coord_col_totals, [key] * total_items, styles=style_data, column_from=data_range.c_start.letter, column_to=data_range.c_end.letter)
+        final_end_coord.addColumn(1)
+
+        # Label for column totals (right column) usually goes above the totals column
+        if data_range.c_start.numberIndex() > 0:
+            coord_label_column = data_range.c_start.addRowCopy(-1).addColumnCopy(data_columns)
+            doc.addCellWithStyle(coord_label_column, _("Total"), ColorsNamed.GrayLight, vertical_total_title_style)
+
+    # 3. Handle legacy 'showing' parameter (extra cells)
+    if showing:
+        if column_of_totals:
+            coord_sum_totals = data_range.c_start.addRowCopy(data_rows + 1).addColumnCopy(data_columns)
+            doc.addCellWithStyle(coord_sum_totals, generate_formula_total_string(key, data_range.c_start.addColumnCopy(data_columns), final_end_coord), ColorsNamed.GrayLight, style_data)
+            if coord_sum_totals.letterIndex() > 0:
+                 doc.addCellWithStyle(coord_sum_totals.addColumnCopy(-1), _("Sum of totals"), ColorsNamed.GrayDark, style_data)
+        elif row_of_totals:
+            coord_sum_totals = data_range.c_start.addColumnCopy(data_columns + 1).addRowCopy(data_rows)
+            doc.addCellWithStyle(coord_sum_totals, generate_formula_total_string(key, data_range.c_start.addRowCopy(data_rows), final_end_coord), ColorsNamed.GrayLight, style_data)
+            if coord_sum_totals.numberIndex() > 0:
+                doc.addCellWithStyle(coord_sum_totals.addRowCopy(-1), _("Sum of totals"), ColorsNamed.GrayDark, style_data)
+
+    return Range.from_coords(data_range.c_start, final_end_coord)
 
 
 def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, column_of_totals=False, row_of_totals=False, key="#SUM", title=None, word_wrap=False):
@@ -285,8 +304,9 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
 
 def sheet_stylenames(doc):
     """
-    Creates a new sheet called "Internal style names" listing all ODS styles in four columns:
-    CellStyles, PageStyles, GraphicStyles, and TableStyles.
+    Creates a new sheet called "Internal style names" listing all available styles 
+    organized into four columns: CellStyles, PageStyles, GraphicStyles, and TableStyles.
+    Useful for identifying available style names for use with other methods.
 
     Args:
         doc (ODS): The ODS document object.

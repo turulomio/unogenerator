@@ -617,7 +617,18 @@ class ODT(ODF):
 
 
 class ODS(ODF):
+    """
+    Class for generating ODS (OpenDocument Spreadsheet) documents.
+    Provides methods for adding data, styling, and generating totals.
+    """
     def __init__(self, template=None, server=None):
+        """
+        Initializes an ODS document.
+
+        Args:
+            template (str, optional): Path to an ODS template file. Defaults to None.
+            server (LibreofficeServer, optional): An existing server instance. Defaults to None.
+        """
         ODF.__init__(self, template, server)
         self._remove_default_sheet=True
         self._wrapped_rows = set() # Track rows that have word wrap enabled to avoid overriding them with False
@@ -1651,7 +1662,17 @@ class ODS(ODF):
         return r
 
 class ODS_Standard(ODS):
+    """
+    Optimized ODS class that uses the standard project template.
+    Includes predefined styles (Normal, BoldCenter, etc.) and optimized row heights (452).
+    """
     def __init__(self, server=None):
+        """
+        Initializes an ODS_Standard document using the built-in template.
+
+        Args:
+            server (LibreofficeServer, optional): An existing server instance. Defaults to None.
+        """
         ODS.__init__(self, files('unogenerator') / 'templates/standard.ods', server)
         self.default_row_height = 452
         self.default_cell_style = "Normal"

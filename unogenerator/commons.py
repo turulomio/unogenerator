@@ -476,15 +476,33 @@ def addDebugSystem(level):
 
 
 def generate_formula_total_string(key, coord_from, coord_to):
+    """
+    Generates a spreadsheet formula string based on a key and a coordinate range.
+
+    Args:
+        key (str): The formula key. Supported: #SUM, #AVG, #MEDIAN, or a custom formula with '{}' placeholder, 
+                  or just the name of a LibreOffice function (e.g. "SUM").
+        coord_from (Coord): The start coordinate of the range.
+        coord_to (Coord): The end coordinate of the range.
+
+    Returns:
+        str: The generated formula string (e.g., "=SUM(A1:B10)").
+    """
+    range_str = f"{coord_from.string()}:{coord_to.string()}"
+    
     if key == "#SUM":
-        s="=SUM({}:{})".format(coord_from.string(), coord_to.string())
+        return f"=SUM({range_str})"
     elif key == "#AVG":
-        s="=AVERAGE({}:{})".format(coord_from.string(), coord_to.string())
+        return f"=AVERAGE({range_str})"
     elif key == "#MEDIAN":
-        s="=MEDIAN({}:{})".format(coord_from.string(), coord_to.string())
+        return f"=MEDIAN({range_str})"
+    elif "{}" in key:
+        return key.format(range_str)
     else:
-        s=key
-    return s
+        # Assume key is just the function name (e.g., "SUM", "COUNT")
+        # Ensure it doesn't already have an '='
+        clean_key = key.lstrip("=")
+        return f"={clean_key}({range_str})"
 
 def guess_object_style(o, default_style="Default"):
     if o is None:
