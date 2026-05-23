@@ -28,8 +28,8 @@ logger = logging.getLogger(__name__) # Get logger for this module
 
 
 lod_singers=[
-    {"Singer": "Elvis",  "Songs": 10000 , "Albums": 100},
-    {"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 },
+    {"Singer": "Elvis",  "Songs": 10000 , "Albums": 100, "Best song": "Always on my mind"},
+    {"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20, "Best song": "Crying"},
 ]
 
 lod_singers_rows=len(lod_singers)
@@ -552,10 +552,19 @@ def demo_ods_block_column_row_cross(doc):
         helpers.block_from_lod(doc, c_start.addRowCopy(),  lod_singers)
 
 
-        c_start=c_start.addColumn(lod_singers_columns +1).addRow(-1)
-        doc.addCell("A2", c_start.string())
-        doc.addCellMergedWithStyle(Range.from_coords(c_start,c_start.addColumnCopy(lod_singers_columns-1)),"block_from_lod_headers", ColorsNamed.Orange, "BoldCenter")
+        c_start=c_start.addColumn(lod_singers_columns +1)
+        doc.addCellMergedWithStyle(Range.from_coords(c_start,c_start.addColumnCopy(lod_singers_columns-1)),"block_from_lod (Changing headers)", ColorsNamed.Orange, "BoldCenter")
         helpers.block_from_lod(doc, c_start.addRowCopy(),  lod_singers, columns_header=1, color_row_header=ColorsNamed.Red)
+
+
+        doc.addCell("A2", c_start.string())
+        c_start=c_start.from_index(0, c_start.numberIndex()+lod_singers_rows+3)# column_index, row_index
+        doc.addCell("A10", c_start.string())
+        helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
+             ["Singer header", "Singer"],
+             ["Song header", "Best song"]
+        ], titulo="block_from_lod_with_headers")
+
 
                 
         # doc.addCellMergedWithStyle(Range(c_start,c_end),"List of rows with row_totals", ColorsNamed.Orange, "BoldCenter")
