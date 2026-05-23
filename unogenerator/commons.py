@@ -480,8 +480,11 @@ def generate_formula_total_string(key, coord_from, coord_to):
     Generates a spreadsheet formula string based on a key and a coordinate range.
 
     Args:
-        key (str): The formula key. Supported: #SUM, #AVG, #MEDIAN, or a custom formula with '{}' placeholder, 
-                  or just the name of a LibreOffice function (e.g. "SUM").
+        key (str): The formula key or template. Supported options:
+                  1. Predefined aliases: '#SUM', '#AVG', '#MEDIAN'.
+                  2. Standard function names: e.g., 'SUM', 'COUNT', 'PRODUCT', 'MAX'.
+                  3. Custom templates: e.g., '=SUM({}*1.21)', '={}/100'. The '{}' 
+                     placeholder will be replaced by the range string (e.g., 'A1:B10').
         coord_from (Coord): The start coordinate of the range.
         coord_to (Coord): The end coordinate of the range.
 

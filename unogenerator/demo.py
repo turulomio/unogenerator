@@ -564,15 +564,15 @@ def demo_ods_block_column_row_cross(doc):
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
         doc.createSheet("block_from_lod column of totals")
-        helpers.block_from_lod(doc, "A1", lod_singers, column_of_totals=True, title="block_from_lod (With total columns)")
+        helpers.block_from_lod(doc, "A1", lod_singers, column_of_totals=True, title="block_from_lod (With total columns)", styles="Integer")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
         doc.createSheet("block_from_lod row of totals")
-        helpers.block_from_lod(doc, "A1", lod_singers, row_of_totals=True, title="block_from_lod (With total rows)")
+        helpers.block_from_lod(doc, "A1", lod_singers, row_of_totals=True, title="block_from_lod (With total rows)", styles="Integer")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
         
         doc.createSheet("block_from_lod column of totals row of totals")
-        helpers.block_from_lod(doc, "A1", lod_singers, column_of_totals=True, row_of_totals=True, title="block_from_lod (With total columns and rows)")
+        helpers.block_from_lod(doc, "A1", lod_singers, column_of_totals=True, row_of_totals=True, title="block_from_lod (With total columns and rows)", styles="Integer")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
         # c_start=c_start.addColumn(lod_singers_columns +1)
@@ -683,7 +683,7 @@ def demo_ods_sheet_from_lol(doc):
         helpers.sheet_from_lol(doc, "Sheet from LOL", [[1, 2], [3, 4]], ["Col1", "Col2"], column_of_totals=True, row_of_totals=True, titulo="LOL Table")
         
 def demo_ods_sheet_from_lod(doc):
-        helpers.sheet_from_lod(doc, "Sheet from LOD", lod_singers, column_of_totals=True, row_of_totals=True, titulo="LOD Table")
+        helpers.sheet_from_lod(doc, "Sheet from LOD", lod_singers, column_of_totals=True, row_of_totals=True, title="LOD Table", styles="Integer")
         
 def demo_ods_sheet_sort(doc):
         ##Sort
