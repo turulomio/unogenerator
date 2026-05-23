@@ -1,6 +1,7 @@
 from unogenerator.commons import ColorsNamed, Coord, Range, guess_object_style, generate_formula_total_string
 from unogenerator import ODS, types
 from pydicts import lod
+from collections import OrderedDict
 from gettext import translation
 from logging import debug
 import logging
@@ -284,17 +285,28 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
 
 def sheet_stylenames(doc):
     """
-    Creates a new sheet called "Internal style names" listing all ODS styles grouped by families.
+    Creates a new sheet called "Internal style names" listing all ODS styles in four columns:
+    CellStyles, PageStyles, GraphicStyles, and TableStyles.
 
     Args:
         doc (ODS): The ODS document object.
     """
-    lod_=[]
-    for family,  style_names in doc.dict_stylenames.items():
-        lod_.append({
-            "Family":family,
-            "Styles":style_names
-        })
+    cell_styles = doc.dict_stylenames.get("CellStyles", [])
+    page_styles = doc.dict_stylenames.get("PageStyles", [])
+    graphic_styles = doc.dict_stylenames.get("GraphicStyles", [])
+    table_styles = doc.dict_stylenames.get("TableStyles", [])
+    
+    max_len = max(len(cell_styles), len(page_styles), len(graphic_styles), len(table_styles))
+    
+    lod_ = []
+    for i in range(max_len):
+        lod_.append(OrderedDict({
+            "CellStyles": cell_styles[i] if i < len(cell_styles) else "",
+            "PageStyles": page_styles[i] if i < len(page_styles) else "",
+            "GraphicStyles": graphic_styles[i] if i < len(graphic_styles) else "",
+            "TableStyles": table_styles[i] if i < len(table_styles) else ""
+        }))
+    
     sheet_from_lod(doc, "Internal style names", lod_, freezeandselect="A2", columns_width_mode=types.ColumnsWidthMode.FROM_LOD)
 
 def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_totals=False, freezeandselect=None, titulo=None, word_wrap=False, **kwargs_columnswidth):
