@@ -212,30 +212,53 @@ def cross_totals_from_range (
     return range_of_data
 
 
-
-## Write cells from a list of ordered dictionaries
-## @param lod List of ordered dictionaries
-## @param keys. If None write all keys, Else must be a list of keys
-## @param columns_header. Integer with the number of columns to apply color_header
-## @return Range. Returns the range of the data without headers. Useful to set totals.
-def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None):
+def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, totalcolumns=False, totalrows=False, key="#SUM", title=None):
+    """
+    Write cells from a list of ordered dictionaries.
+    Params:
+        doc (ODS): The ODS document object.
+        coord_start (Coord or str): Starting coordinate.
+        lod_ (list): List of ordered dictionaries.
+        keys (list, optional): List of keys to write. If None, writes all keys. Defaults to None.
+        columns_header (int, optional): Number of columns to apply color_header. Defaults to 0.
+        color_row_header (int, optional): Color for row headers. Defaults to ColorsNamed.Orange.
+        color_column_header (int, optional): Color for column headers. Defaults to ColorsNamed.Green.
+        color (int, optional): Color for data cells. Defaults to ColorsNamed.White.
+        styles (list or str, optional): Styles for data cells. Defaults to None.
+        totalcolumns: Add a total at the bottom of the block
+        totalrows: Add a total at the right of the block
+        key (str, optional): Formula key for totals. Defaults to "#SUM".
+        title (str, optional): Title for the block. Defaults to None.   
+    Returns:
+        Range: The range of the data without headers. Useful to set totals.
+    """
+    # Check is a Coord object and makes a copy to avoid internal coord movements
     coord_start=Coord.assertCoord(coord_start)
+    c=coord_start.copy()
     
-    if len(lod_)==0 and keys is None:
-        doc.addCellWithStyle(coord_start, _("No data to show"), ColorsNamed.Red, "BoldCenter")
+    #Prepara el titulo
+    if title is not None:
+        if len(lod_)==0:
+            doc.addCellWithStyle(c, title, ColorsNamed.Red, "BoldCenter")
+        else:
+            addtotalrows=1 if totalrows else 0
+            if keys is None:
+                range_title=Range.from_coords("A1", Coord("A1").addColumn(len(lod_[0].keys())-1+addtotalrows))
+            else:
+                range_title=Range.from_coords("A1", Coord("A1").addColumn(len(keys)-1)+addtotalrows)
+            doc.addCellMergedWithStyle(range_title, title, ColorsNamed.Red, "BoldCenter")
+        c.addRow(1)
+
+    # Empty lod
+    if len(lod_)==0:
+        doc.addCellWithStyle(c, _("No data to show"), ColorsNamed.White, "BoldCenter")
         return None
 
         
-    #Header
+    #Headers
     if keys is None:
         keys=lod.lod_keys(lod_)
-    
-    for column,  key in enumerate(keys):       
-        doc.addCellWithStyle(coord_start.addColumnCopy(column), key, color_row_header, "BoldCenter")
-    coord_data=coord_start.addRowCopy(1)
-    
-    
-    lor=lod.lod2lol(lod_, keys)
+    doc.addRowWithStyle(c, keys, color_row_header, "BoldCenter")
     
     #Generate list of colors
     colors=[]
@@ -246,35 +269,17 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
             colors.append(color)
    
     #Generate list of rows
-    return doc.addListOfRowsWithStyle(coord_data, lor, colors, styles)
+    lol_=lod.lod2lol(lod_, keys)
+    range_block= doc.addListOfRowsWithStyle(c.addRow(), lol_, colors, styles)
 
-def block_from_lod_with_totals(doc, coord_start,  lod, keys=None, columns_header=1,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, totalcolumns=True, totalrows=True, key="#SUM"):
-    """
-    Writes data from a list of ordered dictionaries and appends totals.
-
-    Args:
-        doc (ODS): The ODS document object.
-        coord_start (Coord or str): Starting coordinate.
-        lod (list): List of ordered dictionaries containing the data.
-        keys (list, optional): List of keys to write. Defaults to None.
-        columns_header (int, optional): Number of leading columns treated as headers. Defaults to 1.
-        color_row_header (int, optional): Color for the top header row. Defaults to ColorsNamed.Orange.
-        color_column_header (int, optional): Color for the side header columns. Defaults to ColorsNamed.Green.
-        color (int, optional): Default color for data cells. Defaults to ColorsNamed.White.
-        styles (list or str, optional): Styles for data columns. Defaults to None.
-        totalcolumns (bool, optional): Whether to generate column totals. Defaults to True.
-        totalrows (bool, optional): Whether to generate row totals. Defaults to True.
-        key (str, optional): Formula key to apply (e.g., "#SUM"). Defaults to "#SUM".
-
-    Returns:
-        Range: The range of the data including the generated totals.
-    """
-    print("QWUITAR CON parametros")
-    coord_start=Coord.assertCoord(coord_start)
-    block_from_lod(doc, coord_start,  lod, keys, columns_header,  color_row_header, color_column_header,  color, styles)
-    range_lod=Range.from_iterable_object(coord_start.addRow(1), lod)## Adds q to skip top headers
-    range_lod.c_start.addColumn(columns_header) ## Adds to skip columns headers
-    return cross_totals_from_range (doc, range_lod, key, totalcolumns, totalrows)
+    # Generate totals 
+    if totalcolumns or totalrows:
+        if totalcolumns:
+            if columns_header==0:
+                columns_header=1
+            range_block.c_start.addColumn(columns_header) ## Adds to skip columns headers
+        return cross_totals_from_range (doc, range_block, key, totalcolumns, totalrows)
+    return range_block
 
 def sheet_stylenames(doc):
     """
@@ -415,7 +420,7 @@ def sheet_from_lod(doc, sheetname, lod_,  totalcolumns=False, totalrows=False, f
         c_start=Coord("A2")#Empieza abajo
             
     
-    range_final=block_from_lod_with_totals(doc, c_start, lod_, totalcolumns=totalcolumns, totalrows=totalrows )
+    range_final=block_from_lod(doc, c_start, lod_, totalcolumns=totalcolumns, totalrows=totalrows )
     if totalcolumns or totalrows:
         range_cross=cross_totals_from_range (doc, range_final, "#SUM", totalcolumns, totalrows, "BoldCenter", "BoldCenter", False)
     doc.setColumnsWidth(lod_, columns_width_mode, char_to_cm, padding_cm, min_width_cm, max_width_cm)
