@@ -241,6 +241,7 @@ def demo_ods_standard(language, server):
         demo_ods_sheet_from_lod(doc)
         demo_ods_sheet_from_lol(doc)
         demo_ods_sheet_block_from_lol(doc)
+        demo_ods_sheet_columns_width_modes(doc)
 
         # demo_ods_block_column_row_cros(doc)
         # demo_ods_sheet_columns_width_with_list(doc)
@@ -783,4 +784,26 @@ def demo_ods_sheet_helpers_single(doc):
         doc.addColumnWithStyle("A1", [10, 20, 30, 40])
         helpers.column_totals(doc, "B1", ["#SUM"] * 4, column_from="A")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+def demo_ods_sheet_columns_width_modes(doc):
+    lod_widths = [
+        OrderedDict({"Column 1": "Short", "Column 2": "This is a much longer string to measure", "Column 3": 100}),
+        OrderedDict({"Column 1": "A medium string", "Column 2": "Short", "Column 3": 20000}),
+        OrderedDict({"Column 1": "A very very very long string that should affect quantile 90", "Column 2": "Medium", "Column 3": 3}),
+    ]
+
+    # 1. MANUAL
+    helpers.sheet_from_lod(doc, "Width MANUAL", lod_widths, columns_width_mode=types.ColumnsWidthMode.MANUAL, value=[5, 10, 5])
+    
+    # 2. FROM_LOD (Default behavior: max of all)
+    helpers.sheet_from_lod(doc, "Width FROM_LOD", lod_widths, columns_width_mode=types.ColumnsWidthMode.FROM_LOD)
+
+    # 3. FROM_LOD_0 (Uses first dictionary)
+    helpers.sheet_from_lod(doc, "Width FROM_LOD_0", lod_widths, columns_width_mode=types.ColumnsWidthMode.FROM_LOD_0)
+
+    # 4. FROM_LOD_QUANTILE_90 (Uses 90th percentile of lengths)
+    helpers.sheet_from_lod(doc, "Width FROM_LOD_Q90", lod_widths, columns_width_mode=types.ColumnsWidthMode.FROM_LOD_QUANTILE_90)
+
+    # 5. FROM_SHEET_CELLS (Measures from generated cells)
+    helpers.sheet_from_lod(doc, "Width FROM_SHEET_CELLS", lod_widths, columns_width_mode=types.ColumnsWidthMode.FROM_SHEET_CELLS)
         

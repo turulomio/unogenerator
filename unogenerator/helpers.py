@@ -421,6 +421,7 @@ def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_
     padding_cm = kwargs_columnswidth.get("padding_cm", 0.5)
     min_width_cm = kwargs_columnswidth.get("min_width_cm", 2.0)
     max_width_cm = kwargs_columnswidth.get("max_width_cm", 15.0)
+    value = kwargs_columnswidth.get("value")
 
     doc.createSheet(sheetname)
 
@@ -432,8 +433,13 @@ def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_
         word_wrap=word_wrap
     )
 
-    data_to_measure = [headers] + lor if headers else lor
-    doc.setColumnsWidth(data_to_measure, columns_width_mode, char_to_cm, padding_cm, min_width_cm, max_width_cm)
+    if value is None:
+        if columns_width_mode == types.ColumnsWidthMode.FROM_SHEET_CELLS:
+            value = doc
+        else:
+            value = [headers] + lor if headers else lor
+
+    doc.setColumnsWidth(value, columns_width_mode, char_to_cm, padding_cm, min_width_cm, max_width_cm)
 
     if freezeandselect:
         doc.freezeAndSelect(freezeandselect, freezeandselect, freezeandselect)
@@ -491,11 +497,19 @@ def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=
     padding_cm=kwargs_columnswidth.get("padding_cm", 0.5)
     min_width_cm=kwargs_columnswidth.get("min_width_cm", 2.0)
     max_width_cm=kwargs_columnswidth.get("max_width_cm", 15.0)
+    value = kwargs_columnswidth.get("value")
 
     doc.createSheet(sheetname)
               
     range_final=block_from_lod(doc, "A1", lod_, column_of_totals=column_of_totals, row_of_totals=row_of_totals, word_wrap=word_wrap, styles=styles, title=title )
-    doc.setColumnsWidth(lod_, columns_width_mode, char_to_cm, padding_cm, min_width_cm, max_width_cm)
+    
+    if value is None:
+        if columns_width_mode == types.ColumnsWidthMode.FROM_SHEET_CELLS:
+            value = doc
+        else:
+            value = lod_
+        
+    doc.setColumnsWidth(value, columns_width_mode, char_to_cm, padding_cm, min_width_cm, max_width_cm)
     if freezeandselect:
         doc.freezeAndSelect(freezeandselect,freezeandselect, freezeandselect)
     return range_final
