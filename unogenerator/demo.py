@@ -11,7 +11,7 @@ from importlib.resources import files
 from os import system
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
-from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer, helpers, types
+from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer, helpers, types, Range
 from tqdm import tqdm
 
 try:
@@ -32,7 +32,8 @@ lod_singers=[
     {"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 },
 ]
 
-
+lod_singers_rows=len(lod_singers)
+lod_singers_columns=len(lod_singers[0].keys())
 
 lol_numbers=[
     ["One Two Three", "Four", "Ten"],
@@ -40,9 +41,23 @@ lol_numbers=[
     ["One Two Three", "Four", "Ten Two Three"],
 ]
 
+lol_numbers_rows=len(lol_numbers)
+lol_numbers_columns=len(lol_numbers[0])
+
+
+lol_integers=[
+    [1,2,3],
+    [4,5,6],
+    [7,8,9]
+]
+
 lol_thousands=[]
 for i in range(1000):
     lol_thousands.append([i, _("String")+" "+ str(i), datetime.now()])
+
+lol_thousands_rows=len(lol_thousands)
+lol_thousands_columns=len(lol_thousands[0])
+
 
 
 ## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
@@ -219,14 +234,18 @@ def demo_ods_standard(language, server):
         )
         
         demo_ods_sheet_styles(doc)
-        demo_ods_sheet_list_of_rows_or_columns(doc)
-        demo_ods_sheet_columns_width_with_list(doc)
-        demo_ods_sheet_columns_width_with_lol(doc)
-        demo_ods_sheet_columns_width_with_lod(doc)
-        demo_ods_sheet_from_lol(doc)
-        demo_ods_sheet_helpers(doc)
-        demo_ods_sheet_helpers_from_lod(doc)
         demo_ods_sheet_sort(doc)
+        demo_ods_block_column_row_cross(doc)
+
+        # demo_ods_block_column_row_cros(doc)
+        # demo_ods_sheet_columns_width_with_list(doc)
+        # demo_ods_sheet_columns_width_with_lol(doc)
+        # demo_ods_sheet_columns_width_with_lod(doc)
+        # demo_ods_sheet_from_lol(doc)
+        # demo_ods_sheet_helpers(doc)
+        # demo_ods_sheet_helpers_from_lod(doc)
+
+
         demo_ods_sheet_split_with_big_lol(doc)
         helpers.sheet_stylenames(doc)
 
@@ -523,39 +542,50 @@ def demo_ods_sheet_styles(doc):
 
 
 
-def demo_ods_sheet_list_of_rows_or_columns(doc):
+def demo_ods_block_column_row_cross(doc):
         ## List of rows
-        doc.createSheet("List of rows or columns")
-        
+        doc.createSheet("Block column row cross")
+        c_start=Coord("A1")
+
+        # block_from_lod
+        doc.addCellMergedWithStyle(Range.from_coords(c_start,c_start.addColumnCopy(lod_singers_columns-1)),"block_from_lod", ColorsNamed.Orange, "BoldCenter")
+        helpers.block_from_lod(doc, c_start.addRowCopy(),  lod_singers)
+
+
+        c_start=c_start.addColumn(lod_singers_columns +1).addRow(-1)
+        doc.addCell("A2", c_start.string())
+        doc.addCellMergedWithStyle(Range.from_coords(c_start,c_start.addColumnCopy(lod_singers_columns-1)),"block_from_lod_headers", ColorsNamed.Orange, "BoldCenter")
+        helpers.block_from_lod(doc, c_start.addRowCopy(),  lod_singers, columns_header=1, color_row_header=ColorsNamed.Red)
+
                 
-        doc.addCellMergedWithStyle("A1:C1","List of rows with row_totals", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A2", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
-        helpers.row_totals(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="2", row_to="4")
+        # doc.addCellMergedWithStyle(Range(c_start,c_end),"List of rows with row_totals", ColorsNamed.Orange, "BoldCenter")
+        # range_=doc.addListOfRowsWithStyle("A2", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+        # helpers.row_totals(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="2", row_to="4")
         
-        doc.addCellMergedWithStyle("A8:C8","List of columns with row_totals", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfColumnsWithStyle("A9", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
-        helpers.row_totals(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="9", row_to="11")
+        # doc.addCellMergedWithStyle("A8:C8","List of columns with row_totals", ColorsNamed.Orange, "BoldCenter")
+        # range_=doc.addListOfColumnsWithStyle("A9", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
+        # helpers.row_totals(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="9", row_to="11")
 
-        doc.addCellMergedWithStyle("A15:E15","List of rows with cross_totals_from_range in rows and columns", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A16", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        helpers.cross_totals_from_range(doc, range_, totalcolumns=True, totalrows=True)
+        # doc.addCellMergedWithStyle("A15:E15","List of rows with cross_totals_from_range in rows and columns", ColorsNamed.Orange, "BoldCenter")
+        # range_=doc.addListOfRowsWithStyle("A16", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        # helpers.cross_totals_from_range(doc, range_, totalcolumns=True, totalrows=True)
         
         
-        doc.addCellMergedWithStyle("A22:E22","List of rows with cross_totals_from_range in rows", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A23", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True) #Removes one column to filter first alphanumerical column
+        # doc.addCellMergedWithStyle("A22:E22","List of rows with cross_totals_from_range in rows", ColorsNamed.Orange, "BoldCenter")
+        # range_=doc.addListOfRowsWithStyle("A23", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True) #Removes one column to filter first alphanumerical column
 
-        doc.addCellMergedWithStyle("A29:E29","List of rows with cross_totals_from_range in columns", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A30", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False)
+        # doc.addCellMergedWithStyle("A29:E29","List of rows with cross_totals_from_range in columns", ColorsNamed.Orange, "BoldCenter")
+        # range_=doc.addListOfRowsWithStyle("A30", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False)
         
-        doc.addCellMergedWithStyle("A35:E35","List of rows with cross_totals_from_range in rows showing", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A36", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True, showing=True)
+        # doc.addCellMergedWithStyle("A35:E35","List of rows with cross_totals_from_range in rows showing", ColorsNamed.Orange, "BoldCenter")
+        # range_=doc.addListOfRowsWithStyle("A36", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=False, totalrows=True, showing=True)
 
-        doc.addCellMergedWithStyle("A42:E42","List of rows with cross_totals_from_range in columns showing", ColorsNamed.Orange, "BoldCenter")
-        range_=doc.addListOfRowsWithStyle("A43", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False, showing=True)
+        # doc.addCellMergedWithStyle("A42:E42","List of rows with cross_totals_from_range in columns showing", ColorsNamed.Orange, "BoldCenter")
+        # range_=doc.addListOfRowsWithStyle("A43", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
+        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), totalcolumns=True, totalrows=False, showing=True)
 
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
@@ -575,14 +605,7 @@ def demo_ods_sheet_helpers(doc):
         doc.addListOfColumnsWithStyle("A12", [[10, 20, 30], [5, 15, 25]], ColorsNamed.White)
         helpers.column_totals(doc, "C12", ["#SUM"]*2, column_from="A")
 
-        doc.addCellMergedWithStyle("A23:B23","List of ordered dictionaries", ColorsNamed.Orange, "BoldCenter")
-        lod=[]
-        lod.append(OrderedDict({"Singer": "Elvis",  "Song": "Fever" }))
-        lod.append(OrderedDict({"Singer": "Roy Orbison",  "Song": "Blue angel" }))
-        helpers.block_from_lod(doc, "A24",  lod, columns_header=1)
-        
-        doc.addCellMergedWithStyle("A28:B28","List of dictionaries", ColorsNamed.Orange, "BoldCenter")
-        helpers.block_from_lod(doc, "A29",  lod, keys=["Song",  "Singer"])
+
         
         doc.addCellMergedWithStyle("A33:D33","List of ordered dictionaries one method with totals", ColorsNamed.Orange, "BoldCenter")
         lod=[]
