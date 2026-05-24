@@ -18,11 +18,6 @@ def test_command_copy_sheet(libreoffice_server, tmp_path):
     
     # 3. Verify
     assert os.path.exists(dest_file)
-    with ODS_Standard(server=libreoffice_server) as doc_dest:
-        doc_dest.save(dest_file) # Just to open it
-        # Actually I should use ODS(dest_file)
-        pass
-        
     from unogenerator import ODS
     with ODS(dest_file, server=libreoffice_server) as doc_check:
         doc_check.setActiveSheet("CopiedSheet")
@@ -30,7 +25,7 @@ def test_command_copy_sheet(libreoffice_server, tmp_path):
         assert val["value"] == "Styled Data"
         assert val["style"] == "Normal" # ODS_Standard uses Normal
         # Check color (converted to int)
-        assert val["color"] == 0xFF0000 or doc_check.sheet.getCellByPosition(0,0).CellBackColor == 0xFF0000
+        assert doc_check.sheet.getCellByPosition(0,0).CellBackColor == 0xFF0000
 
 def test_copy_sheet_existing_dest(libreoffice_server, tmp_path):
     src_file = str(tmp_path / "source2.ods")
