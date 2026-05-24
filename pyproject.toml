@@ -1,6 +1,6 @@
 [project]
 name = "unogenerator"
-version = "1.2.0"
+version = "1.3.0"
 description = "Libreoffice files generator programmatically with python and Libreoffice server instances"
 authors = [
     { name = "turulomio", email = "turulomio@yahoo.es" }
