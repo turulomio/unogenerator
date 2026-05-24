@@ -24,7 +24,7 @@ jobs:
     - name: Install LibreOffice and uno dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libreoffice python3-uno imagemagick # Removed explicit python3.10 and python3.10-venv
+        sudo apt-get install -y libreoffice python3-uno imagemagick gettext # Removed explicit python3.10 and python3.10-venv
     - name: Install python environment
       run: |
         python -m venv .venv --system-site-packages # Use 'python' and remove 'sudo'

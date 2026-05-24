@@ -201,6 +201,13 @@ class Coord:
         
         return (letter,number)
 
+    def copy(self):
+        """
+            Returns a copy of the object
+        """
+        return Coord(self.string())
+
+
     ## Returns Coord string
     ## @return string For example "Z1"
     def string(self):
@@ -227,14 +234,14 @@ class Coord:
     ## Add a number of rows to the Coord and return a copy of the object
     ## @param num Integer Can be positive and negative. When num is negative, if Coord.number is less than 1, returns 1
     def addRowCopy(self, num=1):
-        r=Coord(self.string())
+        r=self.copy()
         r.addRow(num)
         return r
 
     ## Add a number of columns/letters to the Coord and return a copy of the objject
     ## @param num Integer. Can be positive and negative. When num is negative, if Coord.letter is less than A, returns A.
     def addColumnCopy(self, num=1):
-        r=Coord(self.string())
+        r=self.copy()
         r.addColumn(num)
         return r
 
@@ -469,25 +476,46 @@ def addDebugSystem(level):
 
 
 def generate_formula_total_string(key, coord_from, coord_to):
-    if key == "#SUM":
-        s="=SUM({}:{})".format(coord_from.string(), coord_to.string())
-    elif key == "#AVG":
-        s="=AVERAGE({}:{})".format(coord_from.string(), coord_to.string())
-    elif key == "#MEDIAN":
-        s="=MEDIAN({}:{})".format(coord_from.string(), coord_to.string())
-    else:
-        s=key
-    return s
+    """
+    Generates a spreadsheet formula string based on a key and a coordinate range.
 
-def guess_object_style(o):
+    Args:
+        key (str): The formula key or template. Supported options:
+                  1. Predefined aliases: '#SUM', '#AVG', '#MEDIAN'.
+                  2. Standard function names: e.g., 'SUM', 'COUNT', 'PRODUCT', 'MAX'.
+                  3. Custom templates: e.g., '=SUM({}*1.21)', '={}/100'. The '{}' 
+                     placeholder will be replaced by the range string (e.g., 'A1:B10').
+        coord_from (Coord): The start coordinate of the range.
+        coord_to (Coord): The end coordinate of the range.
+
+    Returns:
+        str: The generated formula string (e.g., "=SUM(A1:B10)").
+    """
+    range_str = f"{coord_from.string()}:{coord_to.string()}"
+    
+    if key == "#SUM":
+        return f"=SUM({range_str})"
+    elif key == "#AVG":
+        return f"=AVERAGE({range_str})"
+    elif key == "#MEDIAN":
+        return f"=MEDIAN({range_str})"
+    elif "{}" in key:
+        return key.format(range_str)
+    else:
+        # Assume key is just the function name (e.g., "SUM", "COUNT")
+        # Ensure it doesn't already have an '='
+        clean_key = key.lstrip("=")
+        return f"={clean_key}({range_str})"
+
+def guess_object_style(o, default_style="Default"):
     if o is None:
-        return "Normal"
+        return default_style
     elif o.__class__.__name__=="int":
         return "Integer"
     elif o.__class__.__name__=="timedelta":
         return "TimedeltaSeconds"#TimedeltaISO exits but you can't add or supr
     elif o.__class__.__name__=="str":
-        return "Normal"
+        return default_style
     elif o.__class__.__name__ in ["Currency", "Money" ]:
         return o.currency
     elif o.__class__.__name__=="Percentage":
