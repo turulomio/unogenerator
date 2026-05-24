@@ -306,14 +306,14 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
     range_data = doc.addListOfRowsWithStyle(c.addRowCopy(1), lol_data, colors, styles, word_wrap=word_wrap)
 
     # 7. Generate totals
-    if column_of_totals or row_of_totals:
+    if (column_of_totals or row_of_totals) and range_data:
         # Default to skipping the first column if columns_header is not specified, 
         # as it's typically a label/ID column in a LOD.
         skip = columns_header if columns_header > 0 else 1 if len(keys) > 1 else 0
         final_range = cross_totals_from_range(doc, range_data, key, column_of_totals, row_of_totals, skip_columns=skip)
         return Range.from_coords(coord_start, final_range.c_end)
     
-    return Range.from_coords(coord_start, range_data.c_end)
+    return Range.from_coords(coord_start, range_data.c_end if range_data else c)
 
 
 def block_from_lol(doc, coord_start, lor, headers=None, colors=ColorsNamed.White, styles=None, column_of_totals=False, row_of_totals=False, key="#SUM", title=None, word_wrap=True):
@@ -364,13 +364,13 @@ def block_from_lol(doc, coord_start, lor, headers=None, colors=ColorsNamed.White
     range_data = doc.addListOfRowsWithStyle(c, lor, colors, styles, word_wrap=word_wrap)
 
     # 5. Generate totals
-    if column_of_totals or row_of_totals:
+    if (column_of_totals or row_of_totals) and range_data:
         # Default to skipping the first column if it looks like a label column
         skip = 1 if (headers and len(headers) > 1) or (lor and len(lor[0]) > 1) else 0
         final_range = cross_totals_from_range(doc, range_data, key, column_of_totals, row_of_totals, skip_columns=skip)
         return Range.from_coords(coord_start, final_range.c_end)
 
-    return Range.from_coords(coord_start, range_data.c_end)
+    return Range.from_coords(coord_start, range_data.c_end if range_data else c)
 
 
 def sheet_stylenames(doc):
@@ -556,7 +556,11 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
     
     # Crea titulo principal
     if titulo is not None:
-        doc.addCellMergedWithStyle(Range.from_coords(coord,coord.addColumnCopy(len(keys)-1)), titulo, ColorsNamed.Red, "BoldCenter", word_wrap=word_wrap)
+        if column_of_totals:
+            add_of_totals=1
+        else:
+            add_of_totals=0
+        doc.addCellMergedWithStyle(Range.from_coords(coord,coord.addColumnCopy(len(keys)-1+add_of_totals)), titulo, ColorsNamed.Red, "BoldCenter", word_wrap=word_wrap)
         coord.addRow(1)
      
          

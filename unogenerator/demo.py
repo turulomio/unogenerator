@@ -32,6 +32,12 @@ lod_singers=[
     {"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20, "Best song": "Crying"},
 ]
 
+lod_widths = [
+    OrderedDict({"Column 1": "Short", "Column 2": "This is a much longer string to measure", "Column 3": 100}),
+    OrderedDict({"Column 1": "A medium string", "Column 2": "Short", "Column 3": 20000}),
+    OrderedDict({"Column 1": "A very very very long string that should affect quantile 90", "Column 2": "Medium", "Column 3": 3}),
+    ]
+
 lod_singers_rows=len(lod_singers)
 lod_singers_columns=len(lod_singers[0].keys())
 
@@ -40,6 +46,8 @@ lol_numbers=[
     ["One Two Three", "Four Two Three", "Ten"],
     ["One Two Three", "Four", "Ten Two Three"],
 ]
+
+lol_numbers_headers=["A","B","C"]
 
 lol_numbers_rows=len(lol_numbers)
 lol_numbers_columns=len(lol_numbers[0])
@@ -242,14 +250,6 @@ def demo_ods_standard(language, server):
         demo_ods_sheet_from_lol(doc)
         demo_ods_sheet_block_from_lol(doc)
         demo_ods_sheet_columns_width_modes(doc)
-
-        # demo_ods_block_column_row_cros(doc)
-        # demo_ods_sheet_columns_width_with_list(doc)
-        # demo_ods_sheet_columns_width_with_lol(doc)
-        # demo_ods_sheet_columns_width_with_lod(doc)
-        # demo_ods_sheet_from_lol(doc)
-        # demo_ods_sheet_helpers(doc)
-        # demo_ods_sheet_helpers_from_lod(doc)
 
 
         demo_ods_sheet_split_with_big_lol(doc)
@@ -578,115 +578,46 @@ def demo_ods_block_column_row_cross(doc):
         helpers.block_from_lod(doc, "A1", lod_singers, column_of_totals=True, row_of_totals=True, title="block_from_lod (With total columns and rows)", styles="Integer")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
-        # c_start=c_start.addColumn(lod_singers_columns +1)
-        # helpers.block_from_lod(doc, c_start.addRowCopy(),  lod_singers, columns_header=1, color_row_header=ColorsNamed.Red, column_of_totals=True, title="block_from_lod (With total columns)")
 
 
-        # # block_from_lod_with_headers
-        # c_start=c_start.from_index(0, c_start.numberIndex()+lod_singers_rows+3)# column_index, row_index
-        # helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
-        #      ["Singer header", "Singer"],
-        #      ["Song header", "Best song"]
-        # ], titulo="block_from_lod_with_headers")
+        # block_from_lod_with_headers
+        doc.createSheet("block_from_lod_with_headers")
+        helpers.block_from_lod_with_headers(doc, lod_singers, "A1", [
+             ["Singer header", "Singer"],
+             ["Song header", "Best song"]
+        ], titulo="block_from_lod_with_headers")
+        doc.setColumnsWidth(lod_singers, types.ColumnsWidthMode.FROM_LOD)
 
 
-        # c_start=c_start.addColumn(lod_singers_columns +1)
-        # helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
-        #      ["Singer header", "Singer"],
-        #      ["Song header", "Best song"]
-        # ], titulo="block_from_lod_with_headers (With total columns)", column_of_totals=True)
+        doc.createSheet("block_from_lod_with_headers column_of_totals")
+        helpers.block_from_lod_with_headers(doc, lod_singers, "A1", [
+             ["Singer header", "Singer"],
+             ["Song header", "Best song"]
+        ], titulo="block_from_lod_with_headers (With total columns)", column_of_totals=True)
+        doc.setColumnsWidth(lod_singers, types.ColumnsWidthMode.FROM_LOD)
 
-        # c_start=c_start.addColumn(lod_singers_columns +3)
-        # helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
-        #      ["Singer header", "Singer"],
-        #      ["Song header", "Best song"]
-        # ], titulo="block_from_lod_with_headers (With total rows)", row_of_totals=True)
-
-
-        # doc.addCell("A11", c_start.string())
-        # c_start=c_start.addColumn(lod_singers_columns +2)
-        # doc.addCell("A12", c_start.string())
-        # helpers.block_from_lod_with_headers(doc, lod_singers, c_start, [
-        #      ["Singer header", "Singer"],
-        #      ["Song header", "Best song"]
-        # ], titulo="block_from_lod_with_headers (With total columns and rows)", column_of_totals=True, row_of_totals=True)
+        doc.createSheet("block_from_lod_with_headers row_of_totals")
+        helpers.block_from_lod_with_headers(doc, lod_singers, "A1", [
+             ["Singer header", "Singer"],
+             ["Song header", "Best song"]
+        ], titulo="block_from_lod_with_headers (With total rows)", row_of_totals=True)
+        doc.setColumnsWidth(lod_singers, types.ColumnsWidthMode.FROM_LOD)
 
 
-        # # block_from_lod
-        # c_start=c_start.from_index(0, c_start.numberIndex()+lod_singers_rows+3)# column_index, row_index
+        doc.createSheet("block_from_lod_with_headers column_of_totals row_of_totals")
+        helpers.block_from_lod_with_headers(doc, lod_singers, "A1", [
+             ["Singer header", "Singer"],
+             ["Song header", "Best song"]
+        ], titulo="block_from_lod_with_headers (With total columns and rows)", column_of_totals=True, row_of_totals=True)
+        doc.setColumnsWidth(lod_singers, types.ColumnsWidthMode.FROM_LOD)
 
-                
-        # doc.addCellMergedWithStyle(Range(c_start,c_end),"List of rows with row_totals", ColorsNamed.Orange, "BoldCenter")
-        # range_=doc.addListOfRowsWithStyle("A2", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
-        # helpers.row_totals(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="2", row_to="4")
-        
-        # doc.addCellMergedWithStyle("A8:C8","List of columns with row_totals", ColorsNamed.Orange, "BoldCenter")
-        # range_=doc.addListOfColumnsWithStyle("A9", [[1,2,3],[4,5,6],[7,8,9]], ColorsNamed.White)
-        # helpers.row_totals(doc, range_.c_start.addRowCopy(range_.numRows()), ["#SUM"]*3, styles=None, row_from="9", row_to="11")
-
-        # doc.addCellMergedWithStyle("A15:E15","List of rows with cross_totals_from_range in rows and columns", ColorsNamed.Orange, "BoldCenter")
-        # range_=doc.addListOfRowsWithStyle("A16", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        # helpers.cross_totals_from_range(doc, range_, column_of_totals=True, row_of_totals=True)
-        
-        
-        # doc.addCellMergedWithStyle("A22:E22","List of rows with cross_totals_from_range in rows", ColorsNamed.Orange, "BoldCenter")
-        # range_=doc.addListOfRowsWithStyle("A23", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), column_of_totals=False, row_of_totals=True) #Removes one column to filter first alphanumerical column
-
-        # doc.addCellMergedWithStyle("A29:E29","List of rows with cross_totals_from_range in columns", ColorsNamed.Orange, "BoldCenter")
-        # range_=doc.addListOfRowsWithStyle("A30", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), column_of_totals=True, row_of_totals=False)
-        
-        # doc.addCellMergedWithStyle("A35:E35","List of rows with cross_totals_from_range in rows showing", ColorsNamed.Orange, "BoldCenter")
-        # range_=doc.addListOfRowsWithStyle("A36", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), column_of_totals=False, row_of_totals=True, showing=True)
-
-        # doc.addCellMergedWithStyle("A42:E42","List of rows with cross_totals_from_range in columns showing", ColorsNamed.Orange, "BoldCenter")
-        # range_=doc.addListOfRowsWithStyle("A43", [["A",12000,2,3, 6],["B",1020,5,6, 7],["C",20404,8,9, 8]], ColorsNamed.White)
-        # helpers.cross_totals_from_range(doc, range_.addColumnBefore(-1), column_of_totals=True, row_of_totals=False, showing=True)
-
-        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
-
-
-
-def demo_ods_sheet_helpers(doc):
-        ## HELPERS
-        doc.createSheet("Helpers")
-        doc.setSheetStyle("Portrait")
-        doc.addCellMergedWithStyle("A1:E1","Helper values with total (horizontal)", ColorsNamed.Orange, "BoldCenter")
-        helpers.row_title_values_total(doc, "A2", "Suma 3", [1,2,3])
-
-        doc.addCellMergedWithStyle("A4:A9","Helper values with total (vertical)", ColorsNamed.Orange, "VerticalBoldCenter")
-        helpers.column_title_values_total(doc, "B4", "Suma 3", [1,2,3, 4])
-
-        doc.addCellMergedWithStyle("A11:E11","Column totals example", ColorsNamed.Orange, "BoldCenter")
-        doc.addListOfColumnsWithStyle("A12", [[10, 20, 30], [5, 15, 25]], ColorsNamed.White)
-        helpers.column_totals(doc, "C12", ["#SUM"]*2, column_from="A")
-
-
-        
-        doc.addCellMergedWithStyle("A33:D33","List of ordered dictionaries one method with totals", ColorsNamed.Orange, "BoldCenter")
-        lod=[]
-        lod.append(OrderedDict({"Singer": "Elvis",  "Songs": 10000 , "Albums": 100}))
-        lod.append(OrderedDict({"Singer": "Roy Orbison",  "Songs": 100,  "Albums": 20 }))
-        helpers.block_from_lod(doc, "A34",  lod, columns_header=1)
-
-        doc.addCellMergedWithStyle("A40:E40", "Block from LOD with headers", ColorsNamed.Orange, "BoldCenter")
-        lod_headers = [
-            OrderedDict({"ID": 1, "Name": "Product A", "Price": 10.5, "Stock": 100}),
-            OrderedDict({"ID": 2, "Name": "Product B", "Price": 20.0, "Stock": 50}),
-        ]
-        subtitles = [["General", "ID"], ["Details", "Price"]]
-        helpers.block_from_lod_with_headers(doc, lod_headers, "A41", subtitles=subtitles, titulo="Products", column_of_totals=True, row_of_totals=True)
-
-        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
         
 def demo_ods_sheet_from_lol(doc):
         ## Sheet from LOL and LOD
-        helpers.sheet_from_lol(doc, "Sheet from LOL", [[1, 2], [3, 4]], ["Col1", "Col2"], column_of_totals=True, row_of_totals=True, titulo="LOL Table")
+        helpers.sheet_from_lol(doc, "sheet_from_lol", lol_numbers, lol_numbers_headers, column_of_totals=True, row_of_totals=True, titulo="LOL Sheet")
         
 def demo_ods_sheet_from_lod(doc):
-        helpers.sheet_from_lod(doc, "Sheet from LOD", lod_singers, column_of_totals=True, row_of_totals=True, title="LOD Table", styles="Integer")
+        helpers.sheet_from_lod(doc, "sheet_from_lod", lod_singers, column_of_totals=True, row_of_totals=True, title="LOD Sheet", styles="Integer")
         
 def demo_ods_sheet_sort(doc):
         ##Sort
@@ -725,22 +656,7 @@ def demo_ods_sheet_split_with_big_lol(doc):
         helpers.sheet_split_with_big_lol(doc, "Splits in 400 rows", lol_thousands, ["Integer", "String", "Datetime"],  max_rows=400)
 
 
-def demo_ods_sheet_columns_width_with_lod(doc):
-        ## COLUMNS WIDTH LOD
-        doc.createSheet("ColumnsWidthsLOD")
-        helpers.block_from_lod(doc, "A1",  lod_singers, columns_header=1)
-        doc.setColumnsWidth(lod_singers,types.ColumnsWidthMode.FROM_LOD)
-        
-def demo_ods_sheet_columns_width_with_lol(doc):
-        doc.createSheet("ColumnsWidthsLOL")
-        doc.addListOfRowsWithStyle("A1", lol_numbers)
-        doc.setColumnsWidth(lol_numbers, types.ColumnsWidthMode.FROM_LOL)
 
-
-def demo_ods_sheet_columns_width_with_list(doc):
-        doc.createSheet("ColumnsWidthsList")
-        doc.addListOfRowsWithStyle("A1", lol_numbers)
-        doc.setColumnsWidth(lol_numbers, types.ColumnsWidthMode.FROM_LOL)
 
 def demo_ods_sheet_block_from_lol(doc):
         headers = ["Product", "Qty", "Price"]
@@ -749,6 +665,13 @@ def demo_ods_sheet_block_from_lol(doc):
             ["Item B", 5, 15.0],
             ["Item C", 2, 100.0],
         ]
+
+
+
+
+        doc.createSheet("block_from_lol empty")
+        helpers.block_from_lol(doc, "A1", [], headers=headers, column_of_totals=True, title="block_from_lol (With total columns)", styles="Float2")
+        doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
         doc.createSheet("block_from_lol column of totals")
         helpers.block_from_lol(doc, "A1", data, headers=headers, column_of_totals=True, title="block_from_lol (With total columns)", styles="Float2")
@@ -786,11 +709,6 @@ def demo_ods_sheet_helpers_single(doc):
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
 def demo_ods_sheet_columns_width_modes(doc):
-    lod_widths = [
-        OrderedDict({"Column 1": "Short", "Column 2": "This is a much longer string to measure", "Column 3": 100}),
-        OrderedDict({"Column 1": "A medium string", "Column 2": "Short", "Column 3": 20000}),
-        OrderedDict({"Column 1": "A very very very long string that should affect quantile 90", "Column 2": "Medium", "Column 3": 3}),
-    ]
 
     # 1. MANUAL
     helpers.sheet_from_lod(doc, "Width MANUAL", lod_widths, columns_width_mode=types.ColumnsWidthMode.MANUAL, value=[5, 10, 5])
@@ -806,4 +724,12 @@ def demo_ods_sheet_columns_width_modes(doc):
 
     # 5. FROM_SHEET_CELLS (Measures from generated cells)
     helpers.sheet_from_lod(doc, "Width FROM_SHEET_CELLS", lod_widths, columns_width_mode=types.ColumnsWidthMode.FROM_SHEET_CELLS)
-        
+
+
+    doc.createSheet("Width FROM_LOL")
+    doc.addListOfRowsWithStyle("A1", lol_numbers)
+    doc.setColumnsWidth(lol_numbers, types.ColumnsWidthMode.FROM_LOL)
+
+    doc.createSheet("Width FROM_LIST")
+    doc.addListOfRowsWithStyle("A1", [lol_numbers[0]])
+    doc.setColumnsWidth(lol_numbers[0], types.ColumnsWidthMode.FROM_LIST)
