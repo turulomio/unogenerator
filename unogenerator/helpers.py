@@ -142,7 +142,6 @@ def cross_totals_from_range(
         row_of_totals=True, 
         vertical_total_title_style="BoldCenter", 
         horizontal_total_title_style="BoldCenter", 
-        showing=False,
         label_column="Total",
         label_row="Total",
         skip_columns=0
@@ -163,7 +162,6 @@ def cross_totals_from_range(
         row_of_totals (bool, optional): Whether to generate a row of totals at the bottom. Defaults to True.
         vertical_total_title_style (str, optional): Style for the vertical total title. Defaults to "BoldCenter".
         horizontal_total_title_style (str, optional): Style for the horizontal total title. Defaults to "BoldCenter".
-        showing (bool, optional): Legacy parameter. If True, adds an extra 'Sum of totals' block. Defaults to False.
         label_column (str, optional): Label for the column of totals. Defaults to "Total". Set to None to omit.
         label_row (str, optional): Label for the row of totals. Defaults to "Total". Set to None to omit.
         skip_columns (int, optional): Number of columns to skip from the left for row totals. Defaults to 0.
@@ -219,23 +217,6 @@ def cross_totals_from_range(
             doc.addCellWithStyle(coord_label_column, _(label_column), ColorsNamed.GrayLight, vertical_total_title_style)
             if final_start_coord.numberIndex() > coord_label_column.numberIndex():
                 final_start_coord = coord_label_column.copy()
-
-    # 3. Handle legacy 'showing' parameter (extra cells)
-    if showing:
-        if column_of_totals:
-            coord_sum_totals = data_range.c_start.addRowCopy(data_rows + 1).addColumnCopy(data_columns)
-            doc.addCellWithStyle(coord_sum_totals, generate_formula_total_string(key, data_range.c_start.addColumnCopy(data_columns), final_end_coord), ColorsNamed.GrayLight, style_data)
-            if coord_sum_totals.letterIndex() > 0:
-                 doc.addCellWithStyle(coord_sum_totals.addColumnCopy(-1), _("Sum of totals"), ColorsNamed.GrayDark, style_data)
-            if final_end_coord.numberIndex() < coord_sum_totals.numberIndex():
-                final_end_coord = coord_sum_totals.copy()
-        elif row_of_totals:
-            coord_sum_totals = data_range.c_start.addColumnCopy(data_columns + 1).addRowCopy(data_rows)
-            doc.addCellWithStyle(coord_sum_totals, generate_formula_total_string(key, data_range.c_start.addRowCopy(data_rows), final_end_coord), ColorsNamed.GrayLight, style_data)
-            if coord_sum_totals.numberIndex() > 0:
-                doc.addCellWithStyle(coord_sum_totals.addRowCopy(-1), _("Sum of totals"), ColorsNamed.GrayDark, style_data)
-            if final_end_coord.letterIndex() < coord_sum_totals.letterIndex():
-                final_end_coord = coord_sum_totals.copy()
 
     return Range.from_coords(final_start_coord, final_end_coord)
 
