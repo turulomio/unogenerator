@@ -674,8 +674,32 @@ class ODS(ODF):
         self.document.getSheets().getByName(current)
 
     def setActiveSheet(self,  index):
-        self.sheet_index=index
-        self.sheet=self.document.getSheets().getByIndex(index)
+        """
+        Sets the active sheet of the document.
+
+        Args:
+            index (int | str): The index (integer) or the name (string) of the sheet to activate.
+
+        Returns:
+            The activated sheet object.
+
+        Raises:
+            UnogeneratorException: If a sheet name is provided but not found.
+            TypeError: If the index is neither an integer nor a string.
+        """
+        if isinstance(index, str):
+            names = self.getSheetNames()
+            try:
+                self.sheet_index = list(names).index(index)
+            except ValueError:
+                raise exceptions.UnogeneratorException(_("Sheet '{0}' not found.").format(index))
+            self.sheet = self.document.getSheets().getByName(index)
+        elif isinstance(index, int):
+            self.sheet_index=index
+            self.sheet=self.document.getSheets().getByIndex(index)
+        else:
+            raise TypeError("index must be an integer (position) or a string (sheet name)")
+
         logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
 
@@ -1524,13 +1548,21 @@ class ODS(ODF):
             
     ## Method to remove default sheet if empty
     def removeDefaultSheet(self):
+        """
+        Removes the default sheet ("Hoja1" or "Sheet1") if it is empty and there are other sheets.
+        A sheet is considered empty if its used area is only cell A1 and A1 has no value, text, or formula.
+        """
         sheets=self.document.getSheets()
-        for sheet in sheets:
-            if sheet.getName() in ("Hoja1", "Sheet1"):
-                data=sheet.getData()
-                d=sheet.getCellByPosition(0, 0)
-                if len(data)==1 and len(data[0])==1 and d.Value==0 and len(sheets)>1: #Empty and A1 value 0 and number sheets >1
-                    self.document.getSheets().removeByName(sheet.getName())
+        for name in sheets.getElementNames():
+            if name in ("Hoja1", "Sheet1"):
+                sheet = sheets.getByName(name)
+                cursor = sheet.createCursor()
+                cursor.gotoEndOfUsedArea(False)
+                address = cursor.RangeAddress
+                if address.EndColumn == 0 and address.EndRow == 0:
+                    d = sheet.getCellByPosition(0, 0)
+                    if d.getValue() == 0 and d.getString() == "" and d.getFormula() == "" and len(sheets) > 1:
+                        sheets.removeByName(name)
             
     def save(self, filename, overwrite_template=False):
         if self.getRemoveDefaultSheet() is True:
