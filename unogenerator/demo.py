@@ -244,14 +244,13 @@ def demo_ods_standard(language, server):
         demo_ods_sheet_styles(doc)
         demo_ods_sheet_sort(doc)
         demo_ods_sheet_word_wrap(doc)
-        demo_ods_block_column_row_cross(doc)
-        demo_ods_sheet_helpers_single(doc)
+        demo_ods_helpers_single(doc)
+        demo_ods_block_from_lod(doc)
+        demo_ods_block_from_lol(doc)
+        demo_ods_block_from_lod_with_headers(doc)
         demo_ods_sheet_from_lod(doc)
         demo_ods_sheet_from_lol(doc)
-        demo_ods_sheet_block_from_lol(doc)
-        demo_ods_sheet_columns_width_modes(doc)
-
-
+        demo_ods_columns_width_modes(doc)
         demo_ods_sheet_split_with_big_lol(doc)
         helpers.sheet_stylenames(doc)
 
@@ -548,7 +547,7 @@ def demo_ods_sheet_styles(doc):
 
 
 
-def demo_ods_block_column_row_cross(doc):
+def demo_ods_block_from_lod(doc):
         ## List of rows
         doc.createSheet("block_from_lod")
         helpers.block_from_lod(doc, "A1", lod_singers)
@@ -579,7 +578,7 @@ def demo_ods_block_column_row_cross(doc):
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
 
-
+def demo_ods_block_from_lod_with_headers(doc):
         # block_from_lod_with_headers
         doc.createSheet("block_from_lod_with_headers")
         helpers.block_from_lod_with_headers(doc, lod_singers, "A1", [
@@ -658,7 +657,7 @@ def demo_ods_sheet_split_with_big_lol(doc):
 
 
 
-def demo_ods_sheet_block_from_lol(doc):
+def demo_ods_block_from_lol(doc):
         headers = ["Product", "Qty", "Price"]
         data = [
             ["Item A", 10, 20.5],
@@ -670,7 +669,7 @@ def demo_ods_sheet_block_from_lol(doc):
 
 
         doc.createSheet("block_from_lol empty")
-        helpers.block_from_lol(doc, "A1", [], headers=headers, column_of_totals=True, title="block_from_lol (With total columns)", styles="Float2")
+        helpers.block_from_lol(doc, "A1", [], headers=headers, title="block_from_lol (With total columns)", styles="Float2")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
         doc.createSheet("block_from_lol column of totals")
@@ -685,7 +684,7 @@ def demo_ods_sheet_block_from_lol(doc):
         helpers.block_from_lol(doc, "A1", data, headers=headers, column_of_totals=True, row_of_totals=True, title="block_from_lol (With both totals)", styles="Float2")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
-def demo_ods_sheet_helpers_single(doc):
+def demo_ods_helpers_single(doc):
         ## row_title_values_total
         doc.createSheet("row_title_values_total")
         helpers.row_title_values_total(doc, "A1", "My Row Sum", [10, 20, 30])
@@ -708,7 +707,7 @@ def demo_ods_sheet_helpers_single(doc):
         helpers.column_totals(doc, "B1", ["#SUM"] * 4, column_from="A")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
-def demo_ods_sheet_columns_width_modes(doc):
+def demo_ods_columns_width_modes(doc):
 
     # 1. MANUAL
     helpers.sheet_from_lod(doc, "Width MANUAL", lod_widths, columns_width_mode=types.ColumnsWidthMode.MANUAL, value=[5, 10, 5])
