@@ -1,15 +1,15 @@
-# Spanish translations for PACKAGE package
-# Traducciones al español para el paquete PACKAGE.
-# Copyright (C) 2015 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Spanish translations for unogenerator package
+# Traducciones al español para el paquete unogenerator.
+# Copyright (C) 2024 turulomio
+# This file is distributed under the same license as the unogenerator package.
 #
 # Mariano Muñoz <turulomio@yahoo.es>, 2015, 2020, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-01 10:20+0200\n"
-"PO-Revision-Date: 2024-07-30 15:30+0000\n"
+"POT-Creation-Date: 2026-05-24 09:56+0200\n"
+"PO-Revision-Date: 2024-07-31 12:00:00+0200\n"
 "Last-Translator: turulomio@yahoo.es\n"
 "Language-Team: turulomio@yahoo.es\n"
 "Language: es\n"
@@ -69,6 +69,9 @@ msgstr "Hubo un error al recortar la imagen. ¿Está instalado 'magick' o 'conve
 msgid "Error deleting: {0} -> {1} -> {2}"
 msgstr "Error al eliminar: {0} -> {1} -> {2}"
 
+msgid "String"
+msgstr "Cadena"
+
 msgid "Create example files using unogenerator module"
 msgstr "Crea ficheros de ejemplo usando el módulo de unogenerator"
 
@@ -109,42 +112,6 @@ msgstr "Demostración de la clase ODS"
 #, python-brace-format
 msgid "This file have been generated with UnoGenerator-{0}. You can see UnoGenerator main page in https://github.com/turulomio/unogenerator"
 msgstr "Este fichero ha sido generado con UnoGenerator-{0}. Puedes ver la página principal de UnoGenerator en https://github.com/turulomio/unogenerator/"
-
-msgid "Style name"
-msgstr "Nombre de estilo"
-
-msgid "Date and time"
-msgstr "Fecha y hora"
-
-msgid "Date"
-msgstr "Fecha"
-
-msgid "Integer"
-msgstr "Entero"
-
-msgid "Euros"
-msgstr "Euros"
-
-msgid "Dollars"
-msgstr "Dólares"
-
-msgid "Percentage"
-msgstr "Porcentaje"
-
-msgid "Number with 2 decimals"
-msgstr "Número con 2 decimales"
-
-msgid "Number with 6 decimals"
-msgstr "Número con 6 decimales"
-
-msgid "Time"
-msgstr "Tiempo"
-
-msgid "Boolean"
-msgstr "Booleano"
-
-msgid "String"
-msgstr "Cadena"
 
 #, python-brace-format
 msgid "unogenerator_example_{0}.ods took {1} in {2}"
@@ -268,11 +235,17 @@ msgstr "Bueno"
 msgid "Datetime"
 msgstr "Fecha y hora"
 
+msgid "Date"
+msgstr "Fecha"
+
 msgid "Float"
 msgstr "Float"
 
 msgid "Currency"
 msgstr "Divisa"
+
+msgid "Percentage"
+msgstr "Porcentaje"
 
 msgid "We can create tables with diferent font sizes and formats:"
 msgstr "Podemos crear tablas con diferentes tamaños de fuentes y formatos:"
@@ -362,11 +335,32 @@ msgstr "Esto es un conjunto de símbolos: .,:;?ºª-/()."
 msgid "unogenerator_documentation_{0}.ods took {1} in {2}"
 msgstr "unogenerator_documentation_{0}.ods tardó {1} en {2}"
 
-msgid "Total"
-msgstr "Total"
+msgid "Style name"
+msgstr "Nombre de estilo"
 
-msgid "Sum of totals"
-msgstr "Suma de totales"
+msgid "Date and time"
+msgstr "Fecha y hora"
+
+msgid "Integer"
+msgstr "Entero"
+
+msgid "Euros"
+msgstr "Euros"
+
+msgid "Dollars"
+msgstr "Dólares"
+
+msgid "Number with 2 decimals"
+msgstr "Número con 2 decimales"
+
+msgid "Number with 6 decimals"
+msgstr "Número con 6 decimales"
+
+msgid "Time"
+msgstr "Tiempo"
+
+msgid "Boolean"
+msgstr "Booleano"
 
 msgid "No data to show"
 msgstr "No hay datos para mostrar"
@@ -474,6 +468,10 @@ msgstr "Problemas al detectar el tamaño en 100thmm, estoy intentando calcularlo
 msgid "ERROR: You can't create '{0}' sheet, because it already exists."
 msgstr "ERROR: No puedes crear la hoja '{0}', porque ya existe."
 
+#, python-brace-format
+msgid "Sheet '{0}' not found."
+msgstr "La hoja '{0}' no se ha encontrado."
+
 msgid "addRow is empty. Nothing to write. Ignoring..."
 msgstr "addRow está vacío. Nada que escribir. Ignorando..."
 
@@ -482,7 +480,7 @@ msgstr "Estás intentando añadir fórmulas a celdas usando setDataArray y será
 
 #, python-brace-format
 msgid "  + Range: {0}"
-msgstr ""
+msgstr "  + Rango: {0}"
 
 #, python-brace-format
 msgid "addListOfRowsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring..."
@@ -494,21 +492,18 @@ msgstr "Los colores deben tener el mismo número de elementos que las columnas d
 msgid "Styles must have the same number of items as data columns"
 msgstr "Los estilos deben tener el mismo número de elementos que las columnas de datos"
 
+#, python-brace-format
+msgid "addListOfColumnsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring..."
+msgstr "addListOfColumnsWithStyle tiene {0} filas y {1} columnas. Nada que escribir. Ignorando..."
+
+msgid "Colors must have the same number of items as data rows"
+msgstr "Los colores deben tener el mismo número de elementos que las filas de datos"
+
+msgid "Styles must have the same number of items as data rows"
+msgstr "Los estilos deben tener el mismo número de elementos que las filas de datos"
+
 msgid "Filename extension must be 'ods'."
 msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
-
-#~ msgid "Error closing ODF instance"
-#~ msgstr "Error al cerrar la instancia ODF"
-
-#~ msgid "There was an error triming image. Is convert command (from Imagemagick) installed?"
-#~ msgstr "Hubo un error al eliminar espacio innecesario de la imagen. ¿Está el comando 'convert' de Imagemagick instalado?"
-
-#, python-brace-format
-#~ msgid "Error deleting: {0} -> {1}"
-#~ msgstr "Error al borrar: {0} -> {1}"
-
-#~ msgid "We recomend to launch then easily with 'unogenerator_start' script."
-#~ msgstr "Recomendamos lanzarlo facilmente con el script 'unogenerator_start'."

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-01 10:20+0200\n"
+"POT-Creation-Date: 2026-05-24 09:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,6 +67,9 @@ msgstr ""
 msgid "Error deleting: {0} -> {1} -> {2}"
 msgstr ""
 
+msgid "String"
+msgstr ""
+
 msgid "Create example files using unogenerator module"
 msgstr ""
 
@@ -106,42 +109,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "This file have been generated with UnoGenerator-{0}. You can see UnoGenerator main page in https://github.com/turulomio/unogenerator"
-msgstr ""
-
-msgid "Style name"
-msgstr ""
-
-msgid "Date and time"
-msgstr ""
-
-msgid "Date"
-msgstr ""
-
-msgid "Integer"
-msgstr ""
-
-msgid "Euros"
-msgstr ""
-
-msgid "Dollars"
-msgstr ""
-
-msgid "Percentage"
-msgstr ""
-
-msgid "Number with 2 decimals"
-msgstr ""
-
-msgid "Number with 6 decimals"
-msgstr ""
-
-msgid "Time"
-msgstr ""
-
-msgid "Boolean"
-msgstr ""
-
-msgid "String"
 msgstr ""
 
 #, python-brace-format
@@ -266,10 +233,16 @@ msgstr ""
 msgid "Datetime"
 msgstr ""
 
+msgid "Date"
+msgstr ""
+
 msgid "Float"
 msgstr ""
 
 msgid "Currency"
+msgstr ""
+
+msgid "Percentage"
 msgstr ""
 
 msgid "We can create tables with diferent font sizes and formats:"
@@ -360,10 +333,31 @@ msgstr ""
 msgid "unogenerator_documentation_{0}.ods took {1} in {2}"
 msgstr ""
 
-msgid "Total"
+msgid "Style name"
 msgstr ""
 
-msgid "Sum of totals"
+msgid "Date and time"
+msgstr ""
+
+msgid "Integer"
+msgstr ""
+
+msgid "Euros"
+msgstr ""
+
+msgid "Dollars"
+msgstr ""
+
+msgid "Number with 2 decimals"
+msgstr ""
+
+msgid "Number with 6 decimals"
+msgstr ""
+
+msgid "Time"
+msgstr ""
+
+msgid "Boolean"
 msgstr ""
 
 msgid "No data to show"
@@ -472,6 +466,10 @@ msgstr ""
 msgid "ERROR: You can't create '{0}' sheet, because it already exists."
 msgstr ""
 
+#, python-brace-format
+msgid "Sheet '{0}' not found."
+msgstr ""
+
 msgid "addRow is empty. Nothing to write. Ignoring..."
 msgstr ""
 
@@ -490,6 +488,16 @@ msgid "Colors must have the same number of items as data columns"
 msgstr ""
 
 msgid "Styles must have the same number of items as data columns"
+msgstr ""
+
+#, python-brace-format
+msgid "addListOfColumnsWithStyle has {0} rows and {1} columns. Nothing to write. Ignoring..."
+msgstr ""
+
+msgid "Colors must have the same number of items as data rows"
+msgstr ""
+
+msgid "Styles must have the same number of items as data rows"
 msgstr ""
 
 msgid "Filename extension must be 'ods'."
