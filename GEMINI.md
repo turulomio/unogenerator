@@ -44,10 +44,11 @@ New tests have been added to `tests/test_unogenerator.py` to protect these fixes
 - **Deferred Initialization:** In `unogenerator.py`, we defined a local `getComponentContext()` wrapper that calls the underlying `pyuno` function. This ensures that every time the context is requested (e.g., during `ODF.__init__` or `createUnoService`), `pyuno` performs a fresh initialization check in the current process phase.
 - **Verification:** A new test `tests/test_concurrency.py` has been added to specifically verify that `spawn`-ed processes can successfully initialize and use UNO objects.
 
-### 8. Thread-Safety and Robustness of `deleteAll` and `export_pdf`
-**Problem:** Running the demo with concurrent threads (`CONCURRENT_THREADS` or `COMMONSERVER_CONCURRENT_THREADS`) would occasionally fail with `AttributeError`. This was due to the non-thread-safe nature of the UNO dispatch system and flaky property access in multithreaded environments.
+### 8. Thread-Safety via Global Serialization
+**Problem:** Running the demo with concurrent threads and a shared LibreOffice server (`COMMONSERVER_CONCURRENT_THREADS`) was unstable, causing "random" `AttributeError` and `SystemError`. This is because the PyUNO bridge is not thread-safe when multiple threads share a single connection/socket to the same LibreOffice process.
 
 **Decision:**
-- **Removal of `executeDispatch`:** The `executeDispatch` method and its associated global lock were removed as they were unreliable in concurrent environments and encouraged poor GUI-oriented practices.
-- **Native API for `deleteAll`:** The `deleteAll` method now exclusively uses native API calls: `Text.setString("")` for ODT and `sheet.clearContents(1023)` for ODS. This is significantly more robust and does not require a visible frame or controller.
-- **Robust Property Access in `export_pdf`:** In `ODS.export_pdf`, explicit `setPropertyValue` calls with try-except blocks are used for `ScaleToPagesX/Y`. This prevents the entire export process from failing if Calc-specific properties are temporarily unavailable or flaky due to concurrent access to the UNO runtime.
+- **Global Reentrant Lock (`RLock`):** A global `threading.RLock()` called `_uno_lock` was introduced. `RLock` is used to allow nested calls within the same thread (e.g., one library method calling another) without deadlocking.
+- **Class Decorator (`@uno_safe`):** A decorator was implemented to automatically wrap all public methods of ODF, ODS, and ODT classes with the lock. This ensures that every interaction with the UNO runtime is synchronized.
+- **Stand-alone Function Protection:** Key functions like `getComponentContext` and `createUnoService` were also manually wrapped with the lock.
+- **Trade-off:** This fix makes the shared-server threaded mode stable at the cost of performance, as all UNO calls are effectively serialized. However, this is a necessary compromise given the limitations of the underlying PyUNO bridge for this specific architecture.

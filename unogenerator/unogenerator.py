@@ -8,7 +8,8 @@ import pyuno
 from uno import createUnoStruct, systemPathToFileUrl, Any, ByteSequence
 
 def getComponentContext():
-    return pyuno.getComponentContext()
+    with _uno_lock:
+        return pyuno.getComponentContext()
 
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
@@ -21,6 +22,7 @@ from gettext import translation
 import logging # Import logging module
 from importlib.resources import files
 import sys # Added for multiplatform OS detection
+import threading
 from os import path, makedirs # Removed 'system' as it's no longer used in this file
 from pydicts import lol, casts
 from shutil import copyfile, rmtree # Added rmtree for directory removal
@@ -34,11 +36,25 @@ from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 
 logger = logging.getLogger(__name__) # Get logger for this module
+_uno_lock = threading.RLock()
+
+def uno_lock(func):
+    def wrapper(self, *args, **kwargs):
+        with _uno_lock:
+            return func(self, *args, **kwargs)
+    return wrapper
+
+def uno_safe(cls):
+    for name, method in cls.__dict__.items():
+        if callable(method) and not name.startswith("__"):
+            setattr(cls, name, uno_lock(method))
+    return cls
 
 def createUnoService(serviceName, context=None):
-  if context is None:
-      context = getComponentContext()
-  return context.ServiceManager.createInstanceWithContext(serviceName, context)
+  with _uno_lock:
+      if context is None:
+          context = getComponentContext()
+      return context.ServiceManager.createInstanceWithContext(serviceName, context)
   
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
@@ -117,6 +133,7 @@ class LibreofficeServer:
         if self.started_by_me: # Only remove temp dir if this instance started the process
             rmtree(f'/tmp/unogenerator{self.port}', ignore_errors=True)
 
+@uno_safe
 class ODF:
     maxtries = 200 # Define as a class attribute with a default value
     def __init__(self, template=None,  server=None):
@@ -276,6 +293,7 @@ class ODF:
 
         
                    
+@uno_safe
 class ODT(ODF):
     def __init__(self, template=None, server=None):
         ODF.__init__(self, template, server)
@@ -403,10 +421,7 @@ class ODT(ODF):
         if paragraphBreak is True:
             self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
-        
-        
     def addStringHyperlink(self,  name,  url, paragraphBreak=False):
-
         oVC = self.document.getCurrentController().getViewCursor()#		'Create View Cursor oVC at the end of document by default?
         text=oVC.getText()
         text.insertString(oVC, name,  True)
@@ -624,6 +639,7 @@ class ODT(ODF):
 
 
 
+@uno_safe
 class ODS(ODF):
     """
     Class for generating ODS (OpenDocument Spreadsheet) documents.
@@ -1752,6 +1768,7 @@ class ODS(ODF):
             r["sheets"].append({"name":sheet_name, "columns": letter_index+1,  "rows": number_index+1})
         return r
 
+@uno_safe
 class ODS_Standard(ODS):
     """
     Optimized ODS class that uses the standard project template.
@@ -1770,6 +1787,7 @@ class ODS_Standard(ODS):
 
 
 
+@uno_safe
 class ODT_Standard(ODT):
     def __init__(self, server=None):
         ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', server)
