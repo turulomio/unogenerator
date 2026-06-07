@@ -36,19 +36,33 @@ from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 
 logger = logging.getLogger(__name__) # Get logger for this module
+
+# --- Thread-Safety Mechanism for UNO ---
+# PyUNO is not thread-safe when multiple threads share the same connection (socket)
+# to a single LibreOffice process. This occurs in modes like COMMONSERVER_CONCURRENT_THREADS.
+# To prevent random AttributeErrors and SystemErrors, we serialize all UNO calls.
+
+# 1. Global Reentrant Lock: Allows the same thread to acquire the lock multiple times
+# (necessary when one locked method calls another locked method).
 _uno_lock = threading.RLock()
 
+# 2. Method Decorator: Wraps a single function to ensure it runs under the lock.
 def uno_lock(func):
     def wrapper(self, *args, **kwargs):
         with _uno_lock:
             return func(self, *args, **kwargs)
     return wrapper
 
+# 3. Class Decorator: Automatically applies @uno_lock to all public methods of a class.
+# This ensures that ANY interaction with the LibreOffice document is synchronized.
 def uno_safe(cls):
     for name, method in cls.__dict__.items():
+        # Only decorate callable methods that don't start with "__" (internal python methods)
         if callable(method) and not name.startswith("__"):
             setattr(cls, name, uno_lock(method))
     return cls
+
+# ----------------------------------------
 
 def createUnoService(serviceName, context=None):
   with _uno_lock:
