@@ -40,20 +40,23 @@ logger = logging.getLogger(__name__) # Get logger for this module
 # --- Thread-Safety Mechanism for UNO ---
 # PyUNO is not thread-safe when multiple threads share the same connection (socket)
 # to a single LibreOffice process. This occurs in modes like COMMONSERVER_CONCURRENT_THREADS.
-# To prevent random AttributeErrors and SystemErrors, we serialize all UNO calls.
+# To prevent random AttributeErrors and SystemErrors, we synchronize access per server.
 
-# 1. Global Reentrant Lock: Allows the same thread to acquire the lock multiple times
-# (necessary when one locked method calls another locked method).
-_uno_lock = threading.RLock()
+# Global lock for the PyUNO bridge initialization itself, which is always global to the process.
+_uno_bridge_lock = threading.RLock()
 
-# 2. Method Decorator: Wraps a single function to ensure it runs under the lock.
+# Method Decorator: Wraps a single function to ensure it runs under the server's lock.
 def uno_lock(func):
     def wrapper(self, *args, **kwargs):
-        with _uno_lock:
+        # We use the lock from the LibreofficeServer associated with this document.
+        # This allows parallel execution between independent servers while serializing
+        # access to the same server.
+        lock = getattr(self.server, '_lock', _uno_bridge_lock)
+        with lock:
             return func(self, *args, **kwargs)
     return wrapper
 
-# 3. Class Decorator: Automatically applies @uno_lock to all public methods of a class.
+# Class Decorator: Automatically applies @uno_lock to all public methods of a class.
 # This ensures that ANY interaction with the LibreOffice document is synchronized.
 def uno_safe(cls):
     for name, method in cls.__dict__.items():
@@ -64,8 +67,12 @@ def uno_safe(cls):
 
 # ----------------------------------------
 
+def getComponentContext():
+    with _uno_bridge_lock:
+        return pyuno.getComponentContext()
+
 def createUnoService(serviceName, context=None):
-  with _uno_lock:
+  with _uno_bridge_lock:
       if context is None:
           context = getComponentContext()
       return context.ServiceManager.createInstanceWithContext(serviceName, context)
@@ -89,6 +96,7 @@ class LibreofficeServer:
         self.stop()
 
     def __init__(self, port=None):
+        self._lock = threading.RLock() # Each server instance has its own lock
         self.process = None
         self.port = port
         self.started_by_me = False # Flag to indicate if this instance started the LO process

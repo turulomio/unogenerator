@@ -44,11 +44,12 @@ New tests have been added to `tests/test_unogenerator.py` to protect these fixes
 - **Deferred Initialization:** In `unogenerator.py`, we defined a local `getComponentContext()` wrapper that calls the underlying `pyuno` function. This ensures that every time the context is requested (e.g., during `ODF.__init__` or `createUnoService`), `pyuno` performs a fresh initialization check in the current process phase.
 - **Verification:** A new test `tests/test_concurrency.py` has been added to specifically verify that `spawn`-ed processes can successfully initialize and use UNO objects.
 
-### 8. Thread-Safety via Global Serialization
-**Problem:** Running the demo with concurrent threads and a shared LibreOffice server (`COMMONSERVER_CONCURRENT_THREADS`) was unstable, causing "random" `AttributeError` and `SystemError`. This is because the PyUNO bridge is not thread-safe when multiple threads share a single connection/socket to the same LibreOffice process.
+### 8. Optimized Thread-Safety via Instance-Based Serialization
+**Problem:** Running the demo with concurrent threads and a shared LibreOffice server (`COMMONSERVER_CONCURRENT_THREADS`) was unstable due to non-thread-safe sharing of a single connection. However, using a single global lock serialized execution even for workers using independent LibreOffice instances, causing unnecessary performance loss.
 
 **Decision:**
-- **Global Reentrant Lock (`RLock`):** A global `threading.RLock()` called `_uno_lock` was introduced. `RLock` is used to allow nested calls within the same thread (e.g., one library method calling another) without deadlocking.
-- **Class Decorator (`@uno_safe`):** A decorator was implemented to automatically wrap all public methods of ODF, ODS, and ODT classes with the lock. This ensures that every interaction with the UNO runtime is synchronized.
-- **Stand-alone Function Protection:** Key functions like `getComponentContext` and `createUnoService` were also manually wrapped with the lock.
-- **Trade-off:** This fix makes the shared-server threaded mode stable at the cost of performance, as all UNO calls are effectively serialized. However, this is a necessary compromise given the limitations of the underlying PyUNO bridge for this specific architecture.
+- **Instance-Based Reentrant Lock:** Each `LibreofficeServer` object now maintains its own `threading.RLock()`.
+- **Smart Synchronization:** The `@uno_safe` class decorator dynamically retrieves the lock from the document's associated server instance (`self.server._lock`).
+- **Parallel Performance:** This allows workers using independent servers (different ports) to run at full parallel speed without waiting for each other.
+- **Shared-Server Stability:** Workers sharing the same `LibreofficeServer` instance will correctly share the same lock, ensuring serialized access to the single connection and maintaining stability.
+- **Internal Protection:** Global UNO bridge calls (like `getComponentContext`) remain protected by a global `_uno_bridge_lock` to ensure the process-wide PyUNO state is not corrupted during initialization.
