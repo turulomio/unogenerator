@@ -538,9 +538,6 @@ def demo_ods_sheet_styles(doc):
         doc.addCellWithStyle(Coord("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
         doc.addCellWithStyle(Coord("K2").addRow(row), bool(row%2), color_key, "Bool")
 
-    doc.addCellWithStyle(Coord("E2").addRow(row+1),f"=sum(E2:{Coord('E2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR" )
-    doc.addCellMergedWithStyle("E15:K15", "Merge proof", ColorsNamed.Yellow, style="BoldCenter")
-    doc.setComment("B14", "This is nice comment")
     
     doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
     doc.freezeAndSelect("B2")
