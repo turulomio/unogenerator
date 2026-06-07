@@ -792,18 +792,25 @@ class ODS(ODF):
             self._set_rows_optimal_height(full_range_uno, False)
             
             # 3. Restore state for rows that SHOULD be wrapped (forces fresh recalculation)
-            # We do this in blocks to be efficient, using our memory without adding new rows to it.
-            current_start = -1
-            for r in range(rows):
-                if (self.sheet.Name, r) in self._wrapped_rows:
-                    if current_start == -1:
-                        current_start = r
-                else:
-                    if current_start != -1:
-                        self.sheet.getCellRangeByPosition(0, current_start, 0, r - 1).getRows().OptimalHeight = True
-                        current_start = -1
-            if current_start != -1:
-                self.sheet.getCellRangeByPosition(0, current_start, 0, rows - 1).getRows().OptimalHeight = True
+            # Optimization: Only iterate over rows we KNOW should be wrapped
+            wrapped_indices = sorted([r for (sheet, r) in self._wrapped_rows if sheet == self.sheet.Name and r < rows])
+            
+            if wrapped_indices:
+                current_start = wrapped_indices[0]
+                last_idx = wrapped_indices[0]
+                
+                for i in range(1, len(wrapped_indices)):
+                    idx = wrapped_indices[i]
+                    if idx == last_idx + 1:
+                        last_idx = idx
+                    else:
+                        # Set block from current_start to last_idx
+                        self.sheet.getCellRangeByPosition(0, current_start, 0, last_idx).getRows().OptimalHeight = True
+                        current_start = idx
+                        last_idx = idx
+                
+                # Set last block
+                self.sheet.getCellRangeByPosition(0, current_start, 0, last_idx).getRows().OptimalHeight = True
 
 
 
