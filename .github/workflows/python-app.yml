@@ -26,7 +26,7 @@ jobs:
       run: |
         python -m venv .venv --system-site-packages 
         .venv/bin/pip install . 
-        .venv/bin/pip install pytest envwrap # Added envwrap to satisfy tqdm optional dependency and avoid uno import hook failure
+        .venv/bin/pip install pytest
     - name: Run Tests
       run: |
         .venv/bin/pytest -v # Correct venv path and remove 'sudo'
