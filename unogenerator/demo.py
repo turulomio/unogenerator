@@ -520,30 +520,59 @@ def demo_ods_sheet_styles(doc):
     doc.setCellName("A1",  "MYNAME")
 
 
-    headers=[_("Style name"), _("Date and time"), _("Date"), _("Integer"), _("Euros"), _("Dollars"), _("Percentage"), _("Number with 2 decimals"), _("Number with 6 decimals"), _("Time"), _("Boolean")]
+    headers=[_("Color name"), _("Hex"), _("Date and time"), _("Date"), _("Integer"), _("Euros"), _("Dollars"), _("Percentage"), _("Number with 2 decimals"), _("Number with 6 decimals"), _("Time"), _("Boolean")]
     doc.addRowWithStyle( "A1", headers, ColorsNamed.Orange, "BoldCenter")
 
-    colors_list=([a for a in dir(ColorsNamed()) if not a.startswith('__')])
-    for row, color_str in enumerate(colors_list):
-        color_key=getattr(ColorsNamed(), color_str)
-        doc.addCellWithStyle(Coord("A2").addRow(row), color_str, color_key, "Bold")
-        doc.addCellWithStyle(Coord("B2").addRow(row), datetime.now(), color_key, "Datetime")
-        doc.addCellWithStyle(Coord("C2").addRow(row), date.today(), color_key, "Date")
-        doc.addCellWithStyle(Coord("D2").addRow(row), pow(-1, row)*-10000000, color_key, "Integer")
-        doc.addCellWithStyle(Coord("E2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), color_key, "EUR")
-        doc.addCellWithStyle(Coord("F2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), color_key, "USD")
-        doc.addCellWithStyle(Coord("G2").addRow(row), Percentage(pow(-1, row)*1, 3), color_key,  "Percentage")
-        doc.addCellWithStyle(Coord("H2").addRow(row), pow(-1, row)*123456789.121212, color_key, "Float6")
-        doc.addCellWithStyle(Coord("I2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
-        doc.addCellWithStyle(Coord("J2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
-        doc.addCellWithStyle(Coord("K2").addRow(row), bool(row%2), color_key, "Bool")
+    # Get colors and sort them by affinity (Hue)
+    def rgb_to_hsv(rgb):
+        r = ((rgb >> 16) & 0xff) / 255.0
+        g = ((rgb >> 8) & 0xff) / 255.0
+        b = (rgb & 0xff) / 255.0
+        mx = max(r, g, b)
+        mn = min(r, g, b)
+        df = mx - mn
+        if mx == mn:
+            h = 0
+        elif mx == r:
+            h = (60 * ((g - b) / df) + 360) % 360
+        elif mx == g:
+            h = (60 * ((b - r) / df) + 120) % 360
+        elif mx == b:
+            h = (60 * ((r - g) / df) + 240) % 360
+        if mx == 0:
+            s = 0
+        else:
+            s = df / mx
+        v = mx
+        return h, s, v
 
-    doc.addCellWithStyle(Coord("E2").addRow(row+1),f"=sum(E2:{Coord('E2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR" )
-    doc.addCellMergedWithStyle("E15:K15", "Merge proof", ColorsNamed.Yellow, style="BoldCenter")
-    doc.setComment("B14", "This is nice comment")
+    colors_list = [a for a in dir(ColorsNamed()) if not a.startswith('__')]
+    # Decorate with hsv for sorting
+    decorated = []
+    for color_str in colors_list:
+        val = getattr(ColorsNamed(), color_str)
+        decorated.append((rgb_to_hsv(val), color_str, val))
     
+    # Sort by Hue, then Saturation, then Value
+    decorated.sort()
+    
+    for row, (hsv, color_str, color_key) in enumerate(decorated):
+        hex_str = f"#{color_key:06X}"
+        doc.addCellWithStyle(Coord("A2").addRow(row), color_str, color_key, "Bold")
+        doc.addCellWithStyle(Coord("B2").addRow(row), hex_str, color_key, "Normal")
+        doc.addCellWithStyle(Coord("C2").addRow(row), datetime.now(), color_key, "Datetime")
+        doc.addCellWithStyle(Coord("D2").addRow(row), date.today(), color_key, "Date")
+        doc.addCellWithStyle(Coord("E2").addRow(row), pow(-1, row)*-10000000, color_key, "Integer")
+        doc.addCellWithStyle(Coord("F2").addRow(row), Currency(pow(-1, row)*12.56, "EUR"), color_key, "EUR")
+        doc.addCellWithStyle(Coord("G2").addRow(row), Currency(pow(-1, row)*12345.56, "USD"), color_key, "USD")
+        doc.addCellWithStyle(Coord("H2").addRow(row), Percentage(pow(-1, row)*1, 3), color_key,  "Percentage")
+        doc.addCellWithStyle(Coord("I2").addRow(row), pow(-1, row)*123456789.121212, color_key, "Float6")
+        doc.addCellWithStyle(Coord("J2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
+        doc.addCellWithStyle(Coord("K2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
+        doc.addCellWithStyle(Coord("L2").addRow(row), bool(row%2), color_key, "Bool")
+   
     doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
-    doc.freezeAndSelect("B2")
+    doc.freezeAndSelect("C2")
 
 
 

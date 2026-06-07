@@ -56,6 +56,50 @@ if can_import_uno():
 
 
 
+    def test_ods_row_height_consistency(libreoffice_server):
+        """
+        Regression test for row height bug when using setColumnsWidth with many rows/columns.
+        """
+        with ODS_Standard(server=libreoffice_server) as doc:
+            num_rows = 250
+            num_cols = 20
+            # Data that would trigger height increase to 841 if glitchy (e.g. 11+ chars)
+            lod_data = []
+            for i in range(num_rows):
+                d = {f"Col{j}": f"Row{i:03} Col{j:02}" for j in range(num_cols)}
+                lod_data.append(d)
+            
+            # 1. Add data
+            lol_data = lod.lod2lol(lod_data)
+            doc.addListOfRowsWithStyle("A1", lol_data)
+            
+            # 2. Apply column widths (this used to trigger the height glitch)
+            doc.setColumnsWidth(lod_data, types.ColumnsWidthMode.FROM_LOD, char_to_cm=0.25)
+            
+            # 3. Verify row heights are consistent (Standard is 452)
+            # Check row 2 (index 1) as baseline
+            h_ref = doc.sheet.getRows().getByIndex(1).Height
+            assert h_ref == 452, f"Expected default row height 452, got {h_ref}"
+            
+            # Check a sampling of rows including those > 100
+            for i in [50, 100, 150, 200, 249]:
+                h = doc.sheet.getRows().getByIndex(i).Height
+                assert h == h_ref, f"Row {i+1} height {h} differs from reference {h_ref}"
+
+    def test_ods_normal_style_applied(libreoffice_server):
+        """
+        Verify that ODS_Standard correctly applies 'Normal' style instead of 'Default'.
+        """
+        with ODS_Standard(server=libreoffice_server) as doc:
+            doc.addCellWithStyle("A1", "Test Style", style="Normal")
+            cell = doc.sheet.getCellByPosition(0, 0)
+            assert cell.CellStyle == "Normal", f"Expected style 'Normal', got '{cell.CellStyle}'"
+            
+            # Test auto-guessing style also uses Normal as default
+            doc.addListOfRowsWithStyle("A2", [["Guess Me"]])
+            cell2 = doc.sheet.getCellByPosition(0, 1)
+            assert cell2.CellStyle == "Normal", f"Expected guessed style 'Normal', got '{cell2.CellStyle}'"
+
     def test_odt_metadata(libreoffice_server):
         with ODT_Standard(server=libreoffice_server) as doc:
             doc.setMetadata(

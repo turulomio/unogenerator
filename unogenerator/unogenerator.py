@@ -780,6 +780,38 @@ class ODS(ODF):
             column = columns.getByIndex(i)
             column.Width = int(width * 1000)  ## Are in 1/100th of mm
 
+        # After changing column widths, optimal row heights MUST be recalculated 
+        # to avoid incorrect height increases (bug in Calc/Uno when many columns/rows are present)
+        cols, rows = self.getSheetSize()
+        if rows > 0:
+            full_range_uno = self.sheet.getCellRangeByPosition(0, 0, cols - 1, rows - 1)
+            # 1. Reset all rows to NOT optimal to clear any glitchy calculation
+            full_range_uno.getRows().OptimalHeight = False
+            
+            # 2. Restore state for rows that should NOT be wrapped (sets default height)
+            self._set_rows_optimal_height(full_range_uno, False)
+            
+            # 3. Restore state for rows that SHOULD be wrapped (forces fresh recalculation)
+            # Optimization: Only iterate over rows we KNOW should be wrapped
+            wrapped_indices = sorted([r for (sheet, r) in self._wrapped_rows if sheet == self.sheet.Name and r < rows])
+            
+            if wrapped_indices:
+                current_start = wrapped_indices[0]
+                last_idx = wrapped_indices[0]
+                
+                for i in range(1, len(wrapped_indices)):
+                    idx = wrapped_indices[i]
+                    if idx == last_idx + 1:
+                        last_idx = idx
+                    else:
+                        # Set block from current_start to last_idx
+                        self.sheet.getCellRangeByPosition(0, current_start, 0, last_idx).getRows().OptimalHeight = True
+                        current_start = idx
+                        last_idx = idx
+                
+                # Set last block
+                self.sheet.getCellRangeByPosition(0, current_start, 0, last_idx).getRows().OptimalHeight = True
+
 
 
     def setComment(self, coord, comment):
@@ -1096,8 +1128,11 @@ class ODS(ODF):
 
         #Create styles by columns cellranges
         if rows>0:
-            # Optimization: If all styles are default and all colors are White, we can skip this loop
-            if all(s == self.default_cell_style for s in styles) and all(c == ColorsNamed.White for c in colors):
+            # Optimization: If all styles are Default and all colors are White, we can skip this loop
+            # as Default is usually the default style for a new sheet/template.
+            # But if self.default_cell_style is NOT Default (e.g. "Normal" in ODS_Standard), 
+            # we MUST apply it.
+            if self.default_cell_style == "Default" and all(s == "Default" for s in styles) and all(c == ColorsNamed.White for c in colors):
                 pass
             else:
                 for c, o in enumerate(list_rows[0]):
@@ -1107,7 +1142,7 @@ class ODS(ODF):
         
         range_uno.IsTextWrapped = word_wrap
         range_uno.VertJustify = CENTER if word_wrap else STANDARD
-        self._set_rows_optimal_height(range_uno, word_wrap)
+        # Optimal height will be set AFTER content insertion for better results
 
         # Finally add content
         r=[]
@@ -1121,6 +1156,8 @@ class ODS(ODF):
             self.__setFormulaArray(range_uno, r)
         else:
             self.__setDataArray(range_uno, r)
+
+        self._set_rows_optimal_height(range_uno, word_wrap)
 
         return R.from_coords_indexes(*range_indexes)
 
