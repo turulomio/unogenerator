@@ -1185,11 +1185,17 @@ class ODS(ODF):
             colors=[colors]*rows
         
         # Parse styles
-        if styles is None and rows>0:
-            styles=[]
-            for o in list_columns[0]:
-                styles.append(guess_object_style(o, self.default_cell_style))
-        elif styles.__class__.__name__=="list":
+        if styles is None and rows > 0:
+            styles = []
+            # Iterate through columns to find a non-None value to guess the style for each row
+            for r in range(rows):
+                style = self.default_cell_style
+                for c in range(columns):
+                    if list_columns[c][r] is not None:
+                        style = guess_object_style(list_columns[c][r], self.default_cell_style)
+                        break
+                styles.append(style)
+        elif styles.__class__.__name__ == "list":
             styles=styles
         else:
             styles=[styles]*rows

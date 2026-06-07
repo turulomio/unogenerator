@@ -65,6 +65,7 @@ if can_import_uno():
                     "time": None, 
                     "bool": None,
                     "float": None,
+                    "string": None,
                     "all_null": None
                 },
                 {
@@ -77,6 +78,7 @@ if can_import_uno():
                     "time": time(12, 0), 
                     "bool": True,
                     "float": 10.5,
+                    "string": "hello",
                     "all_null": None
                 }
             ]
@@ -86,7 +88,7 @@ if can_import_uno():
             # Headers in row 1, Data in row 2 and 3
             # Column mapping:
             # A: int, B: timedelta, C: currency, D: percentage, E: datetime, 
-            # F: date, G: time, H: bool, I: float, J: all_null
+            # F: date, G: time, H: bool, I: float, J: string, K: all_null
 
             expected = [
                 (0, "Integer"),
@@ -98,7 +100,8 @@ if can_import_uno():
                 (6, "Time"),
                 (7, "Bool"),
                 (8, "Float2"),
-                (9, "Normal") # all_null -> Default
+                (9, "Normal"),
+                (10, "Normal") # all_null -> Default
             ]
 
             for col_idx, expected_style in expected:
