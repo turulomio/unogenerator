@@ -8,7 +8,7 @@ from datetime import datetime, date, timedelta
 from gettext import translation # Removed 'info'
 import logging # Import logging module
 from importlib.resources import files
-from os import system
+from subprocess import run
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer, helpers, types, Range
@@ -68,7 +68,7 @@ lol_thousands_columns=len(lol_thousands[0])
 
 
 
-## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
+## You can call with main(['--pretend']). It's equivalento to run(['program', '--pretend'])
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
 def demo(arguments=None):
     parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
@@ -89,7 +89,7 @@ def demo_command(create, remove, benchmark, type):
     if benchmark is True:
         for type in type_choices:
             #demo_command(True, False,  False,  type)
-            system(f"unogenerator_demo --create --type {type}")
+            run(["unogenerator_demo", "--create", "--type", type], check=True)
 
     if remove==True:
             for language in languages:
