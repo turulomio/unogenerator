@@ -1,23 +1,21 @@
 # Spanish translations for unogenerator package
-# Traducciones al español para el paquete unogenerator.
-# Copyright (C) 2024 turulomio
+# Copyright (C) 2020-2026 Mariano Muñoz
 # This file is distributed under the same license as the unogenerator package.
+# Mariano Muñoz <turulomio@yahoo.es>, 2015-2026.
 #
-# Mariano Muñoz <turulomio@yahoo.es>, 2015, 2020, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-24 09:56+0200\n"
-"PO-Revision-Date: 2024-07-31 12:00:00+0200\n"
-"Last-Translator: turulomio@yahoo.es\n"
-"Language-Team: turulomio@yahoo.es\n"
+"POT-Creation-Date: 2026-06-07 04:20+0200\n"
+"PO-Revision-Date: 2026-06-07 10:15+0200\n"
+"Last-Translator: Mariano Muñoz <turulomio@yahoo.es>\n"
+"Language-Team: Spanish <turulomio@yahoo.es>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 19.12.3\n"
 
 msgid "There was a problem converting com.sun.star.util.DateTime to datetime."
 msgstr "Hubo un problema al convertir com.sun.star.util.DateTime a datetime"
@@ -335,8 +333,11 @@ msgstr "Esto es un conjunto de símbolos: .,:;?ºª-/()."
 msgid "unogenerator_documentation_{0}.ods took {1} in {2}"
 msgstr "unogenerator_documentation_{0}.ods tardó {1} en {2}"
 
-msgid "Style name"
-msgstr "Nombre de estilo"
+msgid "Color name"
+msgstr "Nombre del color"
+
+msgid "Hex"
+msgstr "Hex"
 
 msgid "Date and time"
 msgstr "Fecha y hora"
@@ -507,3 +508,6 @@ msgstr "La extensión del nombre del fichero debe ser 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
 msgstr "La extensión del nombre del fichero debe ser 'xlsx'."
+
+#~ msgid "Style name"
+#~ msgstr "Nombre de estilo"

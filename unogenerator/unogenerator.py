@@ -3,7 +3,14 @@ from datetime import datetime
 from os import path, makedirs
 from statistics import quantiles
 import subprocess
-from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence
+import uno
+import pyuno
+from uno import createUnoStruct, systemPathToFileUrl, Any, ByteSequence
+
+def getComponentContext():
+    with _uno_lock:
+        return pyuno.getComponentContext()
+
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.table.CellVertJustify import CENTER, STANDARD
@@ -15,6 +22,7 @@ from gettext import translation
 import logging # Import logging module
 from importlib.resources import files
 import sys # Added for multiplatform OS detection
+import threading
 from os import path, makedirs # Removed 'system' as it's no longer used in this file
 from pydicts import lol, casts
 from shutil import copyfile, rmtree # Added rmtree for directory removal
@@ -29,9 +37,45 @@ from pydicts.percentage import Percentage
 
 logger = logging.getLogger(__name__) # Get logger for this module
 
-def createUnoService(serviceName):
-#        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
-  return getComponentContext().ServiceManager.createInstance(serviceName)
+# --- Thread-Safety Mechanism for UNO ---
+# PyUNO is not thread-safe when multiple threads share the same connection (socket)
+# to a single LibreOffice process. This occurs in modes like COMMONSERVER_CONCURRENT_THREADS.
+# To prevent random AttributeErrors and SystemErrors, we synchronize access per server.
+
+# Global lock for the PyUNO bridge initialization itself, which is always global to the process.
+_uno_bridge_lock = threading.RLock()
+
+# Method Decorator: Wraps a single function to ensure it runs under the server's lock.
+def uno_lock(func):
+    def wrapper(self, *args, **kwargs):
+        # We use the lock from the LibreofficeServer associated with this document.
+        # This allows parallel execution between independent servers while serializing
+        # access to the same server.
+        lock = getattr(self.server, '_lock', _uno_bridge_lock)
+        with lock:
+            return func(self, *args, **kwargs)
+    return wrapper
+
+# Class Decorator: Automatically applies @uno_lock to all public methods of a class.
+# This ensures that ANY interaction with the LibreOffice document is synchronized.
+def uno_safe(cls):
+    for name, method in cls.__dict__.items():
+        # Only decorate callable methods that don't start with "__" (internal python methods)
+        if callable(method) and not name.startswith("__"):
+            setattr(cls, name, uno_lock(method))
+    return cls
+
+# ----------------------------------------
+
+def getComponentContext():
+    with _uno_bridge_lock:
+        return pyuno.getComponentContext()
+
+def createUnoService(serviceName, context=None):
+  with _uno_bridge_lock:
+      if context is None:
+          context = getComponentContext()
+      return context.ServiceManager.createInstanceWithContext(serviceName, context)
   
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
@@ -52,6 +96,7 @@ class LibreofficeServer:
         self.stop()
 
     def __init__(self, port=None):
+        self._lock = threading.RLock() # Each server instance has its own lock
         self.process = None
         self.port = port
         self.started_by_me = False # Flag to indicate if this instance started the LO process
@@ -110,6 +155,7 @@ class LibreofficeServer:
         if self.started_by_me: # Only remove temp dir if this instance started the process
             rmtree(f'/tmp/unogenerator{self.port}', ignore_errors=True)
 
+@uno_safe
 class ODF:
     maxtries = 200 # Define as a class attribute with a default value
     def __init__(self, template=None,  server=None):
@@ -247,17 +293,18 @@ class ODF:
             self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
             if title!="":
                 self.document.DocumentProperties.Title=title
-        except:
-            print("Error setting metadata. Sometimes fails with concurrent process")
+        except Exception as e:
+            logger.warning(f"Error setting metadata: {e}. Sometimes fails with concurrent process")
 
     def deleteAll(self):
-        self.executeDispatch(".uno:SelectAll")
-        self.executeDispatch(".uno:Delete")
-        
-    def executeDispatch(self, command):
-        oDisp = createUnoService("com.sun.star.frame.DispatchHelper")
-        oDisp.executeDispatch(self.document.getCurrentController().Frame, command, "", 0, ())
-        
+        if hasattr(self.document, "Text"): # ODT
+            self.document.Text.setString("")
+        elif hasattr(self.document, "getSheets"): # ODS
+            sheets = self.document.getSheets()
+            for i in range(sheets.getCount()):
+                # com.sun.star.sheet.CellFlags: VALUE=1, DATETIME=2, STRING=4, ANNOTATION=8, FORMULA=16, HARDATTR=32, STYLES=64, OBJECTS=128, EDITATTR=256, FORMATTED=512
+                # 1023 clears almost everything
+                sheets.getByIndex(i).clearContents(1023)
     ## Poner el tray en el resover y cambiar el puerto cuando except
     
     def loadStylesFromFile(self, filename, overwrite=True):
@@ -268,6 +315,7 @@ class ODF:
 
         
                    
+@uno_safe
 class ODT(ODF):
     def __init__(self, template=None, server=None):
         ODF.__init__(self, template, server)
@@ -395,10 +443,7 @@ class ODT(ODF):
         if paragraphBreak is True:
             self.document.Text.insertControlCharacter(self.cursor, ControlCharacter.PARAGRAPH_BREAK, False)
         
-        
-        
     def addStringHyperlink(self,  name,  url, paragraphBreak=False):
-
         oVC = self.document.getCurrentController().getViewCursor()#		'Create View Cursor oVC at the end of document by default?
         text=oVC.getText()
         text.insertString(oVC, name,  True)
@@ -616,6 +661,7 @@ class ODT(ODF):
 
 
 
+@uno_safe
 class ODS(ODF):
     """
     Class for generating ODS (OpenDocument Spreadsheet) documents.
@@ -1652,8 +1698,11 @@ class ODS(ODF):
             oStyleFamilies =self.document.getStyleFamilies()
             oObj_1 = oStyleFamilies.getByName("PageStyles")
             oObj_2 = oObj_1.getByName("Default")
-            oObj_2.ScaleToPagesX= 1
-            oObj_2.ScaleToPagesY = 1
+            try:
+                oObj_2.setPropertyValue("ScaleToPagesX", 1)
+                oObj_2.setPropertyValue("ScaleToPagesY", 1)
+            except:
+                logger.warning("Could not set ScaleToPagesX/Y on Default PageStyle. This can happen in multithreaded environments.")
             args=(
                 PropertyValue('FilterName',0,'calc_pdf_Export',0),
                 PropertyValue('Overwrite',0,True,0),
@@ -1741,6 +1790,7 @@ class ODS(ODF):
             r["sheets"].append({"name":sheet_name, "columns": letter_index+1,  "rows": number_index+1})
         return r
 
+@uno_safe
 class ODS_Standard(ODS):
     """
     Optimized ODS class that uses the standard project template.
@@ -1759,6 +1809,7 @@ class ODS_Standard(ODS):
 
 
 
+@uno_safe
 class ODT_Standard(ODT):
     def __init__(self, server=None):
         ODT.__init__(self, files('unogenerator') / 'templates/standard.odt', server)

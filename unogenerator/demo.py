@@ -1,6 +1,3 @@
-from uno import getComponentContext
-
-getComponentContext()
 import argparse
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, as_completed,  ThreadPoolExecutor
@@ -8,7 +5,7 @@ from datetime import datetime, date, timedelta
 from gettext import translation # Removed 'info'
 import logging # Import logging module
 from importlib.resources import files
-from os import system
+from subprocess import run
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer, helpers, types, Range
@@ -19,8 +16,6 @@ try:
     _=t.gettext
 except:
     _=str
-
-type_choices=[ "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS", "COMMONSERVER_SEQUENTIAL","COMMONSERVER_CONCURRENT_PROCESS","COMMONSERVER_CONCURRENT_THREADS" ]
 
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
 
@@ -68,9 +63,10 @@ lol_thousands_columns=len(lol_thousands[0])
 
 
 
-## You can call with main(['--pretend']). It's equivalento to os.system('program --pretend')
+## You can call with main(['--pretend']). It's equivalento to run(['program', '--pretend'])
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
 def demo(arguments=None):
+
     parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
@@ -78,18 +74,18 @@ def demo(arguments=None):
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
     group.add_argument('--benchmark', help="Executes all types to compare its benchmark", action="store_true", default=False)
-    parser.add_argument('--type', help="Debug program information", choices=type_choices,  default="COMMONSERVER_CONCURRENT_PROCESS")
+    parser.add_argument('--type', help="Debug program information", choices=[t.name for t in types.DemoType],  default=types.DemoType.CONCURRENT_PROCESS.name)
     args=parser.parse_args(arguments)
     commons.addDebugSystem(args.debug)
-    demo_command(args.create, args.remove, args.benchmark, args.type)
+    demo_command(args.create, args.remove, args.benchmark, types.DemoType[args.type])
 
 def demo_command(create, remove, benchmark, type):
     languages=['es', 'en',  'ro',  'fr']
         
     if benchmark is True:
-        for type in type_choices:
+        for t in types.DemoType:
             #demo_command(True, False,  False,  type)
-            system(f"unogenerator_demo --create --type {type}")
+            run(["unogenerator_demo", "--create", "--type", t.name], check=True)
 
     if remove==True:
             for language in languages:
@@ -102,10 +98,10 @@ def demo_command(create, remove, benchmark, type):
 
     if create==True:
         start=datetime.now()
-        instances=3
+        instances=4
         total_documents=len(languages)*2
         
-        if type=="CONCURRENT_PROCESS":            
+        if type==types.DemoType.CONCURRENT_PROCESS:            
             futures=[]
             print(_("Launching demo with {0} workers without common server using concurrent processes").format(instances))
 
@@ -127,7 +123,7 @@ def demo_command(create, remove, benchmark, type):
                 result = future.result()
                 results.append(result)    
 
-        elif type=="COMMONSERVER_CONCURRENT_PROCESS":            
+        elif type==types.DemoType.COMMONSERVER_CONCURRENT_PROCESS:            
             futures=[]
             print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
 
@@ -160,7 +156,7 @@ def demo_command(create, remove, benchmark, type):
             finally:
                 main_server.stop() # Ensure the main server is stopped when done
 
-        elif type=="CONCURRENT_THREADS":            
+        elif type==types.DemoType.CONCURRENT_THREADS:            
             futures=[]
             print(_("Launching demo with {0} workers without common server using concurrent threads").format(instances))
 
@@ -182,7 +178,7 @@ def demo_command(create, remove, benchmark, type):
                     result = future.result()
                     results.append(result)
 
-        elif type=="COMMONSERVER_CONCURRENT_THREADS":            
+        elif type==types.DemoType.COMMONSERVER_CONCURRENT_THREADS:            
             futures=[]
             print(_("Launching demo with {0} workers with common server using concurrent threads").format(instances))
 
@@ -205,7 +201,7 @@ def demo_command(create, remove, benchmark, type):
                     result = future.result()
                     results.append(result)
 
-        elif type=="COMMONSERVER_SEQUENTIAL":
+        elif type==types.DemoType.COMMONSERVER_SEQUENTIAL:
             with LibreofficeServer() as server:
                 print(_("Launching demo with one common server sequentially"))
                 with tqdm(total=total_documents) as progress:
@@ -215,7 +211,7 @@ def demo_command(create, remove, benchmark, type):
                         demo_odt_standard(language,  server)       
                         progress.update()
                         
-        elif type=="SEQUENTIAL":
+        elif type==types.DemoType.SEQUENTIAL:
                 print(_("Launching demo without one common server sequentially"))
                 with tqdm(total=total_documents) as progress:
                     for language in languages:
@@ -228,7 +224,7 @@ def demo_command(create, remove, benchmark, type):
 
        
 def demo_ods_standard(language, server):
-    lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
+    lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language], fallback=True)
     lang1.install()
     _=lang1.gettext
     
@@ -264,7 +260,7 @@ def demo_ods_standard(language, server):
     
     
 def demo_odt_standard(language, server):
-    lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
+    lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language], fallback=True)
     lang1.install()
     _=lang1.gettext
 

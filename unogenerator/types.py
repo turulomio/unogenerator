@@ -26,3 +26,13 @@ class ColumnsWidthMode(Enum):
     FROM_LOD_ONLY_100 = auto() # Para usar los 100 primeros diccionarios
 
     FROM_SHEET_CELLS= auto()# Como valor se pasa el doc, saca los valores y calcula el width
+
+
+@unique
+class DemoType(Enum):
+    SEQUENTIAL = auto()
+    CONCURRENT_PROCESS = auto()
+    CONCURRENT_THREADS = auto()
+    COMMONSERVER_SEQUENTIAL = auto()
+    COMMONSERVER_CONCURRENT_PROCESS = auto()
+    COMMONSERVER_CONCURRENT_THREADS = auto()
