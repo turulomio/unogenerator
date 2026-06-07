@@ -74,7 +74,7 @@ def demo(arguments=None):
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
     group.add_argument('--benchmark', help="Executes all types to compare its benchmark", action="store_true", default=False)
-    parser.add_argument('--type', help="Debug program information", choices=[t.name for t in types.DemoType],  default=types.DemoType.SEQUENTIAL.name)
+    parser.add_argument('--type', help="Debug program information", choices=[t.name for t in types.DemoType],  default=types.DemoType.CONCURRENT_PROCESS.name)
     args=parser.parse_args(arguments)
     commons.addDebugSystem(args.debug)
     demo_command(args.create, args.remove, args.benchmark, types.DemoType[args.type])
