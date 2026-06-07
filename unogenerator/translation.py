@@ -160,7 +160,7 @@ def command_translation(from_language, to_language, input, output_directory="./u
     
     #Merging pot file to po (new or not)
     if path.exists(po) is False:
-        run_check(["msginit", "-i", pot,  "-o", po])
+        run_check(["msginit", "--no-translator", "-i", pot,  "-o", po])
     run_check(["msgmerge","-N", "--no-wrap","-U", "-F", po, pot])
     print(_("   - {0} different strings detected").format(len(set_strings)))
     
