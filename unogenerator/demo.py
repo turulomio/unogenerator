@@ -570,12 +570,7 @@ def demo_ods_sheet_styles(doc):
         doc.addCellWithStyle(Coord("J2").addRow(row), pow(-1, row)*-12.121212, color_key, "Float2")
         doc.addCellWithStyle(Coord("K2").addRow(row), (datetime.now()+timedelta(seconds=3600*12*row)).time(), color_key, "Time")
         doc.addCellWithStyle(Coord("L2").addRow(row), bool(row%2), color_key, "Bool")
-
-    last_row_coord = Coord("F2").addRow(row + 1)
-    doc.addCellWithStyle(last_row_coord, f"=sum(F2:{Coord('F2').addRow(row).string()})", ColorsNamed.GrayLight, "EUR")
-    doc.addCellMergedWithStyle("F15:L15", "Merge proof", ColorsNamed.SkyBlue, style="BoldCenter")
-    doc.setComment("C14", "This is nice comment")
-    
+   
     doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
     doc.freezeAndSelect("C2")
 
