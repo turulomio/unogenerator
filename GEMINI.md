@@ -16,7 +16,15 @@
 **Decision:**
 - **Safety-First Optimization:** The optimization now only skips style application if both the intended style is `Default` AND the document's default is also `Default`. If a custom `default_cell_style` (like `Normal`) is defined, it will always be explicitly applied to ensure document consistency.
 
-### 3. Regression Testing
+### 5. Localization Workflow (`poe translate`)
+**Observation:** The project uses `poe translate` (linked to `unogenerator.poethepoet:translate`) to automate the synchronization of `.po` files with the `.pot` template.
+**Experience:** 
+- **English Redundancy:** `en.po` has been removed as it was redundant. Since the source strings in the code are in English, the system now uses `fallback=True` in `gettext.translation` calls within `demo.py`. This ensures that when the English locale is requested, it falls back to the original English strings without needing a separate `.po` file.
+- **Header Fragility:** Running `poe translate` may overwrite manual header improvements or reset them to defaults.
+- **Multilingual Support:** While efficient for syncing Spanish (the developer's primary language), it might leave other languages (French, Romanian) with empty `msgstr` entries if not carefully monitored.
+- **Verification:** After running `poe translate`, always verify that all message strings in all supported languages are correctly populated and that headers maintain the correct project metadata and dates. Manual restoration of translations for non-primary languages may be required if the tool only targets one language.
+
+### 6. Regression Testing
 New tests have been added to `tests/test_unogenerator.py` to protect these fixes:
 - `test_ods_row_height_consistency`: Ensures heights stay at 452 even after `setColumnsWidth` with many columns.
 - `test_ods_normal_style_applied`: Verifies that `Normal` style is correctly applied by `ODS_Standard`.

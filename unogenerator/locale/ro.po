@@ -1,16 +1,16 @@
-# Romanian translations for PACKAGE package.
-# Copyright (C) 2024 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-#  <turulomio@yahoo.es>, 2024.
+# Romanian translations for unogenerator package
+# Copyright (C) 2020-2026 Mariano Muñoz
+# This file is distributed under the same license as the unogenerator package.
+# Mariano Muñoz <turulomio@yahoo.es>, 2024-2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-11 19:27+0200\n"
-"PO-Revision-Date: 2024-10-11 19:29+0200\n"
-"Last-Translator:  <turulomio@yahoo.es>\n"
-"Language-Team: Romanian <translation-team-ro@lists.sourceforge.net>\n"
+"POT-Creation-Date: 2026-06-07 04:20+0200\n"
+"PO-Revision-Date: 2026-06-07 10:40+0200\n"
+"Last-Translator: Mariano Muñoz <turulomio@yahoo.es>\n"
+"Language-Team: Romanian <turulomio@yahoo.es>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,62 +19,65 @@ msgstr ""
 "20)) ? 1 : 2;\n"
 
 msgid "There was a problem converting com.sun.star.util.DateTime to datetime."
-msgstr ""
+msgstr "A apărut o problemă la conversia com.sun.star.util.DateTime în datetime."
 
 msgid "Developed by Mariano Muñoz 2020-{}"
-msgstr ""
+msgstr "Dezvoltat de Mariano Muñoz 2020-{}"
 
 #, python-brace-format
 msgid "Coord constructor must have a str or a Coord parameter and is a {0}"
-msgstr ""
+msgstr "Constructorul Coord trebuie să aibă un parametru str sau Coord și este un {0}"
 
 msgid "I can't convert {} (class: {}) to a Coord"
-msgstr ""
+msgstr "Nu pot converti {} (clasa: {}) într-un Coord"
 
 #, python-brace-format
 msgid "Coord can have this character: {0}"
-msgstr ""
+msgstr "Coord poate avea acest caracter: {0}"
 
 msgid "Coord letter can't be empty"
-msgstr ""
+msgstr "Litera Coord nu poate fi goală"
 
 #, python-brace-format
 msgid "Coord couldn't be created with '{0}'"
-msgstr ""
+msgstr "Coord nu a putut fi creat cu '{0}'"
 
 #, python-brace-format
 msgid "Range constructor must receive a string but got: {0} ({1})"
-msgstr ""
+msgstr "Constructorul Range trebuie să primească un șir, dar a primit: {0} ({1})"
 
 #, python-brace-format
 msgid "This is not a range: {0}"
-msgstr ""
+msgstr "Acesta nu este un interval: {0}"
 
 #, python-brace-format
 msgid "Range start coord is wrong: {0}"
-msgstr ""
+msgstr "Coordonata de început a intervalului este greșită: {0}"
 
 #, python-brace-format
 msgid "Range end coord is wrong: {0}"
-msgstr ""
+msgstr "Coordonata de sfârșit a intervalului este greșită: {0}"
 
 msgid "I can't convert {} (class: {}) to a Range"
-msgstr ""
+msgstr "Nu pot converti {} (clasa: {}) într-un Range"
 
 msgid ""
-"There was an error triming image. Is convert command (from Imagemagick) "
-"installed?"
+"There was an error trimming image. Is 'magick' or 'convert' command (from "
+"ImageMagick) installed and in PATH?"
 msgstr ""
 
 #, python-brace-format
-msgid "Error deleting: {0} -> {1}"
-msgstr ""
+msgid "Error deleting: {0} -> {1} -> {2}"
+msgstr "Eroare la ștergere: {0} -> {1} -> {2}"
+
+msgid "String"
+msgstr "Șir"
 
 msgid "Create example files using unogenerator module"
-msgstr ""
+msgstr "Creați fișiere de exemplu folosind modulul unogenerator"
 
 msgid "Debug program information"
-msgstr ""
+msgstr "Informații de depanare a programului"
 
 #, python-brace-format
 msgid ""
@@ -99,19 +102,19 @@ msgid ""
 msgstr ""
 
 msgid "Launching demo with one common server sequentially"
-msgstr ""
+msgstr "Lansarea demo-ului cu un server comun în mod secvențial"
 
 msgid "Launching demo without one common server sequentially"
-msgstr ""
+msgstr "Lansarea demo-ului fără un server comun în mod secvențial"
 
 msgid "All process took {}"
-msgstr ""
+msgstr "Toate procesele au durat {}"
 
 msgid "UnoGenerator ODS example"
-msgstr ""
+msgstr "Exemplu UnoGenerator ODS"
 
 msgid "Demo with ODS class"
-msgstr ""
+msgstr "Demo cu clasa ODS"
 
 #, python-brace-format
 msgid ""
@@ -119,58 +122,22 @@ msgid ""
 "UnoGenerator main page in https://github.com/turulomio/unogenerator"
 msgstr ""
 
-msgid "Style name"
-msgstr ""
-
-msgid "Date and time"
-msgstr ""
-
-msgid "Date"
-msgstr ""
-
-msgid "Integer"
-msgstr ""
-
-msgid "Euros"
-msgstr ""
-
-msgid "Dollars"
-msgstr ""
-
-msgid "Percentage"
-msgstr ""
-
-msgid "Number with 2 decimals"
-msgstr ""
-
-msgid "Number with 6 decimals"
-msgstr ""
-
-msgid "Time"
-msgstr ""
-
-msgid "Boolean"
-msgstr ""
-
-msgid "String"
-msgstr ""
-
 #, python-brace-format
 msgid "unogenerator_example_{0}.ods took {1} in {2}"
-msgstr ""
+msgstr "unogenerator_example_{0}.ods a durat {1} în {2}"
 
 msgid "UnoGenerator documentation"
-msgstr ""
+msgstr "Documentație UnoGenerator"
 
 msgid "UnoGenerator python module documentation"
-msgstr ""
+msgstr "Documentație modul python UnoGenerator"
 
 #, python-brace-format
 msgid "Version: {0}"
-msgstr ""
+msgstr "Versiune: {0}"
 
 msgid "Introduction"
-msgstr ""
+msgstr "Introducere"
 
 msgid ""
 "UnoGenerator uses Libreoffice UNO API python bindings to generate documents."
@@ -180,7 +147,14 @@ msgid ""
 "So in order to use, you need to launch a --headless LibreOffice instance."
 msgstr ""
 
-msgid "We recomend to launch then easily with 'unogenerator_start' script."
+msgid ""
+"UnoGenerator make this unattended for you in each ODF (ODS and ODT) instance."
+msgstr ""
+
+msgid ""
+"However if you wish, you can do this programmatically using "
+"LibreofficeServer class to reuse it in serveral ODF instances to improve "
+"documents generation speed."
 msgstr ""
 
 msgid ""
@@ -189,7 +163,7 @@ msgid ""
 msgstr ""
 
 msgid "You can edit this one or create your own."
-msgstr ""
+msgstr "Puteți edita acesta sau puteți crea propriul dvs."
 
 msgid ""
 "This document has been created with 'standard.odt' files that you can find "
@@ -197,13 +171,13 @@ msgid ""
 msgstr ""
 
 msgid "Installation"
-msgstr ""
+msgstr "Instalare"
 
 msgid "You can use pip to install this python package:"
-msgstr ""
+msgstr "Puteți folosi pip pentru a instala acest pachet python:"
 
 msgid "ODT 'Hello World' example"
-msgstr ""
+msgstr "Exemplu ODT 'Hello World'"
 
 msgid ""
 "This is a Hello World example. You get the example in odt, docx and pdf "
@@ -211,10 +185,10 @@ msgid ""
 msgstr ""
 
 msgid "ODT"
-msgstr ""
+msgstr "ODT"
 
 msgid "ODT files can be quickly generated with UnoGenerator."
-msgstr ""
+msgstr "Fișierele ODT pot fi generate rapid cu UnoGenerator."
 
 msgid ""
 "There is a predefined template in code called 'standard.odt' to help you "
@@ -222,13 +196,13 @@ msgid ""
 msgstr ""
 
 msgid "Calling the ODT constructor"
-msgstr ""
+msgstr "Apelarea constructorului ODT"
 
 msgid "You can call ODT constructor in this ways:"
-msgstr ""
+msgstr "Puteți apela constructorul ODT în aceste moduri:"
 
 msgid "ODT with standard template (Recomended)."
-msgstr ""
+msgstr "ODT cu șablon standard (Recomandat)."
 
 msgid ""
 "There is a predefined template in code called 'standard.odt', inside this "
@@ -236,10 +210,10 @@ msgid ""
 msgstr ""
 
 msgid "With this mode you can create new documents"
-msgstr ""
+msgstr "Cu acest mod puteți crea documente noi"
 
 msgid "ODT with template or file (Recomended)."
-msgstr ""
+msgstr "ODT cu șablon sau fișier (Recomandat)."
 
 msgid ""
 "With this mode you can read your files to overwrite them or use your file as "
@@ -247,7 +221,7 @@ msgid ""
 msgstr ""
 
 msgid "ODT without template."
-msgstr ""
+msgstr "ODT fără șablon."
 
 msgid ""
 "With this mode you can write your files with Libreoffice default styles."
@@ -259,77 +233,83 @@ msgid ""
 msgstr ""
 
 msgid "Styles"
-msgstr ""
+msgstr "Stiluri"
 
 msgid ""
 "To call default Libreoffice paragraph styles you must use their english name."
 msgstr ""
 
 msgid "You can see their names with this method:"
-msgstr ""
+msgstr "Puteți vedea numele lor cu această metodă:"
 
 msgid "Tables"
-msgstr ""
+msgstr "Tabele"
 
 msgid "Concept"
-msgstr ""
+msgstr "Concept"
 
 msgid "Value"
-msgstr ""
+msgstr "Valoare"
 
 msgid "Comment"
-msgstr ""
+msgstr "Comentariu"
 
 msgid "Text"
-msgstr ""
+msgstr "Text"
 
 msgid "This is a text"
-msgstr ""
+msgstr "Acesta este un text"
 
 msgid "Good"
-msgstr ""
+msgstr "Bun"
 
 msgid "Datetime"
-msgstr ""
+msgstr "Dată și oră"
+
+msgid "Date"
+msgstr "Dată"
 
 msgid "Float"
-msgstr ""
+msgstr "Float"
 
 msgid "Currency"
-msgstr ""
+msgstr "Monedă"
+
+msgid "Percentage"
+msgstr "Procent"
 
 msgid "We can create tables with diferent font sizes and formats:"
-msgstr ""
+msgstr "Putem crea tabele cu diferite dimensiuni de font și formate:"
 
 msgid "Lists and numbered lists"
-msgstr ""
+msgstr "Liste și liste numerotate"
 
 msgid "Simple list"
-msgstr ""
+msgstr "Listă simplă"
 
 msgid "Hyperlinks"
-msgstr ""
+msgstr "Hiperlinkuri"
 
 msgid "If you want to go to Google, click on this "
-msgstr ""
+msgstr "Dacă doriți să mergeți la Google, faceți clic pe acest "
 
 msgid "That's all folks!"
-msgstr ""
+msgstr "Asta e tot, prieteni!"
 
 msgid "HTML code"
-msgstr ""
+msgstr "Cod HTML"
 
 msgid "Images"
-msgstr ""
+msgstr "Imagini"
 
 msgid "This is an 'image as char' example: "
-msgstr ""
+msgstr "Acesta este un exemplu de 'imagine ca caracter': "
 
 msgid "Now I keep writing without problems."
-msgstr ""
+msgstr "Acum continui să scriu fără probleme."
 
 msgid "This is an image loaded from bytes: "
-msgstr ""
+msgstr "Aceasta este o imagine încărcată din bytes: "
 
 msgid ""
 "As you can see, I can reuse it one hundred times. File size will not be "
@@ -337,13 +317,13 @@ msgid ""
 msgstr ""
 
 msgid "The next paragraph is generated with the illustration method"
-msgstr ""
+msgstr "Următorul paragraf este generat cu metoda ilustrație"
 
 msgid "You can play with image width and height:"
-msgstr ""
+msgstr "Puteți să vă jucați cu lățimea și înălțimea imaginii:"
 
 msgid "You can trim image border white space when needed:"
-msgstr ""
+msgstr "Puteți tăia spațiul alb de la marginea imaginii când este nevoie:"
 
 msgid ""
 "You can trim that gray space when needed with 'bytes_after_trim_image' "
@@ -352,7 +332,7 @@ msgid ""
 msgstr ""
 
 msgid "Search and Replace"
-msgstr ""
+msgstr "Căutare și Înlocuire"
 
 msgid ""
 "Below this paragraph is a paragraph with a % REPLACEME % (Without white "
@@ -361,10 +341,10 @@ msgid ""
 msgstr ""
 
 msgid "ODS"
-msgstr ""
+msgstr "ODS"
 
 msgid "ODS 'Hello World' example"
-msgstr ""
+msgstr "Exemplu ODS 'Hello World'"
 
 msgid ""
 "This is a Hello World example. You'll get the example in ods, xlsx and pdf "
@@ -377,77 +357,101 @@ msgid ""
 msgstr ""
 
 msgid "This paragraph was set after replacement."
-msgstr ""
+msgstr "Acest paragraf a fost setat după înlocuire."
 
 msgid "This paragraph was set after a page break."
-msgstr ""
+msgstr "Acest paragraf a fost setat după o întrerupere de pagină."
 
 msgid "This paragraph was set after a page break with Landscape style."
-msgstr ""
+msgstr "Acest paragraf a fost setat după o întrerupere de pagină cu stilul Peisaj (Landscape)."
 
 msgid "This is a pair of brackets ()."
-msgstr ""
+msgstr "Aceasta este o pereche de paranteze ()."
 
 msgid "NOW)("
-msgstr ""
+msgstr "ACUM)("
 
 msgid "This is a set of symbols: .,:;?ºª-/()."
-msgstr ""
+msgstr "Acesta este un set de simboluri: .,:;?ºª-/()."
 
 #, python-brace-format
 msgid "unogenerator_documentation_{0}.ods took {1} in {2}"
-msgstr ""
+msgstr "unogenerator_documentation_{0}.ods a durat {1} în {2}"
 
-msgid "Total"
-msgstr ""
+msgid "Color name"
+msgstr "Nume culoare"
 
-msgid "Sum of totals"
-msgstr ""
+msgid "Hex"
+msgstr "Hex"
+
+msgid "Date and time"
+msgstr "Dată și oră"
+
+msgid "Integer"
+msgstr "Întreg"
+
+msgid "Euros"
+msgstr "Euro"
+
+msgid "Dollars"
+msgstr "Dolari"
+
+msgid "Number with 2 decimals"
+msgstr "Număr cu 2 zecimale"
+
+msgid "Number with 6 decimals"
+msgstr "Număr cu 6 zecimale"
+
+msgid "Time"
+msgstr "Oră"
+
+msgid "Boolean"
+msgstr "Boolean"
 
 msgid "No data to show"
-msgstr ""
+msgstr "Nu sunt date de afișat"
 
 #, python-brace-format
 msgid "{0} ({1} of {2})"
-msgstr ""
+msgstr "{0} ({1} din {2})"
 
 #, python-brace-format
 msgid "More than {0} rows. Spliting {1} of {2} sheets"
-msgstr ""
+msgstr "Mai mult de {0} rânduri. Se împart în {1} din {2} foi"
 
 msgid "UnoGenerator monitor"
-msgstr ""
+msgstr "Monitor UnoGenerator"
 
 msgid "Seconds until next refresh"
-msgstr ""
+msgstr "Secunde până la următoarea reîmprospătare"
 
 msgid "Seconds to color Last CPU variation"
-msgstr ""
+msgstr "Secunde pentru a colora ultima variație CPU"
 
 #, python-brace-format
 msgid "Unogenerator version: {0}. Hora actual: {1}. Refresh time: {2} seconds"
-msgstr ""
+msgstr "Versiune Unogenerator: {0}. Ora actuală: {1}. Timp reîmprospătare: {2} secunde"
 
 msgid "Active soffice.bin processes number:"
-msgstr ""
+msgstr "Numărul proceselor soffice.bin active:"
 
 msgid "Temporal directories with asociated soffice.bin process: "
-msgstr ""
+msgstr "Directoare temporare cu proces soffice.bin asociat: "
 
 msgid "UnoGenerator cleaner"
-msgstr ""
+msgstr "Curățător UnoGenerator"
 
 msgid "Generate a po and pot file from ODF"
-msgstr ""
+msgstr "Generați un fișier po și pot din ODF"
 
 msgid "Language to translate from. Example codes: es, fr, en, md"
-msgstr ""
+msgstr "Limba din care se traduce. Coduri de exemplu: es, fr, en, md"
 
 msgid "Language to translate to. Example codes: es, fr, en, md"
-msgstr ""
+msgstr "Limba în care se traduce. Coduri de exemplu: es, fr, en, md"
 
 msgid "Files to translate. You can set several files."
-msgstr ""
+msgstr "Fișiere de tradus. Puteți seta mai multe fișiere."
 
 msgid ""
 "Output directory with results and catalogues. Default: ./"
@@ -455,33 +459,33 @@ msgid ""
 msgstr ""
 
 msgid "Undetected strings to append to translation. Default: []"
-msgstr ""
+msgstr "Șiruri nedetectate de adăugat la traducere. Implicit: []"
 
 msgid "Sets a fake translation to all strings. Default: False"
-msgstr ""
+msgstr "Setează o traducere falsă pentru toate șirurile. Implicit: False"
 
 msgid "Creates translated file in pdf. Default: False"
-msgstr ""
+msgstr "Creează fișierul tradus în pdf. Implicit: False"
 
 msgid "Perhaps a merged string"
-msgstr ""
+msgstr "Poate un șir îmbinat"
 
 msgid "Extracting strings from:"
-msgstr ""
+msgstr "Extragerea șirurilor din:"
 
 msgid "Only ODT files are supported"
-msgstr ""
+msgstr "Sunt acceptate doar fișierele ODT"
 
 #, python-brace-format
 msgid "Generating {0}"
-msgstr ""
+msgstr "Se generează {0}"
 
 #, python-brace-format
 msgid "   - {0} different strings detected"
-msgstr ""
+msgstr "   - {0} șiruri diferite detectate"
 
 msgid "Translating files to:"
-msgstr ""
+msgstr "Se traduc fișierele în:"
 
 #, python-brace-format
 msgid ""
@@ -489,37 +493,38 @@ msgid ""
 "Error: {2}"
 msgstr ""
 
-msgid "Error closing ODF instance"
-msgstr ""
-
 msgid ""
 "You can't use the same filename as your template or you will overwrite it."
 msgstr ""
 
 msgid "You can force it, setting overwrite_template paramter to True"
-msgstr ""
+msgstr "Puteți forța acest lucru, setând parametrul overwrite_template la True"
 
 msgid "Document hasn't been saved."
-msgstr ""
+msgstr "Documentul nu a fost salvat."
 
 msgid "Filename extension must be 'odt'."
-msgstr ""
+msgstr "Extensia numelui de fișier trebuie să fie 'odt'."
 
 msgid "Filename extension must be 'pdf'."
-msgstr ""
+msgstr "Extensia numelui de fiier trebuie să fie 'pdf'."
 
 msgid "Filename extension must be 'docx'."
-msgstr ""
+msgstr "Extensia numelui de fișier trebuie să fie 'docx'."
 
 msgid "Problems to detect size in 100thmm, I'm trying to calculate it"
-msgstr ""
+msgstr "Probleme la detectarea dimensiunii în 100thmm, încerc să o calculez"
 
 #, python-brace-format
 msgid "ERROR: You can't create '{0}' sheet, because it already exists."
-msgstr ""
+msgstr "EROARE: Nu puteți crea foaia '{0}', deoarece există deja."
+
+#, python-brace-format
+msgid "Sheet '{0}' not found."
+msgstr "Foaia '{0}' nu a fost găsită."
 
 msgid "addRow is empty. Nothing to write. Ignoring..."
-msgstr ""
+msgstr "addRow este gol. Nimic de scris. Se ignoră..."
 
 msgid ""
 "You're trying to add formulas to cells using setDataArray and they will be "
@@ -529,7 +534,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "  + Range: {0}"
-msgstr ""
+msgstr "  + Interval: {0}"
 
 #, python-brace-format
 msgid ""
@@ -538,13 +543,25 @@ msgid ""
 msgstr ""
 
 msgid "Colors must have the same number of items as data columns"
-msgstr ""
+msgstr "Culorile trebuie să aibă același număr de elemente ca coloanele de date"
 
 msgid "Styles must have the same number of items as data columns"
+msgstr "Stilurile trebuie să aibă același număr de elemente ca coloanele de date"
+
+#, python-brace-format
+msgid ""
+"addListOfColumnsWithStyle has {0} rows and {1} columns. Nothing to write. "
+"Ignoring..."
 msgstr ""
+
+msgid "Colors must have the same number of items as data rows"
+msgstr "Culorile trebuie să aibă același număr de elemente ca rândurile de date"
+
+msgid "Styles must have the same number of items as data rows"
+msgstr "Stilurile trebuie să aibă același număr de elemente ca rândurile de date"
 
 msgid "Filename extension must be 'ods'."
-msgstr ""
+msgstr "Extensia numelui de fișier trebuie să fie 'ods'."
 
 msgid "Filename extension must be 'xlsx'."
-msgstr ""
+msgstr "Extensia numelui de fișier trebuie să fie 'xlsx'."

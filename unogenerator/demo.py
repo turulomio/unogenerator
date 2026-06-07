@@ -228,7 +228,7 @@ def demo_command(create, remove, benchmark, type):
 
        
 def demo_ods_standard(language, server):
-    lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
+    lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language], fallback=True)
     lang1.install()
     _=lang1.gettext
     
@@ -264,7 +264,7 @@ def demo_ods_standard(language, server):
     
     
 def demo_odt_standard(language, server):
-    lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language])
+    lang1=translation('unogenerator', files("unogenerator") / 'locale', languages=[language], fallback=True)
     lang1.install()
     _=lang1.gettext
 

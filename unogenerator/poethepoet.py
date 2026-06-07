@@ -12,8 +12,9 @@ def coverage():
 def translate():
         system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o unogenerator/locale/unogenerator.pot  unogenerator/*.py")
         system("msgmerge -N --no-wrap -U unogenerator/locale/es.po unogenerator/locale/unogenerator.pot")
+        system("msgmerge -N --no-wrap -U unogenerator/locale/fr.po unogenerator/locale/unogenerator.pot")
+        system("msgmerge -N --no-wrap -U unogenerator/locale/ro.po unogenerator/locale/unogenerator.pot")
         system("msgfmt -cv -o unogenerator/locale/es/LC_MESSAGES/unogenerator.mo unogenerator/locale/es.po")
-        system("msgfmt -cv -o unogenerator/locale/en/LC_MESSAGES/unogenerator.mo unogenerator/locale/en.po")
         system("msgfmt -cv -o unogenerator/locale/fr/LC_MESSAGES/unogenerator.mo unogenerator/locale/fr.po")
         system("msgfmt -cv -o unogenerator/locale/ro/LC_MESSAGES/unogenerator.mo unogenerator/locale/ro.po")
 
@@ -24,11 +25,12 @@ def documentation():
         system("cp -f unogenerator_documentation_en.pdf doc/")
         system("cp -f unogenerator_documentation_es.odt doc/")
         system("cp -f unogenerator_documentation_es.pdf doc/")
-        system("cp -f unogenerator_example_en.ods doc/")
-        system("cp -f unogenerator_example_en.pdf doc/")
-        system("cp -f unogenerator_example_es.ods doc/")
-        system("cp -f unogenerator_example_es.pdf doc/")
+        system("unogenerator_example_en.ods doc/")
+        system("unogenerator_example_en.pdf doc/")
+        system("unogenerator_example_es.ods doc/")
+        system("unogenerator_example_es.pdf doc/")
         system("unogenerator_demo --remove")
+
 
 def release():
     print("""Nueva versión:
