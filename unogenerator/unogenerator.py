@@ -3,7 +3,13 @@ from datetime import datetime
 from os import path, makedirs
 from statistics import quantiles
 import subprocess
-from uno import getComponentContext, createUnoStruct, systemPathToFileUrl, Any, ByteSequence
+import uno
+import pyuno
+from uno import createUnoStruct, systemPathToFileUrl, Any, ByteSequence
+
+def getComponentContext():
+    return pyuno.getComponentContext()
+
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.table.CellVertJustify import CENTER, STANDARD
@@ -29,9 +35,10 @@ from pydicts.percentage import Percentage
 
 logger = logging.getLogger(__name__) # Get logger for this module
 
-def createUnoService(serviceName):
-#        resolver = localContext.ServiceManager.createInstance('com.sun.star.bridge.UnoUrlResolver')
-  return getComponentContext().ServiceManager.createInstance(serviceName)
+def createUnoService(serviceName, context=None):
+  if context is None:
+      context = getComponentContext()
+  return context.ServiceManager.createInstanceWithContext(serviceName, context)
   
 try:
     t=translation('unogenerator', files("unogenerator") / 'locale')
@@ -247,17 +254,16 @@ class ODF:
             self.document.DocumentProperties.ModificationDate=datetime2uno(creationdate)
             if title!="":
                 self.document.DocumentProperties.Title=title
-        except:
-            print("Error setting metadata. Sometimes fails with concurrent process")
+        except Exception as e:
+            logger.warning(f"Error setting metadata: {e}. Sometimes fails with concurrent process")
 
     def deleteAll(self):
         self.executeDispatch(".uno:SelectAll")
         self.executeDispatch(".uno:Delete")
-        
+
     def executeDispatch(self, command):
-        oDisp = createUnoService("com.sun.star.frame.DispatchHelper")
+        oDisp = createUnoService("com.sun.star.frame.DispatchHelper", self.ctx)
         oDisp.executeDispatch(self.document.getCurrentController().Frame, command, "", 0, ())
-        
     ## Poner el tray en el resover y cambiar el puerto cuando except
     
     def loadStylesFromFile(self, filename, overwrite=True):

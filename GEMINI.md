@@ -35,3 +35,11 @@ New tests have been added to `tests/test_unogenerator.py` to protect these fixes
 **Decision:**
 - **Explicit Dependency:** `envwrap` has been added to `pyproject.toml`. While not a direct dependency of the library's core logic, it is essential for the environment's stability when `tqdm` and `uno` coexist.
 - **Safety:** It is a safe, lightweight utility for environment variable wrapping. Adding it explicitly prevents the intermittent `ImportError` and ensures that tests and demo scripts run reliably across different setups.
+
+### 7. PyUNO Initialization in Concurrent Processes
+**Problem:** When using `multiprocessing` with the `spawn` start method (as used in the demo), child processes would fail with `SystemError: pyuno runtime is not initialized`. This is because `uno.getComponentContext()` (from the standard `uno.py`) returns a cached context object that is initialized during the module's import phase. In `spawn` mode, this initialization happens during the child process's bootstrap and is not valid for the subsequent execution phase.
+
+**Decision:**
+- **Direct PyUNO Access:** We now use `pyuno.getComponentContext()` directly instead of the cached `uno.getComponentContext()`.
+- **Deferred Initialization:** In `unogenerator.py`, we defined a local `getComponentContext()` wrapper that calls the underlying `pyuno` function. This ensures that every time the context is requested (e.g., during `ODF.__init__` or `createUnoService`), `pyuno` performs a fresh initialization check in the current process phase.
+- **Verification:** A new test `tests/test_concurrency.py` has been added to specifically verify that `spawn`-ed processes can successfully initialize and use UNO objects.
