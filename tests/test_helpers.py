@@ -1,4 +1,8 @@
 from os import remove
+from decimal import Decimal
+from datetime import date, datetime, time, timedelta
+from pydicts.currency import Currency
+from pydicts.percentage import Percentage
 
 from unogenerator import can_import_uno
 if can_import_uno():
@@ -43,6 +47,71 @@ if can_import_uno():
         with ODS_Standard(server=libreoffice_server) as doc:
             helpers.block_from_lod(doc, "A1", [])
         
+
+    def test_block_from_lod_with_null_first_row(libreoffice_server):
+        """
+        Test that styles are correctly guessed in block_from_lod for all types
+        even if the first row has None values.
+        """
+        with ODS_Standard(server=libreoffice_server) as doc:
+            lod_data = [
+                {
+                    "int": None, 
+                    "timedelta": None, 
+                    "currency": None, 
+                    "percentage": None, 
+                    "datetime": None, 
+                    "date": None, 
+                    "time": None, 
+                    "bool": None,
+                    "float": None,
+                    "string": None,
+                    "all_null": None
+                },
+                {
+                    "int": 10, 
+                    "timedelta": timedelta(seconds=10), 
+                    "currency": Currency(10, "EUR"), 
+                    "percentage": Percentage(1, 10), 
+                    "datetime": datetime.now(), 
+                    "date": date.today(), 
+                    "time": time(12, 0), 
+                    "bool": True,
+                    "float": 10.5,
+                    "string": "hello",
+                    "all_null": None
+                }
+            ]
+
+            helpers.block_from_lod(doc, "A1", lod_data)
+
+            # Headers in row 1, Data in row 2 and 3
+            # Column mapping:
+            # A: int, B: timedelta, C: currency, D: percentage, E: datetime, 
+            # F: date, G: time, H: bool, I: float, J: string, K: all_null
+
+            expected = [
+                (0, "Integer"),
+                (1, "TimedeltaSeconds"),
+                (2, "EUR"),
+                (3, "Percentage"),
+                (4, "Datetime"),
+                (5, "Date"),
+                (6, "Time"),
+                (7, "Bool"),
+                (8, "Float2"),
+                (9, "Normal"),
+                (10, "Normal") # all_null -> Default
+            ]
+
+            for col_idx, expected_style in expected:
+                # Check row 2 (index 1) and row 3 (index 2)
+                assert doc.sheet.getCellByPosition(col_idx, 1).CellStyle == expected_style
+                assert doc.sheet.getCellByPosition(col_idx, 2).CellStyle == expected_style
+
+
+
+
 
     def test_sheet_split_with_big_lol(libreoffice_server):
         r=[]
