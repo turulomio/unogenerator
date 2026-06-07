@@ -20,8 +20,6 @@ try:
 except:
     _=str
 
-type_choices=[ "SEQUENTIAL",  "CONCURRENT_PROCESS",  "CONCURRENT_THREADS", "COMMONSERVER_SEQUENTIAL","COMMONSERVER_CONCURRENT_PROCESS","COMMONSERVER_CONCURRENT_THREADS" ]
-
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
 
 logger = logging.getLogger(__name__) # Get logger for this module
@@ -78,18 +76,18 @@ def demo(arguments=None):
     group.add_argument('--create', help="Create demo files", action="store_true",default=False)
     group.add_argument('--remove', help="Remove demo files", action="store_true", default=False)
     group.add_argument('--benchmark', help="Executes all types to compare its benchmark", action="store_true", default=False)
-    parser.add_argument('--type', help="Debug program information", choices=type_choices,  default="COMMONSERVER_CONCURRENT_PROCESS")
+    parser.add_argument('--type', help="Debug program information", choices=[t.name for t in types.DemoType],  default=types.DemoType.COMMONSERVER_CONCURRENT_PROCESS.name)
     args=parser.parse_args(arguments)
     commons.addDebugSystem(args.debug)
-    demo_command(args.create, args.remove, args.benchmark, args.type)
+    demo_command(args.create, args.remove, args.benchmark, types.DemoType[args.type])
 
 def demo_command(create, remove, benchmark, type):
     languages=['es', 'en',  'ro',  'fr']
         
     if benchmark is True:
-        for type in type_choices:
+        for t in types.DemoType:
             #demo_command(True, False,  False,  type)
-            run(["unogenerator_demo", "--create", "--type", type], check=True)
+            run(["unogenerator_demo", "--create", "--type", t.name], check=True)
 
     if remove==True:
             for language in languages:
@@ -102,10 +100,10 @@ def demo_command(create, remove, benchmark, type):
 
     if create==True:
         start=datetime.now()
-        instances=3
+        instances=4
         total_documents=len(languages)*2
         
-        if type=="CONCURRENT_PROCESS":            
+        if type==types.DemoType.CONCURRENT_PROCESS:            
             futures=[]
             print(_("Launching demo with {0} workers without common server using concurrent processes").format(instances))
 
@@ -127,7 +125,7 @@ def demo_command(create, remove, benchmark, type):
                 result = future.result()
                 results.append(result)    
 
-        elif type=="COMMONSERVER_CONCURRENT_PROCESS":            
+        elif type==types.DemoType.COMMONSERVER_CONCURRENT_PROCESS:            
             futures=[]
             print(_("Launching demo with {0} workers with common server using concurrent processes").format(instances))
 
@@ -160,7 +158,7 @@ def demo_command(create, remove, benchmark, type):
             finally:
                 main_server.stop() # Ensure the main server is stopped when done
 
-        elif type=="CONCURRENT_THREADS":            
+        elif type==types.DemoType.CONCURRENT_THREADS:            
             futures=[]
             print(_("Launching demo with {0} workers without common server using concurrent threads").format(instances))
 
@@ -182,7 +180,7 @@ def demo_command(create, remove, benchmark, type):
                     result = future.result()
                     results.append(result)
 
-        elif type=="COMMONSERVER_CONCURRENT_THREADS":            
+        elif type==types.DemoType.COMMONSERVER_CONCURRENT_THREADS:            
             futures=[]
             print(_("Launching demo with {0} workers with common server using concurrent threads").format(instances))
 
@@ -205,7 +203,7 @@ def demo_command(create, remove, benchmark, type):
                     result = future.result()
                     results.append(result)
 
-        elif type=="COMMONSERVER_SEQUENTIAL":
+        elif type==types.DemoType.COMMONSERVER_SEQUENTIAL:
             with LibreofficeServer() as server:
                 print(_("Launching demo with one common server sequentially"))
                 with tqdm(total=total_documents) as progress:
@@ -215,7 +213,7 @@ def demo_command(create, remove, benchmark, type):
                         demo_odt_standard(language,  server)       
                         progress.update()
                         
-        elif type=="SEQUENTIAL":
+        elif type==types.DemoType.SEQUENTIAL:
                 print(_("Launching demo without one common server sequentially"))
                 with tqdm(total=total_documents) as progress:
                     for language in languages:
