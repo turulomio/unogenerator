@@ -1,7 +1,7 @@
 from datetime import date, datetime, time, timedelta
+from decimal import Decimal
 from os import remove, path
 from pytest import raises
-from concurrent.futures import ProcessPoolExecutor, as_completed, ThreadPoolExecutor # Keep for benchmark tests
 from pydicts import casts, currency, percentage, lod
 from importlib.resources import files
 import logging
@@ -143,6 +143,36 @@ if can_import_uno():
             doc.export_pdf(filename)
         remove(filename)
         
+
+    def test_ods_addListOfRows_null_first_row(libreoffice_server):
+        """
+        Test that styles are correctly guessed even if the first row has None values.
+        """
+        with ODS_Standard(server=libreoffice_server) as doc:
+            # Column A: First row None, second row Decimal -> Should be Float2
+            # Column B: First row None, second row int -> Should be Integer
+            # Column C: Both rows None -> Should be Default (Normal)
+            data = [
+                [None, None, None],
+                [Decimal("10.5"), 100, None]
+            ]
+            
+            coord_start = Coord("A1")
+            doc.addListOfRowsWithStyle(coord_start, data)
+            
+            # Verify styles
+            # A1/A2 should have Float2
+            assert doc.sheet.getCellByPosition(0, 0).CellStyle == "Float2"
+            assert doc.sheet.getCellByPosition(0, 1).CellStyle == "Float2"
+            
+            # B1/B2 should have Integer
+            assert doc.sheet.getCellByPosition(1, 0).CellStyle == "Integer"
+            assert doc.sheet.getCellByPosition(1, 1).CellStyle == "Integer"
+            
+            # C1/C2 should have Normal (default for ODS_Standard)
+            assert doc.sheet.getCellByPosition(2, 0).CellStyle == "Normal"
+            assert doc.sheet.getCellByPosition(2, 1).CellStyle == "Normal"
+
 
     def test_ods_addFormulaArray(libreoffice_server):
         filename="test_ods_addFormulaArray.pdf"

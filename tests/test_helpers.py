@@ -1,4 +1,5 @@
 from os import remove
+from decimal import Decimal
 
 from unogenerator import can_import_uno
 if can_import_uno():
@@ -43,6 +44,33 @@ if can_import_uno():
         with ODS_Standard(server=libreoffice_server) as doc:
             helpers.block_from_lod(doc, "A1", [])
         
+
+    def test_block_from_lod_with_null_first_row(libreoffice_server):
+        """
+        Test that styles are correctly guessed in block_from_lod even if the first row has None values.
+        """
+        with ODS_Standard(server=libreoffice_server) as doc:
+            lod_data = [
+                {"val": None, "id": 1},
+                {"val": Decimal("10.5"), "id": 2}
+            ]
+            
+            helpers.block_from_lod(doc, "A1", lod_data)
+            
+            # block_from_lod puts headers in row 1 (A1, B1)
+            # Data starts in row 2 (A2, B2)
+            
+            # A2/A3 (val column) should have Float2
+            assert doc.sheet.getCellByPosition(0, 1).CellStyle == "Float2"
+            assert doc.sheet.getCellByPosition(0, 2).CellStyle == "Float2"
+            
+            # B2/B3 (id column) should have Integer
+            assert doc.sheet.getCellByPosition(1, 1).CellStyle == "Integer"
+            assert doc.sheet.getCellByPosition(1, 2).CellStyle == "Integer"
+
+
+
+
 
     def test_sheet_split_with_big_lol(libreoffice_server):
         r=[]
