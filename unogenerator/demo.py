@@ -1,5 +1,4 @@
 import argparse
-import multiprocessing as mp
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, as_completed,  ThreadPoolExecutor
 from datetime import datetime, date, timedelta
@@ -67,10 +66,7 @@ lol_thousands_columns=len(lol_thousands[0])
 ## You can call with main(['--pretend']). It's equivalento to run(['program', '--pretend'])
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
 def demo(arguments=None):
-    try:
-        mp.set_start_method('spawn', force=True)
-    except RuntimeError:
-        pass
+
     parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
@@ -109,7 +105,7 @@ def demo_command(create, remove, benchmark, type):
             futures=[]
             print(_("Launching demo with {0} workers without common server using concurrent processes").format(instances))
 
-            with ProcessPoolExecutor(max_workers=instances, mp_context=mp.get_context('spawn')) as executor:
+            with ProcessPoolExecutor(max_workers=instances) as executor:
                 with tqdm(total=total_documents) as progress:
                     for language in languages:
                         future=executor.submit(demo_ods_standard, language, None)
@@ -137,7 +133,7 @@ def demo_command(create, remove, benchmark, type):
             main_server_port = main_server.port
 
             try:
-                with ProcessPoolExecutor(max_workers=instances, mp_context=mp.get_context('spawn')) as executor:
+                with ProcessPoolExecutor(max_workers=instances) as executor:
                     with tqdm(total=total_documents) as progress:
                             for language in languages:
                                 # Pass only the port to the child processes.
