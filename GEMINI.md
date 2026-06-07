@@ -20,3 +20,10 @@
 New tests have been added to `tests/test_unogenerator.py` to protect these fixes:
 - `test_ods_row_height_consistency`: Ensures heights stay at 452 even after `setColumnsWidth` with many columns.
 - `test_ods_normal_style_applied`: Verifies that `Normal` style is correctly applied by `ODS_Standard`.
+
+### 4. Dependency: `envwrap`
+**Issue:** When using `uno` (LibreOffice Python API), it modifies the Python import hook. In certain environments, this causes `tqdm` (a project dependency) to fail if `envwrap` is not explicitly installed, resulting in an `ImportError`.
+
+**Decision:**
+- **Explicit Dependency:** `envwrap` has been added to `pyproject.toml`. While not a direct dependency of the library's core logic, it is essential for the environment's stability when `tqdm` and `uno` coexist.
+- **Safety:** It is a safe, lightweight utility for environment variable wrapping. Adding it explicitly prevents the intermittent `ImportError` and ensures that tests and demo scripts run reliably across different setups.
