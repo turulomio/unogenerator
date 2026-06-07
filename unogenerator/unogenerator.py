@@ -258,12 +258,14 @@ class ODF:
             logger.warning(f"Error setting metadata: {e}. Sometimes fails with concurrent process")
 
     def deleteAll(self):
-        self.executeDispatch(".uno:SelectAll")
-        self.executeDispatch(".uno:Delete")
-
-    def executeDispatch(self, command):
-        oDisp = createUnoService("com.sun.star.frame.DispatchHelper", self.ctx)
-        oDisp.executeDispatch(self.document.getCurrentController().Frame, command, "", 0, ())
+        if hasattr(self.document, "Text"): # ODT
+            self.document.Text.setString("")
+        elif hasattr(self.document, "getSheets"): # ODS
+            sheets = self.document.getSheets()
+            for i in range(sheets.getCount()):
+                # com.sun.star.sheet.CellFlags: VALUE=1, DATETIME=2, STRING=4, ANNOTATION=8, FORMULA=16, HARDATTR=32, STYLES=64, OBJECTS=128, EDITATTR=256, FORMATTED=512
+                # 1023 clears almost everything
+                sheets.getByIndex(i).clearContents(1023)
     ## Poner el tray en el resover y cambiar el puerto cuando except
     
     def loadStylesFromFile(self, filename, overwrite=True):
@@ -1658,8 +1660,11 @@ class ODS(ODF):
             oStyleFamilies =self.document.getStyleFamilies()
             oObj_1 = oStyleFamilies.getByName("PageStyles")
             oObj_2 = oObj_1.getByName("Default")
-            oObj_2.ScaleToPagesX= 1
-            oObj_2.ScaleToPagesY = 1
+            try:
+                oObj_2.setPropertyValue("ScaleToPagesX", 1)
+                oObj_2.setPropertyValue("ScaleToPagesY", 1)
+            except:
+                logger.warning("Could not set ScaleToPagesX/Y on Default PageStyle. This can happen in multithreaded environments.")
             args=(
                 PropertyValue('FilterName',0,'calc_pdf_Export',0),
                 PropertyValue('Overwrite',0,True,0),

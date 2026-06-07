@@ -43,3 +43,11 @@ New tests have been added to `tests/test_unogenerator.py` to protect these fixes
 - **Direct PyUNO Access:** We now use `pyuno.getComponentContext()` directly instead of the cached `uno.getComponentContext()`.
 - **Deferred Initialization:** In `unogenerator.py`, we defined a local `getComponentContext()` wrapper that calls the underlying `pyuno` function. This ensures that every time the context is requested (e.g., during `ODF.__init__` or `createUnoService`), `pyuno` performs a fresh initialization check in the current process phase.
 - **Verification:** A new test `tests/test_concurrency.py` has been added to specifically verify that `spawn`-ed processes can successfully initialize and use UNO objects.
+
+### 8. Thread-Safety and Robustness of `deleteAll` and `export_pdf`
+**Problem:** Running the demo with concurrent threads (`CONCURRENT_THREADS` or `COMMONSERVER_CONCURRENT_THREADS`) would occasionally fail with `AttributeError`. This was due to the non-thread-safe nature of the UNO dispatch system and flaky property access in multithreaded environments.
+
+**Decision:**
+- **Removal of `executeDispatch`:** The `executeDispatch` method and its associated global lock were removed as they were unreliable in concurrent environments and encouraged poor GUI-oriented practices.
+- **Native API for `deleteAll`:** The `deleteAll` method now exclusively uses native API calls: `Text.setString("")` for ODT and `sheet.clearContents(1023)` for ODS. This is significantly more robust and does not require a visible frame or controller.
+- **Robust Property Access in `export_pdf`:** In `ODS.export_pdf`, explicit `setPropertyValue` calls with try-except blocks are used for `ScaleToPagesX/Y`. This prevents the entire export process from failing if Calc-specific properties are temporarily unavailable or flaky due to concurrent access to the UNO runtime.
