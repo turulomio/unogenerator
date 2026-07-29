@@ -134,8 +134,8 @@ if can_import_uno():
             b"\x00\x00\x00\x00IEND\xaeB`\x82"
         )
         lod_photos = [
-            {"nombre": "Image 1", "foto": sample_png, "width": 2.0, "height": 2.0},
-            {"nombre": "Image 2", "foto": sample_png, "width": 3.0, "height": 1.5}
+            {"name": "Image 1", "photo_blob": sample_png, "width": 2.0, "height": 2.0},
+            {"name": "Image 2", "photo_blob": sample_png, "width": 3.0, "height": 1.5}
         ]
         with ODS_Standard(server=libreoffice_server) as doc:
             helpers.photos_from_lod_ods(doc, "A1", lod_photos, headers=["Name", "Photo"], title="Test Photos Catalog")

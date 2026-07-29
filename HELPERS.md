@@ -129,13 +129,18 @@ LOD writer with hierarchical sub-headers.
 - `freezeandselect` (Coord or str, default=None): Auto-freeze coordinate.
 - `key` (str, default="#SUM"): Formula key.
 ### `photos_from_lod_ods`
-Creates a photo catalog table in an ODS spreadsheet from a List of Dictionaries.
+Creates a photo catalog table in an ODS spreadsheet from a List of Dictionaries. Binary image blobs (`bytes` or `bytearray`) are automatically detected and anchored to cells, with row heights and column widths auto-adjusted to fit the image dimensions.
 - `doc` (ODS): The ODS document object.
 - `coord_start` (Coord or str): Starting coordinate.
-- `lod_photos` (list): List of dictionaries containing `'name'`/`'nombre'` and `'photo'`/`'foto'` keys.
+- `lod_photos` (list): List of dictionaries containing data and photo blobs.
+- `headers` (list, default=None): Optional list of header labels. If `None` (default), no header row is written.
+- `keys` (list, default=None): Specific dictionary keys to include/order. If `None`, auto-detects all keys.
 - `default_width` (float, default=2.5): Default image width in cm.
 - `default_height` (float, default=2.5): Default image height in cm.
-- `title` (str, default=None): Optional header title for the block.
+- `title` (str, default=None): Optional merged title for the block.
+- `color_row_header` (int, default=ColorsNamed.Orange): Color for header row.
+- `styles` (list or str, default=None): Style(s) for data cells.
+- `word_wrap` (bool, default=True): Enable text wrapping.
 
 ---
 
