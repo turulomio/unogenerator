@@ -128,9 +128,17 @@ LOD writer with hierarchical sub-headers.
 - `row_of_totals` (bool, default=False): Generate totals at the bottom.
 - `freezeandselect` (Coord or str, default=None): Auto-freeze coordinate.
 - `key` (str, default="#SUM"): Formula key.
-- `word_wrap` (bool, default=True): Enable text wrapping.
+### `photos_from_lod_ods`
+Creates a photo catalog table in an ODS spreadsheet from a List of Dictionaries.
+- `doc` (ODS): The ODS document object.
+- `coord_start` (Coord or str): Starting coordinate.
+- `lod_photos` (list): List of dictionaries containing `'name'`/`'nombre'` and `'photo'`/`'foto'` keys.
+- `default_width` (float, default=2.5): Default image width in cm.
+- `default_height` (float, default=2.5): Default image height in cm.
+- `title` (str, default=None): Optional header title for the block.
 
 ---
+
 
 ## 5. Complete Sheet Helpers
 

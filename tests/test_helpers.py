@@ -125,3 +125,30 @@ if can_import_uno():
             doc.export_xlsx("sheet_split_with_big_lol.xlsx")
         
         remove("sheet_split_with_big_lol.xlsx")
+
+    def test_photos_from_lod_ods(libreoffice_server):
+        sample_png = (
+            b"\x89PNG\r\n\x1a\n"
+            b"\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89"
+            b"\x00\x00\x00\x0dIDATx\x9cc`\x00\x00\x00\x02\x00\x01\x0e\xfe\x02\x06"
+            b"\x00\x00\x00\x00IEND\xaeB`\x82"
+        )
+        lod_photos = [
+            {"nombre": "Image 1", "foto": sample_png, "width": 2.0, "height": 2.0},
+            {"nombre": "Image 2", "foto": sample_png, "width": 3.0, "height": 1.5}
+        ]
+        with ODS_Standard(server=libreoffice_server) as doc:
+            helpers.photos_from_lod_ods(doc, "A1", lod_photos, headers=["Name", "Photo"], title="Test Photos Catalog")
+            draw_page = doc.sheet.getDrawPage()
+            assert draw_page.getCount() == 2
+            doc.save("test_photos_from_lod_ods.ods")
+
+        remove("test_photos_from_lod_ods.ods")
+
+    def test_add_image_invalid_source(libreoffice_server):
+        import pytest
+        with ODS_Standard(server=libreoffice_server) as doc:
+            with pytest.raises(ValueError, match="Could not load graphic"):
+                doc.addImageToCell("A1", b"invalid_bytes")
+
+

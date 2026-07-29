@@ -1,5 +1,7 @@
+from pathlib import Path
+from os import path
 from unogenerator.commons import ColorsNamed, Coord, Range, guess_object_style, generate_formula_total_string
-from unogenerator import ODS, types
+from unogenerator import ODS, types, columnswidth
 from pydicts import lod, lol
 from collections import OrderedDict
 from gettext import translation
@@ -562,3 +564,132 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
         doc.freezeAndSelect(freezeandselect, freezeandselect, freezeandselect)
 
     return range_
+
+
+def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, default_width=2.5, default_height=2.5, title=None, color_row_header=ColorsNamed.Orange, styles=None, word_wrap=True):
+    """
+    Creates a photo catalog table in an ODS spreadsheet from a List of Dictionaries.
+    Auto-detects image blobs and auto-adjusts cell/row/column sizes to accommodate images.
+
+    Args:
+        doc (ODS): The ODS document instance.
+        coord_start (Coord or str): Starting cell coordinate (e.g. 'A1').
+        lod_photos (list): List of dicts containing data and photo blobs.
+        headers (list, optional): List of header labels. Defaults to None (no header row).
+        keys (list, optional): List of keys to write. If None, auto-detected from lod_photos.
+        default_width (float): Default image width in cm. Defaults to 2.5.
+        default_height (float): Default image height in cm. Defaults to 2.5.
+        title (str, optional): Optional title header for the photo block.
+        color_row_header (int, optional): Color for row headers. Defaults to ColorsNamed.Orange.
+        styles (list or str, optional): Styles for data cells. Defaults to None.
+        word_wrap (bool, optional): Enable no word wrap and optimal height. Defaults to True.
+
+    Returns:
+        Range: The range of the generated photo block.
+    """
+    c = Coord.assertCoord(coord_start)
+    coord_start_initial = c.copy()
+
+    # 1. Determine keys dynamically if not provided
+    if keys is None:
+        if len(lod_photos) > 0:
+            keys = [k for k in lod.lod_keys(lod_photos) if k not in ("width", "height")]
+        else:
+            keys = []
+
+    # 2. Title
+    if title is not None:
+        if len(lod_photos) == 0 or len(keys) == 0:
+            doc.addCellWithStyle(c, title, ColorsNamed.Red, "BoldCenter")
+        else:
+            num_cols = len(headers) if headers else len(keys)
+            title_range = Range.from_coords(c, c.addColumnCopy(num_cols - 1))
+            doc.addCellMergedWithStyle(title_range, title, ColorsNamed.Red, "BoldCenter", word_wrap=word_wrap)
+        c.addRow(1)
+
+    # 3. Handle empty lod
+    if len(lod_photos) == 0 or len(keys) == 0:
+        doc.addCellWithStyle(c, _("No data to show"), ColorsNamed.White, "BoldCenter")
+        return Range.from_coords(coord_start_initial, c)
+
+    # 4. Optional Headers row (by default headers is None -> no header row)
+    if headers:
+        doc.addRowWithStyle(c, headers, color_row_header, "BoldCenter", word_wrap=word_wrap)
+        c.addRow(1)
+
+    # Helper to detect if a value is a binary image blob
+    def is_image_blob(val):
+        return isinstance(val, (bytes, bytearray))
+
+    # Track column widths and image columns
+    col_widths = {} # col_idx -> max width_cm
+    col_has_images = set()
+
+    # 5. Data rows and image placement
+    for idx, item in enumerate(lod_photos):
+        row_coord = c.addRowCopy(idx)
+        width = item.get("width", default_width)
+        height = item.get("height", default_height)
+
+        row_values = []
+        row_has_image = False
+        row_max_height = 0.0
+
+        for col_idx, key in enumerate(keys):
+            val = item.get(key)
+            if is_image_blob(val):
+                row_values.append("") # Text cell kept empty for shape placement
+                row_has_image = True
+                col_has_images.add(col_idx)
+                col_widths[col_idx] = max(col_widths.get(col_idx, 0.0), width)
+                row_max_height = max(row_max_height, height)
+            else:
+                row_values.append(val)
+
+        # Write text row values
+        doc.addRowWithStyle(row_coord, row_values, styles=styles, word_wrap=word_wrap)
+
+        # Place images
+        for col_idx, key in enumerate(keys):
+            val = item.get(key)
+            if is_image_blob(val):
+                photo_coord = row_coord.addColumnCopy(col_idx)
+                img_name = str(item.get("name") or item.get("nombre") or f"Img_{idx}_{col_idx}")
+                doc.addImageToCell(
+                    coord=photo_coord,
+                    filename_or_bytessequence=val,
+                    width_cm=width,
+                    height_cm=height,
+                    name=img_name
+                )
+
+        # Adjust row height for image rows
+        if row_has_image:
+            uno_row = doc.sheet.getRows().getByIndex(row_coord.numberIndex())
+            height_100thmm = int(row_max_height * 1000)
+            uno_row.OptimalHeight = False
+            uno_row.Height = height_100thmm
+            doc._custom_row_heights[(doc.sheet.Name, row_coord.numberIndex())] = height_100thmm
+            doc._wrapped_rows.discard((doc.sheet.Name, row_coord.numberIndex()))
+
+    # 6. Adjust column widths for image and text columns
+    lol_data = lod.lod2lol(lod_photos, keys)
+    headers_for_calc = headers if headers else keys
+    col_widths_guessed = columnswidth.guessColumnsWidth([headers_for_calc] + lol_data, types.ColumnsWidthMode.FROM_LOL)
+    for col_idx, width_cm in enumerate(col_widths_guessed):
+        col_uno = doc.sheet.getColumns().getByIndex(coord_start_initial.letterIndex() + col_idx)
+        target_width_100thmm = int(width_cm * 1000)
+        if col_idx in col_has_images:
+            img_width_100thmm = int(col_widths[col_idx] * 1000)
+            final_width = max(target_width_100thmm, img_width_100thmm)
+        else:
+            final_width = max(col_uno.Width, target_width_100thmm)
+        col_uno.Width = final_width
+        doc._custom_col_widths[(doc.sheet.Name, coord_start_initial.letterIndex() + col_idx)] = final_width
+
+    final_row = c.numberIndex() + len(lod_photos) - 1
+    final_col = coord_start_initial.letterIndex() + len(keys) - 1
+    return Range.from_coords(coord_start_initial, Coord.from_index(final_col, final_row))
+
+
+
