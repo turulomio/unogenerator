@@ -566,7 +566,7 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
     return range_
 
 
-def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, default_width=2.5, default_height=2.5, title=None, color_row_header=ColorsNamed.Orange, styles=None, word_wrap=True, on_error_str=None):
+def sheet_photos_from_lod(doc, coord_start, lod_photos, headers=None, keys=None, default_width=2.5, default_height=2.5, title=None, color_row_header=ColorsNamed.Orange, styles=None, word_wrap=True, on_error_str=None):
     """
     Creates a photo catalog table in an ODS spreadsheet from a List of Dictionaries.
     Auto-detects image blobs and auto-adjusts cell/row/column sizes to accommodate images.
@@ -600,7 +600,7 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
         ...     {"name": "Item 2", "photo_blob": b"..."},  # Uses default_width and default_height
         ...     {"name": "Item 3", "photo_blob": None}    # Shows "Image couldn't be loaded"
         ... ]
-        >>> helpers.photos_from_lod_ods(
+        >>> helpers.sheet_photos_from_lod(
         ...     doc, "A1", lod_photos,
         ...     headers=["Product Name", "Photo"],
         ...     title="Photo Catalog"
@@ -740,6 +740,4 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
     final_row = c.numberIndex() + len(lod_photos) - 1
     final_col = coord_start_initial.letterIndex() + len(keys) - 1
     return Range.from_coords(coord_start_initial, Coord.from_index(final_col, final_row))
-
-
 

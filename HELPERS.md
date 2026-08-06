@@ -128,12 +128,12 @@ LOD writer with hierarchical sub-headers.
 - `row_of_totals` (bool, default=False): Generate totals at the bottom.
 - `freezeandselect` (Coord or str, default=None): Auto-freeze coordinate.
 - `key` (str, default="#SUM"): Formula key.
-### `photos_from_lod_ods`
+### `sheet_photos_from_lod`
 Creates a photo catalog table in an ODS spreadsheet from a List of Dictionaries. Binary image blobs (`bytes` or `bytearray`) are automatically detected and anchored to cells, with row heights and column widths auto-adjusted to fit the image dimensions.
 - `doc` (ODS): The ODS document object.
 - `coord_start` (Coord or str): Starting coordinate.
 - `lod_photos` (list): List of dictionaries containing data and photo blobs.
-  - **Claves de imagen binary (blobs)**: Cualquier clave con datos `bytes` o `bytearray` (p. ej. `'photo_blob'`, `'photo'`) es autodetectada como imagen y anclada a su celda correspondiente.
+  - **Claves de imagen binary (blobs)**: Cualquier clave con datos `bytes` or `bytearray` (p. ej. `'photo_blob'`, `'photo'`) es autodetectada como imagen y anclada a su celda correspondiente.
   - **Claves de datos de texto/numéricos**: Claves estándar (p. ej. `'name'`, `'id'`, `'description'`) que se insertan como celdas de datos habituales.
   - **`width`** *(float, opcional)*: Ancho personalizado de la imagen en cm para ese elemento (sobrescribe `default_width`). Se excluye automáticamente de las columnas de datos cuando `keys=None`.
   - **`height`** *(float, opcional)*: Alto personalizado de la imagen en cm para ese elemento (sobrescribe `default_height`). Se excluye automáticamente de las columnas de datos cuando `keys=None`.
@@ -156,7 +156,7 @@ lod_photos = [
     {"name": "Imagen Sin Foto", "photo_blob": None}       # Celda vacía (sin figura de imagen)
 ]
 
-helpers.photos_from_lod_ods(
+helpers.sheet_photos_from_lod(
     doc, 
     "A1", 
     lod_photos, 

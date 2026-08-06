@@ -248,7 +248,7 @@ def demo_ods_standard(language, server):
         demo_ods_sheet_from_lol(doc)
         demo_ods_columns_width_modes(doc)
         demo_ods_sheet_split_with_big_lol(doc)
-        demo_ods_photos_from_lod_ods(doc)
+        demo_ods_sheet_photos_from_lod(doc)
         helpers.sheet_stylenames(doc)
 
         doc.save(f"unogenerator_example_{language}.ods")
@@ -760,8 +760,8 @@ def demo_ods_columns_width_modes(doc):
     doc.setColumnsWidth(lol_numbers[0], types.ColumnsWidthMode.FROM_LIST)
 
 
-def demo_ods_photos_from_lod_ods(doc):
-    doc.createSheet("photos_from_lod_ods")
+def demo_ods_sheet_photos_from_lod(doc):
+    doc.createSheet("sheet_photos_from_lod")
     sample_png = (
         b"\x89PNG\r\n\x1a\n"
         b"\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89"
@@ -774,6 +774,6 @@ def demo_ods_photos_from_lod_ods(doc):
         {"name": "Image 3", "photo_blob": b"", "width": 3.0, "height": 1.5},
         {"name": "Image 4", "photo_blob": None, "width": 3.0, "height": 1.5}
     ]
-    helpers.photos_from_lod_ods(doc, "A1", lod_photos, headers=[_("Name"), _("Photo")], title="Photo Catalog Demo")
+    helpers.sheet_photos_from_lod(doc, "A1", lod_photos, headers=[_("Name"), _("Photo")], title="Photo Catalog Demo")
     doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
