@@ -32,7 +32,7 @@ from shutil import copyfile, rmtree # Added rmtree for directory removal
 from socket import socket, AF_INET, SOCK_STREAM
 from subprocess import Popen, PIPE, run # Added run for executing external commands
 from tempfile import TemporaryDirectory
-from time import sleep
+from time import sleep, time
 from unogenerator import __version__, columnswidth, exceptions, types
 from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989,  is_formula, uno2datetime, string_float2object
 from pydicts.currency import Currency
@@ -93,75 +93,88 @@ try:
 except:
     _=str
 
-def _find_pipe_for_process(parent_pid, port=None):
+def _find_pipe_for_process(parent_pid, port=None, timeout=2.0):
     """
     Finds the specific /tmp/OSL_PIPE_* socket file owned by the LibreOffice process tree starting at parent_pid.
     Uses pure /proc filesystem inspection on Linux without external dependencies like fuser or ps.
+    Retries for up to `timeout` seconds to handle slower LibreOffice process startup in CI runners.
     """
     if not parent_pid:
         return None
 
-    # First check dedicated server directory if port is specified
-    if port:
-        for pattern in (f'/tmp/unogenerator_{port}/**/OSL_PIPE_*', f'/tmp/unogenerator_{port}/OSL_PIPE_*'):
-            pipes = glob(pattern, recursive=True)
+    start_time = time()
+    while True:
+        # First check dedicated server directory if port is specified
+        if port:
+            for pattern in (f'/tmp/unogenerator_{port}/**/OSL_PIPE_*', f'/tmp/unogenerator_{port}/OSL_PIPE_*'):
+                pipes = glob(pattern, recursive=True)
+                if pipes:
+                    return pipes[0]
+
+        if not sys.platform.startswith('linux'):
+            pipes = glob('/tmp/OSL_PIPE_*')
             if pipes:
                 return pipes[0]
+            if time() - start_time >= timeout:
+                return None
+            sleep(0.1)
+            continue
 
-    if not sys.platform.startswith('linux'):
-        pipes = glob('/tmp/OSL_PIPE_*')
-        return pipes[0] if pipes else None
-
-    try:
-        # 1. Build descendant PIDs set for parent_pid
-        descendants = {parent_pid}
         try:
+            # 1. Build children_map from /proc and traverse descendants via BFS stack
+            children_map = {}
             for pid_str in os.listdir('/proc'):
                 if pid_str.isdigit():
                     try:
                         with open(f'/proc/{pid_str}/stat', 'r') as f:
                             stat = f.read().split()
-                            ppid = int(stat[3])
-                            if ppid in descendants or int(pid_str) in descendants:
-                                descendants.add(int(pid_str))
+                            pid, ppid = int(stat[0]), int(stat[3])
+                            children_map.setdefault(ppid, []).append(pid)
                     except Exception:
                         pass
+
+            descendants = {parent_pid}
+            stack = [parent_pid]
+            while stack:
+                curr = stack.pop()
+                for child in children_map.get(curr, []):
+                    if child not in descendants:
+                        descendants.add(child)
+                        stack.append(child)
+
+            # 2. Extract socket inodes opened by descendant processes
+            socket_inodes = set()
+            for pid in descendants:
+                fd_dir = f'/proc/{pid}/fd'
+                if os.path.exists(fd_dir):
+                    try:
+                        for fd in os.listdir(fd_dir):
+                            try:
+                                target = os.readlink(os.path.join(fd_dir, fd))
+                                if target.startswith('socket:['):
+                                    socket_inodes.add(target[8:-1])
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+
+            # 3. Match socket inodes in /proc/net/unix to OSL_PIPE file path
+            if socket_inodes and os.path.exists('/proc/net/unix'):
+                with open('/proc/net/unix', 'r') as f:
+                    for line in f:
+                        parts = line.strip().split()
+                        if len(parts) >= 8 and parts[6] in socket_inodes:
+                            pipe_path = parts[7]
+                            if 'OSL_PIPE' in pipe_path:
+                                return pipe_path
         except Exception:
             pass
 
-        # 2. Extract socket inodes opened by descendant processes
-        socket_inodes = set()
-        for pid in descendants:
-            fd_dir = f'/proc/{pid}/fd'
-            if os.path.exists(fd_dir):
-                try:
-                    for fd in os.listdir(fd_dir):
-                        try:
-                            target = os.readlink(os.path.join(fd_dir, fd))
-                            if target.startswith('socket:['):
-                                socket_inodes.add(target[8:-1])
-                        except Exception:
-                            pass
-                except Exception:
-                    pass
+        if time() - start_time >= timeout:
+            pipes = glob('/tmp/OSL_PIPE_*')
+            return pipes[0] if pipes else None
 
-        if not socket_inodes:
-            return None
-
-        # 3. Match socket inodes in /proc/net/unix to OSL_PIPE file path
-        if os.path.exists('/proc/net/unix'):
-            with open('/proc/net/unix', 'r') as f:
-                for line in f:
-                    parts = line.strip().split()
-                    if len(parts) >= 8 and parts[6] in socket_inodes:
-                        pipe_path = parts[7]
-                        if 'OSL_PIPE' in pipe_path:
-                            return pipe_path
-    except Exception:
-        pass
-
-    pipes = glob('/tmp/OSL_PIPE_*')
-    return pipes[0] if pipes else None
+        sleep(0.1)
 
 class LibreofficeServer:
     ## This method allows to use with statement. 
