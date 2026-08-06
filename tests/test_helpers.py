@@ -135,14 +135,32 @@ if can_import_uno():
         lod_photos = [
             {"name": "Image 1", "photo_blob": sample_png, "width": 2.0, "height": 2.0},
             {"name": "Image 2", "photo_blob": sample_png, "width": 3.0, "height": 1.5},
-            {"name": "Image 2", "photo_blob": b"", "width": 3.0, "height": 1.5},
-            {"name": "Image 2", "photo_blob": None, "width": 3.0, "height": 1.5}
+            {"name": "Image 3", "photo_blob": b"", "width": 3.0, "height": 1.5},
+            {"name": "Image 4", "photo_blob": None, "width": 3.0, "height": 1.5}
         ]
         with ODS_Standard(server=libreoffice_server) as doc:
             helpers.photos_from_lod_ods(doc, "A1", lod_photos, headers=["Name", "Photo"], title="Test Photos Catalog")
             draw_page = doc.sheet.getDrawPage()
             assert draw_page.getCount() == 2
+            # Check cell for b"" (row 5) and None (row 6)
+            assert doc.sheet.getCellRangeByName("B5").getString() == "Image couldn't be loaded"
+            assert doc.sheet.getCellRangeByName("B6").getString() == "Image couldn't be loaded"
             doc.save("test_photos_from_lod_ods.ods")
 
         remove("test_photos_from_lod_ods.ods")
+
+        # Test invalid bytes uses default 'Image couldn't be loaded'
+        lod_photos_invalid = [
+            {"name": "Image Invalid", "photo_blob": b"invalid_bytes", "width": 2.0, "height": 2.0}
+        ]
+        with ODS_Standard(server=libreoffice_server) as doc:
+            helpers.photos_from_lod_ods(doc, "A1", lod_photos_invalid, headers=["Name", "Photo"])
+            assert doc.sheet.getCellRangeByName("B2").getString() == "Image couldn't be loaded"
+
+        # Test invalid bytes sets custom on_error_str when specified
+        with ODS_Standard(server=libreoffice_server) as doc:
+            helpers.photos_from_lod_ods(
+                doc, "A1", lod_photos_invalid, headers=["Name", "Photo"], on_error_str="[Image Error]"
+            )
+            assert doc.sheet.getCellRangeByName("B2").getString() == "[Image Error]"
 

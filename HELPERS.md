@@ -146,6 +146,7 @@ Creates a photo catalog table in an ODS spreadsheet from a List of Dictionaries.
 - `color_row_header` (int, default=ColorsNamed.Orange): Color for header row.
 - `styles` (list or str, default=None): Style(s) for data cells.
 - `word_wrap` (bool, default=True): Enable text wrapping.
+- `on_error_str` (str, default=None): Fallback string to set in the image cell if `addImageToCell` fails (e.g. invalid bytes), or if the photo value is `None`, `b""`, or not a blob. If `None` (default), uses `_("Image couldn't be loaded")`.
 
 **Ejemplo de uso:**
 ```python

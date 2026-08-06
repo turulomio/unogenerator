@@ -566,7 +566,7 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
     return range_
 
 
-def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, default_width=2.5, default_height=2.5, title=None, color_row_header=ColorsNamed.Orange, styles=None, word_wrap=True):
+def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, default_width=2.5, default_height=2.5, title=None, color_row_header=ColorsNamed.Orange, styles=None, word_wrap=True, on_error_str=None):
     """
     Creates a photo catalog table in an ODS spreadsheet from a List of Dictionaries.
     Auto-detects image blobs and auto-adjusts cell/row/column sizes to accommodate images.
@@ -589,6 +589,7 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
         color_row_header (int, optional): Color for row headers. Defaults to ColorsNamed.Orange.
         styles (list or str, optional): Styles for data cells. Defaults to None.
         word_wrap (bool, optional): Enable no word wrap and optimal height. Defaults to True.
+        on_error_str (str, optional): Fallback text to display in image cell when graphic fails to load, is None, or is not a blob. Defaults to _("Image couldn't be loaded").
 
     Returns:
         Range: The range of the generated photo block.
@@ -597,7 +598,7 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
         >>> lod_photos = [
         ...     {"name": "Item 1", "photo_blob": b"...", "width": 3.0, "height": 2.0},
         ...     {"name": "Item 2", "photo_blob": b"..."},  # Uses default_width and default_height
-        ...     {"name": "Item 3", "photo_blob": None}    # No photo provided
+        ...     {"name": "Item 3", "photo_blob": None}    # Shows "Image couldn't be loaded"
         ... ]
         >>> helpers.photos_from_lod_ods(
         ...     doc, "A1", lod_photos,
@@ -607,6 +608,9 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
     """
     c = Coord.assertCoord(coord_start)
     coord_start_initial = c.copy()
+
+    if on_error_str is None:
+        on_error_str = _("Image couldn't be loaded")
 
     # 1. Determine keys dynamically if not provided
     if keys is None:
@@ -639,6 +643,26 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
     def is_image_blob(val):
         return isinstance(val, (bytes, bytearray)) and len(val) > 0
 
+    # Pre-detect image keys across lod_photos without re-evaluating found keys
+    image_keys = set()
+    for item in lod_photos:
+        for k in keys:
+            if k not in image_keys and isinstance(item.get(k), (bytes, bytearray)):
+                image_keys.add(k)
+        if len(image_keys) == len(keys):
+            break
+
+    if not image_keys and lod_photos:
+        for k in keys:
+            if any(term in k.lower() for term in ("photo", "image", "foto", "img", "blob")):
+                image_keys.add(k)
+
+    # Pre-resolve cell style per column index
+    col_styles = [
+        styles[i] if isinstance(styles, (list, tuple)) and i < len(styles) else (styles if isinstance(styles, str) else None)
+        for i in range(len(keys))
+    ]
+
     # Track column widths and image columns
     col_widths = {} # col_idx -> max width_cm
     col_has_images = set()
@@ -652,15 +676,24 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
         row_values = []
         row_has_image = False
         row_max_height = 0.0
+        blobs_to_place = []
 
         for col_idx, key in enumerate(keys):
             val = item.get(key)
-            if is_image_blob(val):
-                row_values.append("") # Text cell kept empty for shape placement
+            is_blob = is_image_blob(val)
+            if key in image_keys or is_blob:
                 row_has_image = True
                 col_has_images.add(col_idx)
                 col_widths[col_idx] = max(col_widths.get(col_idx, 0.0), width)
                 row_max_height = max(row_max_height, height)
+
+                if is_blob:
+                    row_values.append("") # Text cell kept empty for shape placement
+                    img_name = str(item.get("name") or item.get("nombre") or f"Img_{idx}_{col_idx}")
+                    photo_coord = row_coord.addColumnCopy(col_idx)
+                    blobs_to_place.append((photo_coord, val, img_name, col_idx))
+                else:
+                    row_values.append(on_error_str) # None, b"", or non-blob value in image column
             else:
                 row_values.append(val)
 
@@ -668,11 +701,8 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
         doc.addRowWithStyle(row_coord, row_values, styles=styles, word_wrap=word_wrap)
 
         # Place images
-        for col_idx, key in enumerate(keys):
-            val = item.get(key)
-            if is_image_blob(val):
-                photo_coord = row_coord.addColumnCopy(col_idx)
-                img_name = str(item.get("name") or item.get("nombre") or f"Img_{idx}_{col_idx}")
+        for photo_coord, val, img_name, col_idx in blobs_to_place:
+            try:
                 doc.addImageToCell(
                     coord=photo_coord,
                     filename_or_bytessequence=val,
@@ -680,6 +710,8 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
                     height_cm=height,
                     name=img_name
                 )
+            except ValueError:
+                doc.addCellWithStyle(photo_coord, on_error_str, style=col_styles[col_idx], word_wrap=word_wrap)
 
         # Adjust row height for image rows
         if row_has_image:

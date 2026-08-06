@@ -770,7 +770,9 @@ def demo_ods_photos_from_lod_ods(doc):
     )
     lod_photos = [
         {"name": "Image 1", "photo_blob": sample_png, "width": 2.0, "height": 2.0},
-        {"name": "Image 2", "photo_blob": sample_png, "width": 3.0, "height": 1.5}
+        {"name": "Image 2", "photo_blob": sample_png, "width": 3.0, "height": 1.5},
+        {"name": "Image 3", "photo_blob": b"", "width": 3.0, "height": 1.5},
+        {"name": "Image 4", "photo_blob": None, "width": 3.0, "height": 1.5}
     ]
     helpers.photos_from_lod_ods(doc, "A1", lod_photos, headers=[_("Name"), _("Photo")], title="Photo Catalog Demo")
     doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
