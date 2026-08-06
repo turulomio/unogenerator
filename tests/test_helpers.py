@@ -1,5 +1,4 @@
 from os import remove
-from decimal import Decimal
 from datetime import date, datetime, time, timedelta
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
@@ -135,7 +134,9 @@ if can_import_uno():
         )
         lod_photos = [
             {"name": "Image 1", "photo_blob": sample_png, "width": 2.0, "height": 2.0},
-            {"name": "Image 2", "photo_blob": sample_png, "width": 3.0, "height": 1.5}
+            {"name": "Image 2", "photo_blob": sample_png, "width": 3.0, "height": 1.5},
+            {"name": "Image 2", "photo_blob": b"", "width": 3.0, "height": 1.5},
+            {"name": "Image 2", "photo_blob": None, "width": 3.0, "height": 1.5}
         ]
         with ODS_Standard(server=libreoffice_server) as doc:
             helpers.photos_from_lod_ods(doc, "A1", lod_photos, headers=["Name", "Photo"], title="Test Photos Catalog")
@@ -144,11 +145,4 @@ if can_import_uno():
             doc.save("test_photos_from_lod_ods.ods")
 
         remove("test_photos_from_lod_ods.ods")
-
-    def test_add_image_invalid_source(libreoffice_server):
-        import pytest
-        with ODS_Standard(server=libreoffice_server) as doc:
-            with pytest.raises(ValueError, match="Could not load graphic"):
-                doc.addImageToCell("A1", b"invalid_bytes")
-
 

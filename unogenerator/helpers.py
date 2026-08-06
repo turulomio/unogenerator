@@ -575,8 +575,14 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
         doc (ODS): The ODS document instance.
         coord_start (Coord or str): Starting cell coordinate (e.g. 'A1').
         lod_photos (list): List of dicts containing data and photo blobs.
+            Each dictionary in lod_photos can contain:
+            - Binary image keys: Any key holding `bytes` or `bytearray` (e.g. 'photo_blob', 'photo') is auto-detected as an image blob.
+            - Data keys: Standard fields (e.g. 'name', 'id', 'description') rendered as text cells.
+            - 'width' (float, optional): Custom image width in cm for this row (overrides `default_width`). Automatically excluded from table data columns when `keys=None`.
+            - 'height' (float, optional): Custom image height in cm for this row (overrides `default_height`). Automatically excluded from table data columns when `keys=None`.
+            - 'name' / 'nombre' (str, optional): Name assigned to the internal UNO graphic object shape.
         headers (list, optional): List of header labels. Defaults to None (no header row).
-        keys (list, optional): List of keys to write. If None, auto-detected from lod_photos.
+        keys (list, optional): List of keys to write. If None, auto-detected from lod_photos (excluding 'width' and 'height').
         default_width (float): Default image width in cm. Defaults to 2.5.
         default_height (float): Default image height in cm. Defaults to 2.5.
         title (str, optional): Optional title header for the photo block.
@@ -586,6 +592,18 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
 
     Returns:
         Range: The range of the generated photo block.
+
+    Example:
+        >>> lod_photos = [
+        ...     {"name": "Item 1", "photo_blob": b"...", "width": 3.0, "height": 2.0},
+        ...     {"name": "Item 2", "photo_blob": b"..."},  # Uses default_width and default_height
+        ...     {"name": "Item 3", "photo_blob": None}    # No photo provided
+        ... ]
+        >>> helpers.photos_from_lod_ods(
+        ...     doc, "A1", lod_photos,
+        ...     headers=["Product Name", "Photo"],
+        ...     title="Photo Catalog"
+        ... )
     """
     c = Coord.assertCoord(coord_start)
     coord_start_initial = c.copy()
@@ -617,9 +635,9 @@ def photos_from_lod_ods(doc, coord_start, lod_photos, headers=None, keys=None, d
         doc.addRowWithStyle(c, headers, color_row_header, "BoldCenter", word_wrap=word_wrap)
         c.addRow(1)
 
-    # Helper to detect if a value is a binary image blob
+    # Helper to detect if a value is a non-empty binary image blob
     def is_image_blob(val):
-        return isinstance(val, (bytes, bytearray))
+        return isinstance(val, (bytes, bytearray)) and len(val) > 0
 
     # Track column widths and image columns
     col_widths = {} # col_idx -> max width_cm
