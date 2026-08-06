@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 04:20+0200\n"
-"PO-Revision-Date: 2026-06-07 10:15+0200\n"
+"POT-Creation-Date: 2026-08-06 09:30+0200\n"
+"PO-Revision-Date: 2026-08-06 09:30+0200\n"
 "Last-Translator: Mariano Muñoz <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <turulomio@yahoo.es>\n"
 "Language: es\n"
@@ -363,6 +363,12 @@ msgstr "Tiempo"
 msgid "Boolean"
 msgstr "Booleano"
 
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Photo"
+msgstr "Foto"
+
 msgid "No data to show"
 msgstr "No hay datos para mostrar"
 
@@ -373,6 +379,9 @@ msgstr "{0} ({1} de {2})"
 #, python-brace-format
 msgid "More than {0} rows. Spliting {1} of {2} sheets"
 msgstr "Más de {0} filas. Dividiendo {1} de {2} hojas"
+
+msgid "Image couldn't be loaded"
+msgstr "No se pudo cargar la imagen"
 
 msgid "UnoGenerator monitor"
 msgstr "Monitor de UnoGenerator"
@@ -472,6 +481,9 @@ msgstr "ERROR: No puedes crear la hoja '{0}', porque ya existe."
 #, python-brace-format
 msgid "Sheet '{0}' not found."
 msgstr "La hoja '{0}' no se ha encontrado."
+
+msgid "Could not load graphic from the provided source."
+msgstr "No se pudo cargar el gráfico desde el origen proporcionado."
 
 msgid "addRow is empty. Nothing to write. Ignoring..."
 msgstr "addRow está vacío. Nada que escribir. Ignorando..."

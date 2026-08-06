@@ -678,6 +678,8 @@ class ODS(ODF):
         ODF.__init__(self, template, server)
         self._remove_default_sheet=True
         self._wrapped_rows = set() # Track rows that have word wrap enabled to avoid overriding them with False
+        self._custom_row_heights = {} # Track explicit row heights in 1/100th mm (sheet_name, row_idx) -> height
+        self._custom_col_widths = {} # Track explicit column widths in 1/100th mm (sheet_name, col_idx) -> width
         self.default_row_height = None # Default row height in 1/100th mm. If None, it won't be explicitly set.
         self.default_cell_style = "Default" # Default cell style name.
 
@@ -748,6 +750,67 @@ class ODS(ODF):
 
         logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
+
+    def addImageToCell(self, coord, filename_or_bytessequence, width_cm=2.0, height_cm=2.0, name=None):
+        """
+        Inserts an image into a specific cell on the active sheet of the ODS document.
+
+        Args:
+            coord (Coord or str): Cell coordinate (e.g. 'B2').
+            filename_or_bytessequence (str, Path, or bytes): Path to image file or raw image binary.
+            width_cm (float): Image width in centimeters. Defaults to 2.0.
+            height_cm (float): Image height in centimeters. Defaults to 2.0.
+            name (str, optional): Internal UNO graphic name.
+        """
+        coord = Coord.assertCoord(coord)
+
+        if isinstance(filename_or_bytessequence, (bytes, bytearray)):
+            bytes_stream = self.ctx.ServiceManager.createInstanceWithContext(
+                'com.sun.star.io.SequenceInputStream', self.ctx
+            )
+            bytes_stream.initialize((ByteSequence(filename_or_bytessequence),))
+            oProps = (PropertyValue('InputStream', 0, bytes_stream, 0),)
+        else:
+            oProps = (PropertyValue('URL', 0, systemPathToFileUrl(str(filename_or_bytessequence)), 0),)
+
+        graphic = self.graphicsprovider.queryGraphic(oProps)
+        if graphic is None:
+            raise ValueError(_("Could not load graphic from the provided source."))
+        draw_page = self.sheet.getDrawPage()
+        shape = self.document.createInstance("com.sun.star.drawing.GraphicObjectShape")
+        shape.Graphic = graphic
+
+        if name is not None:
+            shape.setName(name)
+
+        cell = self.sheet.getCellRangeByName(str(coord))
+        shape.setPosition(cell.Position)
+        shape.setSize(Size(int(width_cm * 1000), int(height_cm * 1000)))
+        shape.Anchor = cell
+
+        draw_page.add(shape)
+
+        row_idx = coord.numberIndex()
+        col_idx = coord.letterIndex()
+        height_100thmm = int(height_cm * 1000)
+        width_100thmm = int(width_cm * 1000)
+
+        # Auto-adjust row height for the cell to fit the image
+        uno_row = self.sheet.getRows().getByIndex(row_idx)
+        current_row_height = self._custom_row_heights.get((self.sheet.Name, row_idx), uno_row.Height)
+        new_row_height = max(current_row_height, height_100thmm)
+        uno_row.OptimalHeight = False
+        uno_row.Height = new_row_height
+        self._custom_row_heights[(self.sheet.Name, row_idx)] = new_row_height
+        self._wrapped_rows.discard((self.sheet.Name, row_idx))
+
+        # Auto-adjust column width for the cell to fit the image
+        uno_col = self.sheet.getColumns().getByIndex(col_idx)
+        current_col_width = self._custom_col_widths.get((self.sheet.Name, col_idx), uno_col.Width)
+        new_col_width = max(current_col_width, width_100thmm)
+        uno_col.Width = new_col_width
+        self._custom_col_widths[(self.sheet.Name, col_idx)] = new_col_width
+
 
     def _set_row_optimal_height(self, row_index, word_wrap):
         """
@@ -824,7 +887,9 @@ class ODS(ODF):
 
         for i, width in enumerate(columns_widths):
             column = columns.getByIndex(i)
-            column.Width = int(width * 1000)  ## Are in 1/100th of mm
+            calculated_width = int(width * 1000)  ## Are in 1/100th of mm
+            custom_width = self._custom_col_widths.get((self.sheet.Name, i), 0)
+            column.Width = max(calculated_width, custom_width)
 
         # After changing column widths, optimal row heights MUST be recalculated 
         # to avoid incorrect height increases (bug in Calc/Uno when many columns/rows are present)
@@ -857,6 +922,13 @@ class ODS(ODF):
                 
                 # Set last block
                 self.sheet.getCellRangeByPosition(0, current_start, 0, last_idx).getRows().OptimalHeight = True
+
+            # 4. Re-apply custom row heights (e.g., photo rows) so setColumnsWidth never overrides them
+            for (sheet, r_idx), h in self._custom_row_heights.items():
+                if sheet == self.sheet.Name and r_idx < rows:
+                    uno_row = self.sheet.getRows().getByIndex(r_idx)
+                    uno_row.OptimalHeight = False
+                    uno_row.Height = h
 
 
 

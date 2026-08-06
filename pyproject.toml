@@ -9,13 +9,13 @@ license = { text = "GPL-3.0-or-later" }
 readme = "README.md"
 requires-python = ">=3.10,<4"
 dependencies = [
-    "tqdm>=4.68.3",
-    "humanize>=4.15.0",
+    "tqdm>=4.70.0",
+    "humanize>=4.16.0",
     "colorama>=0.4.6",
     "polib>=1.2.0",
     "psutil>=7.2.2",
     "pydicts>=1.5.0",
-    "envwrap>=0.2.0",
+    "envwrap>=1.0.0",
 ]
 
 [project.urls]
@@ -35,9 +35,9 @@ packages = [{ include = "unogenerator" }]
 
 [tool.poetry.group.dev.dependencies]
 poetry = ">=2.4.1"
-poethepoet = ">=0.45.1"
+poethepoet = ">=0.48.0"
 pytest = ">=9.1.1"
-coverage = ">=7.14.2"
+coverage = ">=7.15.3"
 
 [tool.poe.tasks]
 coverage = { script = "unogenerator.poethepoet:coverage" }

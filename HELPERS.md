@@ -128,9 +128,45 @@ LOD writer with hierarchical sub-headers.
 - `row_of_totals` (bool, default=False): Generate totals at the bottom.
 - `freezeandselect` (Coord or str, default=None): Auto-freeze coordinate.
 - `key` (str, default="#SUM"): Formula key.
+### `sheet_photos_from_lod`
+Creates a photo catalog table in an ODS spreadsheet from a List of Dictionaries. Binary image blobs (`bytes` or `bytearray`) are automatically detected and anchored to cells, with row heights and column widths auto-adjusted to fit the image dimensions.
+- `doc` (ODS): The ODS document object.
+- `coord_start` (Coord or str): Starting coordinate.
+- `lod_photos` (list): List of dictionaries containing data and photo blobs.
+  - **Claves de imagen binary (blobs)**: Cualquier clave con datos `bytes` or `bytearray` (p. ej. `'photo_blob'`, `'photo'`) es autodetectada como imagen y anclada a su celda correspondiente.
+  - **Claves de datos de texto/numéricos**: Claves estándar (p. ej. `'name'`, `'id'`, `'description'`) que se insertan como celdas de datos habituales.
+  - **`width`** *(float, opcional)*: Ancho personalizado de la imagen en cm para ese elemento (sobrescribe `default_width`). Se excluye automáticamente de las columnas de datos cuando `keys=None`.
+  - **`height`** *(float, opcional)*: Alto personalizado de la imagen en cm para ese elemento (sobrescribe `default_height`). Se excluye automáticamente de las columnas de datos cuando `keys=None`.
+  - **`name`** / **`nombre`** *(str, opcional)*: Nombre asignado internamente al objeto/figura gráfica UNO (`GraphicObjectShape`).
+- `headers` (list, default=None): Optional list of header labels. If `None` (default), no header row is written.
+- `keys` (list, default=None): Specific dictionary keys to include/order. If `None`, auto-detects all keys (excluding `width` and `height`).
+- `default_width` (float, default=2.5): Default image width in cm.
+- `default_height` (float, default=2.5): Default image height in cm.
+- `title` (str, default=None): Optional merged title for the block.
+- `color_row_header` (int, default=ColorsNamed.Orange): Color for header row.
+- `styles` (list or str, default=None): Style(s) for data cells.
 - `word_wrap` (bool, default=True): Enable text wrapping.
+- `on_error_str` (str, default=None): Fallback string to set in the image cell if `addImageToCell` fails (e.g. invalid bytes), or if the photo value is `None`, `b""`, or not a blob. If `None` (default), uses `_("Image couldn't be loaded")`.
+
+**Ejemplo de uso:**
+```python
+lod_photos = [
+    {"name": "Imagen 1", "photo_blob": image_bytes_1, "width": 3.0, "height": 2.0},
+    {"name": "Imagen 2", "photo_blob": image_bytes_2},  # Ancho/alto por defecto (2.5 cm)
+    {"name": "Imagen Sin Foto", "photo_blob": None}       # Celda vacía (sin figura de imagen)
+]
+
+helpers.sheet_photos_from_lod(
+    doc, 
+    "A1", 
+    lod_photos, 
+    headers=["Nombre del producto", "Fotografía"], 
+    title="Catálogo de Productos"
+)
+```
 
 ---
+
 
 ## 5. Complete Sheet Helpers
 

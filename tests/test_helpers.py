@@ -1,5 +1,4 @@
 from os import remove
-from decimal import Decimal
 from datetime import date, datetime, time, timedelta
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
@@ -125,3 +124,45 @@ if can_import_uno():
             doc.export_xlsx("sheet_split_with_big_lol.xlsx")
         
         remove("sheet_split_with_big_lol.xlsx")
+
+    def test_sheet_photos_from_lod(libreoffice_server):
+        assert helpers.sheet_photos_from_lod is helpers.sheet_photos_from_lod
+        sample_png = (
+            b"\x89PNG\r\n\x1a\n"
+            b"\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89"
+            b"\x00\x00\x00\x0dIDATx\x9cc`\x00\x00\x00\x02\x00\x01\x0e\xfe\x02\x06"
+            b"\x00\x00\x00\x00IEND\xaeB`\x82"
+        )
+        lod_photos = [
+            {"name": "Image 1", "photo_blob": sample_png, "width": 2.0, "height": 2.0},
+            {"name": "Image 2", "photo_blob": sample_png, "width": 3.0, "height": 1.5},
+            {"name": "Image 3", "photo_blob": b"", "width": 3.0, "height": 1.5},
+            {"name": "Image 4", "photo_blob": None, "width": 3.0, "height": 1.5}
+        ]
+        with ODS_Standard(server=libreoffice_server) as doc:
+            helpers.sheet_photos_from_lod(doc, "A1", lod_photos, headers=["Name", "Photo"], title="Test Photos Catalog")
+            draw_page = doc.sheet.getDrawPage()
+            assert draw_page.getCount() == 2
+            # Check cell for b"" (row 5) and None (row 6)
+            from unogenerator.commons import _
+            assert doc.sheet.getCellRangeByName("B5").getString() == _("Image couldn't be loaded")
+            assert doc.sheet.getCellRangeByName("B6").getString() == _("Image couldn't be loaded")
+            doc.save("test_sheet_photos_from_lod.ods")
+
+        remove("test_sheet_photos_from_lod.ods")
+
+        # Test invalid bytes uses default 'Image couldn't be loaded'
+        lod_photos_invalid = [
+            {"name": "Image Invalid", "photo_blob": b"invalid_bytes", "width": 2.0, "height": 2.0}
+        ]
+        with ODS_Standard(server=libreoffice_server) as doc:
+            helpers.sheet_photos_from_lod(doc, "A1", lod_photos_invalid, headers=["Name", "Photo"])
+            assert doc.sheet.getCellRangeByName("B2").getString() == _("Image couldn't be loaded")
+
+        # Test invalid bytes sets custom on_error_str when specified
+        with ODS_Standard(server=libreoffice_server) as doc:
+            helpers.sheet_photos_from_lod(
+                doc, "A1", lod_photos_invalid, headers=["Name", "Photo"], on_error_str="[Image Error]"
+            )
+            assert doc.sheet.getCellRangeByName("B2").getString() == "[Image Error]"
+

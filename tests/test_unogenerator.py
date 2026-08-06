@@ -392,6 +392,151 @@ if can_import_uno():
             
         remove(filename)
 
+    def test_ods_getValues_date_issue_reproduction(libreoffice_server):
+        """Reproduces the issue where getValues() returns dates as raw floats/integers without cast."""
+        filename = "test_ods_getValues_date_repro.ods"
+        sample_date = date(2023, 12, 2)
+        sample_dt = datetime(2023, 12, 2, 12, 0, 0)
+
+        with ODS_Standard(server=libreoffice_server) as doc:
+            doc.createSheet("Sheet1")
+            doc.addListOfRowsWithStyle("A1", [[sample_date, sample_dt]])
+
+            # Without cast: dates and datetimes return as float/int serial numbers (localc1989)
+            raw_values = doc.getValues()
+            assert isinstance(raw_values[0][0], (float, int))
+            assert isinstance(raw_values[0][1], (float, int))
+            assert raw_values[0][0] == 45262.0
+            assert raw_values[0][1] == 45262.5
+
+            # With cast: correctly converted to date and datetime objects
+            casted_values = doc.getValues(cast=["date", "datetime"])
+            assert isinstance(casted_values[0][0], date)
+            assert not isinstance(casted_values[0][0], datetime)
+            assert casted_values[0][0] == sample_date
+
+            assert isinstance(casted_values[0][1], datetime)
+            assert casted_values[0][1] == sample_dt
+
+            doc.save(filename)
+        remove(filename)
+
+    def test_ods_getValues_cast_all_types(libreoffice_server):
+        """Tests getValues with cast for all supported data types."""
+        filename = "test_ods_getValues_cast_all_types.ods"
+        sample_int = 42
+        sample_float = 3.14159
+        sample_decimal = Decimal("123.45")
+        sample_date = date(2025, 5, 10)
+        sample_datetime = datetime(2025, 5, 10, 12, 0, 0)
+        sample_time = time(12, 0, 0)
+        sample_timedelta = timedelta(seconds=3600)
+        sample_bool = True
+        sample_str = "UnoGenerator"
+
+        row_data = [
+            sample_int,
+            sample_float,
+            sample_decimal,
+            sample_date,
+            sample_datetime,
+            sample_time,
+            sample_timedelta,
+            sample_bool,
+            sample_str,
+        ]
+        casts_list = [
+            "int",
+            "float",
+            "Decimal",
+            "date",
+            "datetime",
+            "time",
+            "timedelta",
+            "bool",
+            "str",
+        ]
+
+        with ODS_Standard(server=libreoffice_server) as doc:
+            doc.createSheet("Sheet1")
+            doc.addListOfRowsWithStyle("A1", [row_data])
+
+            casted = doc.getValues(cast=casts_list)[0]
+
+            assert isinstance(casted[0], int)
+            assert casted[0] == 42
+
+            assert isinstance(casted[1], float)
+            assert round(casted[1], 5) == 3.14159
+
+            assert isinstance(casted[2], Decimal)
+            assert casted[2] == Decimal("123.45")
+
+            assert isinstance(casted[3], date) and not isinstance(casted[3], datetime)
+            assert casted[3] == sample_date
+
+            assert isinstance(casted[4], datetime)
+            assert abs((casted[4] - sample_datetime).total_seconds()) < 1
+
+            assert isinstance(casted[5], time)
+            assert casted[5].hour == sample_time.hour and casted[5].minute == sample_time.minute
+
+            assert isinstance(casted[6], timedelta)
+            assert casted[6] == sample_timedelta
+
+            assert isinstance(casted[7], bool)
+            assert casted[7] is True
+
+            assert isinstance(casted[8], str)
+            assert casted[8] == "UnoGenerator"
+
+            doc.save(filename)
+        remove(filename)
+
+    def test_ods_getValues_cast_invalid_values(libreoffice_server):
+        """Tests getValues behavior when encountering invalid values during casting (graceful fallback)."""
+        filename = "test_ods_getValues_cast_invalid.ods"
+        invalid_row = [
+            "invalid_int",
+            "invalid_float",
+            "invalid_decimal",
+            "invalid_date",
+            "invalid_datetime",
+            "invalid_time",
+            99,
+        ]
+        casts_list = [
+            "int",
+            "float",
+            "Decimal",
+            "date",
+            "datetime",
+            "time",
+            "bool",
+        ]
+
+        with ODS_Standard(server=libreoffice_server) as doc:
+            doc.createSheet("Sheet1")
+            doc.addListOfRowsWithStyle("A1", [invalid_row])
+
+            casted = doc.getValues(cast=casts_list)[0]
+
+            # All invalid conversions gracefully return the original value uncasted
+            assert casted[0] == "invalid_int"
+            assert casted[1] == "invalid_float"
+            assert casted[2] == "invalid_decimal"
+            assert casted[3] == "invalid_date"
+            assert casted[4] == "invalid_datetime"
+            assert casted[5] == "invalid_time"
+            assert casted[6] == 99  # bool cast falls back to original when not 0 or 1
+
+            doc.save(filename)
+        remove(filename)
+
+
+
+
+
 
 
     def test_ods_setCellName(libreoffice_server):
@@ -463,4 +608,14 @@ if can_import_uno():
             doc.save(filename)
         if path.exists(filename):
             remove(filename)
+
+
+
+    def test_add_image_invalid_source(libreoffice_server):
+        import re
+        from unogenerator.commons import _
+        with ODS_Standard(server=libreoffice_server) as doc:
+            with raises(ValueError, match=re.escape(_("Could not load graphic from the provided source."))):
+                doc.addImageToCell("A1", b"invalid_bytes")
+
 
