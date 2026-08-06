@@ -19,11 +19,13 @@ from com.sun.star.sheet.ConditionEntryType import COLORSCALE
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
 from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER # Removed 'warning', 'debug'
 from gettext import translation
+import atexit
 import logging # Import logging module
 from importlib.resources import files
 import sys # Added for multiplatform OS detection
 import threading
-from os import path, makedirs # Removed 'system' as it's no longer used in this file
+from glob import glob
+from os import path, makedirs, environ, remove # Removed 'system' as it's no longer used in this file
 from pydicts import lol, casts
 from shutil import copyfile, rmtree # Added rmtree for directory removal
 from socket import socket, AF_INET, SOCK_STREAM
@@ -44,25 +46,24 @@ logger = logging.getLogger(__name__) # Get logger for this module
 
 # Global lock for the PyUNO bridge initialization itself, which is always global to the process.
 _uno_bridge_lock = threading.RLock()
+_uno_lock = _uno_bridge_lock
 
-# Method Decorator: Wraps a single function to ensure it runs under the server's lock.
-def uno_lock(func):
-    def wrapper(self, *args, **kwargs):
-        # We use the lock from the LibreofficeServer associated with this document.
-        # This allows parallel execution between independent servers while serializing
-        # access to the same server.
-        lock = getattr(self.server, '_lock', _uno_bridge_lock)
-        with lock:
-            return func(self, *args, **kwargs)
-    return wrapper
-
-# Class Decorator: Automatically applies @uno_lock to all public methods of a class.
-# This ensures that ANY interaction with the LibreOffice document is synchronized.
 def uno_safe(cls):
-    for name, method in cls.__dict__.items():
-        # Only decorate callable methods that don't start with "__" (internal python methods)
-        if callable(method) and not name.startswith("__"):
-            setattr(cls, name, uno_lock(method))
+    """
+    Class decorator to make all public methods of a class thread-safe.
+    It synchronizes calls using the lock of the associated LibreofficeServer instance (self.server._lock).
+    """
+    for attr_name, attr_value in list(cls.__dict__.items()):
+        if callable(attr_value) and not attr_name.startswith('__'):
+            def make_wrapper(func, name):
+                def wrapper(self, *args, **kwargs):
+                    lock = getattr(getattr(self, 'server', None), '_lock', _uno_lock)
+                    with lock:
+                        return func(self, *args, **kwargs)
+                wrapper.__name__ = name
+                wrapper.__doc__ = func.__doc__
+                return wrapper
+            setattr(cls, attr_name, make_wrapper(attr_value, attr_name))
     return cls
 
 # ----------------------------------------
@@ -82,6 +83,46 @@ try:
     _=t.gettext
 except:
     _=str
+
+def _find_pipe_for_process(parent_pid):
+    """
+    Finds the specific /tmp/OSL_PIPE_* socket file owned by a process in the process tree of parent_pid.
+    This works without global locks or sleeping during startup, allowing full concurrent server execution.
+    """
+    if not parent_pid or not (sys.platform.startswith('linux') or sys.platform == 'darwin'):
+        return None
+    try:
+        descendants = set([parent_pid])
+        out = run(['ps', '-o', 'pid,ppid', '-A'], stdout=PIPE, stderr=PIPE, text=True, check=False).stdout
+        children_map = {}
+        for line in out.splitlines()[1:]:
+            parts = line.strip().split()
+            if len(parts) >= 2:
+                try:
+                    pid, ppid = int(parts[0]), int(parts[1])
+                    children_map.setdefault(ppid, []).append(pid)
+                except ValueError:
+                    pass
+        
+        stack = [parent_pid]
+        while stack:
+            curr = stack.pop()
+            for child in children_map.get(curr, []):
+                descendants.add(child)
+                stack.append(child)
+
+        for pipe_path in glob('/tmp/OSL_PIPE_*'):
+            try:
+                fuser_out = run(['fuser', pipe_path], stdout=PIPE, stderr=PIPE, text=True, check=False).stdout.strip()
+                pids = [int(p) for p in fuser_out.split() if p.isdigit()]
+                for pid in pids:
+                    if pid in descendants:
+                        return pipe_path
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return None
 
 class LibreofficeServer:
     ## This method allows to use with statement. 
@@ -105,22 +146,34 @@ class LibreofficeServer:
             with socket(AF_INET, SOCK_STREAM) as s:
                 s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
                 self.port = s.getsockname()[1]
+            base_tmp_dir = f"/tmp/unogenerator_{self.port}"
+            makedirs(base_tmp_dir, exist_ok=True)
+
             command_args = [
                 'loffice',
                 f'--accept=socket,host=localhost,port={self.port};urp;StarOffice.ServiceManager',
-                f'-env:UserInstallation=file:///tmp/unogenerator{self.port}',
+                f'-env:UserInstallation=file://{base_tmp_dir}',
                 '--headless',
                 '--nologo',
                 '--norestore'
             ]
             self.process = Popen(command_args, stdout=PIPE, stderr=PIPE, shell=False)
             self.started_by_me = True
+            atexit.register(self.stop)
             logger.debug(f"LibreOffice server started on port {self.port}")
         else: # If a port is provided, assume an external server is running, and this instance is just a connector
             logger.debug(f"LibreOffice server connecting to existing instance on port {self.port}")
 
     def stop(self):
+        if self.started_by_me:
+            try:
+                atexit.unregister(self.stop)
+            except Exception:
+                pass
+
+        pipe_to_remove = None
         if self.started_by_me and self.process:
+            pipe_to_remove = _find_pipe_for_process(self.process.pid)
             # Close stdout and stderr pipes
             if self.process.stdout:
                 self.process.stdout.close()
@@ -152,8 +205,14 @@ class LibreofficeServer:
             logger.warning(f"System kill command timed out while trying to kill LibreOffice process on port {self.port}. Process might still be running.")
         except Exception as e: # Catch a broader exception for robustness
             logger.warning(f"Error during system kill command for LibreOffice on port {self.port}: {e}")
-        if self.started_by_me: # Only remove temp dir if this instance started the process
-            rmtree(f'/tmp/unogenerator{self.port}', ignore_errors=True)
+        if self.started_by_me: # Only remove temp dir & pipes if this instance started the process
+            if pipe_to_remove:
+                try:
+                    if path.exists(pipe_to_remove) or path.islink(pipe_to_remove):
+                        remove(pipe_to_remove)
+                except Exception:
+                    pass
+            rmtree(f'/tmp/unogenerator_{self.port}', ignore_errors=True)
 
 @uno_safe
 class ODF:
