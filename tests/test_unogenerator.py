@@ -618,4 +618,32 @@ if can_import_uno():
             with raises(ValueError, match=re.escape(_("Could not load graphic from the provided source."))):
                 doc.addImageToCell("A1", b"invalid_bytes")
 
+    def _worker_server_pipe_test(idx):
+        from time import sleep
+        from unogenerator import LibreofficeServer
+        from unogenerator.unogenerator import _find_pipe_for_process
+        with LibreofficeServer() as server:
+            sleep(0.5)  # Allow LO process time to create its SingleOfficeIPC socket
+            pipe_path = _find_pipe_for_process(server.process.pid, port=server.port)
+            port = server.port
+        return port, pipe_path
+
+    def test_libreoffice_server_concurrent_pipe_cleanup():
+        """Tests that multiple LibreofficeServer instances created concurrently in parallel processes cleanly track and remove their OSL_PIPE files and temp directories."""
+        import concurrent.futures
+
+        with concurrent.futures.ProcessPoolExecutor(max_workers=3) as executor:
+            futures = [executor.submit(_worker_server_pipe_test, i) for i in range(3)]
+            results = [f.result() for f in futures]
+
+        assert len(results) == 3
+        for port, pipe_path in results:
+            assert not path.exists(f"/tmp/unogenerator_{port}")
+            assert pipe_path is not None, "Expected an OSL_PIPE socket file to be detected during runtime"
+            assert not path.exists(pipe_path), f"Pipe {pipe_path} was not cleaned up on server exit"
+
+
+
+
+
 
