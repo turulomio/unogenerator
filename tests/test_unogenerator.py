@@ -464,3 +464,13 @@ if can_import_uno():
         if path.exists(filename):
             remove(filename)
 
+
+
+    def test_add_image_invalid_source(libreoffice_server):
+        import re
+        from unogenerator.commons import _
+        with ODS_Standard(server=libreoffice_server) as doc:
+            with raises(ValueError, match=re.escape(_("Could not load graphic from the provided source."))):
+                doc.addImageToCell("A1", b"invalid_bytes")
+
+

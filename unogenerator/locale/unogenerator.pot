@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 05:57+0200\n"
+"POT-Creation-Date: 2026-08-06 09:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -363,6 +363,12 @@ msgstr ""
 msgid "Boolean"
 msgstr ""
 
+msgid "Name"
+msgstr ""
+
+msgid "Photo"
+msgstr ""
+
 msgid "No data to show"
 msgstr ""
 
@@ -372,6 +378,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "More than {0} rows. Spliting {1} of {2} sheets"
+msgstr ""
+
+msgid "Image couldn't be loaded"
 msgstr ""
 
 msgid "UnoGenerator monitor"
@@ -471,6 +480,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Sheet '{0}' not found."
+msgstr ""
+
+msgid "Could not load graphic from the provided source."
 msgstr ""
 
 msgid "addRow is empty. Nothing to write. Ignoring..."

@@ -2,9 +2,10 @@ name: Python application
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
@@ -17,7 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
     - name: Install LibreOffice and uno dependencies
       run: |
         sudo apt-get update
@@ -29,4 +30,4 @@ jobs:
         .venv/bin/pip install pytest 
     - name: Run Tests
       run: |
-        .venv/bin/pytest -v # Correct venv path and remove 'sudo'
+        .venv/bin/pytest -v
