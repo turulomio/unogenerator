@@ -624,7 +624,7 @@ if can_import_uno():
         from unogenerator.unogenerator import _find_pipe_for_process
         with LibreofficeServer() as server:
             sleep(0.5)  # Allow LO process time to create its SingleOfficeIPC socket
-            pipe_path = _find_pipe_for_process(server.process.pid)
+            pipe_path = _find_pipe_for_process(server.process.pid, port=server.port)
             port = server.port
         return port, pipe_path
 

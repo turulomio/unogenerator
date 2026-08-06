@@ -25,7 +25,8 @@ from importlib.resources import files
 import sys # Added for multiplatform OS detection
 import threading
 from glob import glob
-from os import path, makedirs, environ, remove # Removed 'system' as it's no longer used in this file
+from os import path, makedirs, environ, remove
+import os # Removed 'system' as it's no longer used in this file
 from pydicts import lol, casts
 from shutil import copyfile, rmtree # Added rmtree for directory removal
 from socket import socket, AF_INET, SOCK_STREAM
@@ -92,45 +93,75 @@ try:
 except:
     _=str
 
-def _find_pipe_for_process(parent_pid):
+def _find_pipe_for_process(parent_pid, port=None):
     """
-    Finds the specific /tmp/OSL_PIPE_* socket file owned by a process in the process tree of parent_pid.
-    This works without global locks or sleeping during startup, allowing full concurrent server execution.
+    Finds the specific /tmp/OSL_PIPE_* socket file owned by the LibreOffice process tree starting at parent_pid.
+    Uses pure /proc filesystem inspection on Linux without external dependencies like fuser or ps.
     """
-    if not parent_pid or not (sys.platform.startswith('linux') or sys.platform == 'darwin'):
+    if not parent_pid:
         return None
-    try:
-        descendants = set([parent_pid])
-        out = run(['ps', '-o', 'pid,ppid', '-A'], stdout=PIPE, stderr=PIPE, text=True, check=False).stdout
-        children_map = {}
-        for line in out.splitlines()[1:]:
-            parts = line.strip().split()
-            if len(parts) >= 2:
-                try:
-                    pid, ppid = int(parts[0]), int(parts[1])
-                    children_map.setdefault(ppid, []).append(pid)
-                except ValueError:
-                    pass
-        
-        stack = [parent_pid]
-        while stack:
-            curr = stack.pop()
-            for child in children_map.get(curr, []):
-                descendants.add(child)
-                stack.append(child)
 
-        for pipe_path in glob('/tmp/OSL_PIPE_*'):
-            try:
-                fuser_out = run(['fuser', pipe_path], stdout=PIPE, stderr=PIPE, text=True, check=False).stdout.strip()
-                pids = [int(p) for p in fuser_out.split() if p.isdigit()]
-                for pid in pids:
-                    if pid in descendants:
-                        return pipe_path
-            except Exception:
-                pass
+    # First check dedicated server directory if port is specified
+    if port:
+        for pattern in (f'/tmp/unogenerator_{port}/**/OSL_PIPE_*', f'/tmp/unogenerator_{port}/OSL_PIPE_*'):
+            pipes = glob(pattern, recursive=True)
+            if pipes:
+                return pipes[0]
+
+    if not sys.platform.startswith('linux'):
+        pipes = glob('/tmp/OSL_PIPE_*')
+        return pipes[0] if pipes else None
+
+    try:
+        # 1. Build descendant PIDs set for parent_pid
+        descendants = {parent_pid}
+        try:
+            for pid_str in os.listdir('/proc'):
+                if pid_str.isdigit():
+                    try:
+                        with open(f'/proc/{pid_str}/stat', 'r') as f:
+                            stat = f.read().split()
+                            ppid = int(stat[3])
+                            if ppid in descendants or int(pid_str) in descendants:
+                                descendants.add(int(pid_str))
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+        # 2. Extract socket inodes opened by descendant processes
+        socket_inodes = set()
+        for pid in descendants:
+            fd_dir = f'/proc/{pid}/fd'
+            if os.path.exists(fd_dir):
+                try:
+                    for fd in os.listdir(fd_dir):
+                        try:
+                            target = os.readlink(os.path.join(fd_dir, fd))
+                            if target.startswith('socket:['):
+                                socket_inodes.add(target[8:-1])
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+
+        if not socket_inodes:
+            return None
+
+        # 3. Match socket inodes in /proc/net/unix to OSL_PIPE file path
+        if os.path.exists('/proc/net/unix'):
+            with open('/proc/net/unix', 'r') as f:
+                for line in f:
+                    parts = line.strip().split()
+                    if len(parts) >= 8 and parts[6] in socket_inodes:
+                        pipe_path = parts[7]
+                        if 'OSL_PIPE' in pipe_path:
+                            return pipe_path
     except Exception:
         pass
-    return None
+
+    pipes = glob('/tmp/OSL_PIPE_*')
+    return pipes[0] if pipes else None
 
 class LibreofficeServer:
     ## This method allows to use with statement. 
@@ -187,7 +218,7 @@ class LibreofficeServer:
 
         pipe_to_remove = None
         if self.started_by_me and self.process:
-            pipe_to_remove = _find_pipe_for_process(self.process.pid)
+            pipe_to_remove = _find_pipe_for_process(self.process.pid, port=self.port)
             # Close stdout and stderr pipes
             if self.process.stdout:
                 self.process.stdout.close()
