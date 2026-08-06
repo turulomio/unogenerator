@@ -155,7 +155,13 @@ class LibreofficeServer:
                 s.bind(('', 0))  # Bind to port 0 to let the OS assign a free port
                 self.port = s.getsockname()[1]
             base_tmp_dir = f"/tmp/unogenerator_{self.port}"
-            makedirs(base_tmp_dir, exist_ok=True)
+            sub_tmp_dir = path.join(base_tmp_dir, "tmp")
+            makedirs(sub_tmp_dir, exist_ok=True)
+
+            env = environ.copy()
+            env["TMPDIR"] = sub_tmp_dir
+            env["TMP"] = sub_tmp_dir
+            env["TEMP"] = sub_tmp_dir
 
             command_args = [
                 'loffice',
@@ -165,7 +171,7 @@ class LibreofficeServer:
                 '--nologo',
                 '--norestore'
             ]
-            self.process = Popen(command_args, stdout=PIPE, stderr=PIPE, shell=False)
+            self.process = Popen(command_args, stdout=PIPE, stderr=PIPE, env=env, shell=False)
             self.started_by_me = True
             atexit.register(self.stop)
             logger.debug(f"LibreOffice server started on port {self.port}")
