@@ -143,8 +143,9 @@ if can_import_uno():
             draw_page = doc.sheet.getDrawPage()
             assert draw_page.getCount() == 2
             # Check cell for b"" (row 5) and None (row 6)
-            assert doc.sheet.getCellRangeByName("B5").getString() == "Image couldn't be loaded"
-            assert doc.sheet.getCellRangeByName("B6").getString() == "Image couldn't be loaded"
+            from unogenerator.commons import _
+            assert doc.sheet.getCellRangeByName("B5").getString() == _("Image couldn't be loaded")
+            assert doc.sheet.getCellRangeByName("B6").getString() == _("Image couldn't be loaded")
             doc.save("test_photos_from_lod_ods.ods")
 
         remove("test_photos_from_lod_ods.ods")
@@ -155,7 +156,7 @@ if can_import_uno():
         ]
         with ODS_Standard(server=libreoffice_server) as doc:
             helpers.photos_from_lod_ods(doc, "A1", lod_photos_invalid, headers=["Name", "Photo"])
-            assert doc.sheet.getCellRangeByName("B2").getString() == "Image couldn't be loaded"
+            assert doc.sheet.getCellRangeByName("B2").getString() == _("Image couldn't be loaded")
 
         # Test invalid bytes sets custom on_error_str when specified
         with ODS_Standard(server=libreoffice_server) as doc:

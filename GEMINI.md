@@ -53,3 +53,7 @@ New tests have been added to `tests/test_unogenerator.py` to protect these fixes
 - **Parallel Performance:** This allows workers using independent servers (different ports) to run at full parallel speed without waiting for each other.
 - **Shared-Server Stability:** Workers sharing the same `LibreofficeServer` instance will correctly share the same lock, ensuring serialized access to the single connection and maintaining stability.
 - **Internal Protection:** Global UNO bridge calls (like `getComponentContext`) remain protected by a global `_uno_bridge_lock` to ensure the process-wide PyUNO state is not corrupted during initialization.
+
+### 9. Test Execution Scope (Performance Optimization)
+**Decision:**
+- **Targeted Testing for AI Assistant:** The AI assistant must only run targeted test files or specific test functions relevant to the modified code (e.g., `poetry run pytest tests/test_helpers.py`), and NOT run the complete global `pytest` suite. The full global test suite is executed exclusively by the user to optimize task execution times.
