@@ -50,14 +50,22 @@ _uno_lock = _uno_bridge_lock
 
 def uno_safe(cls):
     """
-    Class decorator to make all public methods of a class thread-safe.
+    Class decorator to make all public methods and __init__ of a class thread-safe.
     It synchronizes calls using the lock of the associated LibreofficeServer instance (self.server._lock).
     """
     for attr_name, attr_value in list(cls.__dict__.items()):
-        if callable(attr_value) and not attr_name.startswith('__'):
+        if callable(attr_value) and (not attr_name.startswith('__') or attr_name == '__init__'):
             def make_wrapper(func, name):
                 def wrapper(self, *args, **kwargs):
-                    lock = getattr(getattr(self, 'server', None), '_lock', _uno_lock)
+                    server = getattr(self, 'server', None)
+                    if server is None:
+                        if 'server' in kwargs and isinstance(kwargs['server'], LibreofficeServer):
+                            server = kwargs['server']
+                        elif len(args) >= 2 and isinstance(args[1], LibreofficeServer):
+                            server = args[1]
+                        elif len(args) == 1 and isinstance(args[0], LibreofficeServer):
+                            server = args[0]
+                    lock = getattr(server, '_lock', _uno_lock)
                     with lock:
                         return func(self, *args, **kwargs)
                 wrapper.__name__ = name
