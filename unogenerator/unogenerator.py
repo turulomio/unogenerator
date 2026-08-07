@@ -858,6 +858,153 @@ class ODS(ODF):
         logger.debug(f"Sheet '{self.sheet.Name}' ({self.sheet_index}) is now active")
         return self.sheet
 
+    # --- Sheet, Cell, and Block Protection / Locking Methods ---
+
+    def protectSheet(self, password="", sheet_name=None):
+        """
+        Protects a sheet with an optional password.
+
+        Args:
+            password (str, optional): Password to protect the sheet. Defaults to "".
+            sheet_name (str, optional): Sheet name to protect. If None, uses current active sheet.
+        """
+        if sheet_name is not None:
+            sheet = self.document.getSheets().getByName(sheet_name)
+        else:
+            sheet = self.sheet
+        sheet.protect(password)
+
+    def unprotectSheet(self, password="", sheet_name=None):
+        """
+        Unprotects a sheet with an optional password.
+
+        Args:
+            password (str, optional): Password to unprotect the sheet. Defaults to "".
+            sheet_name (str, optional): Sheet name to unprotect. If None, uses current active sheet.
+        """
+        if sheet_name is not None:
+            sheet = self.document.getSheets().getByName(sheet_name)
+        else:
+            sheet = self.sheet
+        sheet.unprotect(password)
+
+    def isSheetProtected(self, sheet_name=None):
+        """
+        Returns True if the sheet is protected, False otherwise.
+
+        Args:
+            sheet_name (str, optional): Sheet name to check. If None, uses current active sheet.
+        """
+        if sheet_name is not None:
+            sheet = self.document.getSheets().getByName(sheet_name)
+        else:
+            sheet = self.sheet
+        return sheet.isProtected()
+
+    lockSheet = protectSheet
+    unlockSheet = unprotectSheet
+
+    def lockCell(self, coord, is_locked=True):
+        """
+        Locks or unlocks a single cell. Note that cell protection takes effect when the sheet is protected.
+
+        Args:
+            coord (Coord or str): Cell coordinate (e.g. "A1").
+            is_locked (bool, optional): True to lock, False to unlock. Defaults to True.
+
+        Returns:
+            UNO Cell object.
+        """
+        coord = Coord.assertCoord(coord)
+        cell = self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
+        cp = cell.CellProtection
+        cp.IsLocked = is_locked
+        cell.CellProtection = cp
+        return cell
+
+    def unlockCell(self, coord):
+        """
+        Unlocks a single cell.
+
+        Args:
+            coord (Coord or str): Cell coordinate (e.g. "A1").
+        """
+        return self.lockCell(coord, is_locked=False)
+
+    def isCellLocked(self, coord):
+        """
+        Returns True if the cell protection IsLocked property is True, False otherwise.
+
+        Args:
+            coord (Coord or str): Cell coordinate (e.g. "A1").
+        """
+        coord = Coord.assertCoord(coord)
+        cell = self.sheet.getCellByPosition(coord.letterIndex(), coord.numberIndex())
+        return cell.CellProtection.IsLocked
+
+    protectCell = lockCell
+    unprotectCell = unlockCell
+
+    def lockRange(self, range_o, is_locked=True):
+        """
+        Locks or unlocks a block / range of cells. Note that cell protection takes effect when the sheet is protected.
+
+        Args:
+            range_o (Range or str): Range or coordinate of the block (e.g. "A1:B10").
+            is_locked (bool, optional): True to lock, False to unlock. Defaults to True.
+
+        Returns:
+            UNO CellRange object.
+        """
+        range_obj = R.assertRange(range_o)
+        range_indexes = [
+            range_obj.c_start.letterIndex(),
+            range_obj.c_start.numberIndex(),
+            range_obj.c_end.letterIndex(),
+            range_obj.c_end.numberIndex()
+        ]
+        range_uno = self.sheet.getCellRangeByPosition(*range_indexes)
+        cp = range_uno.CellProtection
+        cp.IsLocked = is_locked
+        range_uno.CellProtection = cp
+        return range_uno
+
+    def unlockRange(self, range_o):
+        """
+        Unlocks a block / range of cells.
+
+        Args:
+            range_o (Range or str): Range or coordinate of the block (e.g. "A1:B10").
+        """
+        return self.lockRange(range_o, is_locked=False)
+
+    def isRangeLocked(self, range_o):
+        """
+        Returns True if all cells in the range have IsLocked == True, False otherwise.
+
+        Args:
+            range_o (Range or str): Range or coordinate of the block (e.g. "A1:B10").
+        """
+        range_obj = R.assertRange(range_o)
+        range_indexes = [
+            range_obj.c_start.letterIndex(),
+            range_obj.c_start.numberIndex(),
+            range_obj.c_end.letterIndex(),
+            range_obj.c_end.numberIndex()
+        ]
+        range_uno = self.sheet.getCellRangeByPosition(*range_indexes)
+        return range_uno.CellProtection.IsLocked
+
+    lockBlock = lockRange
+    unlockBlock = unlockRange
+    isBlockLocked = isRangeLocked
+
+    protectRange = lockRange
+    unprotectRange = unlockRange
+    protectBlock = lockRange
+    unprotectBlock = unlockRange
+
+
     def addImageToCell(self, coord, filename_or_bytessequence, width_cm=2.0, height_cm=2.0, name=None):
         """
         Inserts an image into a specific cell on the active sheet of the ODS document.

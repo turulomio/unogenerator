@@ -249,6 +249,7 @@ def demo_ods_standard(language, server):
         demo_ods_columns_width_modes(doc)
         demo_ods_sheet_split_with_big_lol(doc)
         demo_ods_sheet_photos_from_lod(doc)
+        demo_ods_sheet_protection(doc)
         helpers.sheet_stylenames(doc)
 
         doc.save(f"unogenerator_example_{language}.ods")
@@ -773,4 +774,43 @@ def demo_ods_sheet_photos_from_lod(doc):
     ]
     helpers.sheet_photos_from_lod(doc, "A1", lod_photos, headers=[_("Name"), _("Photo")], title="Photo Catalog Demo")
     doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+
+def demo_ods_sheet_protection(doc):
+    # Demo 1: Sheet protected, unlocking specific cells for user editing
+    doc.createSheet("Protection - Form Entry")
+    doc.addCellWithStyle("A1", _("Editable Form (Sheet Protected)"), ColorsNamed.Blue, "BoldCenter")
+    doc.addCellWithStyle("A3", _("Field"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("B3", _("User Value"), ColorsNamed.Orange, "BoldCenter")
+
+    doc.addCell("A4", _("Full Name"))
+    doc.addCell("B4", "John Doe")
+    doc.unlockCell("B4")  # Allow user to edit B4
+
+    doc.addCell("A5", _("Email"))
+    doc.addCell("B5", "john@example.com")
+    doc.unlockCell("B5")  # Allow user to edit B5
+
+    doc.addCell("A6", _("Status (Locked)"))
+    doc.addCell("B6", _("Active"))
+    doc.lockCell("B6")
+
+    doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+    doc.protectSheet("secret")
+
+    # Demo 2: Block protection / unlocking
+    doc.createSheet("Protection - Block Range")
+    doc.addCellWithStyle("A1", _("Block Protection Demo"), ColorsNamed.Green, "BoldCenter")
+    
+    headers = [_("ID"), _("Product"), _("Editable Price")]
+    data = [
+        [1, "Product A", 10.5],
+        [2, "Product B", 25.0],
+        [3, "Product C", 100.0],
+    ]
+    helpers.block_from_lol(doc, "A3", data, headers=headers, title=_("Unlocked Price Range"))
+    doc.unlockRange("C5:C7")  # Unlock only the price column range
+    doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+    doc.protectSheet()
+
 
