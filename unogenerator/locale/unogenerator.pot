@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-06 09:32+0200\n"
+"POT-Creation-Date: 2026-08-07 12:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -369,6 +369,42 @@ msgstr ""
 msgid "Photo"
 msgstr ""
 
+msgid "Editable Form (Sheet Protected)"
+msgstr ""
+
+msgid "Field"
+msgstr ""
+
+msgid "User Value"
+msgstr ""
+
+msgid "Full Name"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Status (Locked)"
+msgstr ""
+
+msgid "Active"
+msgstr ""
+
+msgid "Block Protection Demo"
+msgstr ""
+
+msgid "ID"
+msgstr ""
+
+msgid "Product"
+msgstr ""
+
+msgid "Editable Price"
+msgstr ""
+
+msgid "Unlocked Price Range"
+msgstr ""
+
 msgid "No data to show"
 msgstr ""
 
@@ -378,6 +414,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "More than {0} rows. Spliting {1} of {2} sheets"
+msgstr ""
+
+msgid "Total"
 msgstr ""
 
 msgid "Image couldn't be loaded"

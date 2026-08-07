@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-06 09:30+0200\n"
-"PO-Revision-Date: 2026-08-06 09:30+0200\n"
+"POT-Creation-Date: 2026-08-07 12:10+0200\n"
+"PO-Revision-Date: 2026-08-07 12:10+0200\n"
 "Last-Translator: Mariano Muñoz <turulomio@yahoo.es>\n"
 "Language-Team: French <turulomio@yahoo.es>\n"
 "Language: fr\n"
@@ -369,6 +369,42 @@ msgstr "Nom"
 msgid "Photo"
 msgstr "Photo"
 
+msgid "Editable Form (Sheet Protected)"
+msgstr "Formulaire modifiable (feuille protégée)"
+
+msgid "Field"
+msgstr "Champ"
+
+msgid "User Value"
+msgstr "Valeur utilisateur"
+
+msgid "Full Name"
+msgstr "Nom complet"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Status (Locked)"
+msgstr "Statut (verrouillé)"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Block Protection Demo"
+msgstr "Démonstration de protection de bloc"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Product"
+msgstr "Produit"
+
+msgid "Editable Price"
+msgstr "Prix modifiable"
+
+msgid "Unlocked Price Range"
+msgstr "Plage de prix déverrouillée"
+
 msgid "No data to show"
 msgstr "Aucune donnée à afficher"
 
@@ -379,6 +415,9 @@ msgstr "{0} ({1} sur {2})"
 #, python-brace-format
 msgid "More than {0} rows. Spliting {1} of {2} sheets"
 msgstr "Plus de {0} lignes. Division de {1} sur {2} feuilles"
+
+msgid "Total"
+msgstr "Total"
 
 msgid "Image couldn't be loaded"
 msgstr "Impossible de charger l'image"

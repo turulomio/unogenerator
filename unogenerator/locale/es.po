@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-06 09:30+0200\n"
-"PO-Revision-Date: 2026-08-06 09:30+0200\n"
+"POT-Creation-Date: 2026-08-07 12:10+0200\n"
+"PO-Revision-Date: 2026-08-07 12:10+0200\n"
 "Last-Translator: Mariano Muñoz <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <turulomio@yahoo.es>\n"
 "Language: es\n"
@@ -369,6 +369,42 @@ msgstr "Nombre"
 msgid "Photo"
 msgstr "Foto"
 
+msgid "Editable Form (Sheet Protected)"
+msgstr "Formulario editable (hoja protegida)"
+
+msgid "Field"
+msgstr "Campo"
+
+msgid "User Value"
+msgstr "Valor de usuario"
+
+msgid "Full Name"
+msgstr "Nombre completo"
+
+msgid "Email"
+msgstr "Correo electrónico"
+
+msgid "Status (Locked)"
+msgstr "Estado (bloqueado)"
+
+msgid "Active"
+msgstr "Activo"
+
+msgid "Block Protection Demo"
+msgstr "Demostración de protección de bloque"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Product"
+msgstr "Producto"
+
+msgid "Editable Price"
+msgstr "Precio editable"
+
+msgid "Unlocked Price Range"
+msgstr "Rango de precios desbloqueado"
+
 msgid "No data to show"
 msgstr "No hay datos para mostrar"
 
@@ -379,6 +415,9 @@ msgstr "{0} ({1} de {2})"
 #, python-brace-format
 msgid "More than {0} rows. Spliting {1} of {2} sheets"
 msgstr "Más de {0} filas. Dividiendo {1} de {2} hojas"
+
+msgid "Total"
+msgstr "Total"
 
 msgid "Image couldn't be loaded"
 msgstr "No se pudo cargar la imagen"

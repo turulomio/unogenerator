@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Unogenerator\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-06 09:30+0200\n"
-"PO-Revision-Date: 2026-08-06 09:30+0200\n"
+"POT-Creation-Date: 2026-08-07 12:10+0200\n"
+"PO-Revision-Date: 2026-08-07 12:10+0200\n"
 "Last-Translator: Mariano Muñoz <turulomio@yahoo.es>\n"
 "Language-Team: Romanian <turulomio@yahoo.es>\n"
 "Language: ro\n"
@@ -369,6 +369,42 @@ msgstr "Nume"
 msgid "Photo"
 msgstr "Fotografie"
 
+msgid "Editable Form (Sheet Protected)"
+msgstr "Formular editabil (foaie protejată)"
+
+msgid "Field"
+msgstr "Câmp"
+
+msgid "User Value"
+msgstr "Valoare utilizator"
+
+msgid "Full Name"
+msgstr "Nume complet"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Status (Locked)"
+msgstr "Stare (blocată)"
+
+msgid "Active"
+msgstr "Activ"
+
+msgid "Block Protection Demo"
+msgstr "Demonstrație de protecție a blocului"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Product"
+msgstr "Produs"
+
+msgid "Editable Price"
+msgstr "Preț editabil"
+
+msgid "Unlocked Price Range"
+msgstr "Interval de prețuri deblocat"
+
 msgid "No data to show"
 msgstr "Nu sunt date de afișat"
 
@@ -379,6 +415,9 @@ msgstr "{0} ({1} din {2})"
 #, python-brace-format
 msgid "More than {0} rows. Spliting {1} of {2} sheets"
 msgstr "Mai mult de {0} rânduri. Se împart în {1} din {2} foi"
+
+msgid "Total"
+msgstr "Total"
 
 msgid "Image couldn't be loaded"
 msgstr "Imaginea nu a putut fi încărcată"

@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler()) # Add NullHandler to prevent "No handlers could be found" message
 logger.setLevel(logging.WARNING) # Set default level for the library to WARNING
 
-__version__ = '1.4.0'
-__versiondatetime__=datetime(2026, 6, 7, 4, 20)
+__version__ = '1.5.0'
+__versiondatetime__=datetime(2026, 8, 7, 12, 10)
 __versiondate__=__versiondatetime__.date()
 
 
