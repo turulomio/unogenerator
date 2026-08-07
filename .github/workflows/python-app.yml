@@ -31,3 +31,7 @@ jobs:
     - name: Run Tests
       run: |
         .venv/bin/pytest -v
+    - name: Run Demo Benchmark
+      run: |
+        .venv/bin/unogenerator_demo --benchmark
+

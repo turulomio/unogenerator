@@ -1,14 +1,16 @@
-import argparse
+from argparse import ArgumentParser, RawTextHelpFormatter
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, as_completed,  ThreadPoolExecutor
 from datetime import datetime, date, timedelta
 from gettext import translation # Removed 'info'
-import logging # Import logging module
+from logging import getLogger
 from importlib.resources import files
 from subprocess import run
+from shutil import which
+from sys import argv
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
-from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer, helpers, types, Range
+from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer, helpers, types
 from tqdm import tqdm
 
 try:
@@ -19,7 +21,7 @@ except:
 
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
 
-logger = logging.getLogger(__name__) # Get logger for this module
+logger = getLogger(__name__) # Get logger for this module
 
 
 lod_singers=[
@@ -67,7 +69,7 @@ lol_thousands_columns=len(lol_thousands[0])
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
 def demo(arguments=None):
 
-    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
+    parser=ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
     group= parser.add_mutually_exclusive_group(required=True)
@@ -83,9 +85,10 @@ def demo_command(create, remove, benchmark, type):
     languages=['es', 'en',  'ro',  'fr']
         
     if benchmark is True:
+        executable = which("unogenerator_demo") or argv[0]
         for t in types.DemoType:
             #demo_command(True, False,  False,  type)
-            run(["unogenerator_demo", "--create", "--type", t.name], check=True)
+            run([executable, "--create", "--type", t.name], check=True)
 
     if remove==True:
             for language in languages:
@@ -249,6 +252,7 @@ def demo_ods_standard(language, server):
         demo_ods_columns_width_modes(doc)
         demo_ods_sheet_split_with_big_lol(doc)
         demo_ods_sheet_photos_from_lod(doc)
+        demo_ods_sheet_protection(doc)
         helpers.sheet_stylenames(doc)
 
         doc.save(f"unogenerator_example_{language}.ods")
@@ -773,4 +777,43 @@ def demo_ods_sheet_photos_from_lod(doc):
     ]
     helpers.sheet_photos_from_lod(doc, "A1", lod_photos, headers=[_("Name"), _("Photo")], title="Photo Catalog Demo")
     doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+
+
+def demo_ods_sheet_protection(doc):
+    # Demo 1: Sheet protected, unlocking specific cells for user editing
+    doc.createSheet("Protection - Form Entry")
+    doc.addCellWithStyle("A1", _("Editable Form (Sheet Protected)"), ColorsNamed.Blue, "BoldCenter")
+    doc.addCellWithStyle("A3", _("Field"), ColorsNamed.Orange, "BoldCenter")
+    doc.addCellWithStyle("B3", _("User Value"), ColorsNamed.Orange, "BoldCenter")
+
+    doc.addCell("A4", _("Full Name"))
+    doc.addCell("B4", "John Doe")
+    doc.unlockCell("B4")  # Allow user to edit B4
+
+    doc.addCell("A5", _("Email"))
+    doc.addCell("B5", "john@example.com")
+    doc.unlockCell("B5")  # Allow user to edit B5
+
+    doc.addCell("A6", _("Status (Locked)"))
+    doc.addCell("B6", _("Active"))
+    doc.lockCell("B6")
+
+    doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+    doc.protectSheet("secret")
+
+    # Demo 2: Block protection / unlocking
+    doc.createSheet("Protection - Block Range")
+    doc.addCellWithStyle("A1", _("Block Protection Demo"), ColorsNamed.Green, "BoldCenter")
+    
+    headers = [_("ID"), _("Product"), _("Editable Price")]
+    data = [
+        [1, "Product A", 10.5],
+        [2, "Product B", 25.0],
+        [3, "Product C", 100.0],
+    ]
+    helpers.block_from_lol(doc, "A3", data, headers=headers, title=_("Unlocked Price Range"))
+    doc.unlockRange("C5:C7")  # Unlock only the price column range
+    doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
+    doc.protectSheet()
+
 
