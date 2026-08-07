@@ -1,9 +1,9 @@
-import argparse
+from argparse import ArgumentParser, RawTextHelpFormatter
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, as_completed,  ThreadPoolExecutor
 from datetime import datetime, date, timedelta
 from gettext import translation # Removed 'info'
-import logging # Import logging module
+from logging import getLogger
 from importlib.resources import files
 from subprocess import run
 from shutil import which
@@ -21,7 +21,7 @@ except:
 
 ## If arguments is None, launches with sys.argc parameters. Entry point is toomanyfiles:main
 
-logger = logging.getLogger(__name__) # Get logger for this module
+logger = getLogger(__name__) # Get logger for this module
 
 
 lod_singers=[
@@ -69,7 +69,7 @@ lol_thousands_columns=len(lol_thousands[0])
 ## @param arguments is an array with parser arguments. For example: ['--argument','9']. 
 def demo(arguments=None):
 
-    parser=argparse.ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=argparse.RawTextHelpFormatter)
+    parser=ArgumentParser(prog='unogenerator', description=_('Create example files using unogenerator module'), epilog=commons.argparse_epilog(), formatter_class=RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', help=_("Debug program information"), choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"], default="ERROR")
     group= parser.add_mutually_exclusive_group(required=True)
