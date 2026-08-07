@@ -6,9 +6,11 @@ from gettext import translation # Removed 'info'
 import logging # Import logging module
 from importlib.resources import files
 from subprocess import run
+from shutil import which
+from sys import argv
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
-from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer, helpers, types, Range
+from unogenerator import ODT_Standard, ODS_Standard, __version__,  commons, ColorsNamed, Coord, LibreofficeServer, helpers, types
 from tqdm import tqdm
 
 try:
@@ -83,9 +85,10 @@ def demo_command(create, remove, benchmark, type):
     languages=['es', 'en',  'ro',  'fr']
         
     if benchmark is True:
+        executable = which("unogenerator_demo") or argv[0]
         for t in types.DemoType:
             #demo_command(True, False,  False,  type)
-            run(["unogenerator_demo", "--create", "--type", t.name], check=True)
+            run([executable, "--create", "--type", t.name], check=True)
 
     if remove==True:
             for language in languages:
