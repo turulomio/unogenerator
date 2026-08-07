@@ -639,10 +639,10 @@ def demo_ods_block_from_lod_with_headers(doc):
         
 def demo_ods_sheet_from_lol(doc):
         ## Sheet from LOL and LOD
-        helpers.sheet_from_lol(doc, "sheet_from_lol", lol_numbers, lol_numbers_headers, column_of_totals=True, row_of_totals=True, titulo="LOL Sheet")
+        helpers.sheet_from_lol(doc, "sheet_from_lol", lol_numbers, lol_numbers_headers, column_of_totals=True, row_of_totals=True, titulo="LOL Sheet", styles_column_totals="Integer", styles_row_totals="Integer")
         
 def demo_ods_sheet_from_lod(doc):
-        helpers.sheet_from_lod(doc, "sheet_from_lod", lod_singers, column_of_totals=True, row_of_totals=True, title="LOD Sheet", styles="Integer")
+        helpers.sheet_from_lod(doc, "sheet_from_lod", lod_singers, column_of_totals=True, row_of_totals=True, title="LOD Sheet")
         
 def demo_ods_sheet_sort(doc):
         ##Sort
@@ -691,9 +691,6 @@ def demo_ods_block_from_lol(doc):
             ["Item C", 2, 100.0],
         ]
 
-
-
-
         doc.createSheet("block_from_lol empty")
         helpers.block_from_lol(doc, "A1", [], headers=headers, title="block_from_lol (With total columns)", styles="Float2")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
@@ -707,7 +704,7 @@ def demo_ods_block_from_lol(doc):
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
         
         doc.createSheet("block_from_lol both totals")
-        helpers.block_from_lol(doc, "A1", data, headers=headers, column_of_totals=True, row_of_totals=True, title="block_from_lol (With both totals)", styles="Float2")
+        helpers.block_from_lol(doc, "A1", data, headers=headers, column_of_totals=True, row_of_totals=True, title="block_from_lol (With both totals)", styles="Float2", styles_column_totals="Float2")
         doc.setColumnsWidth(doc, types.ColumnsWidthMode.FROM_SHEET_CELLS)
 
 def demo_ods_helpers_single(doc):

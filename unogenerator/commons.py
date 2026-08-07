@@ -671,7 +671,62 @@ def guess_object_style(o, default_style="Default"):
     else:
         logger.info("guess_object_style not guessed {}".format( o.__class__))
         return "Bold"
-        
+
+def styles_from_lod(lod_, keys=None, default_style="Default"):
+    """
+    Guesses cell styles for each column key from a list of dictionaries (lod_),
+    skipping None values.
+
+    Args:
+        lod_ (list): List of dictionaries.
+        keys (list, optional): Keys to evaluate. If None, extracts keys from lod_.
+        default_style (str, optional): Default style to fallback to. Defaults to "Default".
+
+    Returns:
+        list: A list of style names corresponding to each key.
+    """
+    if keys is None:
+        from pydicts import lod
+        keys = lod.lod_keys(lod_)
+
+    styles = []
+    for k in keys:
+        style = default_style
+        for row in lod_:
+            val = row.get(k)
+            if val is not None:
+                style = guess_object_style(val, default_style)
+                break
+        styles.append(style)
+    return styles
+
+def styles_from_lol(lol_, default_style="Default"):
+    """
+    Guesses cell styles for each column from a list of lists (lol_),
+    skipping None values.
+
+    Args:
+        lol_ (list): List of row lists.
+        default_style (str, optional): Default style to fallback to. Defaults to "Default".
+
+    Returns:
+        list: A list of style names corresponding to each column.
+    """
+    if not lol_ or not lol_[0]:
+        return []
+
+    columns = len(lol_[0])
+    rows = len(lol_)
+    styles = []
+    for c in range(columns):
+        style = default_style
+        for r in range(rows):
+            if lol_[r][c] is not None:
+                style = guess_object_style(lol_[r][c], default_style)
+                break
+        styles.append(style)
+    return styles
+
 def datetime2localc1989(o):
     """
         Converts a datetime to a localc1989 values. Used with getValues with getDataArray method

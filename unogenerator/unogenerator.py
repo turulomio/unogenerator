@@ -21,7 +21,7 @@ from subprocess import Popen, PIPE, run, TimeoutExpired
 from tempfile import TemporaryDirectory
 from time import sleep, time
 from unogenerator import __version__, columnswidth, exceptions, types
-from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989,  is_formula, uno2datetime, string_float2object
+from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, styles_from_lod, styles_from_lol, datetime2localc1989, date2localc1989,  time2localc1989,  is_formula, uno2datetime, string_float2object
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
 from threading import RLock
@@ -1330,16 +1330,9 @@ class ODS(ODF):
         else: #one ColorsNamed
             colors=[colors]*columns
         
-        # Parse styles and iterate through rows to find a non-None value to guess the style for each column
+        # Parse styles
         if styles is None and rows > 0:
-            styles = []
-            for c in range(columns):
-                style = self.default_cell_style
-                for r in range(rows):
-                    if list_rows[r][c] is not None:
-                        style = guess_object_style(list_rows[r][c], self.default_cell_style)
-                        break
-                styles.append(style)
+            styles = styles_from_lol(list_rows, self.default_cell_style)
         elif styles.__class__.__name__ == "list":
             styles=styles
         else:
@@ -1448,15 +1441,7 @@ class ODS(ODF):
         
         # Parse styles
         if styles is None and rows > 0:
-            styles = []
-            # Iterate through columns to find a non-None value to guess the style for each row
-            for r in range(rows):
-                style = self.default_cell_style
-                for c in range(columns):
-                    if list_columns[c][r] is not None:
-                        style = guess_object_style(list_columns[c][r], self.default_cell_style)
-                        break
-                styles.append(style)
+            styles = styles_from_lol(list_columns, self.default_cell_style)
         elif styles.__class__.__name__ == "list":
             styles=styles
         else:

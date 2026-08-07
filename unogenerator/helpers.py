@@ -1,6 +1,6 @@
 from pathlib import Path
 from os import path
-from unogenerator.commons import ColorsNamed, Coord, Range, guess_object_style, generate_formula_total_string
+from unogenerator.commons import ColorsNamed, Coord, Range, guess_object_style, styles_from_lod, styles_from_lol, generate_formula_total_string
 from unogenerator import ODS, types, columnswidth
 from pydicts import lod, lol
 from collections import OrderedDict
@@ -43,9 +43,11 @@ def row_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, styles=N
         formulas.append(generate_formula_total_string(total, coord_total_from, coord_total_to))
 
     if styles is None:
-        # Guess style from the first data cell
-        first_coord_from = Coord(coord.letter + str(row_from))
-        styles = guess_object_style(doc.getValue(first_coord_from), doc.default_cell_style)
+        styles = []
+        for letter in range(len(list_of_totals)):
+            col_letter = coord.addColumnCopy(letter).letter
+            cell_coord = Coord(col_letter + str(row_from))
+            styles.append(guess_object_style(doc.getValue(cell_coord), doc.default_cell_style))
     
     doc.addRowWithStyle(coord, formulas, colors=color, styles=styles)
 
@@ -75,9 +77,31 @@ def column_totals(doc, coord, list_of_totals, color=ColorsNamed.GrayLight, style
         formulas.append(generate_formula_total_string(total, coord_total_from, coord_total_to))
 
     if styles is None:
-        # Guess style from the first data cell
-        first_coord_from = Coord(str(column_from) + coord.number)
-        styles = guess_object_style(doc.getValue(first_coord_from), doc.default_cell_style)
+        styles = []
+        col_from_idx = Coord.assertCoord(column_from + "1").letterIndex()
+        if column_to is None:
+            col_to_idx = coord.letterIndex() - 1
+        else:
+            col_to_idx = Coord.assertCoord(column_to + "1").letterIndex()
+
+        for number in range(len(list_of_totals)):
+            row_num_idx = coord.addRowCopy(number).numberIndex()
+            style_row = doc.default_cell_style
+            for c_idx in range(col_from_idx, col_to_idx + 1):
+                cell = doc.sheet.getCellByPosition(c_idx, row_num_idx)
+                cell_style = cell.CellStyle
+                if cell_style not in [doc.default_cell_style, "Default", "Normal"]:
+                    style_row = cell_style
+                    break
+                cell_val = doc.getValue(Coord.from_index(c_idx, row_num_idx))
+                if cell_val is not None:
+                    guessed = guess_object_style(cell_val, doc.default_cell_style)
+                    if guessed not in [doc.default_cell_style, "Default", "Normal"]:
+                        style_row = guessed
+                        break
+                    elif style_row in [doc.default_cell_style, "Default", "Normal"]:
+                        style_row = guessed
+            styles.append(style_row)
 
     doc.addColumnWithStyle(coord, formulas, colors=color, styles=styles)
 
@@ -146,7 +170,9 @@ def cross_totals_from_range(
         horizontal_total_title_style="BoldCenter", 
         label_column="Total",
         label_row="Total",
-        skip_columns=0
+        skip_columns=0,
+        styles_row_totals=None,
+        styles_column_totals=None
     ):
     """
     Generates vertical and horizontal totals directly from a data range.
@@ -167,6 +193,8 @@ def cross_totals_from_range(
         label_column (str, optional): Label for the column of totals. Defaults to "Total". Set to None to omit.
         label_row (str, optional): Label for the row of totals. Defaults to "Total". Set to None to omit.
         skip_columns (int, optional): Number of columns to skip from the left for row totals. Defaults to 0.
+        styles_row_totals (list or str, optional): Pre-determined styles per column to apply to total cells in row of totals. Defaults to None (if None, uses data column styles or guesses per column).
+        styles_column_totals (list or str, optional): Pre-determined styles per row to apply to total cells in column of totals. Defaults to None (if None, guessed per row from data cells).
 
     Returns:
         Range: The new range including the generated totals and labels.
@@ -174,9 +202,6 @@ def cross_totals_from_range(
     data_range = Range.assertRange(range_of_data)
     data_rows = data_range.numRows()
     data_columns = data_range.numColumns()
-    
-    # Guessed style for data (to match totals formatting)
-    style_data = guess_object_style(doc.getValue(data_range.c_start), doc.default_cell_style)
     
     final_start_coord = data_range.c_start.copy()
     final_end_coord = data_range.c_end.copy()
@@ -187,7 +212,11 @@ def cross_totals_from_range(
         coord_row_totals = data_range.c_start.addRowCopy(data_rows).addColumnCopy(skip_columns)
         num_totals = data_columns - skip_columns
         if num_totals > 0:
-            row_totals(doc, coord_row_totals, [key] * num_totals, styles=style_data, row_from=data_range.c_start.number, row_to=data_range.c_end.number)
+            if isinstance(styles_row_totals, list):
+                row_styles = styles_row_totals[skip_columns : skip_columns + num_totals]
+            else:
+                row_styles = styles_row_totals
+            row_totals(doc, coord_row_totals, [key] * num_totals, styles=row_styles, row_from=data_range.c_start.number, row_to=data_range.c_end.number)
             final_end_coord.addRow(1)
             
             # Label for row totals
@@ -210,7 +239,14 @@ def cross_totals_from_range(
         coord_col_totals = data_range.c_start.addColumnCopy(data_columns)
         # If we also added a row of totals, we include it in the column totals (cross total)
         total_items = data_rows + (1 if row_of_totals else 0)
-        column_totals(doc, coord_col_totals, [key] * total_items, styles=style_data, column_from=data_range.c_start.addColumnCopy(skip_columns).letter, column_to=data_range.c_end.letter)
+        column_totals(
+            doc, 
+            coord_col_totals, 
+            [key] * total_items, 
+            styles=styles_column_totals, 
+            column_from=data_range.c_start.addColumnCopy(skip_columns).letter, 
+            column_to=data_range.c_end.letter
+        )
         final_end_coord.addColumn(1)
 
         # Label for column totals
@@ -223,7 +259,7 @@ def cross_totals_from_range(
     return Range.from_coords(final_start_coord, final_end_coord)
 
 
-def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, column_of_totals=False, row_of_totals=False, key="#SUM", title=None, word_wrap=True):
+def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_row_header=ColorsNamed.Orange, color_column_header=ColorsNamed.Green,  color=ColorsNamed.White, styles=None, column_of_totals=False, row_of_totals=False, key="#SUM", title=None, word_wrap=True, styles_row_totals=None, styles_column_totals=None):
     """
     Write cells from a list of ordered dictionaries.
 
@@ -247,6 +283,8 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
                   Defaults to "#SUM".
         title (str, optional): Title for the block. Defaults to None.   
         word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to True.
+        styles_row_totals (list or str, optional): Styles for bottom row of totals. Defaults to None (if None, inherits column styles from `styles` or guesses from data).
+        styles_column_totals (list or str, optional): Styles for right column of totals. Defaults to None (if None, guessed per row from data cells).
 
     Returns:
         Range: The range of the data including headers and totals.
@@ -283,6 +321,10 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
             colors.append(color_column_header)
         else:
             colors.append(color)
+
+    # 5.5 Guess styles if not provided
+    if styles is None and len(lod_) > 0:
+        styles = styles_from_lod(lod_, keys, doc.default_cell_style)
    
     # 6. Write data rows
     lol_data=lod.lod2lol(lod_, keys)
@@ -293,13 +335,22 @@ def block_from_lod(doc, coord_start,  lod_, keys=None, columns_header=0,  color_
         # Default to skipping the first column if columns_header is not specified, 
         # as it's typically a label/ID column in a LOD.
         skip = columns_header if columns_header > 0 else 1 if len(keys) > 1 else 0
-        final_range = cross_totals_from_range(doc, range_data, key, column_of_totals, row_of_totals, skip_columns=skip)
+        final_range = cross_totals_from_range(
+            doc, 
+            range_data, 
+            key, 
+            column_of_totals, 
+            row_of_totals, 
+            skip_columns=skip, 
+            styles_row_totals=styles_row_totals if styles_row_totals is not None else styles, 
+            styles_column_totals=styles_column_totals if styles_column_totals is not None else (styles if isinstance(styles, str) else None)
+        )
         return Range.from_coords(coord_start, final_range.c_end)
     
     return Range.from_coords(coord_start, range_data.c_end if range_data else c)
 
 
-def block_from_lol(doc, coord_start, lor, headers=None, colors=ColorsNamed.White, styles=None, column_of_totals=False, row_of_totals=False, key="#SUM", title=None, word_wrap=True):
+def block_from_lol(doc, coord_start, lor, headers=None, colors=ColorsNamed.White, styles=None, column_of_totals=False, row_of_totals=False, key="#SUM", title=None, word_wrap=True, styles_row_totals=None, styles_column_totals=None):
     """
     Writes cells from a list of lists (lor) with optional headers and totals.
 
@@ -315,6 +366,8 @@ def block_from_lol(doc, coord_start, lor, headers=None, colors=ColorsNamed.White
         key (str, optional): Formula key or template. Defaults to "#SUM".
         title (str, optional): Main title for the block. Defaults to None.
         word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to True.
+        styles_row_totals (list or str, optional): Styles for bottom row of totals. Defaults to None (if None, inherits column styles from `styles` or guesses from data).
+        styles_column_totals (list or str, optional): Styles for right column of totals. Defaults to None (if None, guessed per row from data cells).
 
     Returns:
         Range: The range of the data including headers and totals.
@@ -344,13 +397,25 @@ def block_from_lol(doc, coord_start, lor, headers=None, colors=ColorsNamed.White
         c.addRow(1)
 
     # 4. Write data rows
+    if styles is None and lor:
+        styles = styles_from_lol(lor, doc.default_cell_style)
+
     range_data = doc.addListOfRowsWithStyle(c, lor, colors, styles, word_wrap=word_wrap)
 
     # 5. Generate totals
     if (column_of_totals or row_of_totals) and range_data:
         # Default to skipping the first column if it looks like a label column
         skip = 1 if (headers and len(headers) > 1) or (lor and len(lor[0]) > 1) else 0
-        final_range = cross_totals_from_range(doc, range_data, key, column_of_totals, row_of_totals, skip_columns=skip)
+        final_range = cross_totals_from_range(
+            doc, 
+            range_data, 
+            key, 
+            column_of_totals, 
+            row_of_totals, 
+            skip_columns=skip, 
+            styles_row_totals=styles_row_totals if styles_row_totals is not None else styles, 
+            styles_column_totals=styles_column_totals if styles_column_totals is not None else (styles if isinstance(styles, str) else None)
+        )
         return Range.from_coords(coord_start, final_range.c_end)
 
     return Range.from_coords(coord_start, range_data.c_end if range_data else c)
@@ -383,7 +448,7 @@ def sheet_stylenames(doc):
     
     sheet_from_lod(doc, "Internal style names", lod_, freezeandselect="A2", columns_width_mode=types.ColumnsWidthMode.FROM_LOD)
 
-def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_totals=False, freezeandselect=None, titulo=None, word_wrap=True, **kwargs_columnswidth):
+def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_totals=False, freezeandselect=None, titulo=None, word_wrap=True, styles=None, styles_row_totals=None, styles_column_totals=None, **kwargs_columnswidth):
     """
     Creates a sheet from a list of lists (lor) with headers and optional totals.
 
@@ -397,6 +462,9 @@ def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_
         freezeandselect (str, optional): Coordinate to freeze panes at. Defaults to None.
         titulo (str, optional): An optional title to merge across the top of the sheet. Defaults to None.
         word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to True.
+        styles (list or str, optional): Column styles for data cells. Defaults to None.
+        styles_row_totals (list or str, optional): Styles for bottom row of totals. Defaults to None (if None, inherits column styles from `styles` or guesses from data).
+        styles_column_totals (list or str, optional): Styles for right column of totals. Defaults to None (if None, guessed per row from data cells).
         **kwargs_columnswidth: Keyword arguments for setColumnsWidth.
     """
     columns_width_mode = kwargs_columnswidth.get("columns_width_mode", types.ColumnsWidthMode.FROM_LOL)
@@ -413,7 +481,10 @@ def sheet_from_lol(doc, sheetname, lor, headers, column_of_totals=False, row_of_
         column_of_totals=column_of_totals, 
         row_of_totals=row_of_totals, 
         title=titulo, 
-        word_wrap=word_wrap
+        word_wrap=word_wrap,
+        styles=styles,
+        styles_row_totals=styles_row_totals,
+        styles_column_totals=styles_column_totals
     )
 
     if value is None:
@@ -471,7 +542,7 @@ def sheet_split_with_big_lol(doc, sheet_name, lor, headers, headers_colors=Color
         doc.freezeAndSelect(Coord.assertCoord(coord_to_freeze))
     
 
-def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=False, freezeandselect=None, title=None, word_wrap=True, styles=None, **kwargs_columnswidth):
+def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=False, freezeandselect=None, title=None, word_wrap=True, styles=None, styles_row_totals=None, styles_column_totals=None, **kwargs_columnswidth):
     """
         kwargs son los parametros de la funcion setColumnsWidth
     """
@@ -484,7 +555,16 @@ def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=
 
     doc.createSheet(sheetname)
               
-    range_final=block_from_lod(doc, "A1", lod_, column_of_totals=column_of_totals, row_of_totals=row_of_totals, word_wrap=word_wrap, styles=styles, title=title )
+    range_final=block_from_lod(
+        doc, "A1", lod_, 
+        column_of_totals=column_of_totals, 
+        row_of_totals=row_of_totals, 
+        word_wrap=word_wrap, 
+        styles=styles, 
+        title=title,
+        styles_row_totals=styles_row_totals,
+        styles_column_totals=styles_column_totals
+    )
     
     if value is None:
         if columns_width_mode == types.ColumnsWidthMode.FROM_SHEET_CELLS:
@@ -500,7 +580,7 @@ def sheet_from_lod(doc, sheetname, lod_,  column_of_totals=False, row_of_totals=
 
 
 
-def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, column_of_totals=False, row_of_totals=False, freezeandselect=None, key="#SUM", word_wrap=True):
+def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, column_of_totals=False, row_of_totals=False, freezeandselect=None, key="#SUM", word_wrap=True, styles=None, styles_row_totals=None, styles_column_totals=None):
     """
     Writes data from a list of ordered dictionaries with custom header groups, and optional totals.
 
@@ -515,6 +595,9 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
         freezeandselect (str or Coord, optional): Coordinate to freeze and select. Defaults to None.
         key (str, optional): Formula key for totals (e.g., "#SUM"). Defaults to "#SUM".
         word_wrap (bool, optional): Enable word wrap and optimal height. Defaults to True.
+        styles (list or str, optional): Styles for data cells. Defaults to None.
+        styles_row_totals (list or str, optional): Styles for bottom row of totals. Defaults to None (if None, inherits column styles from `styles` or guesses from data).
+        styles_column_totals (list or str, optional): Styles for right column of totals. Defaults to None (if None, guessed per row from data cells).
 
     Returns:
         Range: The data range (excluding headers).
@@ -555,11 +638,23 @@ def block_from_lod_with_headers(doc, lod_, coord, subtitles=[], titulo=None, col
 
 
     #Imprime listas de diccionarios
-    range_=block_from_lod(doc, coord.addRowCopy(1),lod_,color_row_header=ColorsNamed.Yellow, word_wrap=word_wrap)
+    range_=block_from_lod(
+        doc, coord.addRowCopy(1), lod_, 
+        color_row_header=ColorsNamed.Yellow, 
+        word_wrap=word_wrap,
+        styles=styles,
+        column_of_totals=column_of_totals,
+        row_of_totals=row_of_totals,
+        key=key,
+        styles_row_totals=styles_row_totals,
+        styles_column_totals=styles_column_totals
+    )
 
-    if column_of_totals or row_of_totals:
-        cross_totals_from_range(doc, range_, key, column_of_totals, row_of_totals)
-        
+    if column_of_totals:
+        coord_total_header = coord.addColumnCopy(len(keys))
+        range_total_header = Range.from_coords(coord_total_header, coord_total_header.addRowCopy(1))
+        doc.addCellMergedWithStyle(range_total_header, _("Total"), ColorsNamed.GrayLight, "BoldCenter", word_wrap=word_wrap)
+
     if freezeandselect:
         doc.freezeAndSelect(freezeandselect, freezeandselect, freezeandselect)
 
