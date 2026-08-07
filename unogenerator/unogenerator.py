@@ -1,16 +1,7 @@
 
 from datetime import datetime
-from os import path, makedirs
-from statistics import quantiles
-import subprocess
-import uno
-import pyuno
+from pyuno import getComponentContext as pyuno_getComponentContext
 from uno import createUnoStruct, systemPathToFileUrl, Any, ByteSequence
-
-def getComponentContext():
-    with _uno_lock:
-        return pyuno.getComponentContext()
-
 from com.sun.star.beans import PropertyValue
 from com.sun.star.text import ControlCharacter
 from com.sun.star.table.CellVertJustify import CENTER, STANDARD
@@ -19,26 +10,25 @@ from com.sun.star.sheet.ConditionEntryType import COLORSCALE
 from com.sun.star.style.ParagraphAdjust import RIGHT,  LEFT
 from com.sun.star.style.BreakType import PAGE_BEFORE, PAGE_AFTER # Removed 'warning', 'debug'
 from gettext import translation
-import atexit
-import logging # Import logging module
+from logging import getLogger
 from importlib.resources import files
-import sys # Added for multiplatform OS detection
-import threading
 from glob import glob
-from os import path, makedirs, environ, remove
-import os # Removed 'system' as it's no longer used in this file
+from os import path, makedirs, environ, remove, listdir, readlink
 from pydicts import lol, casts
 from shutil import copyfile, rmtree # Added rmtree for directory removal
 from socket import socket, AF_INET, SOCK_STREAM
-from subprocess import Popen, PIPE, run # Added run for executing external commands
+from subprocess import Popen, PIPE, run, TimeoutExpired
 from tempfile import TemporaryDirectory
 from time import sleep, time
 from unogenerator import __version__, columnswidth, exceptions, types
-from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, datetime2localc1989, date2localc1989,  time2localc1989,  is_formula, uno2datetime, string_float2object
+from unogenerator.commons import Coord, ColorsNamed,  Range as R, datetime2uno, guess_object_style, styles_from_lod, styles_from_lol, datetime2localc1989, date2localc1989,  time2localc1989,  is_formula, uno2datetime, string_float2object
 from pydicts.currency import Currency
 from pydicts.percentage import Percentage
+from threading import RLock
+from atexit import register, unregister
+from sys import platform
 
-logger = logging.getLogger(__name__) # Get logger for this module
+logger = getLogger(__name__) # Get logger for this module
 
 # --- Thread-Safety Mechanism for UNO ---
 # PyUNO is not thread-safe when multiple threads share the same connection (socket)
@@ -46,7 +36,7 @@ logger = logging.getLogger(__name__) # Get logger for this module
 # To prevent random AttributeErrors and SystemErrors, we synchronize access per server.
 
 # Global lock for the PyUNO bridge initialization itself, which is always global to the process.
-_uno_bridge_lock = threading.RLock()
+_uno_bridge_lock = RLock()
 _uno_lock = _uno_bridge_lock
 
 def uno_safe(cls):
@@ -79,12 +69,12 @@ def uno_safe(cls):
 
 def getComponentContext():
     with _uno_bridge_lock:
-        return pyuno.getComponentContext()
+        return pyuno_getComponentContext()
 
 def createUnoService(serviceName, context=None):
   with _uno_bridge_lock:
       if context is None:
-          context = getComponentContext()
+          context = pyuno_getComponentContext()
       return context.ServiceManager.createInstanceWithContext(serviceName, context)
   
 try:
@@ -111,7 +101,7 @@ def _find_pipe_for_process(parent_pid, port=None, timeout=2.0):
                 if pipes:
                     return pipes[0]
 
-        if not sys.platform.startswith('linux'):
+        if not platform.startswith('linux'):
             pipes = glob('/tmp/OSL_PIPE_*')
             if pipes:
                 return pipes[0]
@@ -123,7 +113,7 @@ def _find_pipe_for_process(parent_pid, port=None, timeout=2.0):
         try:
             # 1. Build children_map from /proc and traverse descendants via BFS stack
             children_map = {}
-            for pid_str in os.listdir('/proc'):
+            for pid_str in listdir('/proc'):
                 if pid_str.isdigit():
                     try:
                         with open(f'/proc/{pid_str}/stat', 'r') as f:
@@ -146,11 +136,11 @@ def _find_pipe_for_process(parent_pid, port=None, timeout=2.0):
             socket_inodes = set()
             for pid in descendants:
                 fd_dir = f'/proc/{pid}/fd'
-                if os.path.exists(fd_dir):
+                if path.exists(fd_dir):
                     try:
-                        for fd in os.listdir(fd_dir):
+                        for fd in listdir(fd_dir):
                             try:
-                                target = os.readlink(os.path.join(fd_dir, fd))
+                                target = readlink(path.join(fd_dir, fd))
                                 if target.startswith('socket:['):
                                     socket_inodes.add(target[8:-1])
                             except Exception:
@@ -159,7 +149,7 @@ def _find_pipe_for_process(parent_pid, port=None, timeout=2.0):
                         pass
 
             # 3. Match socket inodes in /proc/net/unix to OSL_PIPE file path
-            if socket_inodes and os.path.exists('/proc/net/unix'):
+            if socket_inodes and path.exists('/proc/net/unix'):
                 with open('/proc/net/unix', 'r') as f:
                     for line in f:
                         parts = line.strip().split()
@@ -189,7 +179,7 @@ class LibreofficeServer:
         self.stop()
 
     def __init__(self, port=None):
-        self._lock = threading.RLock() # Each server instance has its own lock
+        self._lock = RLock() # Each server instance has its own lock
         self.process = None
         self.port = port
         self.started_by_me = False # Flag to indicate if this instance started the LO process
@@ -217,7 +207,7 @@ class LibreofficeServer:
             ]
             self.process = Popen(command_args, stdout=PIPE, stderr=PIPE, env=env, shell=False)
             self.started_by_me = True
-            atexit.register(self.stop)
+            register(self.stop)
             logger.debug(f"LibreOffice server started on port {self.port}")
         else: # If a port is provided, assume an external server is running, and this instance is just a connector
             logger.debug(f"LibreOffice server connecting to existing instance on port {self.port}")
@@ -225,7 +215,7 @@ class LibreofficeServer:
     def stop(self):
         if self.started_by_me:
             try:
-                atexit.unregister(self.stop)
+                unregister(self.stop)
             except Exception:
                 pass
 
@@ -243,7 +233,7 @@ class LibreofficeServer:
                 self.process.terminate() # Send SIGTERM (graceful termination request)
                 try:
                     self.process.wait(timeout=3) # Wait up to 3 seconds for graceful termination
-                except subprocess.TimeoutExpired:
+                except TimeoutExpired:
                     logger.debug(f"LibreOffice process (PID: {self.process.pid}) on port {self.port} did not terminate gracefully within 5 seconds. Attempting forceful kill.")
                     self.process.kill() # Send SIGKILL (forceful termination)
             self.process = None # Clear reference
@@ -251,15 +241,15 @@ class LibreofficeServer:
         # Secondary fallback: use system-specific kill command for any lingering processes
         try:
             # Recommendation: Use psutil here in the future to target only children of self.process
-            if sys.platform.startswith('linux') or sys.platform == 'darwin': # Linux and macOS
+            if platform.startswith('linux') or platform == 'darwin': # Linux and macOS
                 # We use a more specific pattern to avoid killing other users' LO instances
                 pattern = f'port={self.port};urp;StarOffice.ServiceManager'
                 run(['pkill', '-9', '-f', pattern], check=False, timeout=2)
-            elif sys.platform == 'win32': # Windows
+            elif platform == 'win32': # Windows
                 run(['taskkill', '/F', '/IM', 'soffice.bin'], check=False, timeout=2)
             else:
-                logger.debug(f"Process termination for LibreOffice on port {self.port} is not explicitly handled on this operating system ({sys.platform}).")
-        except subprocess.TimeoutExpired:
+                logger.debug(f"Process termination for LibreOffice on port {self.port} is not explicitly handled on this operating system ({platform}).")
+        except TimeoutExpired:
             logger.warning(f"System kill command timed out while trying to kill LibreOffice process on port {self.port}. Process might still be running.")
         except Exception as e: # Catch a broader exception for robustness
             logger.warning(f"Error during system kill command for LibreOffice on port {self.port}: {e}")
@@ -1340,16 +1330,9 @@ class ODS(ODF):
         else: #one ColorsNamed
             colors=[colors]*columns
         
-        # Parse styles and iterate through rows to find a non-None value to guess the style for each column
+        # Parse styles
         if styles is None and rows > 0:
-            styles = []
-            for c in range(columns):
-                style = self.default_cell_style
-                for r in range(rows):
-                    if list_rows[r][c] is not None:
-                        style = guess_object_style(list_rows[r][c], self.default_cell_style)
-                        break
-                styles.append(style)
+            styles = styles_from_lol(list_rows, self.default_cell_style)
         elif styles.__class__.__name__ == "list":
             styles=styles
         else:
@@ -1458,15 +1441,7 @@ class ODS(ODF):
         
         # Parse styles
         if styles is None and rows > 0:
-            styles = []
-            # Iterate through columns to find a non-None value to guess the style for each row
-            for r in range(rows):
-                style = self.default_cell_style
-                for c in range(columns):
-                    if list_columns[c][r] is not None:
-                        style = guess_object_style(list_columns[c][r], self.default_cell_style)
-                        break
-                styles.append(style)
+            styles = styles_from_lol(list_columns, self.default_cell_style)
         elif styles.__class__.__name__ == "list":
             styles=styles
         else:

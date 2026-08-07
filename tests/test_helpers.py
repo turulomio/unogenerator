@@ -166,3 +166,89 @@ if can_import_uno():
             )
             assert doc.sheet.getCellRangeByName("B2").getString() == "[Image Error]"
 
+    def test_styles_from_lod_and_lol():
+        from unogenerator.commons import styles_from_lod, styles_from_lol
+        lod_data = [
+            {"id": 1, "price": None, "currency": None},
+            {"id": None, "price": 19.99, "currency": Currency(10, "EUR")},
+        ]
+        styles = styles_from_lod(lod_data, keys=["id", "price", "currency"])
+        assert styles == ["Integer", "Float2", "EUR"]
+
+        lol_data = [
+            [None, 10, Currency(5, "USD")],
+            [1, None, None],
+        ]
+        styles_lol = styles_from_lol(lol_data)
+        assert styles_lol == ["Integer", "Integer", "USD"]
+
+    def test_block_from_lod_totals_styles(libreoffice_server):
+        with ODS_Standard(server=libreoffice_server) as doc:
+            lod_data = [
+                {"name": "Item A", "qty": 10, "amount": Currency(100.5, "EUR")},
+                {"name": "Item B", "qty": 20, "amount": Currency(200.25, "EUR")},
+            ]
+            helpers.block_from_lod(doc, "A1", lod_data, row_of_totals=True)
+
+            # Row 1: Headers ("name", "qty", "amount")
+            # Row 2 & 3: Data rows
+            # Row 4 (index 3): Totals row. B4 (col 1) = Integer, C4 (col 2) = EUR
+            assert doc.sheet.getCellByPosition(1, 3).CellStyle == "Integer"
+            assert doc.sheet.getCellByPosition(2, 3).CellStyle == "EUR"
+
+    def test_cross_totals_from_range_styles_parameters(libreoffice_server):
+        with ODS_Standard(server=libreoffice_server) as doc:
+            lod_data = [
+                {"name": "Singer 1", "sales": Currency(50, "EUR")},
+                {"name": "Singer 2", "sales": Currency(75, "EUR")},
+            ]
+            helpers.block_from_lod(doc, "A1", lod_data, column_of_totals=True, row_of_totals=True)
+
+            # Row 1: Headers (A1: name, B1: sales, C1: Total)
+            # Row 2 & 3: Data
+            # Column C (index 2): Column of totals
+            # Row 4 (index 3): Row of totals
+            # Check column of totals gets EUR style automatically guessed per row
+            assert doc.sheet.getCellByPosition(2, 1).CellStyle == "EUR"
+            assert doc.sheet.getCellByPosition(2, 2).CellStyle == "EUR"
+
+    def test_custom_styles_column_totals(libreoffice_server):
+        with ODS_Standard(server=libreoffice_server) as doc:
+            lod_data = [
+                {"name": "Singer 1", "sales": 50},
+                {"name": "Singer 2", "sales": 75},
+            ]
+            helpers.sheet_from_lod(
+                doc, "SheetTest", lod_data, 
+                column_of_totals=True, row_of_totals=True, 
+                styles_column_totals="Float2", styles_row_totals="Integer"
+            )
+
+            # Check column of totals got custom "Float2"
+            assert doc.sheet.getCellByPosition(2, 1).CellStyle == "Float2"
+            assert doc.sheet.getCellByPosition(2, 2).CellStyle == "Float2"
+            # Check row of totals got custom "Integer"
+            assert doc.sheet.getCellByPosition(1, 3).CellStyle == "Integer"
+
+    def test_block_from_lod_with_headers_merged_total_header(libreoffice_server):
+        with ODS_Standard(server=libreoffice_server) as doc:
+            lod_singers = [
+                {"Singer": "Elvis", "Songs": 10000, "Albums": 100, "Best song": "Always on my mind"},
+                {"Singer": "Roy Orbison", "Songs": 100, "Albums": 20, "Best song": "Crying"},
+            ]
+            helpers.block_from_lod_with_headers(
+                doc, lod_singers, "A1", 
+                [["Singer header", "Singer"], ["Song header", "Best song"]],
+                titulo="Title", column_of_totals=True
+            )
+
+            # Row 1: Merged title (A1:E1)
+            # Row 2 (index 1): Subtitles. Col E (index 4) should be merged with Row 3 (index 2)
+            cell_e2 = doc.sheet.getCellByPosition(4, 1)
+            assert cell_e2.getString() == "Total"
+            assert cell_e2.IsMerged
+
+
+
+
+

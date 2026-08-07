@@ -81,6 +81,8 @@ Generates optimized vertical and horizontal totals for a data range.
 - `label_column` (str, default="Total"): Text for the vertical total label.
 - `label_row` (str, default="Total"): Text for the horizontal total label.
 - `skip_columns` (int, default=0): Number of columns to skip for bottom row totals.
+- `styles_row_totals` (list or str, default=None): Styles for horizontal bottom totals. If None, inherits data column styles (`styles`) or guesses per column.
+- `styles_column_totals` (list or str, default=None): Styles for vertical right totals. If None, guessed per row from data cells.
 
 ---
 
